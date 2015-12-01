@@ -1,0 +1,50 @@
+export var UiConfig;
+
+UiConfig = function() {
+    var t = this;
+
+    $.extend(t, {
+        west_width: 424,
+        west_fieldset_width: 420,
+        west_width_padding: 2,
+        west_fill: 2,
+        west_fill_accordion_indicator: 81,
+        west_fill_accordion_dataelement: 81,
+        west_fill_accordion_dataset: 56,
+        west_fill_accordion_eventdataitem: 81,
+        west_fill_accordion_programindicator: 81,
+        west_fill_accordion_period: 310,
+        west_fill_accordion_organisationunit: 58,
+        west_fill_accordion_group: 31,
+        west_maxheight_accordion_indicator: 400,
+        west_maxheight_accordion_dataelement: 400,
+        west_maxheight_accordion_dataset: 400,
+        west_maxheight_accordion_period: 513,
+        west_maxheight_accordion_organisationunit: 900,
+        west_maxheight_accordion_group: 340,
+        west_maxheight_accordion_options: 449,
+        west_scrollbarheight_accordion_indicator: 300,
+        west_scrollbarheight_accordion_dataelement: 300,
+        west_scrollbarheight_accordion_dataset: 300,
+        west_scrollbarheight_accordion_period: 450,
+        west_scrollbarheight_accordion_organisationunit: 450,
+        west_scrollbarheight_accordion_group: 300,
+        east_tbar_height: 31,
+        east_gridcolumn_height: 30,
+        form_label_width: 55,
+        window_favorite_ypos: 100,
+        window_confirm_width: 250,
+        window_share_width: 500,
+        grid_favorite_width: 420,
+        grid_row_height: 27,
+        treepanel_minheight: 135,
+        treepanel_maxheight: 400,
+        treepanel_fill_default: 310,
+        treepanel_toolbar_menu_width_group: 140,
+        treepanel_toolbar_menu_width_level: 120,
+        multiselect_minheight: 100,
+        multiselect_maxheight: 250,
+        multiselect_fill_default: 345,
+        multiselect_fill_reportingrates: 315
+    });
+};
