@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf lib/ && ./node_modules/babel/bin/babel.js src --out-dir lib --source-maps"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
+    "babel": "^5.8.34",
     "jquery": "2.1.4"
   }
 }
