@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
-    "babel": "5.8.34",
     "jquery": "2.1.4"
+  },
+  "devDependencies": {
+    "babel": "5.8.34"
   }
 }
