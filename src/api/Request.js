@@ -1,3 +1,5 @@
+import {isString, isObject, isFunction, arrayFrom, arrayContains} from 'd2-utilizr';
+
 export var Request;
 
 Request = function(config) {

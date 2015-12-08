@@ -1,3 +1,5 @@
+import {arrayFrom} from 'd2-utilizr';
+
 export var ResponseRow;
 
 ResponseRow = function(config) {

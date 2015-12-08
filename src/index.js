@@ -3,7 +3,6 @@ import {Dimension} from './api/Dimension.js';
 import {Axis} from './api/Axis.js';
 import {Layout} from './api/Layout.js';
 import {Request} from './api/Request.js';
-import {RequestManager} from './api/RequestManager.js';
 import {ResponseHeader} from './api/ResponseHeader.js';
 import {ResponseRow} from './api/ResponseRow.js';
 import {ResponseRowIdCombination} from './api/ResponseRowIdCombination.js';
@@ -16,6 +15,7 @@ import {AppManager} from './manager/AppManager.js';
 import {DateManager} from './manager/DateManager.js';
 import {CalendarManager} from './manager/CalendarManager.js';
 import {I18nManager} from './manager/I18nManager.js';
+import {RequestManager} from './manager/RequestManager.js';
 
 import {DimensionConfig} from './config/DimensionConfig.js';
 import {PeriodConfig} from './config/PeriodConfig.js';
@@ -28,7 +28,6 @@ export const api = {
     Axis: Axis,
     Layout: Layout,
     Request: Request,
-    RequestManager: RequestManager,
     ResponseHeader: ResponseHeader,
     ResponseRow: ResponseRow,
     ResponseRowIdCombination: ResponseRowIdCombination,
@@ -45,6 +44,7 @@ export const manager = {
     DateManager: DateManager,
     CalendarManager: CalendarManager,
     I18nManager: I18nManager,
+    RequestManager: RequestManager,
 };
 
 export const config = {

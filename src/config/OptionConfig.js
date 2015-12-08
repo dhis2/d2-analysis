@@ -1,3 +1,5 @@
+import {arraySort} from 'd2-utilizr';
+
 export var OptionConfig;
 
 OptionConfig = function() {

@@ -1,3 +1,5 @@
+import {isObject} from 'd2-utilizr';
+
 export var ResponseHeader;
 
 ResponseHeader = function(config) {

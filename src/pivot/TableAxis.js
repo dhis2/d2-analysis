@@ -1,3 +1,5 @@
+import {arrayUnique, arraySort} from 'd2-utilizr';
+
 export var TableAxis;
 
 TableAxis = function(layout, response, type) {

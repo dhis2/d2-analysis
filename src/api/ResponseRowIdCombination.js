@@ -1,3 +1,5 @@
+import {isArray} from 'd2-utilizr';
+
 export var ResponseRowIdCombination;
 
 ResponseRowIdCombination = function(config) {

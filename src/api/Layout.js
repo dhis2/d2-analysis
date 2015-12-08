@@ -1,3 +1,5 @@
+import {isString, isNumber, isBoolean, isObject, isDefined, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
+
 export var Layout;
 
 Layout = function(config, applyConfig, forceApplyConfig) {

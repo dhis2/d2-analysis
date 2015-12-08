@@ -1,3 +1,5 @@
+import {arrayFrom} from 'd2-utilizr';
+
 export var Axis;
 
 Axis = function(config) {

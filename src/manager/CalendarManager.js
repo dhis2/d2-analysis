@@ -1,4 +1,4 @@
-import {isObject} from 'd2-utilizr';
+import {isObject, arrayContains} from 'd2-utilizr';
 
 export var CalendarManager;
 

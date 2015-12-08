@@ -1,3 +1,5 @@
+import {isString, isNumber, isArray, isObject, arrayContains, arrayClean} from 'd2-utilizr';
+
 export var Table;
 
 Table = function(layout, response, colAxis, rowAxis) {

@@ -1,3 +1,5 @@
+import {isString, arrayFrom, arrayClean, arraySort} from 'd2-utilizr';
+
 export var AppManager;
 
 AppManager = function() {

@@ -1,3 +1,5 @@
+import {isObject, arrayFrom, arrayContains, arrayPluck, arrayUnique} from 'd2-utilizr';
+
 export var Dimension;
 
 Dimension = function(config) {
