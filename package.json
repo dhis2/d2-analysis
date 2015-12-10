@@ -1,6 +1,6 @@
 {
   "name": "d2-analysis",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,9 +19,9 @@
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
     "jquery": "2.1.4",
-    "d2-utilizr": "0.0.3"
+    "d2-utilizr": "0.0.4"
   },
   "devDependencies": {
-    "babel": "5.8.34"
+    "babel": "6.3.13"
   }
 }
