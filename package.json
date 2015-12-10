@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf lib/ && ./node_modules/babel/bin/babel.js src --out-dir lib --source-maps"
+    "build": "rm -rf lib/ && ./node_modules/babel-cli/bin/babel.js src --out-dir lib --source-maps"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,6 @@
     "d2-utilizr": "0.0.4"
   },
   "devDependencies": {
-    "babel": "6.3.13"
+    "babel-cli": "^6.3.15"
   }
 }
