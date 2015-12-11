@@ -1,4 +1,5 @@
 import {arrayFrom} from 'd2-utilizr';
+import {Dimension} from 'd2-analysis';
 
 export var Axis;
 
@@ -9,7 +10,7 @@ Axis = function(config) {
 
     // constructor
     config.forEach(function(dimension) {
-        t.push((new Api.Dimension(dimension)).val());
+        t.push((new Dimension(dimension)).val());
     });
 
     // prototype

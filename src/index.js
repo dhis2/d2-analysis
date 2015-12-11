@@ -16,11 +16,37 @@ import {DateManager} from './manager/DateManager.js';
 import {CalendarManager} from './manager/CalendarManager.js';
 import {I18nManager} from './manager/I18nManager.js';
 import {RequestManager} from './manager/RequestManager.js';
+import {SessionStorageManager} from './manager/SessionStorageManager.js';
 
 import {DimensionConfig} from './config/DimensionConfig.js';
 import {PeriodConfig} from './config/PeriodConfig.js';
 import {OptionConfig} from './config/OptionConfig.js';
 import {UiConfig} from './config/UiConfig.js';
+
+export const Record;
+export const Dimension;
+export const Axis;
+export const Layout;
+export const Request;
+export const ResponseHeader;
+export const ResponseRow;
+export const ResponseRowIdCombination;
+export const Response;
+
+export const TableAxis;
+export const Table;
+
+export const AppManager;
+export const DateManager;
+export const CalendarManager;
+export const I18nManager;
+export const RequestManager;
+export const SessionStorageManager;
+
+export const DimensionConfig;
+export const PeriodConfig;
+export const OptionConfig;
+export const UiConfig;
 
 export const api = {
     Record: Record,

@@ -1,4 +1,5 @@
 import {isObject, arrayFrom, arrayContains, arrayPluck, arrayUnique} from 'd2-utilizr';
+import {Record} from 'd2-analysis';
 
 export var Dimension;
 
@@ -13,7 +14,7 @@ Dimension = function(config) {
     t.dimension = config.dimension;
 
     t.items = config.items.map(function(record) {
-        return (new Api.Record(record)).val();
+        return (new Record(record)).val();
     });
 };
 

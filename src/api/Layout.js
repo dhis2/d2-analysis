@@ -1,4 +1,5 @@
 import {isString, isNumber, isBoolean, isObject, isDefined, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
+import {Axis, Record, Request} from 'd2-analysis';
 
 export var Layout;
 
@@ -9,9 +10,9 @@ Layout = function(config, applyConfig, forceApplyConfig) {
     $.extend(config, applyConfig);
 
     // constructor
-    t.columns = (Api.Axis(config.columns)).val();
-    t.rows = (Api.Axis(config.rows)).val();
-    t.filters = (Api.Axis(config.filters)).val();
+    t.columns = (Axis(config.columns)).val();
+    t.rows = (Axis(config.rows)).val();
+    t.filters = (Axis(config.filters)).val();
 
     t.showColTotals = isBoolean(config.colTotals) ? config.colTotals : (isBoolean(config.showColTotals) ? config.showColTotals : true);
     t.showRowTotals = isBoolean(config.rowTotals) ? config.rowTotals : (isBoolean(config.showRowTotals) ? config.showRowTotals : true);
@@ -28,7 +29,7 @@ Layout = function(config, applyConfig, forceApplyConfig) {
     t.fontSize = isString(config.fontSize) && !isEmpty(config.fontSize) ? config.fontSize : OptionConf.getFontSize('normal').id;
     t.digitGroupSeparator = isString(config.digitGroupSeparator) && !isEmpty(config.digitGroupSeparator) ? config.digitGroupSeparator : OptionConf.getDigitGroupSeparator('space').id;
 
-    t.legendSet = (new Api.Record(config.legendSet)).val(true);
+    t.legendSet = (new Record(config.legendSet)).val(true);
 
     t.parentGraphMap = isObject(config.parentGraphMap) ? config.parentGraphMap : null;
 
@@ -165,7 +166,7 @@ Layout.prototype.req = function(baseUrl, isSorted) {
     var aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
         //displayProperty = this.displayProperty || init.userAccount.settings.keyAnalysisDisplayProperty || 'name',
         displayProperty = this.displayProperty || 'name',
-        request = new Api.Request(),
+        request = new Request(),
         i;
 
     // dimensions

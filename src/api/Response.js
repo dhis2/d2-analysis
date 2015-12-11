@@ -1,4 +1,5 @@
 import {isObject, arrayFrom, arrayClean} from 'd2-utilizr';
+import {Record, ResponseHeader, ResponseRow, ResponseRowIdCombination} from 'd2-analysis';
 
 export var Response;
 
@@ -9,13 +10,13 @@ Response = function(config) {
 
     // constructor
     t.headers = (config.headers || []).map(function(header) {
-        return new Api.ResponseHeader(header);
+        return new ResponseHeader(header);
     });
 
     t.metaData = config.metaData;
 
     t.rows = (config.rows || []).map(function(row) {
-        return Api.ResponseRow(row);
+        return ResponseRow(row);
     });
 
     // transient
@@ -93,7 +94,7 @@ Response.prototype.getRecordsByDimensionName = function(dimensionName) {
         records = [];
 
     ids.forEach(function(id) {
-        records.push((new Api.Record({
+        records.push((new Record({
             id: id,
             name: metaData.names[id]
         })).val());
@@ -125,7 +126,7 @@ Response.prototype.getIdValueMap = function(layout) {
         idCombination;
 
     this.rows.forEach(function(responseRow) {
-        idCombination = new Api.ResponseRowIdCombination();
+        idCombination = new ResponseRowIdCombination();
 
         headerIndexOrder.forEach(function(index) {
             idCombination.add(responseRow.getAt(index));
@@ -142,7 +143,7 @@ Response.prototype.getIdValueMap = function(layout) {
 // dep 4
 
 Response.prototype.getValue = function(param, layout) {
-    var id = param instanceof Api.ResponseRowIdCombination ? param.get() : param;
+    var id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
     return this.getIdValueMap(layout)[param];
 };

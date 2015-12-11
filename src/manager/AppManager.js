@@ -146,6 +146,16 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
 };
 
+AppManager.prototype.setAuth = function(env) {
+    if (!(env === 'production' && !(this.manifest && isString(this.manifest.activities.dhis.auth)))) {
+        $.ajaxSetup({
+            headers: {
+                Authorization: 'Basic ' + btoa(this.manifest.activities.dhis.auth)
+            }
+        });
+    }
+};
+
 // dep 1
 
 AppManager.prototype.isUiLocaleDefault = function() {
