@@ -23,30 +23,32 @@ import {PeriodConfig} from './config/PeriodConfig.js';
 import {OptionConfig} from './config/OptionConfig.js';
 import {UiConfig} from './config/UiConfig.js';
 
-export const Record;
-export const Dimension;
-export const Axis;
-export const Layout;
-export const Request;
-export const ResponseHeader;
-export const ResponseRow;
-export const ResponseRowIdCombination;
-export const Response;
+export {
+    Record,
+    Dimension,    
+    Axis,
+    Layout,
+    Request,
+    ResponseHeader,
+    ResponseRow,
+    ResponseRowIdCombination,
+    Response,
 
-export const TableAxis;
-export const Table;
+    TableAxis,
+    Table,
 
-export const AppManager;
-export const DateManager;
-export const CalendarManager;
-export const I18nManager;
-export const RequestManager;
-export const SessionStorageManager;
+    AppManager,
+    DateManager,
+    CalendarManager,
+    I18nManager,
+    RequestManager,
+    SessionStorageManager,
 
-export const DimensionConfig;
-export const PeriodConfig;
-export const OptionConfig;
-export const UiConfig;
+    DimensionConfig,
+    PeriodConfig,
+    OptionConfig,
+    UiConfig
+};
 
 export const api = {
     Record: Record,
