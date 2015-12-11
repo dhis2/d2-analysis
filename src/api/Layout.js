@@ -1,5 +1,7 @@
 import {isString, isNumber, isBoolean, isObject, isDefined, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
-import {Axis, Record, Request} from 'd2-analysis';
+import {Axis} from './Axis.js';
+import {Record} from './Record.js';
+import {Request} from './Request.js';
 
 export var Layout;
 

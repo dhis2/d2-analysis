@@ -1,5 +1,5 @@
 import {arrayFrom} from 'd2-utilizr';
-import {Dimension} from 'd2-analysis';
+import {Dimension} from './Dimension.js';
 
 export var Axis;
 

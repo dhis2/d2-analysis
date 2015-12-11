@@ -1,5 +1,8 @@
 import {isObject, arrayFrom, arrayClean} from 'd2-utilizr';
-import {Record, ResponseHeader, ResponseRow, ResponseRowIdCombination} from 'd2-analysis';
+import {Record} from './Record.js';
+import {ResponseHeader} from './ResponseHeader.js';
+import {ResponseRow} from './ResponseRow.js';
+import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
 
 export var Response;
 

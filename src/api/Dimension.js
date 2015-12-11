@@ -1,5 +1,5 @@
 import {isObject, arrayFrom, arrayContains, arrayPluck, arrayUnique} from 'd2-utilizr';
-import {Record} from 'd2-analysis';
+import {Record} from './Record.js';
 
 export var Dimension;
 
