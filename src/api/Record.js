@@ -1,4 +1,4 @@
-import {isObject} from 'd2-utilizr';
+import {isString, isObject} from 'd2-utilizr';
 
 export var Record;
 

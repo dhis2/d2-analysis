@@ -1,8 +1,10 @@
 export var DateManager;
 
-DateManager = function() {};
+DateManager = function() {
+    this.klass = DateManager;
+};
 
-DateManager.prototype.getYYYYMMDD = function(param) {
+DateManager.getYYYYMMDD = function(param) {
     if (!(Object.prototype.toString.call(param) === '[object Date]' && param.toString() !== 'Invalid date')) {
         return null;
     }

@@ -1,7 +1,8 @@
-import {isString, isNumber, isBoolean, isObject, isDefined, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
+import {isString, isNumber, isBoolean, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
 import {Axis} from './Axis.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
+import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
 
