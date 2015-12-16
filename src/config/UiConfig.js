@@ -1,3 +1,5 @@
+import {arrayTo} from 'd2-utilizr';
+
 export var UiConfig;
 
 UiConfig = function() {
@@ -46,5 +48,13 @@ UiConfig = function() {
         multiselect_maxheight: 250,
         multiselect_fill_default: 345,
         multiselect_fill_reportingrates: 315
+    });
+};
+
+UiConfig.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.uiConfig = t;
     });
 };

@@ -1,0 +1,25 @@
+// accordion body
+function() {
+    var panels = [
+        data,
+        period,
+        organisationUnit
+    ],
+    dims = Ext.clone(ns.core.init.dimensions),
+    dimPanels = getDimensionPanels(dims, 'ns-panel-title-dimension');
+
+    // idPanelMap
+    for (var i = 0, dimPanel; i < dimPanels.length; i++) {
+        dimPanel = dimPanels[i];
+
+        dimensionPanelMap[dimPanel.dimension] = dimPanel;
+    }
+
+    // panels
+    panels = panels.concat(dimPanels);
+
+    last = panels[panels.length - 1];
+    last.cls = 'ns-accordion-last';
+
+    return panels;
+}
