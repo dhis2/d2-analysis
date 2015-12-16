@@ -8,6 +8,7 @@ export var Response;
 
 Response = function(config) {
     var t = this;
+    t.klass = Response;
 
     config = isObject(config) ? config : {};
 
@@ -55,7 +56,7 @@ Response.prototype.getNameById = function(id) {
 };
 
 Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
-    var metaData = response.metaData,
+    var metaData = this.metaData,
         name = '';
 
     if (isHierarchy) {
@@ -124,7 +125,7 @@ Response.prototype.getIdValueMap = function(layout) {
     }
 
     var t = this,
-        headerIndexOrder = response.getHeaderIndexOrder(layout.getDimensionNames()),
+        headerIndexOrder = t.getHeaderIndexOrder(layout.getDimensionNames()),
         idValueMap = {},
         idCombination;
 

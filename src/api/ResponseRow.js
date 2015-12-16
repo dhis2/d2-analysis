@@ -4,6 +4,7 @@ export var ResponseRow;
 
 ResponseRow = function(config) {
     var t = arrayFrom(config);
+    t.klass = ResponseRow;
 
     t.getAt = function(index) {
         return this[index];

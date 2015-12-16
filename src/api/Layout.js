@@ -1,4 +1,4 @@
-import {isString, isNumber, isBoolean, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
+import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
 import {Axis} from './Axis.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
@@ -8,6 +8,7 @@ export var Layout;
 
 Layout = function(config, applyConfig, forceApplyConfig) {
     var t = this;
+    t.klass = Layout;
 
     config = isObject(config) ? config : {};
     $.extend(config, applyConfig);
@@ -90,7 +91,7 @@ Layout = function(config, applyConfig, forceApplyConfig) {
 
 Layout.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this);
+        console.log(text, this, config, applyConfig, forceApplyConfig);
     }
 };
 
@@ -238,13 +239,16 @@ Layout.prototype.req = function(baseUrl, isSorted) {
 // dep 3
 
 Layout.prototype.data = function(request) {
+    var path = this.klass.appManager ? this.klass.appManager.getPath() : '',
+        analyticsPath = '/api/analytics.json';
+    
     if (request) {
-        return $.getJSON('/api/analytics.json' + request.url());
+        return $.getJSON(path + analyticsPath + request.url());
     }
 
     var baseUrl = '/api/analytics.json',
-        metaDataRequest = this.req(baseUrl, true),
-        dataRequest = this.req(baseUrl);
+        metaDataRequest = this.req(path + analyticsPath, true),
+        dataRequest = this.req(path + analyticsPath);
 
     return {
         metaData: $.getJSON(metaDataRequest.url('skipData=true')),

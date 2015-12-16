@@ -6,6 +6,8 @@ export var Dimension;
 Dimension = function(config) {
     var t = this,
         items = [];
+        
+    t.klass = Dimension;
 
     config = isObject(config) ? config : {};
     config.items = arrayFrom(config.items);
@@ -20,7 +22,7 @@ Dimension = function(config) {
 
 Dimension.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this);
+        console.log(text, this, config);
     }
 };
 

@@ -1,3 +1,5 @@
+import {arrayTo} from 'd2-utilizr';
+
 export var I18nManager;
 
 I18nManager = function(config) {
@@ -18,4 +20,12 @@ I18nManager = function(config) {
     t.get = function(key) {
         return key ? translations[key] : translations;
     };        
+};
+
+I18nManager.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.i18nManager = t;
+    });
 };

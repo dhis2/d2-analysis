@@ -1,9 +1,10 @@
-import {isArray} from 'd2-utilizr';
+import {isString, isArray} from 'd2-utilizr';
 
 export var ResponseRowIdCombination;
 
 ResponseRowIdCombination = function(config) {
     var t = this;
+    t.klass = ResponseRowIdCombination;
 
     config = isArray(config) ? config : (isString(config) ? config.split('-') : null);
 

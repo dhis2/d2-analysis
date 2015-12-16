@@ -4,6 +4,7 @@ export var Request;
 
 Request = function(config) {
     var t = this;
+    t.klass = Request;
 
     config = isObject(config) ? config : {};
 
@@ -31,7 +32,7 @@ Request = function(config) {
 
 Request.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this);
+        console.log(text, this, config);
     }
 };
 

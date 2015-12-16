@@ -1,4 +1,4 @@
-import {isString, arrayFrom, arrayClean, arraySort} from 'd2-utilizr';
+import {isString, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
 
 export var AppManager;
 
@@ -97,7 +97,7 @@ AppManager.prototype.getDisplayProperty = function() {
     if (this.displayProperty) {
         return this.displayProperty;
     }
-    
+
     var key = this.defaultDisplayProperty;
     return this.displayProperty = (key === 'name') ? key : (key + '|rename(name)');
 };
@@ -154,6 +154,14 @@ AppManager.prototype.setAuth = function(env) {
             }
         });
     }
+};
+
+AppManager.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.appManager = t;
+    });
 };
 
 // dep 1

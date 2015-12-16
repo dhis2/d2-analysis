@@ -1,4 +1,4 @@
-import {isArray, isObject, isFunction, arrayFrom} from 'd2-utilizr';
+import {isArray, isObject, isFunction, arrayFrom, arrayTo} from 'd2-utilizr';
 
 export var RequestManager;
 
@@ -48,4 +48,12 @@ RequestManager.prototype.resolve = function() {
     if (this.responses.length === this.requests.length) {
         this.fn();
     }
+};
+
+RequestManager.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.requestManager = t;
+    });
 };

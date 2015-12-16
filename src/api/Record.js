@@ -4,6 +4,7 @@ export var Record;
 
 Record = function(config) {
     var t = this;
+    t.klass = Record;
 
     config = isObject(config) ? config : {};
 
@@ -14,7 +15,7 @@ Record = function(config) {
 
 Record.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this);
+        console.log(text, this, config);
     }
 };
 

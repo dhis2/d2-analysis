@@ -1,4 +1,4 @@
-import {arraySort} from 'd2-utilizr';
+import {arrayTo, arraySort} from 'd2-utilizr';
 
 export var OptionConfig;
 
@@ -34,7 +34,7 @@ OptionConfig = function() {
             }
         };
     };
-    
+
     var setFontSize = function() {
         fontSize = {
             'large': {
@@ -54,7 +54,7 @@ OptionConfig = function() {
             }
         };
     };
-    
+
     var setDigitGroupSeparator = function() {
         digitGroupSeparator = {
             'none': {
@@ -77,7 +77,7 @@ OptionConfig = function() {
             }
         };
     };
-    
+
     var setAggregationType = function() {
         aggregationType = {
             'def': {
@@ -198,3 +198,12 @@ OptionConfig = function() {
         return separator ? separator.value : '';
     };
 };
+
+OptionConfig.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.optionConfig = t;
+    });
+};
+

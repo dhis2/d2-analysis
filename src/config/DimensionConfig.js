@@ -1,4 +1,4 @@
-import {arrayFrom} from 'd2-utilizr';
+import {arrayFrom, arrayTo} from 'd2-utilizr';
 
 export var DimensionConfig;
 
@@ -7,7 +7,7 @@ DimensionConfig = function() {
 
     // service
     var i18nManager;
-    
+
     // uninitialized
     var dimensions;
 
@@ -136,4 +136,12 @@ DimensionConfig = function() {
         i18nManager = manager;
         initialize();
     };
+};
+
+DimensionConfig.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.dimensionConfig = t;
+    });
 };

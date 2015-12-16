@@ -1,9 +1,13 @@
-import {isString, isNumber, isArray, isObject, arrayContains, arrayClean} from 'd2-utilizr';
+import {isString, isNumber, isArray, isObject, isBoolean, isDefined, numberToFixed, arrayContains, arrayClean, uuid} from 'd2-utilizr';
 
 export var Table;
 
 Table = function(layout, response, colAxis, rowAxis) {
-    var t = this;
+    var t = this,
+        klass = Table,
+
+        dimensionConfig = klass.dimensionConfig,
+        optionConfig = klass.optionConfig;
 
     // init
     var getRoundedHtmlValue,
@@ -12,9 +16,10 @@ Table = function(layout, response, colAxis, rowAxis) {
         roundIf,
         getNumberOfDecimals,
         prettyPrint,
-        doSubTotals,
-        doRowTotals,
         doColTotals,
+        doRowTotals,
+        doColSubTotals,
+        doRowSubTotals,
         doSortableColumnHeaders,
         getColAxisHtmlArray,
         getRowHtmlArray,
@@ -48,8 +53,8 @@ Table = function(layout, response, colAxis, rowAxis) {
         isLegendSet = false,
         tdCount = 0,
         htmlArray,
-        dimensionNameMap = DimConf.getDimensionNameMap(),
-        objectNameMap = DimConf.getObjectNameMap(),
+        dimensionNameMap = dimensionConfig.getDimensionNameMap(),
+        objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout);
 
     response.sortableIdObjects = []; //todo
@@ -197,7 +202,7 @@ Table = function(layout, response, colAxis, rowAxis) {
     };
 
     prettyPrint = function(number, separator) {
-        var oc = OptionConf,
+        var oc = optionConfig,
             spaceId = oc.getDigitGroupSeparator('space').id,
             noneId = oc.getDigitGroupSeparator('none').id;
 
@@ -234,6 +239,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         var a = [],
             columnDimensionNames = colAxis ? layout.columns.getDimensionNames(response) : [],
             rowDimensionNames = rowAxis ? layout.rows.getDimensionNames(response) : [],
+            getEmptyNameTdConfig,
             getEmptyHtmlArray;
 
         getEmptyNameTdConfig = function(config) {
@@ -435,7 +441,7 @@ Table = function(layout, response, colAxis, rowAxis) {
             valueItemsRow = [];
             valueObjectsRow = [];
 
-            for (var j = 0, id, value, responseValue, htmlValue, empty, uuid, uuids; j < colAxisSize; j++) {
+            for (var j = 0, id, value, responseValue, htmlValue, empty, _uuid, uuids; j < colAxisSize; j++) {
                 empty = false;
                 uuids = [];
 
@@ -444,7 +450,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
 
                 // value html element id
-                uuid = uuid();
+                _uuid = uuid();
 
                 // get uuids array from colaxis/rowaxis leaf
                 if (colAxis) {
@@ -469,7 +475,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
                 valueItemsRow.push(value);
                 valueObjectsRow.push({
-                    uuid: uuid,
+                    uuid: _uuid,
                     type: 'value',
                     cls: 'pivot-value' + (empty ? ' cursor-default' : ''),
                     value: value,
@@ -479,7 +485,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 });
 
                 // map element id to dim element ids
-                uuidDimUuidsMap[uuid] = uuids;
+                uuidDimUuidsMap[_uuid] = uuids;
             }
 
             valueItems.push(valueItemsRow);
@@ -854,8 +860,8 @@ Table = function(layout, response, colAxis, rowAxis) {
         var cls = 'pivot',
             table;
 
-        cls += layout.displayDensity && layout.displayDensity !== OptionConf.getDisplayDensity('normal').id ? ' displaydensity-' + layout.displayDensity : '';
-        cls += layout.fontSize && layout.fontSize !== OptionConf.getFontSize('normal').id ? ' fontsize-' + layout.fontSize : '';
+        cls += layout.displayDensity && layout.displayDensity !== optionConfig.getDisplayDensity('normal').id ? ' displaydensity-' + layout.displayDensity : '';
+        cls += layout.fontSize && layout.fontSize !== optionConfig.getFontSize('normal').id ? ' fontsize-' + layout.fontSize : '';
 
         table = '<table class="' + cls + '">';
 

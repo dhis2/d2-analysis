@@ -1,4 +1,4 @@
-import {arrayUnique, arraySort} from 'd2-utilizr';
+import {isArray, arrayUnique, arraySort, clone, uuid} from 'd2-utilizr';
 
 export var TableAxis;
 

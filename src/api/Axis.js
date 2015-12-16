@@ -5,6 +5,7 @@ export var Axis;
 
 Axis = function(config) {
     var t = [];
+    t.klass = Axis;
 
     config = arrayFrom(config);
 
@@ -16,7 +17,7 @@ Axis = function(config) {
     // prototype
     t.log = function(text, noError) {
         if (!noError) {
-            console.log(text, this);
+            console.log(text, this, config);
         }
     };
 
