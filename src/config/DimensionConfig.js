@@ -105,7 +105,7 @@ DimensionConfig = function() {
     };
 
     t.get = function(name) {
-        return name ? this.dimensions[name] : this.dimensions;
+        return name ? dimensions[name] : dimensions;
     };
 
     t.getDimensionNameMap = function() {

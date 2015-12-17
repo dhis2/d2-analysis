@@ -148,11 +148,19 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
 
 AppManager.prototype.setAuth = function(env) {
     if (!(env === 'production' && !(this.manifest && isString(this.manifest.activities.dhis.auth)))) {
-        $.ajaxSetup({
-            headers: {
-                Authorization: 'Basic ' + btoa(this.manifest.activities.dhis.auth)
-            }
-        });
+        var headers = {
+            Authorization: 'Basic ' + btoa(this.manifest.activities.dhis.auth)
+        };
+
+        if ($) {
+            $.ajaxSetup({
+                headers: headers
+            });
+        }
+
+        if (Ext) {
+            Ext.Ajax.defaultHeaders = headers;
+        }
     }
 };
 

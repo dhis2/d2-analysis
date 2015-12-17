@@ -19,6 +19,7 @@ WestRegion = function(config) {
         collapseMode: 'mini',
         border: false,
         width: width + uiManager.getScrollbarSize().width,
-        items: config.accordion
+        //items: config.accordion
+        html: 'west'
     }));
 };

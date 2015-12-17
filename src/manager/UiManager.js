@@ -30,6 +30,16 @@ UiManager = function() {
 
         return size;
     };
+
+    t.setMultiselectHeight = function(ms, panel, fill) {
+        var toolbarHeight = 25,
+            height;
+
+        ms.forEach(function(item) {
+            height = panel.getHeight() - fill - (item.hasToolbar ? toolbarHeight : 0);
+            item.setHeight(height);
+        });
+    };
 };
 
 UiManager.prototype.addViewport = function(viewport) {

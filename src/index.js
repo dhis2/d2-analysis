@@ -27,7 +27,9 @@ import {UiConfig} from './config/UiConfig.js';
 import {Viewport} from './ui/Viewport.js';
 import {CenterRegion} from './ui/CenterRegion.js';
 import {WestRegion} from './ui/WestRegion.js';
-import {Accordion} from './ui/Accordion.js';
+import {MenuAccordion} from './ui/MenuAccordion.js';
+import {DataTab} from './ui/DataTab.js';
+import {IndicatorPanel} from './ui/IndicatorPanel.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -67,7 +69,9 @@ export {
     Viewport,
     CenterRegion,
     WestRegion,
-    Accordion,
+    MenuAccordion,
+    DataTab,
+    IndicatorPanel,
 
     i18nInit,
     authViewUnapprovedDataInit,
@@ -116,7 +120,9 @@ export const ui = {
     Viewport: Viewport,
     CenterRegion: CenterRegion,
     WestRegion: WestRegion,
-    Accordion: Accordion,
+    MenuAccordion: MenuAccordion,
+    DataTab: DataTab,
+    IndicatorPanel: IndicatorPanel
 };
 
 export const init = {

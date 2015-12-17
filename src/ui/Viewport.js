@@ -19,23 +19,8 @@ Viewport = function(config) {
         //westRegion: westRegion,
         //centerRegion: centerRegion,
         items: [
-            {
-                xtype: 'panel',
-                region: 'center',
-                items: {
-                    xtype: 'button',
-                    text: 'add west',
-                    handler: function() {
-                        t.add(
-                            Ext.create('Ext.panel.Panel', {
-                                region: 'west',
-                                html: 'west',
-                                width: 200
-                            })
-                        );
-                    }
-                }
-            }
+            config.westRegion,
+            config.centerRegion
         ],
         listeners: {
             //render: function() {
