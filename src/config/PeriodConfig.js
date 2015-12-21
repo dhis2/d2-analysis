@@ -1,3 +1,5 @@
+import {arrayTo} from 'd2-utilizr';
+
 export var PeriodConfig;
 
 PeriodConfig = function() {
@@ -5,7 +7,7 @@ PeriodConfig = function() {
 
     // service
     var i18nManager;
-    
+
     // uninitialized
     var periodTypes;
 
@@ -46,9 +48,17 @@ PeriodConfig = function() {
 
         return records;
     };
-    
+
     t.setI18nManager = function(manager) {
         i18nManager = manager;
         initialize();
     };
+};
+
+PeriodConfig.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.periodConfig = t;
+    });
 };

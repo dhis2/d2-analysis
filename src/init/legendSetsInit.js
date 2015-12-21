@@ -6,12 +6,12 @@ legendSetsInit = function() {
         requestManager = t.requestManager,
 
         path = appManager.getPath(),
-        displayProperty = appManager.getDisplayProperty();
+        displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
         baseUrl: path + '/api/legendSets.json',
         params: [
-            'fields=id,' + displayProperty + ',legends[id,' + displayProperty + ',startValue,endValue,color]',
+            'fields=id,' + displayPropertyUrl + ',legends[id,' + displayPropertyUrl + ',startValue,endValue,color]',
             'paging=false'
         ],
         success: function(r) {

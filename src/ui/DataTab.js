@@ -1,21 +1,22 @@
 import {arrayFrom, arrayContains} from 'd2-utilizr';
 
 import {IndicatorPanel} from './IndicatorPanel.js';
-//import {DataElementPanel} from from './DataElementPanel.js';
-//import {DataSetPanel} from from './DataSetPanel.js';
-//import {EventDataItemPanel} from from './EventDataItemPanel.js';
-//import {ProgramIndicatorPanel} from from './ProgramIndicatorPanel.js';
+import {DataElementPanel} from './DataElementPanel.js';
+//import {DataSetPanel} from './DataSetPanel.js';
+//import {EventDataItemPanel} from './EventDataItemPanel.js';
+//import {ProgramIndicatorPanel} from './ProgramIndicatorPanel.js';
 
 export var DataTab;
 
 DataTab = function() {
-    var t = this,
-        uiManager = DataTab.uiManager,
-        i18nManager = DataTab.i18nManager,
-        dimensionConfig = DataTab.dimensionConfig,
-        uiConfig = DataTab.uiConfig,
+    var t = DataTab,
+        uiManager = t.uiManager,
+        i18nManager = t.i18nManager,
+        dimensionConfig = t.dimensionConfig,
+        uiConfig = t.uiConfig,
 
-        i18n = i18nManager.get();
+        i18n = i18nManager.get(),
+        thisObjectName = dimensionConfig.get('data').objectName;
 
     // store
     var dataSelectedStore = Ext.create('Ext.data.Store', {
@@ -154,15 +155,105 @@ DataTab = function() {
         }
     });
 
+    var onDataTypeSelect = function(type) {
+        type = type || 'in';
+
+        if (type === 'in') {
+            indicator.show();
+            dataElement.hide();
+            dataSet.hide();
+            eventDataItem.hide();
+            programIndicator.hide();
+        }
+        else if (type === 'de') {
+            indicator.hide();
+            dataElement.show();
+            dataSet.hide();
+            eventDataItem.hide();
+            programIndicator.hide();
+        }
+        //else if (type === 'ds') {
+            //indicator.hide();
+            //dataElement.hide();
+            //dataSet.show();
+            //eventDataItem.hide();
+            //programIndicator.hide();
+
+            //if (!dataSetAvailableStore.isLoaded) {
+                //dataSetAvailableStore.isLoaded = true;
+                //dataSetAvailableStore.loadPage(null, false);
+            //}
+        //}
+        //else if (type === 'di') {
+            //indicator.hide();
+            //dataElement.hide();
+            //dataSet.hide();
+            //eventDataItem.show();
+            //programIndicator.hide();
+
+            //if (!programStore.isLoaded) {
+                //programStore.isLoaded = true;
+                //programStore.load();
+            //}
+        //}
+        //else if (type === 'pi') {
+            //indicator.hide();
+            //dataElement.hide();
+            //dataSet.hide();
+            //eventDataItem.hide();
+            //programIndicator.show();
+
+            //if (!programStore.isLoaded) {
+                //programStore.isLoaded = true;
+                //programStore.load();
+            //}
+        //}
+    };
+
+    var dataType = Ext.create('Ext.form.field.ComboBox', {
+        cls: 'ns-combo',
+        style: 'margin-bottom:1px',
+        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        valueField: 'id',
+        displayField: 'name',
+        //emptyText: NS.i18n.data_type,
+        editable: false,
+        queryMode: 'local',
+        value: 'in',
+        store: {
+            fields: ['id', 'name'],
+            data: [
+                 {id: 'in', name: i18n['indicators']},
+                 {id: 'de', name: i18n['data_elements']},
+                 {id: 'ds', name: i18n['reporting_rates']},
+                 {id: 'di', name: i18n['event_data_items']},
+                 {id: 'pi', name: i18n['program_indicators']}
+            ]
+        },
+        listeners: {
+            select: function(cb) {
+                onDataTypeSelect(cb.getValue());
+            }
+        }
+    });
+
+    t.getSelectedStore = function() {
+        return dataSelectedStore;
+    };
+
+    t.getSelectedView = function() {
+        return dataSelectedView;
+    };
+
     // constructor
     IndicatorPanel.parentTab = t;
-    //DataElementPanel.parentTab = t;
+    DataElementPanel.parentTab = t;
     //DataSetPanel.parentTab = t;
     //EventDataItemPanel.parentTab = t;
     //ProgramIndicatorPanel.parentTab = t;
 
-    indicatorPanel = new IndicatorPanel();
-    //dataElementPanel = new DataElementPanel(),
+    var indicatorPanel = new IndicatorPanel();
+    var dataElementPanel = new DataElementPanel();
     //dataSetPanel = new DataSetPanel(),
     //eventDataItemPanel = new EventDataItemPanel(),
     //programIndicatorPanel = new ProgramIndicatorPanel();
@@ -171,17 +262,17 @@ DataTab = function() {
         xtype: 'panel',
         title: '<div class="ns-panel-title-data">' + i18n['data'] + '</div>',
         hideCollapseTool: true,
-        dimension: dimensionConfig.data.objectName,
+        dimension: thisObjectName,
         updateStoreFilters: function() {
             indicatorPanel.getAvailableStore().updateFilter();
-            //dataElementAvailableStore.updateFilter();
-            //dataSetAvailableStore.updateFilter();
-            //eventDataItemAvailableStore.updateFilter();
-            //programIndicatorAvailableStore.updateFilter();
+            dataElementPanel.getAvailableStore().updateFilter();
+            //dataSetPanel.getAvailableStore().updateFilter();
+            //eventDataItemPanel.getAvailableStore().updateFilter();
+            //programIndicatorPanel.getAvailableStore().updateFilter();
         },
         getDimension: function() {
             var config = {
-                dimension: dimensionConfig.get('data').objectName,
+                dimension: thisObjectName,
                 items: []
             };
 
@@ -200,40 +291,33 @@ DataTab = function() {
             return config.items.length ? config : null;
         },
         onExpand: function() {
-            var conf = ns.core.conf.layout,
-                h = westRegion.hasScrollbar ? conf.west_scrollbarheight_accordion_indicator : conf.west_maxheight_accordion_indicator;
+            var ui = uiManager.getUi(),
+                accordionHeight = ui.westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_indicator : uiConfig.west_maxheight_accordion_indicator;
 
-            accordion.setThisHeight(h);
+            ui.menuAccordion.setThisHeight(accordionHeight);
 
-            uiManager.setMultiselectHeight([indicatorPanel.getAvailableView(), indicatorPanel.getSelectedView()], this, uiConfig.west_fill_accordion_indicator);
-            //uiManager.setMultiselectHeight([dataElementAvailable, dataElementSelected], this, uiConfig.west_fill_accordion_dataelement);
-            //uiManager.setMultiselectHeight([dataSetAvailable, dataSetSelected], this, uiConfig.west_fill_accordion_dataset);
-            //uiManager.setMultiselectHeight([eventDataItemAvailable, eventDataItemSelected], this, uiConfig.west_fill_accordion_eventdataitem);
-            //uiManager.setMultiselectHeight([programIndicatorAvailable, programIndicatorSelected], this, uiConfig.west_fill_accordion_programindicator);
+            uiManager.msSetHeight([indicatorPanel.getAvailableView(), indicatorPanel.getSelectedView()], this, uiConfig.west_fill_accordion_indicator);
+            uiManager.msSetHeight([dataElementPanel.getAvailableView(), dataElementPanel.getSelectedView()], this, uiConfig.west_fill_accordion_indicator);
+            //uiManager.msSetHeight([dataElementAvailable, dataElementSelected], this, uiConfig.west_fill_accordion_dataelement);
+            //uiManager.msSetHeight([dataSetAvailable, dataSetSelected], this, uiConfig.west_fill_accordion_dataset);
+            //uiManager.msSetHeight([eventDataItemAvailable, eventDataItemSelected], this, uiConfig.west_fill_accordion_eventdataitem);
+            //uiManager.msSetHeight([programIndicatorAvailable, programIndicatorSelected], this, uiConfig.west_fill_accordion_programindicator);
         },
         items: [
             dataType,
-            IndicatorPanel
-            //dataElement,
+            indicatorPanel,
+            dataElementPanel
             //dataSet,
             //eventDataItem,
             //programIndicator
         ],
         listeners: {
             added: function() {
-                accordionPanels.push(this);
+                //accordionPanels.push(this);
             },
             expand: function(p) {
                 p.onExpand();
             }
         }
     });
-
-    t.getSelectedStore = function() {
-        return dataSelectedStore;
-    };
-
-    t.getSelectedView = function() {
-        return dataSelectedView;
-    };
 };

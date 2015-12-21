@@ -6,12 +6,12 @@ organisationUnitLevelsInit = function() {
         requestManager = t.requestManager,
 
         path = appManager.getPath(),
-        displayProperty = appManager.getDisplayProperty();
+        displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
         baseUrl: path + '/api/organisationUnitLevels.json',
         params: [
-            'fields=id,' + displayProperty + 'level',
+            'fields=id,' + displayPropertyUrl + 'level',
             'paging=false'
         ],
         success: function(r) {

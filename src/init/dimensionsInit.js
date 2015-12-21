@@ -6,12 +6,12 @@ dimensionsInit = function() {
         requestManager = t.requestManager,
 
         path = appManager.getPath(),
-        displayProperty = appManager.getDisplayProperty();
+        displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
         baseUrl: path + '/api/dimensions.json',
         params: [
-            'fields=id,' + displayProperty,
+            'fields=id,' + displayPropertyUrl,
             'paging=false'
         ],
         success: function(r) {

@@ -6,13 +6,13 @@ dataApprovalLevelsInit = function() {
         requestManager = t.requestManager,
 
         path = appManager.getPath(),
-        displayProperty = appManager.getDisplayProperty();
+        displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
         baseUrl: path + '/api/dataApprovalLevels.json',
         params: [
             'order=level:asc',
-            'fields=id,' + displayProperty + ',level',
+            'fields=id,' + displayPropertyUrl + ',level',
             'paging=false'
         ],
         success: function(r) {

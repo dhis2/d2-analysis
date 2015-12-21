@@ -1,14 +1,14 @@
-import {isObject} from 'd2-utilizr';
+import {isObject, arrayTo} from 'd2-utilizr';
 
 export var MenuAccordion;
 
 MenuAccordion = function(config) {
-    var t = this,
-        tabs = [];
+    var t = this;
 
     const tabHeight = 28;
 
     config = isObject(config) ? config : {};
+    t.tabs = config.items;
 
     // items
     t.accordionBody = Ext.create('Ext.panel.Panel', {
@@ -17,7 +17,7 @@ MenuAccordion = function(config) {
         cls: 'ns-accordion',
         bodyStyle: 'border:0 none; margin-bottom:2px',
         height: 700,
-        items: config.panels
+        items: config.items
     });
 
     // constructor
@@ -32,7 +32,8 @@ MenuAccordion = function(config) {
 };
 
 MenuAccordion.prototype.setThisHeight = function(mx) {
-    var panelHeight = this.tabs.length * this.tabHeight,
+    var t = this,
+        panelHeight = this.tabs.length * this.tabHeight,
         height;
 
     if (this.uiManager.hasWestRegionScrollbar) {
@@ -60,4 +61,12 @@ MenuAccordion.prototype.getExpandedTab = function() {
 
 MenuAccordion.prototype.getFirstPanel = function() {
     return this.tabs[0];
+};
+
+MenuAccordion.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.menuAccordion = t;
+    });
 };

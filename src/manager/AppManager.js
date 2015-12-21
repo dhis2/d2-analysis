@@ -53,6 +53,13 @@ AppManager = function() {
         '!organisationUnits'
     ];
 
+    t.displayPropertyMap = {
+        'name': 'displayName',
+        'displayName': 'displayName',
+        'shortName': 'displayShortName',
+        'displayShortName': 'displayShortName'
+    };
+
     // uninitialized
     t.manifest;
     t.systemInfo;
@@ -74,6 +81,7 @@ AppManager = function() {
     t.relativePeriod;
     t.uiLocale;
     t.displayProperty;
+    t.displayPropertyUrl;
     t.analysisFields;
 };
 
@@ -98,8 +106,7 @@ AppManager.prototype.getDisplayProperty = function() {
         return this.displayProperty;
     }
 
-    var key = this.defaultDisplayProperty;
-    return this.displayProperty = (key === 'name') ? key : (key + '|rename(name)');
+    return this.displayProperty = this.displayPropertyMap[(this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
 };
 
 AppManager.prototype.getValueTypesByType = function(type) {
@@ -174,12 +181,22 @@ AppManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
+AppManager.prototype.getDisplayPropertyUrl = function() {
+    if (this.displayPropertyUrl) {
+        return this.displayPropertyUrl;
+    }
+
+    var key = this.getDisplayProperty();
+
+    return this.displayPropertyUrl = (key + '|rename(name)');
+};
+
 AppManager.prototype.isUiLocaleDefault = function() {
     return this.getUiLocale() === this.defaultUiLocale;
 };
 
 AppManager.prototype.getAnalysisFields = function() {
-    return this.analysisFields ? this.analysisFields : (this.analysisFields = (this.defaultAnalysisFields.join(',').replaceAll('$', this.getDisplayProperty())));
+    return this.analysisFields ? this.analysisFields : (this.analysisFields = (this.defaultAnalysisFields.join(',').replaceAll('$', this.getDisplayPropertyUrl())));
 };
 
 AppManager.prototype.getRootNode = function() {

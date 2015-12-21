@@ -6,13 +6,13 @@ rootNodesInit = function() {
         requestManager = t.requestManager,
 
         path = appManager.getPath(),
-        displayProperty = appManager.getDisplayProperty();
+        displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
         baseUrl: path + '/api/organisationUnits.json',
         params: [
             'userDataViewFallback=true',
-            'fields=id,' + displayProperty + ',children[id,' + displayProperty + ']',
+            'fields=id,' + displayPropertyUrl + ',children[id,' + displayPropertyUrl + ']',
             'paging=false'
         ],
         success: function(r) {

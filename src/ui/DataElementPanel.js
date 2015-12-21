@@ -1,9 +1,9 @@
 import {isString, isNumber, isObject, arrayContains, arrayFrom} from 'd2-utilizr';
 
-export var IndicatorPanel;
+export var DataElementPanel;
 
-IndicatorPanel = function(config) {
-    var t = IndicatorPanel,
+DataElementPanel = function(config) {
+    var t = DataElementPanel,
         appManager = t.appManager,
         i18nManager = t.i18nManager,
         dimensionConfig = t.dimensionConfig,
@@ -11,19 +11,21 @@ IndicatorPanel = function(config) {
 
     var tab = t.parentTab,
         path = appManager.getPath(),
+        displayPropertyUrl = appManager.getDisplayPropertyUrl(),
         i18n = i18nManager.get(),
-        thisObjectName = dimensionConfig.get('indicator').objectName,
+        thisObjectName = dimensionConfig.get('dataElement').objectName,
+        operandObjectName = dimensionConfig.get('operand').objectName,
         selectedStore = tab.getSelectedStore();
 
     this.getAvailableView = function() {
-        return indicatorAvailable;
+        return dataElementAvailable;
     };
 
     this.getSelectedView = function() {
-        return indicatorSelected;
+        return dataElementSelected;
     };
 
-    var indicatorAvailableStore = Ext.create('Ext.data.Store', {
+    var dataElementAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         lastPage: null,
         nextPage: 1,
@@ -33,7 +35,7 @@ IndicatorPanel = function(config) {
             this.lastPage = null;
             this.nextPage = 1;
             this.isPending = false;
-            indicatorSearch.hideFilter();
+            dataElementSearch.hideFilter();
         },
         loadDataAndUpdate: function(data, append) {
             this.clearFilter(); // work around
@@ -60,32 +62,42 @@ IndicatorPanel = function(config) {
 
             this.clearFilter();
 
-            this.filterBy(function(record) {
-                return !arrayContains(selectedStoreIds, record.data.id);
-            });
+            if (selectedStoreIds.length) {
+                this.filterBy(function(record) {
+                    return !arrayContains(selectedStoreIds, record.data.id);
+                });
+            }
         },
         loadPage: function(uid, filter, append, noPaging, fn) {
-            var store = this,
-                params = {},
-                url;
-
-            uid = (isString(uid) || isNumber(uid)) ? uid : indicatorGroup.getValue();
-            filter = filter || indicatorFilter.getValue() || null;
+            uid = (isString(uid) || isNumber(uid)) ? uid : dataElementGroup.getValue();
+            filter = filter || dataElementFilter.getValue() || null;
 
             if (!append) {
                 this.lastPage = null;
                 this.nextPage = 1;
             }
 
+            if (dataElementDetailLevel.getValue() === thisObjectName) {
+                this.loadTotalsPage(uid, filter, append, noPaging, fn);
+            }
+            else if (dataElementDetailLevel.getValue() === operandObjectName) {
+                this.loadDetailsPage(uid, filter, append, noPaging, fn);
+            }
+        },
+        loadTotalsPage: function(uid, filter, append, noPaging, fn) {
+            var store = this,
+                params = {},
+                url;
+
             if (store.nextPage === store.lastPage) {
                 return;
             }
 
             if (isString(uid)) {
-                url = '/indicators.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '&filter=indicatorGroups.id:eq:' + uid + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+                url = '/dataElements.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
             }
             else if (uid === 0) {
-                url = '/indicators.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+                url = '/dataElements.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=domainType:eq:AGGREGATE' + '' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
             }
 
             if (!url) {
@@ -101,16 +113,57 @@ IndicatorPanel = function(config) {
             }
 
             store.isPending = true;
-            ns.core.web.mask.show(indicatorAvailable.boundList);
+            ns.core.web.mask.show(dataElementAvailable.boundList);
 
             $.getJSON(path + '/api' + url, params, function(response) {
-                var data = response.indicators || [],
+                var data = response.dataElements || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
             }).complete(function() {
                 store.isPending = false;
-                //TODO ns.core.web.mask.hide(indicatorAvailable.boundList);
+                //TODO ns.core.web.mask.hide(dataElementAvailable.boundList);
+            });
+        },
+        loadDetailsPage: function(uid, filter, append, noPaging, fn) {
+            var store = this,
+                params = {},
+                url;
+
+            if (store.nextPage === store.lastPage) {
+                return;
+            }
+
+            if (isString(uid)) {
+                url = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=dataElement.dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+            }
+            else if (uid === 0) {
+                url = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+            }
+
+            if (!url) {
+                return;
+            }
+
+            if (noPaging) {
+                params.paging = false;
+            }
+            else {
+                params.page = store.nextPage;
+                params.pageSize = 50;
+            }
+
+            store.isPending = true;
+            //TODO ns.core.web.mask.show(dataElementAvailable.boundList);
+
+            $.getJSON(path + '/api' + url, params, function(response) {
+                var data = response.objects || response.dataElementOperands || [],
+                    pager = response.pager;
+
+                store.loadStore(data, pager, append, fn);
+            }).complete(function() {
+                store.isPending = false;
+                //TODO ns.core.web.mask.hide(dataElementAvailable.boundList);
             });
         },
         loadStore: function(data, pager, append, fn) {
@@ -127,27 +180,25 @@ IndicatorPanel = function(config) {
 
             this.isPending = false;
 
-            //ns.core.web.multiSelect.filterAvailable({store: indicatorAvailableStore}, {store: indicatorSelectedStore});
+            uiManager.msFilterAvailable({store: dataElementAvailableStore}, {store: dataElementSelectedStore});
 
             if (fn) {
                 fn();
             }
         },
-        storage: {},
-        parent: null,
         sortStore: function() {
             this.sort('name', 'ASC');
         }
     });
 
-    var indicatorGroupStore = Ext.create('Ext.data.Store', {
+    var dataElementGroupStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'index'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false',
+            url: path + '/api/dataElementGroups.json?fields=id,' + displayPropertyUrl + '&paging=false',
             reader: {
                 type: 'json',
-                root: 'indicatorGroups'
+                root: 'dataElementGroups'
             },
             pageParam: false,
             startParam: false,
@@ -157,53 +208,48 @@ IndicatorPanel = function(config) {
             load: function(s) {
                 s.add({
                     id: 0,
-                    name: '[ ' + i18n['all_indicators'] + ' ]',
+                    name: '[ ' + i18n['all_data_elements'] + ' ]',
                     index: -1
                 });
+
                 s.sort([
-                    {
-                        property: 'index',
-                        direction: 'ASC'
-                    },
-                    {
-                        property: 'name',
-                        direction: 'ASC'
-                    }
+                    {property: 'index', direction: 'ASC'},
+                    {property: 'name', direction: 'ASC'}
                 ]);
             }
         }
     });
 
-    var indicatorLabel = Ext.create('Ext.form.Label', {
+    var dataElementLabel = Ext.create('Ext.form.Label', {
         text: i18n['available'],
         cls: 'ns-toolbar-multiselect-left-label',
         style: 'margin-right:5px'
     });
 
-    var indicatorSearch = Ext.create('Ext.button.Button', {
+    var dataElementSearch = Ext.create('Ext.button.Button', {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
         disabled: true,
         style: 'background: url(images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
-            indicatorLabel.hide();
+            dataElementLabel.hide();
             this.hide();
-            indicatorFilter.show();
-            indicatorFilter.reset();
+            dataElementFilter.show();
+            dataElementFilter.reset();
         },
         hideFilter: function() {
-            indicatorLabel.show();
+            dataElementLabel.show();
             this.show();
-            indicatorFilter.hide();
-            indicatorFilter.reset();
+            dataElementFilter.hide();
+            dataElementFilter.reset();
         },
         handler: function() {
             this.showFilter();
         }
     });
 
-    var indicatorFilter = Ext.create('Ext.form.field.Trigger', {
+    var dataElementFilter = Ext.create('Ext.form.field.Trigger', {
         cls: 'ns-trigger-filter',
         emptyText: 'Filter available..',
         height: 22,
@@ -218,8 +264,8 @@ IndicatorPanel = function(config) {
             }
         },
         onKeyUpHandler: function() {
-            var value = indicatorGroup.getValue(),
-                store = indicatorAvailableStore;
+            var value = dataElementGroup.getValue(),
+                store = dataElementAvailableStore;
 
             if (isString(value) || isNumber(value)) {
                 store.loadPage(null, this.getValue(), false);
@@ -244,55 +290,27 @@ IndicatorPanel = function(config) {
         }
     });
 
-    var indicatorGroup = Ext.create('Ext.form.field.ComboBox', {
-        cls: 'ns-combo',
-        style: 'margin-bottom:1px; margin-top:0px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
-        valueField: 'id',
-        displayField: 'name',
-        emptyText: i18n['select_indicator_group'],
-        editable: false,
-        store: indicatorGroupStore,
-        loadAvailable: function(reset) {
-            var store = indicatorAvailableStore,
-                id = this.getValue();
-
-            if (id !== null) {
-                if (reset) {
-                    store.reset();
-                }
-
-                store.loadPage(id, null, false);
-            }
-        },
-        listeners: {
-            select: function(cb) {
-                cb.loadAvailable(true);
-
-                indicatorSearch.enable();
-            }
-        }
-    });
-
-    var indicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
+    var dataElementAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
         width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
         valueField: 'id',
         displayField: 'name',
-        store: indicatorAvailableStore,
+        isPending: false,
+        page: 1,
+        store: dataElementAvailableStore,
         tbar: [
-            indicatorLabel,
-            indicatorSearch,
-            indicatorFilter,
+            dataElementLabel,
+            dataElementSearch,
+            dataElementFilter,
             '->',
             {
                 xtype: 'button',
                 icon: 'images/arrowright.png',
                 width: 22,
                 handler: function() {
-                    if (indicatorAvailable.getValue().length) {
-                        var records = indicatorAvailableStore.getRecordsByIds(indicatorAvailable.getValue());
-                        selectedStore.addRecords(records, 'in');
+                    if (dataElementAvailable.getValue().length) {
+                        var records = dataElementAvailableStore.getRecordsByIds(dataElementAvailable.getValue());
+                        selectedStore.addRecords(records, 'de');
                     }
                 }
             },
@@ -301,8 +319,8 @@ IndicatorPanel = function(config) {
                 icon: 'images/arrowrightdouble.png',
                 width: 22,
                 handler: function() {
-                    indicatorAvailableStore.loadPage(null, null, null, true, function() {
-                        selectedStore.addRecords(indicatorAvailableStore.getRange(), 'in');
+                    dataElementAvailableStore.loadPage(null, null, null, true, function() {
+                        selectedStore.addRecords(dataElementAvailableStore.getRange(), 'de');
                     });
                 }
             }
@@ -312,19 +330,19 @@ IndicatorPanel = function(config) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
                 el.addEventListener('scroll', function(e) {
-                    if (uiManager.isScrolled(e) && !indicatorAvailableStore.isPending) {
-                        indicatorAvailableStore.loadPage(null, null, true);
+                    if (uiManager.isScrolled(e) && !dataElementAvailableStore.isPending) {
+                        dataElementAvailableStore.loadPage(null, null, true);
                     }
                 });
 
                 ms.boundList.on('itemdblclick', function(bl, record) {
-                    selectedStore.addRecords(record, 'in');
+                    selectedStore.addRecords(record, 'de');
                 }, ms);
             }
         }
     });
 
-    var indicatorSelected = Ext.create('Ext.ux.form.MultiSelect', {
+    var dataElementSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
         width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
         valueField: 'id',
@@ -347,8 +365,8 @@ IndicatorPanel = function(config) {
                 icon: 'images/arrowleft.png',
                 width: 22,
                 handler: function() {
-                    if (indicatorSelected.getValue().length) {
-                        selectedStore.removeByIds(indicatorSelected.getValue());
+                    if (dataElementSelected.getValue().length) {
+                        selectedStore.removeByIds(dataElementSelected.getValue());
                     }
                 }
             },
@@ -368,21 +386,84 @@ IndicatorPanel = function(config) {
         }
     });
 
+    var dataElementGroup = Ext.create('Ext.form.field.ComboBox', {
+        cls: 'ns-combo',
+        style: 'margin:0 1px 1px 0',
+        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 90,
+        valueField: 'id',
+        displayField: 'name',
+        emptyText: i18n['select_data_element_group'],
+        editable: false,
+        store: dataElementGroupStore,
+        loadAvailable: function(reset) {
+            var store = dataElementAvailableStore,
+                id = this.getValue();
+
+            if (id !== null) {
+                if (reset) {
+                    store.reset();
+                }
+
+                store.loadPage(id, null, false);
+            }
+        },
+        listeners: {
+            select: function(cb) {
+                cb.loadAvailable(true);
+
+                dataElementSearch.enable();
+            }
+        }
+    });
+
+    var dataElementDetailLevel = Ext.create('Ext.form.field.ComboBox', {
+        cls: 'ns-combo',
+        style: 'margin-bottom:1px',
+        baseBodyCls: 'small',
+        queryMode: 'local',
+        editable: false,
+        valueField: 'id',
+        displayField: 'text',
+        width: 90 - 1,
+        value: thisObjectName,
+        store: {
+            fields: ['id', 'text'],
+            data: [
+                {id: thisObjectName, text: i18n['totals']},
+                {id: operandObjectName, text: i18n['details']}
+            ]
+        },
+        listeners: {
+            select: function(cb) {
+                dataElementGroup.loadAvailable(true);
+                selectedStore.removeByProperty('objectName', 'de');
+            }
+        }
+    });
+
     $.extend(t, Ext.create('Ext.panel.Panel', {
         xtype: 'panel',
         preventHeader: true,
+        hidden: true,
         hideCollapseTool: true,
-        dimension: thisObjectName,
         bodyStyle: 'border:0 none',
+        dimension: thisObjectName,
         items: [
-            indicatorGroup,
+            {
+                xtype: 'container',
+                layout: 'column',
+                items: [
+                    dataElementGroup,
+                    dataElementDetailLevel
+                ]
+            },
             {
                 xtype: 'panel',
                 layout: 'column',
                 bodyStyle: 'border-style:none',
                 items: [
-                    indicatorAvailable,
-                    indicatorSelected
+                    dataElementAvailable,
+                    dataElementSelected
                 ]
             }
         ],

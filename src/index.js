@@ -18,6 +18,7 @@ import {I18nManager} from './manager/I18nManager.js';
 import {RequestManager} from './manager/RequestManager.js';
 import {SessionStorageManager} from './manager/SessionStorageManager.js';
 import {UiManager} from './manager/UiManager.js';
+import {InstanceManager} from './manager/InstanceManager.js';
 
 import {DimensionConfig} from './config/DimensionConfig.js';
 import {PeriodConfig} from './config/PeriodConfig.js';
@@ -28,8 +29,10 @@ import {Viewport} from './ui/Viewport.js';
 import {CenterRegion} from './ui/CenterRegion.js';
 import {WestRegion} from './ui/WestRegion.js';
 import {MenuAccordion} from './ui/MenuAccordion.js';
-import {DataTab} from './ui/DataTab.js';
 import {IndicatorPanel} from './ui/IndicatorPanel.js';
+import {DataElementPanel} from './ui/DataElementPanel.js';
+import {DataTab} from './ui/DataTab.js';
+import {PeriodTab} from './ui/PeriodTab.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -60,6 +63,7 @@ export {
     RequestManager,
     SessionStorageManager,
     UiManager,
+    InstanceManager,
 
     DimensionConfig,
     PeriodConfig,
@@ -70,8 +74,10 @@ export {
     CenterRegion,
     WestRegion,
     MenuAccordion,
-    DataTab,
     IndicatorPanel,
+    DataElementPanel,
+    DataTab,
+    PeriodTab,
 
     i18nInit,
     authViewUnapprovedDataInit,
@@ -106,7 +112,8 @@ export const manager = {
     I18nManager: I18nManager,
     RequestManager: RequestManager,
     SessionStorageManager: SessionStorageManager,
-    UiManager: UiManager
+    UiManager: UiManager,
+    InstanceManager: InstanceManager
 };
 
 export const config = {
@@ -121,8 +128,10 @@ export const ui = {
     CenterRegion: CenterRegion,
     WestRegion: WestRegion,
     MenuAccordion: MenuAccordion,
+    IndicatorPanel: IndicatorPanel,
+    DataElementPanel: DataElementPanel,
     DataTab: DataTab,
-    IndicatorPanel: IndicatorPanel
+    PeriodTab: PeriodTab,
 };
 
 export const init = {

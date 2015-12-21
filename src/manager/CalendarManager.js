@@ -1,4 +1,4 @@
-import {isObject, arrayContains} from 'd2-utilizr';
+import {isObject, arrayContains, arrayTo} from 'd2-utilizr';
 
 export var CalendarManager;
 
@@ -56,6 +56,14 @@ CalendarManager.prototype.createCalendar = function(calendarId) {
 CalendarManager.prototype.createPeriodGenerator = function(calendarId) {
     this.periodGenerator = new dhis2.period.PeriodGenerator(this.calendar, this.dateFormat);
 
+};
+
+CalendarManager.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.calendarManager = t;
+    });
 };
 
 // dep 1
