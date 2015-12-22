@@ -11,7 +11,9 @@ InstanceManager = function(config) {
     t.uiManager = config.uiManager;
 
     // uninitialized
-    var fn;
+    var fn,
+        layoutWindow,
+        optionWindow;
 
     // getter/setter
     t.getFn = function() {
@@ -21,10 +23,26 @@ InstanceManager = function(config) {
     t.setFn = function(func) {
         fn = func;
     };
+
+    t.getLayoutWindow = function() {
+        return layoutWindow;
+    };
+
+    t.setLayoutWindow = function(win) {
+        layoutWindow = win;
+    };
+
+    t.getOptionWindow = function() {
+        return optionWindow;
+    };
+
+    t.setOptionWindow = function(win) {
+        optionWindow = win;
+    };
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
-    layoutConfig = layoutConfig || this.uiManager.getStateLayout();
+    layoutConfig = layoutConfig || this.uiManager.getLayoutState();
 
     return new this.api.Layout(layoutConfig);
 };
@@ -43,6 +61,10 @@ InstanceManager.prototype.getReport = function(layout, response) {
     if (!layout) {
         layout = this.getLayout();
         response = null;
+
+        if (!layout) {
+            return;
+        }
     }
 
     if (!response) {
@@ -62,5 +84,3 @@ InstanceManager.prototype.getReport = function(layout, response) {
         t.fn(layout, response);
     }
 };
-
-
