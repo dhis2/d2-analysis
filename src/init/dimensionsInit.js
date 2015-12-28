@@ -1,9 +1,9 @@
 export var dimensionsInit;
 
-dimensionsInit = function() {
-    var t = dimensionsInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
+dimensionsInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();

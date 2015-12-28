@@ -1,10 +1,10 @@
 export var i18nInit;
 
-i18nInit = function() {
-    var t = i18nInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
-        i18nManager = t.i18nManager,
+i18nInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
+        i18nManager = c.i18nManager,
 
         uiLocale = appManager.getUiLocale(),
         isUiLocaleDefault = appManager.isUiLocaleDefault(),

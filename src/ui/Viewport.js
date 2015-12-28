@@ -1,4 +1,4 @@
-import {isString, isObject, isIE, arrayFrom, arrayContains, arraySort} from 'd2-utilizr';
+import {isString, isObject, isIE, arrayFrom, arrayContains, arraySort, clone} from 'd2-utilizr';
 import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
@@ -6,15 +6,17 @@ import {Layout} from '../api/Layout.js';
 
 export var Viewport;
 
-Viewport = function(config) {
+Viewport = function(c) {
     var t = this,
 
-        uiManager = config.uiManager,
-        appManager = config.appManager,
-        i18nManager = config.i18nManager,
-        dimensionConfig = config.dimensionConfig,
-        periodConfig = config.periodConfig,
-        uiConfig = config.uiConfig,
+        uiManager = c.uiManager,
+        appManager = c.appManager,
+        responseManager = c.responseManager,
+        i18nManager = c.i18nManager,
+        sessionStorageManager = c.sessionStorageManager,
+        dimensionConfig = c.dimensionConfig,
+        periodConfig = c.periodConfig,
+        uiConfig = c.uiConfig,
 
         path = appManager.getPath(),
         i18n = i18nManager.get(),
@@ -31,6 +33,11 @@ Viewport = function(config) {
         periodObjectName = dimensionConfig.get('period').objectName,
         organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
         categoryObjectName = dimensionConfig.get('category').objectName,
+
+        layoutWindow = uiManager.get('layoutWindow'),
+        optionsWindow = uiManager.get('optionsWindow'),
+        favoriteWindow = uiManager.get('favoriteWindow'),
+        aboutWindow = uiManager.get('aboutWindow'),
 
         accordionPanels = [],
         displayProperty = appManager.getDisplayProperty(),
@@ -142,7 +149,7 @@ Viewport = function(config) {
 
             this.isPending = false;
 
-            uiManager.msFilterAvailable({store: indicatorAvailableStore}, {store: indicatorSelectedStore});
+            uiManager.msFilterAvailable({store: this}, {store: indicatorSelectedStore});
 
             if (fn) {
                 fn();
@@ -1593,7 +1600,7 @@ Viewport = function(config) {
                         var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
                                 return arrayContains(types, (item || {}).valueType);
                             }),
-                            data = ns.core.support.prototype.array.sort(Ext.Array.clean([].concat(elements, attributes))) || [];
+                            data = arraySort(arrayClean([].concat(elements, attributes))) || [];
 
                         if (data) {
                             eventDataItemAvailableStore.loadDataAndUpdate(data);
@@ -2104,11 +2111,11 @@ Viewport = function(config) {
 
             accordion.setThisHeight(accordionHeight);
 
-            uiManager.msSetHeight([indicatorAvailable, indicatorSelected], this, conf.west_fill_accordion_indicator);
-            uiManager.msSetHeight([dataElementAvailable, dataElementSelected], this, conf.west_fill_accordion_dataelement);
-            uiManager.msSetHeight([dataSetAvailable, dataSetSelected], this, conf.west_fill_accordion_dataset);
-            uiManager.msSetHeight([eventDataItemAvailable, eventDataItemSelected], this, conf.west_fill_accordion_eventdataitem);
-            uiManager.msSetHeight([programIndicatorAvailable, programIndicatorSelected], this, conf.west_fill_accordion_programindicator);
+            uiManager.msSetHeight([indicatorAvailable, indicatorSelected], this, uiConfig.west_fill_accordion_indicator);
+            uiManager.msSetHeight([dataElementAvailable, dataElementSelected], this, uiConfig.west_fill_accordion_dataelement);
+            uiManager.msSetHeight([dataSetAvailable, dataSetSelected], this, uiConfig.west_fill_accordion_dataset);
+            uiManager.msSetHeight([eventDataItemAvailable, eventDataItemSelected], this, uiConfig.west_fill_accordion_eventdataitem);
+            uiManager.msSetHeight([programIndicatorAvailable, programIndicatorSelected], this, uiConfig.west_fill_accordion_programindicator);
         },
         items: [
             dataType,
@@ -2684,7 +2691,7 @@ Viewport = function(config) {
             }
 
             that.expandPath(path, 'id', '/', function() {
-                record = Ext.clone(that.getRootNode().findChild('id', id, true));
+                record = clone(that.getRootNode().findChild('id', id, true));
                 that.recordsToSelect.push(record);
                 that.multipleSelectIf(map, doUpdate);
             });
@@ -3122,7 +3129,7 @@ Viewport = function(config) {
             getPanels;
 
         onSelect = function() {
-            var win = ns.app.layoutWindow;
+            var win = layoutWindow;
 
             if (selectedStore.getRange().length || selectedAll.getValue()) {
                 win.addDimension({id: dimension.id, name: dimension.name});
@@ -3451,10 +3458,6 @@ Viewport = function(config) {
             onSelect();
         };
 
-        //availableStore.on('load', function() {
-            //ns.core.web.multiSelect.filterAvailable(available, selected);
-        //});
-
         panel = {
             xtype: 'panel',
             title: '<div class="' + iconCls + '">' + dimension.name + '</div>',
@@ -3560,7 +3563,7 @@ Viewport = function(config) {
                 period,
                 organisationUnit
             ],
-            dims = Ext.clone(appManager.dimensions),
+            dims = clone(appManager.dimensions),
             dimPanels = getDimensionPanels(dims, 'ns-panel-title-dimension'),
             last;
 
@@ -3580,6 +3583,7 @@ Viewport = function(config) {
             return panels;
         }()
     });
+    uiManager.register(accordionBody, 'accordionBody');
 
     var accordion = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none; padding:1px; padding-bottom:0; overflow-y:scroll;',
@@ -3591,11 +3595,11 @@ Viewport = function(config) {
 
             if (westRegion.hasScrollbar) {
                 height = panelHeight + mx;
-                this.setHeight(viewport.getHeight() - 2);
+                this.setHeight(westRegion.getHeight() - 2);
                 accordionBody.setHeight(height - 2);
             }
             else {
-                height = westRegion.getHeight() - uiConfig.west_fill;
+                height = westRegiofn.getHeight() - uiConfig.west_fill;
                 mx += panelHeight;
                 accordion.setHeight((height > mx ? mx : height) - 2);
                 accordionBody.setHeight((height > mx ? mx : height) - 2);
@@ -3614,6 +3618,7 @@ Viewport = function(config) {
             return this.panels[0];
         }
     });
+    uiManager.register(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
@@ -3632,13 +3637,9 @@ Viewport = function(config) {
                 return uiConfig.west_width + 17;
             }
         }(),
-        items: accordion,
-        listeners: {
-            added: function() {
-                //ns.app.westRegion = this;
-            }
-        }
+        items: accordion
     });
+    uiManager.register(westRegion, 'westRegion');
 
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
@@ -3726,37 +3727,28 @@ Viewport = function(config) {
         text: i18n.options,
         menu: {},
         handler: function() {
-            if (!ns.app.optionsWindow) {
-                ns.app.optionsWindow = OptionsWindow();
+            if (!optionsWindow) {
+                optionsWindow = uiManager.register(new OptionsWindow(), 'optionsWindow');
             }
 
-            ns.app.optionsWindow.show();
-        },
-        listeners: {
-            added: function() {
-                //ns.app.optionsButton = this;
-            }
+            optionsWindow.show();
         }
     });
+    uiManager.register(optionsButton, 'optionsButton');
 
     var favoriteButton = Ext.create('Ext.button.Button', {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            if (ns.app.favoriteWindow) {
-                ns.app.favoriteWindow.destroy();
-                ns.app.favoriteWindow = null;
+            if (favoriteWindow) {
+                favoriteWindow.destroy();
             }
 
-            ns.app.favoriteWindow = FavoriteWindow();
-            ns.app.favoriteWindow.show();
-        },
-        listeners: {
-            added: function() {
-                //ns.app.favoriteButton = this;
-            }
+            favoriteWindow = uiManager.register(new FavoriteWindow(), 'favoriteWindow');
+            favoriteWindow.show();
         }
     });
+    uiManager.register(optionsButton, 'optionsButton');
 
     var getParamString = function(layout) {
         layout = layout || ns.app.layout;
@@ -3772,14 +3764,14 @@ Viewport = function(config) {
 
     var openTableLayoutTab = function(type, isNewTab) {
         if (path && ns.app.paramString) {
-            var colDimNames = Ext.clone(ns.app.xLayout.columnDimensionNames),
+            var colDimNames = clone(ns.app.xLayout.columnDimensionNames),
                 colObjNames = ns.app.xLayout.columnObjectNames,
-                rowDimNames = Ext.clone(ns.app.xLayout.rowDimensionNames),
+                rowDimNames = clone(ns.app.xLayout.rowDimensionNames),
                 rowObjNames = ns.app.xLayout.rowObjectNames,
                 dc = operandObjectName,
                 co = categoryObjectName,
-                columnNames = Ext.Array.clean([].concat(colDimNames, (arrayContains(colObjNames, dc) ? co : []))),
-                rowNames = Ext.Array.clean([].concat(rowDimNames, (arrayContains(rowObjNames, dc) ? co : []))),
+                columnNames = arrayClean([].concat(colDimNames, (arrayContains(colObjNames, dc) ? co : []))),
+                rowNames = arrayClean([].concat(rowDimNames, (arrayContains(rowObjNames, dc) ? co : []))),
                 url = '';
 
             url += path + '/api/analytics.' + type + getParamString();
@@ -4029,9 +4021,9 @@ Viewport = function(config) {
                             iconCls: 'ns-menu-item-datasource',
                             hidden: !(ns.app.layout && !!ns.app.layout.showHierarchy && ns.app.xResponse.nameHeaderMap.hasOwnProperty('ou')),
                             handler: function() {
-                                var response = ns.core.service.response.addOuHierarchyDimensions(Ext.clone(ns.app.response));
+                                var response = responseManager.addOuHierarchyDimensions(clone(ns.app.response));
 
-                                ns.core.web.document.printResponseCSV(response);
+                                responseManager.printResponseCSV(response);
                             }
                         });
                     }
@@ -4043,7 +4035,7 @@ Viewport = function(config) {
                         ns.app.downloadButton = this;
                     },
                     show: function() {
-                        ns.core.web.window.setAnchorPosition(b.menu, b);
+                        uiManager.setAnchorPosition(b.menu, b);
                     },
                     hide: function() {
                         b.menu.destroy();
@@ -4057,6 +4049,7 @@ Viewport = function(config) {
             this.menu.show();
         }
     });
+    uiManager.register(downloadButton, 'downloadButton');
 
     var interpretationItem = Ext.create('Ext.menu.Item', {
         text: i18n.write_interpretation + '&nbsp;&nbsp;',
@@ -4097,7 +4090,7 @@ Viewport = function(config) {
             var textArea,
                 window,
                 text = '',
-                version = 'v' + parseFloat(ns.core.init.systemInfo.version.split('.').join(''));
+                version = 'v' + parseFloat(appManager.systemInfo.version.split('.').join(''));
 
             text += '<html>\n<head>\n';
             text += '<link rel="stylesheet" href="//dhis2-cdn.org/' + version + '/ext/resources/css/ext-plugin-gray.css" />\n';
@@ -4138,12 +4131,12 @@ Viewport = function(config) {
                 ],
                 listeners: {
                     show: function(w) {
-                        ns.core.web.window.setAnchorPosition(w, ns.app.shareButton);
+                        uiManager.setAnchorPosition(w, shareButton);
 
                         document.body.oncontextmenu = true;
 
                         if (!w.hasDestroyOnBlurHandler) {
-                            ns.core.web.window.addDestroyOnBlurHandler(w);
+                            uiManager.addDestroyOnBlurHandler(w);
                         }
                     },
                     hide: function() {
@@ -4187,12 +4180,12 @@ Viewport = function(config) {
                 html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>',
                 listeners: {
                     show: function(w) {
-                        ns.core.web.window.setAnchorPosition(w, ns.app.shareButton);
+                        uiManager.setAnchorPosition(w, shareButton);
 
                         document.body.oncontextmenu = true;
 
                         if (!w.hasDestroyOnBlurHandler) {
-                            ns.core.web.window.addDestroyOnBlurHandler(w);
+                            uiManager.addDestroyOnBlurHandler(w);
                         }
                     },
                     hide: function() {
@@ -4236,12 +4229,12 @@ Viewport = function(config) {
                 html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>',
                 listeners: {
                     show: function(w) {
-                        ns.core.web.window.setAnchorPosition(w, ns.app.shareButton);
+                        uiManager.setAnchorPosition(w, shareButton);
 
                         document.body.oncontextmenu = true;
 
                         if (!w.hasDestroyOnBlurHandler) {
-                            ns.core.web.window.addDestroyOnBlurHandler(w);
+                            uiManager.addDestroyOnBlurHandler(w);
                         }
                     },
                     hide: function() {
@@ -4281,31 +4274,23 @@ Viewport = function(config) {
                     shareButton.xableItems();
                 }
             }
-        },
-        listeners: {
-            added: function() {
-                ns.app.shareButton = this;
-            }
         }
     });
+    uiManager.register(shareButton, 'shareButton');
 
     var aboutButton = Ext.create('Ext.button.Button', {
         text: i18n.about,
         menu: {},
         handler: function() {
-            if (ns.app.aboutWindow && ns.app.aboutWindow.destroy) {
-                ns.app.aboutWindow.destroy();
+            if (aboutWindow && aboutWindow.destroy) {
+                aboutWindow.destroy();
             }
 
-            ns.app.aboutWindow = AboutWindow();
-            ns.app.aboutWindow.show();
-        },
-        listeners: {
-            added: function() {
-                ns.app.aboutButton = this;
-            }
+            aboutWindow = uiManager.register(new AboutWindow(), 'aboutWindow');
+            aboutWindow.show();
         }
     });
+    uiManager.register(aboutButton, 'aboutButton');
 
     var defaultButton = Ext.create('Ext.button.Button', {
         text: i18n.table,
@@ -4329,7 +4314,7 @@ Viewport = function(config) {
                 ],
                 listeners: {
                     show: function() {
-                        ns.core.web.window.setAnchorPosition(b.menu, b);
+                        uiManager.setAnchorPosition(b.menu, b);
                     },
                     hide: function() {
                         b.menu.destroy();
@@ -4422,19 +4407,22 @@ Viewport = function(config) {
                                 {
                                     text: i18n.open_this_table_as_chart + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !(NS.isSessionStorage && ns.app.layout),
+                                    disabled: !(ns.app.layout),
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled && NS.isSessionStorage) {
+                                                if (!b.disabled) {
                                                     ns.app.layout.parentGraphMap = treePanel.getParentGraphMap();
-                                                    ns.core.web.storage.session.set(ns.app.layout, 'analytical');
 
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-visualizer/index.html?s=analytical';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-visualizer/index.html?s=analytical', '_blank');
+                                                    var supported = sessionStorageManager.set(ns.app.layout, 'analytical');
+
+                                                    if (supported) {
+                                                        if (e.button === 0 && !e.ctrlKey) {
+                                                            window.location.href = path + '/dhis-web-visualizer/index.html?s=analytical';
+                                                        }
+                                                        else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
+                                                            window.open(path + '/dhis-web-visualizer/index.html?s=analytical', '_blank');
+                                                        }
                                                     }
                                                 }
                                             });
@@ -4444,7 +4432,7 @@ Viewport = function(config) {
                                 {
                                     text: i18n.open_last_chart + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !(NS.isSessionStorage && JSON.parse(sessionStorage.getItem('dhis2')) && JSON.parse(sessionStorage.getItem('dhis2'))['chart']),
+                                    disabled: !sessionStorageManager.get('chart'),
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
@@ -4463,7 +4451,7 @@ Viewport = function(config) {
                             ],
                             listeners: {
                                 show: function() {
-                                    ns.core.web.window.setAnchorPosition(b.menu, b);
+                                    uiManager.setAnchorPosition(b.menu, b);
                                 },
                                 hide: function() {
                                     b.menu.destroy();
@@ -4516,19 +4504,22 @@ Viewport = function(config) {
                                 {
                                     text: i18n.open_this_table_as_map + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !(NS.isSessionStorage && ns.app.layout),
+                                    disabled: !ns.app.layout,
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled && NS.isSessionStorage) {
+                                                if (!b.disabled) {
                                                     ns.app.layout.parentGraphMap = treePanel.getParentGraphMap();
-                                                    ns.core.web.storage.session.set(ns.app.layout, 'analytical');
 
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-mapping/index.html?s=analytical';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-mapping/index.html?s=analytical', '_blank');
+                                                    var supported = sessionStorageManager.set(ns.app.layout, 'analytical');
+
+                                                    if (supported) {
+                                                        if (e.button === 0 && !e.ctrlKey) {
+                                                            window.location.href = path + '/dhis-web-mapping/index.html?s=analytical';
+                                                        }
+                                                        else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
+                                                            window.open(path + '/dhis-web-mapping/index.html?s=analytical', '_blank');
+                                                        }
                                                     }
                                                 }
                                             });
@@ -4538,7 +4529,7 @@ Viewport = function(config) {
                                 {
                                     text: i18n.open_last_map + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !(NS.isSessionStorage && JSON.parse(sessionStorage.getItem('dhis2')) && JSON.parse(sessionStorage.getItem('dhis2'))['chart']),
+                                    disabled: !sessionStorageManager.get('chart'),
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
@@ -4557,7 +4548,7 @@ Viewport = function(config) {
                             ],
                             listeners: {
                                 show: function() {
-                                    ns.core.web.window.setAnchorPosition(b.menu, b);
+                                    uiManager.setAnchorPosition(b.menu, b);
                                 },
                                 hide: function() {
                                     b.menu.destroy();
@@ -4598,9 +4589,6 @@ Viewport = function(config) {
             ]
         },
         listeners: {
-            added: function() {
-                ns.app.centerRegion = this;
-            },
             afterrender: function(p) {
                 var html = '';
 
@@ -4631,9 +4619,10 @@ Viewport = function(config) {
             }
         }
     });
+    uiManager.register(centerRegion, 'centerRegion');
 
     var setGui = function(layout, xLayout, updateGui) {
-        var dimensions = Ext.Array.clean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
+        var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
             dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
             recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
             graphMap = layout.parentGraphMap,
@@ -4867,15 +4856,6 @@ Viewport = function(config) {
             centerRegion
         ],
         listeners: {
-            render: function() {
-                ns.app.viewport = this;
-
-                ns.app.layoutWindow = LayoutWindow();
-                ns.app.layoutWindow.hide();
-
-                ns.app.optionsWindow = OptionsWindow();
-                ns.app.optionsWindow.hide();
-            },
             afterrender: function() {
 
                 // resize event handler
@@ -4889,7 +4869,7 @@ Viewport = function(config) {
 
                 // left gui
                 var viewportHeight = westRegion.getHeight(),
-                    numberOfTabs = ns.core.init.dimensions.length + 3,
+                    numberOfTabs = appManager.dimensions.length + 3,
                     tabHeight = 28,
                     minPeriodHeight = 380;
 
@@ -4908,18 +4888,18 @@ Viewport = function(config) {
                 accordion.getFirstPanel().expand();
 
                 // look for url params
-                var id = ns.core.web.url.getParam('id'),
-                    session = ns.core.web.url.getParam('s'),
+                var id = appManager.getUrlParam('id'),
+                    session = appManager.getUrlParam('s'),
                     layout;
 
                 if (id) {
-                    ns.core.web.pivot.loadTable(id);
+                    instanceManager.getById(id);
                 }
-                else if (isString(session) && NS.isSessionStorage && isObject(JSON.parse(sessionStorage.getItem('dhis2'))) && session in JSON.parse(sessionStorage.getItem('dhis2'))) {
-                    layout = ns.core.api.layout.Layout(JSON.parse(sessionStorage.getItem('dhis2'))[session]);
+                else if (isString(session) && sessionStorageManager.get(session)) {
+                    layout = new api.Layout(sessionStorageManager.get(session));
 
                     if (layout) {
-                        ns.core.web.pivot.getData(layout, true);
+                        instanceManager.getReport(layout);
                     }
                 }
 
@@ -4943,6 +4923,7 @@ Viewport = function(config) {
             }
         }
     }));
+    uiManager.register(this, 'viewport');
 
     // add listeners
     (function() {

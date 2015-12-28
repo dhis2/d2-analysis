@@ -1,9 +1,9 @@
 export var organisationUnitLevelsInit;
 
-organisationUnitLevelsInit = function() {
-    var t = organisationUnitLevelsInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
+organisationUnitLevelsInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();

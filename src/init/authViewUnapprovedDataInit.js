@@ -1,10 +1,10 @@
 export var authViewUnapprovedDataInit;
 
-authViewUnapprovedDataInit = function() {
-    var t = authViewUnapprovedDataInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
-        
+authViewUnapprovedDataInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
+
         path = appManager.getPath();
 
     return {

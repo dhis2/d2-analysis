@@ -1,9 +1,9 @@
 export var rootNodesInit;
 
-rootNodesInit = function() {
-    var t = rootNodesInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
+rootNodesInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();

@@ -1,9 +1,9 @@
 export var legendSetsInit;
 
-legendSetsInit = function() {
-    var t = legendSetsInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
+legendSetsInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();

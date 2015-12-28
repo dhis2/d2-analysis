@@ -16,6 +16,7 @@ import {DateManager} from './manager/DateManager.js';
 import {CalendarManager} from './manager/CalendarManager.js';
 import {I18nManager} from './manager/I18nManager.js';
 import {RequestManager} from './manager/RequestManager.js';
+import {ResponseManager} from './manager/ResponseManager.js';
 import {SessionStorageManager} from './manager/SessionStorageManager.js';
 import {UiManager} from './manager/UiManager.js';
 import {InstanceManager} from './manager/InstanceManager.js';
@@ -61,6 +62,7 @@ export {
     CalendarManager,
     I18nManager,
     RequestManager,
+    ResponseManager,
     SessionStorageManager,
     UiManager,
     InstanceManager,
@@ -111,6 +113,7 @@ export const manager = {
     CalendarManager: CalendarManager,
     I18nManager: I18nManager,
     RequestManager: RequestManager,
+    ResponseManager: ResponseManager,
     SessionStorageManager: SessionStorageManager,
     UiManager: UiManager,
     InstanceManager: InstanceManager

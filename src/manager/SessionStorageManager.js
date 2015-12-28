@@ -18,12 +18,14 @@ SessionStorageManager = function() {
     };
 };
 
-SessionStorageManager.prototype.has = function(session) {
+SessionStorageManager.prototype.get = function(session) {
     if (!this.supportHandler()) {
         return;
     }
 
-    return (JSON.parse(sessionStorage.getItem(this.db)) && JSON.parse(sessionStorage.getItem(this.db))[session]);
+    var db = JSON.parse(sessionStorage.getItem(this.db)) || {};
+
+    return db[session];
 };
 
 SessionStorageManager.prototype.set = function(layout, session, url) {
@@ -31,9 +33,9 @@ SessionStorageManager.prototype.set = function(layout, session, url) {
         return;
     }
 
-    var dhis2 = JSON.parse(sessionStorage.getItem(this.db)) || {};
-    dhis2[session] = layout;
-    sessionStorage.setItem(this.db, JSON.stringify(dhis2));
+    var db = JSON.parse(sessionStorage.getItem(this.db)) || {};
+    db[session] = layout;
+    sessionStorage.setItem(this.db, JSON.stringify(db));
 
     if (url) {
         window.location.href = url;

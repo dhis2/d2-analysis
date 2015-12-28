@@ -1,4 +1,4 @@
-import {isString, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
+import {isString, isObject, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
 
 export var AppManager;
 
@@ -83,6 +83,26 @@ AppManager = function() {
     t.displayProperty;
     t.displayPropertyUrl;
     t.analysisFields;
+
+    // fns
+    t.getUrlParam = function(s) {
+        var output = '';
+        var href = window.location.href;
+        if (href.indexOf('?') > -1 ) {
+            var query = href.substr(href.indexOf('?') + 1);
+            var query = query.split('&');
+            for (var i = 0; i < query.length; i++) {
+                if (query[i].indexOf('=') > -1) {
+                    var a = query[i].split('=');
+                    if (a[0].toLowerCase() === s) {
+                        output = a[1];
+                        break;
+                    }
+                }
+            }
+        }
+        return unescape(output);
+    };
 };
 
 AppManager.prototype.getPath = function() {
@@ -165,7 +185,7 @@ AppManager.prototype.setAuth = function(env) {
             });
         }
 
-        if (Ext) {
+        if (isObject(Ext) && isObject(Ext.Ajax)) {
             Ext.Ajax.defaultHeaders = headers;
         }
     }

@@ -1,9 +1,9 @@
 export var dataApprovalLevelsInit;
 
-dataApprovalLevelsInit = function() {
-    var t = dataApprovalLevelsInit,
-        appManager = t.appManager,
-        requestManager = t.requestManager,
+dataApprovalLevelsInit = function(c) {
+    var t = this,
+        appManager = c.appManager,
+        requestManager = c.requestManager,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();

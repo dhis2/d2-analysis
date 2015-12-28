@@ -17,7 +17,7 @@ UiManager = function() {
     };
 
     t.get = function(name) {
-        return components[name];
+        return components[name] || {};
     };
 
     // browser
@@ -196,6 +196,64 @@ UiManager = function() {
         });
 
         w.hasDestroyOnBlurHandler = true;
+    };
+
+    // alert
+    t.alert = function(obj) {
+        var config = {},
+            type,
+            window;
+
+        if (!obj || (isObject(obj) && !obj.message && !obj.responseText)) {
+            return;
+        }
+
+        // if response object
+        if (isObject(obj) && obj.responseText && !obj.message) {
+            obj = JSON.parse(obj.responseText);
+        }
+
+        // if string
+        if (isString(obj)) {
+            obj = {
+                status: 'ERROR',
+                message: obj
+            };
+        }
+
+        // web message
+        type = (obj.status || 'INFO').toLowerCase();
+
+        config.title = obj.status;
+        config.iconCls = 'ns-window-title-messagebox ' + type;
+
+        // html
+        config.html = '';
+        config.html += obj.httpStatusCode ? 'Code: ' + obj.httpStatusCode + '<br>' : '';
+        config.html += obj.httpStatus ? 'Status: ' + obj.httpStatus + '<br><br>' : '';
+        config.html += obj.message + (obj.message.substr(obj.message.length - 1) === '.' ? '' : '.');
+
+        // bodyStyle
+        config.bodyStyle = 'padding: 12px; background: #fff; max-width: 600px; max-height: ' + t.getHeight() / 2 + 'px';
+
+        // destroy handler
+        config.modal = true;
+        config.destroyOnBlur = true;
+
+        // listeners
+        config.listeners = {
+            show: function(w) {
+                w.setPosition(w.getPosition()[0], w.getPosition()[1] / 2);
+
+                if (!w.hasDestroyOnBlurHandler) {
+                    t.addDestroyOnBlurHandler(w);
+                }
+            }
+        };
+
+        window = Ext.create('Ext.window.Window', config);
+
+        window.show();
     };
 };
 

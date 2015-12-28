@@ -1,4 +1,4 @@
-import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck} from 'd2-utilizr';
+import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, clone} from 'd2-utilizr';
 import {Axis} from './Axis.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
@@ -6,81 +6,81 @@ import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
 
-Layout = function(config, applyConfig, forceApplyConfig) {
+Layout = function(c, applyConfig, forceApplyConfig) {
     var t = this;
     t.klass = Layout;
 
-    config = isObject(config) ? config : {};
-    $.extend(config, applyConfig);
+    c = isObject(c) ? c : {};
+    $.extend(c, applyConfig);
 
     // constructor
-    t.columns = (Axis(config.columns)).val();
-    t.rows = (Axis(config.rows)).val();
-    t.filters = (Axis(config.filters)).val();
+    t.columns = (Axis(c.columns)).val();
+    t.rows = (Axis(c.rows)).val();
+    t.filters = (Axis(c.filters)).val();
 
-    t.showColTotals = isBoolean(config.colTotals) ? config.colTotals : (isBoolean(config.showColTotals) ? config.showColTotals : true);
-    t.showRowTotals = isBoolean(config.rowTotals) ? config.rowTotals : (isBoolean(config.showRowTotals) ? config.showRowTotals : true);
-    t.showColSubTotals = isBoolean(config.colSubTotals) ? config.colSubTotals : (isBoolean(config.showColSubTotals) ? config.showColSubTotals : true);
-    t.showRowSubTotals = isBoolean(config.rowSubTotals) ? config.rowSubTotals : (isBoolean(config.showRowSubTotals) ? config.showRowSubTotals : true);
-    t.showDimensionLabels = isBoolean(config.showDimensionLabels) ? config.showDimensionLabels : (isBoolean(config.showDimensionLabels) ? config.showDimensionLabels : true);
-    t.hideEmptyRows = isBoolean(config.hideEmptyRows) ? config.hideEmptyRows : false;
-    t.skipRounding = isBoolean(config.skipRounding) ? config.skipRounding : false;
-    t.aggregationType = isString(config.aggregationType) ? config.aggregationType : OptionConf.getAggregationType('def').id;
-    t.dataApprovalLevel = isObject(config.dataApprovalLevel) && isString(config.dataApprovalLevel.id) ? config.dataApprovalLevel : null;
-    t.showHierarchy = isBoolean(config.showHierarchy) ? config.showHierarchy : false;
-    t.completedOnly = isBoolean(config.completedOnly) ? config.completedOnly : false;
-    t.displayDensity = isString(config.displayDensity) && !isEmpty(config.displayDensity) ? config.displayDensity : OptionConf.getDisplayDensity('normal').id;
-    t.fontSize = isString(config.fontSize) && !isEmpty(config.fontSize) ? config.fontSize : OptionConf.getFontSize('normal').id;
-    t.digitGroupSeparator = isString(config.digitGroupSeparator) && !isEmpty(config.digitGroupSeparator) ? config.digitGroupSeparator : OptionConf.getDigitGroupSeparator('space').id;
+    t.showColTotals = isBoolean(c.colTotals) ? c.colTotals : (isBoolean(c.showColTotals) ? c.showColTotals : true);
+    t.showRowTotals = isBoolean(c.rowTotals) ? c.rowTotals : (isBoolean(c.showRowTotals) ? c.showRowTotals : true);
+    t.showColSubTotals = isBoolean(c.colSubTotals) ? c.colSubTotals : (isBoolean(c.showColSubTotals) ? c.showColSubTotals : true);
+    t.showRowSubTotals = isBoolean(c.rowSubTotals) ? c.rowSubTotals : (isBoolean(c.showRowSubTotals) ? c.showRowSubTotals : true);
+    t.showDimensionLabels = isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : (isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : true);
+    t.hideEmptyRows = isBoolean(c.hideEmptyRows) ? c.hideEmptyRows : false;
+    t.skipRounding = isBoolean(c.skipRounding) ? c.skipRounding : false;
+    t.aggregationType = isString(c.aggregationType) ? c.aggregationType : OptionConf.getAggregationType('def').id;
+    t.dataApprovalLevel = isObject(c.dataApprovalLevel) && isString(c.dataApprovalLevel.id) ? c.dataApprovalLevel : null;
+    t.showHierarchy = isBoolean(c.showHierarchy) ? c.showHierarchy : false;
+    t.completedOnly = isBoolean(c.completedOnly) ? c.completedOnly : false;
+    t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : OptionConf.getDisplayDensity('normal').id;
+    t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : OptionConf.getFontSize('normal').id;
+    t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : OptionConf.getDigitGroupSeparator('space').id;
 
-    t.legendSet = (new Record(config.legendSet)).val(true);
+    t.legendSet = (new Record(c.legendSet)).val(true);
 
-    t.parentGraphMap = isObject(config.parentGraphMap) ? config.parentGraphMap : null;
+    t.parentGraphMap = isObject(c.parentGraphMap) ? c.parentGraphMap : null;
 
-    if (isObject(config.program)) {
-        t.program = config.program;
+    if (isObject(c.program)) {
+        t.program = c.program;
     }
 
         // report table
-    t.reportingPeriod = isObject(config.reportParams) && isBoolean(config.reportParams.paramReportingPeriod) ? config.reportParams.paramReportingPeriod : (isBoolean(config.reportingPeriod) ? config.reportingPeriod : false);
-    t.organisationUnit =  isObject(config.reportParams) && isBoolean(config.reportParams.paramOrganisationUnit) ? config.reportParams.paramOrganisationUnit : (isBoolean(config.organisationUnit) ? config.organisationUnit : false);
-    t.parentOrganisationUnit = isObject(config.reportParams) && isBoolean(config.reportParams.paramParentOrganisationUnit) ? config.reportParams.paramParentOrganisationUnit : (isBoolean(config.parentOrganisationUnit) ? config.parentOrganisationUnit : false);
+    t.reportingPeriod = isObject(c.reportParams) && isBoolean(c.reportParams.paramReportingPeriod) ? c.reportParams.paramReportingPeriod : (isBoolean(c.reportingPeriod) ? c.reportingPeriod : false);
+    t.organisationUnit =  isObject(c.reportParams) && isBoolean(c.reportParams.paramOrganisationUnit) ? c.reportParams.paramOrganisationUnit : (isBoolean(c.organisationUnit) ? c.organisationUnit : false);
+    t.parentOrganisationUnit = isObject(c.reportParams) && isBoolean(c.reportParams.paramParentOrganisationUnit) ? c.reportParams.paramParentOrganisationUnit : (isBoolean(c.parentOrganisationUnit) ? c.parentOrganisationUnit : false);
 
-    t.regression = isBoolean(config.regression) ? config.regression : false;
-    t.cumulative = isBoolean(config.cumulative) ? config.cumulative : false;
-    t.sortOrder = isNumber(config.sortOrder) ? config.sortOrder : 0;
-    t.topLimit = isNumber(config.topLimit) ? config.topLimit : 0;
+    t.regression = isBoolean(c.regression) ? c.regression : false;
+    t.cumulative = isBoolean(c.cumulative) ? c.cumulative : false;
+    t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
+    t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
         // non model
 
         // id
-    if (isString(config.id)) {
-        t.id = config.id;
+    if (isString(c.id)) {
+        t.id = c.id;
     }
 
         // name
-    if (isString(config.name)) {
-        t.name = config.name;
+    if (isString(c.name)) {
+        t.name = c.name;
     }
 
         // sorting
-    if (isObject(config.sorting) && isDefined(config.sorting.id) && isString(config.sorting.direction)) {
-        t.sorting = config.sorting;
+    if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
+        t.sorting = c.sorting;
     }
 
         // displayProperty
-    if (isString(config.displayProperty)) {
-        t.displayProperty = config.displayProperty;
+    if (isString(c.displayProperty)) {
+        t.displayProperty = c.displayProperty;
     }
 
         // userOrgUnit
-    if (arrayFrom(config.userOrgUnit).length) {
-        t.userOrgUnit = arrayFrom(config.userOrgUnit);
+    if (arrayFrom(c.userOrgUnit).length) {
+        t.userOrgUnit = arrayFrom(c.userOrgUnit);
     }
 
         // relative period date
-    if (DateManager.getYYYYMMDD(config.relativePeriodDate)) {
-        t.relativePeriodDate = DateManager.getYYYYMMDD(config.relativePeriodDate);
+    if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
+        t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
     }
 
     $.extend(t, forceApplyConfig);
@@ -110,6 +110,116 @@ Layout.prototype.getUserOrgUnitUrl = function() {
         return 'userOrgUnit=' + this.userOrgUnit.join(';');
     }
 };
+
+Layout.prototype.toPlugin = function(layout, el) {
+    var layout = clone(layout),
+        dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || []));
+
+    layout.url = init.contextPath;
+
+    if (el) {
+        layout.el = el;
+    }
+
+    if (Ext.isString(layout.id)) {
+        return {id: layout.id};
+    }
+
+    for (var i = 0, dimension, item; i < dimensions.length; i++) {
+        dimension = dimensions[i];
+
+        delete dimension.id;
+        delete dimension.ids;
+        delete dimension.type;
+        delete dimension.dimensionName;
+        delete dimension.objectName;
+
+        for (var j = 0, item; j < dimension.items.length; j++) {
+            item = dimension.items[j];
+
+            delete item.name;
+            delete item.code;
+            delete item.created;
+            delete item.lastUpdated;
+            delete item.value;
+        }
+    }
+
+    if (layout.showRowTotals) {
+        delete layout.showRowTotals;
+    }
+
+    if (layout.showColTotals) {
+        delete layout.showColTotals;
+    }
+
+    if (layout.showColSubTotals) {
+        delete layout.showColSubTotals;
+    }
+
+    if (layout.showRowSubTotals) {
+        delete layout.showRowSubTotals;
+    }
+
+    if (layout.showDimensionLabels) {
+        delete layout.showDimensionLabels;
+    }
+
+    if (!layout.hideEmptyRows) {
+        delete layout.hideEmptyRows;
+    }
+
+    if (!layout.skipRounding) {
+        delete layout.skipRounding;
+    }
+
+    if (!layout.showHierarchy) {
+        delete layout.showHierarchy;
+    }
+
+    if (!layout.completedOnly) {
+        delete layout.completedOnly;
+    }
+
+    if (layout.displayDensity === conf.finals.style.normal) {
+        delete layout.displayDensity;
+    }
+
+    if (layout.fontSize === conf.finals.style.normal) {
+        delete layout.fontSize;
+    }
+
+    if (layout.digitGroupSeparator === conf.finals.style.space) {
+        delete layout.digitGroupSeparator;
+    }
+
+    if (!layout.legendSet) {
+        delete layout.legendSet;
+    }
+
+    if (!layout.sorting) {
+        delete layout.sorting;
+    }
+
+    if (layout.aggregationType === conf.finals.style.default_) {
+        delete layout.aggregationType;
+    }
+
+    if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === conf.finals.style.default_) {
+        delete layout.dataApprovalLevel;
+    }
+
+    delete layout.parentGraphMap;
+    delete layout.reportingPeriod;
+    delete layout.organisationUnit;
+    delete layout.parentOrganisationUnit;
+    delete layout.regression;
+    delete layout.cumulative;
+    delete layout.sortOrder;
+    delete layout.topLimit;
+
+    return layout;
+}
 
 // dep 1
 
@@ -241,7 +351,7 @@ Layout.prototype.req = function(baseUrl, isSorted) {
 Layout.prototype.data = function(request) {
     var path = this.klass.appManager ? this.klass.appManager.getPath() : '',
         analyticsPath = '/api/analytics.json';
-    
+
     if (request) {
         return $.getJSON(path + analyticsPath + request.url());
     }
