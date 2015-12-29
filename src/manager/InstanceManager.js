@@ -105,6 +105,8 @@ InstanceManager.prototype.getData = function(layout) {
 InstanceManager.prototype.getReport = function(layout, response) {
     var t = this;
 
+    t.uiManager.mask();
+
     if (!layout) {
         layout = this.getLayout();
         response = null;

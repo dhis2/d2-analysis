@@ -124,9 +124,11 @@ UiManager = function() {
 
     // mask
     t.mask = function(component, message) {
-        if (!isObject(component)) {
-            console.log('mask: component not an object', component, message);
-            return null;
+        component = component || t.get('centerRegion');
+
+        if (!component) {
+            console.log('mask: no component', component, message);
+            return;
         }
 
         message = message || 'Loading..';
@@ -147,9 +149,11 @@ UiManager = function() {
     };
 
     t.unmask = function(component) {
-        if (!isObject(component)) {
-            console.log('mask: component not an object', component, message);
-            return null;
+        component = component || t.get('centerRegion');
+
+        if (!component) {
+            console.log('unmask: no component', component, message);
+            return;
         }
 
         if (component.mask && component.mask.destroy) {
