@@ -53,12 +53,12 @@ InstanceManager = function(config) {
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
-    layoutConfig = layoutConfig || this.uiManager.getLayoutState();
+    layoutConfig = layoutConfig || this.uiManager.getUiState();
 
     return new this.api.Layout(layoutConfig);
 };
 
-InstanceManager.prototype.getById = function(id, ) {
+InstanceManager.prototype.getById = function(id) {
     if (!isString(id)) {
         console.log('Invalid id', id);
         return;
@@ -90,6 +90,10 @@ InstanceManager.prototype.getById = function(id, ) {
     });
 };
 
+InstanceManager.prototype.getUiState = function() {
+    return this.uiManager.getUiState();
+};
+
 // dep 1
 
 InstanceManager.prototype.getData = function(layout) {
@@ -119,7 +123,7 @@ InstanceManager.prototype.getReport = function(layout, response) {
 
                 response = new t.api.Response(res);
 
-                t.fn(layout, response);
+                t.getFn()(layout, response);
             });
         });
     }

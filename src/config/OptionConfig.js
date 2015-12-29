@@ -13,6 +13,7 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
+    var dataApprovalLevel;
 
     // setter
     var setDisplayDensity = function() {
@@ -118,6 +119,16 @@ OptionConfig = function() {
         };
     };
 
+    var setDataApprovalLevel = function() {
+        dataApprovalLevel = {
+            'def': {
+                index: 1,
+                id: 'DEFAULT',
+                name: i18nManager.get('show_all_data') || 'Show all data'
+            }
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -139,6 +150,7 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
+        setDataApprovalLevel();
     };
 
     // prototype
@@ -156,6 +168,10 @@ OptionConfig = function() {
 
     t.getAggregationType = function(key) {
         return key ? aggregationType[key] : aggregationType;
+    };
+
+    t.getDataApprovalLevel = function(key) {
+        return key ? dataApprovalLevel[key] : dataApprovalLevel;
     };
 
     t.getDisplayDensityRecords = function() {

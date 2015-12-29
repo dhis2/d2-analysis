@@ -160,7 +160,8 @@ UiManager = function() {
 
     // window
     t.setAnchorPosition = function(w, target) {
-        var vpw = app.getViewportWidth(),
+        //var vpw = app.getViewportWidth(),
+        var vpw = this.getWidth(),
             targetx = target ? target.getPosition()[0] : 4,
             winw = w.getWidth(),
             y = target ? target.getPosition()[1] + target.getHeight() + 4 : 33;
@@ -265,6 +266,14 @@ UiManager.prototype.applyTo = function(modules) {
     });
 };
 
+UiManager.prototype.getWidth = function() {
+    return this.get('viewport').getWidth();
+};
+
 UiManager.prototype.getHeight = function() {
-    return this.getUi().viewport.getHeight();
+    return this.get('viewport').getHeight();
+};
+
+UiManager.prototype.getUiState = function() {
+    return this.get('viewport').getUiState();
 };

@@ -1,4 +1,4 @@
-import {isString, isObject, isIE, arrayFrom, arrayContains, arraySort, clone} from 'd2-utilizr';
+import {isString, isNumber, isObject, isIE, arrayFrom, arrayContains, arraySort, clone} from 'd2-utilizr';
 import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
@@ -14,6 +14,7 @@ Viewport = function(c) {
         responseManager = c.responseManager,
         i18nManager = c.i18nManager,
         sessionStorageManager = c.sessionStorageManager,
+        instanceManager = c.instanceManager,
         dimensionConfig = c.dimensionConfig,
         periodConfig = c.periodConfig,
         uiConfig = c.uiConfig,
@@ -149,7 +150,7 @@ Viewport = function(c) {
 
             this.isPending = false;
 
-            uiManager.msFilterAvailable({store: this}, {store: indicatorSelectedStore});
+            //uiManager.msFilterAvailable({store: this}, {store: indicatorSelectedStore});
 
             if (fn) {
                 fn();
@@ -351,7 +352,7 @@ Viewport = function(c) {
 
             this.isPending = false;
 
-            uiManager.msFilterAvailable({store: dataElementAvailableStore}, {store: dataElementSelectedStore});
+            //uiManager.msFilterAvailable({store: dataElementAvailableStore}, {store: dataElementSelectedStore});
 
             if (fn) {
                 fn();
@@ -485,7 +486,7 @@ Viewport = function(c) {
 
             this.isPending = false;
 
-            uiManager.msFilterAvailable({store: dataSetAvailableStore}, {store: dataSetSelectedStore});
+            //uiManager.msFilterAvailable({store: dataSetAvailableStore}, {store: dataSetSelectedStore});
 
             if (fn) {
                 fn();
@@ -3543,14 +3544,6 @@ Viewport = function(c) {
 
     // viewport
 
-    var getLayout = function() {
-        //return new Layout(ns.core.web.pivot.getLayoutConfig());
-    };
-
-    var update = function() {
-        instanceManager.getReport();
-    };
-
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
         activeOnTop: true,
@@ -3644,7 +3637,7 @@ Viewport = function(c) {
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
         handler: function() {
-            update();
+            instanceManager.getReport();
         },
         arrowHandler: function(b) {
             b.menu = Ext.create('Ext.menu.Menu', {
@@ -4621,7 +4614,7 @@ Viewport = function(c) {
     });
     uiManager.register(centerRegion, 'centerRegion');
 
-    var setGui = function(layout, xLayout, updateGui) {
+    var setUiState = function(layout, xLayout, updateGui) {
         var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
             dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
             recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
@@ -4844,11 +4837,71 @@ Viewport = function(c) {
         }
     };
 
+    var getUiState = function() {
+        var layoutWindow = uiManager.get('layoutWindow'),
+            optionsWindow = uiManager.get('optionsWindow');
+
+        var columnDimNames = layoutWindow.colStore.getDimensionNames(),
+            rowDimNames = layoutWindow.rowStore.getDimensionNames(),
+            filterDimNames = layoutWindow.filterStore.getDimensionNames(),
+            config = optionsWindow.getOptions(),
+            dx = dimensionConfig.get('data').dimensionName,
+            co = dimensionConfig.get('category').dimensionName,
+            nameDimArrayMap = {};
+
+        config.columns = [];
+        config.rows = [];
+        config.filters = [];
+
+        // panel data
+        for (var i = 0, dim, dimName; i < accordionPanels.length; i++) {
+            dim = accordionPanels[i].getDimension();
+
+            if (dim) {
+                nameDimArrayMap[dim.dimension] = [dim];
+            }
+        }
+
+        // columns, rows, filters
+        for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
+            dimNames = nameArrays[i];
+
+            for (var j = 0, dimName, dim; j < dimNames.length; j++) {
+                dimName = dimNames[j];
+
+                if (dimName === co) {
+                    axes[i].push({
+                        dimension: co,
+                        items: []
+                    });
+                }
+                else if (dimName === dx && nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dx].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dx][k]));
+
+                        // TODO program
+                        if (nameDimArrayMap[dx][k].program) {
+                            config.program = nameDimArrayMap[dx][k].program;
+                        }
+                    }
+                }
+                else if (nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dimName].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dimName][k]));
+                    }
+                }
+            }
+        }
+
+        return config;
+    };
+
     $.extend(this, Ext.create('Ext.container.Viewport', {
         layout: 'border',
         period: period,
         treePanel: treePanel,
-        setGui: setGui,
+        getUiState: getUiState,
+        setUiState: setUiState,
         westRegion: westRegion,
         centerRegion: centerRegion,
         items: [
@@ -4868,13 +4921,13 @@ Viewport = function(c) {
                 });
 
                 // left gui
-                var viewportHeight = westRegion.getHeight(),
+                var viewportHeight = uiManager.get('centerRegion').getHeight(),
                     numberOfTabs = appManager.dimensions.length + 3,
                     tabHeight = 28,
                     minPeriodHeight = 380;
 
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
-                    if (!Ext.isIE) {
+                    if (!isIE) {
                         accordion.setAutoScroll(false);
                         westRegion.setWidth(uiConfig.west_width);
                         accordion.doLayout();
