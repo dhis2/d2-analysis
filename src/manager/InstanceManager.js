@@ -71,7 +71,7 @@ InstanceManager.prototype.getById = function(id) {
     var resource = t.getApiResource();
     var uiManager = t.uiManager;
     var api = t.api;
-    var i18n = i18nManager.get();
+    var i18n = t.i18nManager.get();
 
     $.getJSON(path + '/api/' + resource + '/' + id + '.json?fields=' + fields, function(r) {
         var layout = new api.Layout(r);

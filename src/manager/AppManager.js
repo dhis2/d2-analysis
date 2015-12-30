@@ -1,4 +1,4 @@
-import {isString, isObject, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
+import {isString, isObject, stringReplaceAll, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
 
 export var AppManager;
 
@@ -216,7 +216,7 @@ AppManager.prototype.isUiLocaleDefault = function() {
 };
 
 AppManager.prototype.getAnalysisFields = function() {
-    return this.analysisFields ? this.analysisFields : (this.analysisFields = (this.defaultAnalysisFields.join(',').replaceAll('$', this.getDisplayPropertyUrl())));
+    return this.analysisFields ? this.analysisFields : (this.analysisFields = stringReplaceAll(this.defaultAnalysisFields.join(','), '$', this.getDisplayPropertyUrl()));
 };
 
 AppManager.prototype.getRootNode = function() {

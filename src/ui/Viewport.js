@@ -3,6 +3,7 @@ import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
 import {Layout} from '../api/Layout.js';
+import {FavoriteWindow} from './FavoriteWindow.js';
 
 export var Viewport;
 
@@ -700,50 +701,6 @@ Viewport = function(c) {
     var fixedPeriodSelectedStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: []
-    });
-
-    var reportTableStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'lastUpdated', 'access'],
-        proxy: {
-            type: 'ajax',
-            reader: {
-                type: 'json',
-                root: 'reportTables'
-            },
-            startParam: false,
-            limitParam: false
-        },
-        isLoaded: false,
-        pageSize: 10,
-        page: 1,
-        defaultUrl: path + '/api/reportTables.json?fields=id,displayName|rename(name),access',
-        loadStore: function(url) {
-            this.proxy.url = url || this.defaultUrl;
-
-            this.load({
-                params: {
-                    pageSize: this.pageSize,
-                    page: this.page
-                }
-            });
-        },
-        loadFn: function(fn) {
-            if (this.isLoaded) {
-                fn.call();
-            }
-            else {
-                this.load(fn);
-            }
-        },
-        listeners: {
-            load: function(s) {
-                if (!this.isLoaded) {
-                    this.isLoaded = true;
-                }
-
-                this.sort('name', 'ASC');
-            }
-        }
     });
 
     var organisationUnitLevelStore = Ext.create('Ext.data.Store', {
@@ -3500,7 +3457,7 @@ Viewport = function(c) {
                 // set height
                 var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_group : uiConfig.west_maxheight_accordion_group;
 
-                accordion.setThisHeight(h);
+                accordion.setThisHeight(accordionHeight);
 
                 uiManager.msSetHeight(
                     [available, selected],
@@ -3733,15 +3690,18 @@ Viewport = function(c) {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            if (favoriteWindow) {
-                favoriteWindow.destroy();
+            var name = 'favoriteWindow',
+                win = uiManager.get(name);
+
+            if (win) {
+                win.destroy();
             }
 
-            favoriteWindow = uiManager.register(new FavoriteWindow(), 'favoriteWindow');
-            favoriteWindow.show();
+            win = uiManager.register(FavoriteWindow(c), favoriteWindow);
+            win.show();
         }
     });
-    uiManager.register(optionsButton, 'optionsButton');
+    uiManager.register(favoriteButton, 'favoriteButton');
 
     var getParamString = function(layout) {
         layout = layout || ns.app.layout;
