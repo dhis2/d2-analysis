@@ -260,6 +260,17 @@ UiManager = function() {
 
         window.show();
     };
+
+	// context menu
+	t.enableRightClick = function() {
+		document.body.oncontextmenu = true;
+	};
+
+	t.disableRightClick = function() {		
+		document.body.oncontextmenu = function() {
+			return false;
+		};
+	};
 };
 
 UiManager.prototype.applyTo = function(modules) {

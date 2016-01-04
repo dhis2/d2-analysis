@@ -4,6 +4,7 @@ import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
 import {Layout} from '../api/Layout.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
+import {AboutWindow} from './AboutWindow.js';
 
 export var Viewport;
 
@@ -39,7 +40,6 @@ Viewport = function(c) {
         layoutWindow = uiManager.get('layoutWindow'),
         optionsWindow = uiManager.get('optionsWindow'),
         favoriteWindow = uiManager.get('favoriteWindow'),
-        aboutWindow = uiManager.get('aboutWindow'),
 
         accordionPanels = [],
         displayProperty = appManager.getDisplayProperty(),
@@ -3087,13 +3087,13 @@ Viewport = function(c) {
             getPanels;
 
         onSelect = function() {
-            var win = layoutWindow;
+            var layoutWindow = uiManager.get('layoutWindow');
 
             if (selectedStore.getRange().length || selectedAll.getValue()) {
-                win.addDimension({id: dimension.id, name: dimension.name});
+                layoutWindow.addDimension({id: dimension.id, name: dimension.name});
             }
-            else if (win.hasDimension(dimension.id)) {
-                win.removeDimension(dimension.id);
+            else if (layoutWindow.hasDimension(dimension.id)) {
+                layoutWindow.removeDimension(dimension.id);
             }
         };
 
@@ -3549,7 +3549,7 @@ Viewport = function(c) {
                 accordionBody.setHeight(height - 2);
             }
             else {
-                height = westRegiofn.getHeight() - uiConfig.west_fill;
+                height = westRegion.getHeight() - uiConfig.west_fill;
                 mx += panelHeight;
                 accordion.setHeight((height > mx ? mx : height) - 2);
                 accordionBody.setHeight((height > mx ? mx : height) - 2);
@@ -3665,10 +3665,10 @@ Viewport = function(c) {
         text: 'Layout',
         menu: {},
         handler: function() {
-            var name = 'layoutWindow',
-                win = uiManager.get(name) || uiManager.register(new LayoutWindow(), name);
+            var name = 'layoutWindow';
+            var layoutWindow = uiManager.get(name) || uiManager.register(LayoutWindow(c), name);
 
-            win.show();
+            layoutWindow.show();
         }
     });
     uiManager.register(layoutButton, 'layoutButton');
@@ -3677,9 +3677,8 @@ Viewport = function(c) {
         text: i18n.options,
         menu: {},
         handler: function() {
-            if (!optionsWindow) {
-                optionsWindow = uiManager.register(new OptionsWindow(), 'optionsWindow');
-            }
+            var name = 'optionsWindow';
+			var optionsWindow = uiManager.get(name) || uiManager.register(OptionsWindow(c), name);
 
             optionsWindow.show();
         }
@@ -3690,15 +3689,10 @@ Viewport = function(c) {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            var name = 'favoriteWindow',
-                win = uiManager.get(name);
+            var name = 'favoriteWindow';
+            var favoriteWindow = uiManager.get(name) || uiManager.register(FavoriteWindow(c), name);
 
-            if (win) {
-                win.destroy();
-            }
-
-            win = uiManager.register(FavoriteWindow(c), favoriteWindow);
-            win.show();
+            favoriteWindow.show();
         }
     });
     uiManager.register(favoriteButton, 'favoriteButton');
@@ -4235,11 +4229,9 @@ Viewport = function(c) {
         text: i18n.about,
         menu: {},
         handler: function() {
-            if (aboutWindow && aboutWindow.destroy) {
-                aboutWindow.destroy();
-            }
-
-            aboutWindow = uiManager.register(new AboutWindow(), 'aboutWindow');
+			var name = 'aboutWindow';			
+			var aboutWindow = uiManager.get(name) || uiManager.register(AboutWindow(c), name);
+			
             aboutWindow.show();
         }
     });

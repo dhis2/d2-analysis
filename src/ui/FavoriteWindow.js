@@ -27,6 +27,7 @@ FavoriteWindow = function(c) {
         getBody,
 
         addButton,
+        onSearchTextfieldKeyUp,
         searchTextfield,
         grid,
         prevButton,
@@ -266,19 +267,17 @@ FavoriteWindow = function(c) {
             listeners: {
                 show: function(w) {
                     if (addButton.rendered) {
-                        c.uiManager.setAnchorPosition(w, addButton);
+                        uiManager.setAnchorPosition(w, addButton);
 
-                        if (!w.hasHideOnBlurHandler) {
-                            c.uiManager.addHideOnBlurHandler(w);
+                        if (!w.hasDestroyOnBlurHandler) {
+                            uiManager.hasDestroyOnBlurHandler(w);
                         }
                     }
-
-                    favoriteWindow.destroyOnBlur = false;
 
                     nameTextfield.focus(false, 500);
                 },
                 destroy: function() {
-                    favoriteWindow.destroyOnBlur = true;
+                    favoriteWindow.hideOnBlur = true;
                 }
             }
         });
@@ -299,6 +298,20 @@ FavoriteWindow = function(c) {
         }
     });
 
+	onSearchTextfieldKeyUp = function(value) {
+		var t = searchTextfield,
+			value = Ext.isString(value) ? value : t.getValue();
+			
+		if (value !== t.currentValue) {
+			t.currentValue = value;
+
+			var url = value ? path + '/api/reportTables.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+
+			favoriteStore.page = 1;
+			favoriteStore.loadStore(url);
+		}
+	};
+
     searchTextfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth - addButton.width - 3,
         height: 26,
@@ -309,15 +322,7 @@ FavoriteWindow = function(c) {
         listeners: {
             keyup: {
                 fn: function() {
-                    if (this.getValue() !== this.currentValue) {
-                        this.currentValue = this.getValue();
-
-                        var value = this.getValue(),
-                            url = value ? path + '/api/reportTables.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
-
-                        favoriteStore.page = 1;
-                        favoriteStore.loadStore(url);
-                    }
+					onSearchTextfieldKeyUp();
                 },
                 buffer: 100
             }
@@ -592,10 +597,11 @@ FavoriteWindow = function(c) {
         //title: i18n.favorites + (ns.app.layout && ns.app.layout.name ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>' : ''),
         title: i18n.favorites, //TODO
         bodyStyle: 'padding:1px; background-color:#fff',
+        closeAction: 'hide',
         resizable: false,
         modal: true,
         width: windowWidth,
-        destroyOnBlur: true,
+        hideOnBlur: true,
         items: [
             {
                 xtype: 'panel',
@@ -620,13 +626,15 @@ FavoriteWindow = function(c) {
                 var favoriteButton = uiManager.get('favoriteButton');
 
                 if (favoriteButton.rendered) {
-                    c.uiManager.setAnchorPosition(w, favoriteButton);
+                    uiManager.setAnchorPosition(w, favoriteButton);
 
                     if (!w.hasHideOnBlurHandler) {
-                        c.uiManager.addHideOnBlurHandler(w);
+                        uiManager.addHideOnBlurHandler(w);
                     }
                 }
-
+				
+				searchTextfield.reset();
+				onSearchTextfieldKeyUp('');
                 searchTextfield.focus(false, 500);
             }
         }
