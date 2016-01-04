@@ -3697,8 +3697,9 @@ Viewport = function(c) {
                 win.destroy();
             }
 
-            win = uiManager.register(FavoriteWindow(c), favoriteWindow);
+            win = FavoriteWindow(c);
             win.show();
+            uiManager.register(win, 'favoriteWindow');
         }
     });
     uiManager.register(favoriteButton, 'favoriteButton');
