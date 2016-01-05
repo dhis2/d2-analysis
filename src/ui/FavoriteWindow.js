@@ -617,13 +617,13 @@ FavoriteWindow = function(c) {
         ],
         listeners: {
             show: function(w) {
-                var favoriteButton = uiManager.get('favoriteButton');
+                var favoriteButton = uiManager.get('favoriteButton') || {};
 
                 if (favoriteButton.rendered) {
-                    c.uiManager.setAnchorPosition(w, favoriteButton);
+                    uiManager.setAnchorPosition(w, favoriteButton);
 
                     if (!w.hasHideOnBlurHandler) {
-                        c.uiManager.addHideOnBlurHandler(w);
+                        uiManager.addHideOnBlurHandler(w);
                     }
                 }
 

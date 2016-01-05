@@ -8,8 +8,8 @@ UiManager = function() {
     var components = {};
 
     // components
-    t.register = function(cmp, name, force) {
-        if (components.hasOwnProperty(name) && !force) {
+    t.register = function(cmp, name, keep) {
+        if (components.hasOwnProperty(name) && keep) {
             return;
         }
 
@@ -17,7 +17,7 @@ UiManager = function() {
     };
 
     t.get = function(name) {
-        return components[name] || {};
+        return components[name];
     };
 
     // browser
@@ -259,6 +259,17 @@ UiManager = function() {
         window = Ext.create('Ext.window.Window', config);
 
         window.show();
+    };
+
+    // right click
+    t.enableRightClick = function() {
+        document.body.oncontextmenu = true;
+    };
+
+    t.disableRightClick = function() {
+        document.body.oncontextmenu = function() {
+            return false;
+        };
     };
 };
 
