@@ -8,8 +8,8 @@ UiManager = function() {
     var components = {};
 
     // components
-    t.register = function(cmp, name, force) {
-        if (components.hasOwnProperty(name) && !force) {
+    t.register = function(cmp, name, keep) {
+        if (components.hasOwnProperty(name) && keep) {
             return;
         }
 
@@ -17,7 +17,7 @@ UiManager = function() {
     };
 
     t.get = function(name) {
-        return components[name] || {};
+        return components[name];
     };
 
     // browser

@@ -3087,13 +3087,13 @@ Viewport = function(c) {
             getPanels;
 
         onSelect = function() {
-            var layoutWindow = uiManager.get('layoutWindow');
+            var win = uiManager.get('layoutWindow');
 
             if (selectedStore.getRange().length || selectedAll.getValue()) {
-                layoutWindow.addDimension({id: dimension.id, name: dimension.name});
+                win.addDimension({id: dimension.id, name: dimension.name});
             }
-            else if (layoutWindow.hasDimension(dimension.id)) {
-                layoutWindow.removeDimension(dimension.id);
+            else if (win.hasDimension(dimension.id)) {
+                win.removeDimension(dimension.id);
             }
         };
 
@@ -3666,9 +3666,7 @@ Viewport = function(c) {
         menu: {},
         handler: function() {
             var name = 'layoutWindow';
-            var layoutWindow = uiManager.get(name) || uiManager.register(LayoutWindow(c), name);
-
-            layoutWindow.show();
+            (uiManager.get(name) || uiManager.register(LayoutWindow(c), name)).show();
         }
     });
     uiManager.register(layoutButton, 'layoutButton');
@@ -3678,9 +3676,7 @@ Viewport = function(c) {
         menu: {},
         handler: function() {
             var name = 'optionsWindow';
-			var optionsWindow = uiManager.get(name) || uiManager.register(OptionsWindow(c), name);
-
-            optionsWindow.show();
+            (uiManager.get(name) || uiManager.register(OptionsWindow(c), name)).show();
         }
     });
     uiManager.register(optionsButton, 'optionsButton');
@@ -3689,10 +3685,7 @@ Viewport = function(c) {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            var name = 'favoriteWindow';
-            var favoriteWindow = uiManager.get(name) || uiManager.register(FavoriteWindow(c), name);
-
-            favoriteWindow.show();
+            uiManager.register(FavoriteWindow(c), 'favoriteWindow').show();
         }
     });
     uiManager.register(favoriteButton, 'favoriteButton');
@@ -4229,10 +4222,7 @@ Viewport = function(c) {
         text: i18n.about,
         menu: {},
         handler: function() {
-			var name = 'aboutWindow';			
-			var aboutWindow = uiManager.get(name) || uiManager.register(AboutWindow(c), name);
-			
-            aboutWindow.show();
+			uiManager.register(AboutWindow(c), 'aboutWindow').show();
         }
     });
     uiManager.register(aboutButton, 'aboutButton');
@@ -4580,7 +4570,9 @@ Viewport = function(c) {
             isOugc = false,
             levels = [],
             groups = [],
-            orgunits = [];
+            orgunits = [],
+            layoutWindow = uiManager.get('layoutWindow'),
+            optionsWindow = uiManager.get('optionsWindow');
 
         // state
         downloadButton.enable();
@@ -4721,22 +4713,22 @@ Viewport = function(c) {
         }
 
         // add assigned categories as dimension
-        if (!ns.app.layoutWindow.hasDimension(dimConf.category.dimensionName)) {
+        if (!layoutWindow.hasDimension(dimConf.category.dimensionName)) {
             ns.app.stores.dimension.add({id: dimConf.category.dimensionName, name: dimConf.category.name});
         }
 
         // add data as dimension
-        if (!ns.app.layoutWindow.hasDimension(dimConf.data.dimensionName)) {
+        if (!layoutWindow.hasDimension(dimConf.data.dimensionName)) {
             ns.app.stores.dimension.add({id: dimConf.data.dimensionName, name: dimConf.data.name});
         }
 
         // add orgunit as dimension
-        if (!ns.app.layoutWindow.hasDimension(dimConf.organisationUnit.dimensionName)) {
+        if (!layoutWindow.hasDimension(dimConf.organisationUnit.dimensionName)) {
             ns.app.stores.dimension.add({id: dimConf.organisationUnit.dimensionName, name: dimConf.organisationUnit.name});
         }
 
         // options
-        if (ns.app.optionsWindow) {
+        if (optionsWindow) {
             ns.app.optionsWindow.setOptions(layout);
         }
 
