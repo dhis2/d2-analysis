@@ -3989,7 +3989,7 @@ Viewport = function(c) {
             this.menu.show();
         }
     });
-    uiManager.register(downloadButton, 'downloadButton');
+    uiManager.register(downloadButton, 'downloadButton', 'onCurrent');
 
     var interpretationItem = Ext.create('Ext.menu.Item', {
         text: i18n.write_interpretation + '&nbsp;&nbsp;',
@@ -4216,7 +4216,7 @@ Viewport = function(c) {
             }
         }
     });
-    uiManager.register(shareButton, 'shareButton');
+    uiManager.register(shareButton, 'shareButton', 'onCurrent');
 
     var aboutButton = Ext.create('Ext.button.Button', {
         text: i18n.about,

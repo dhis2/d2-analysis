@@ -12,13 +12,32 @@ InstanceManager = function(config) {
     t.uiManager = config.uiManager;
     t.i18nManager = config.i18nManager;
 
+    // state
+    var state = {
+		favorite: null,
+		current: null
+	};
+
     // uninitialized
     var apiResource;
     var fn;
-    var layoutWindow;
-    var optionWindow;
 
     // getter/setter
+    t.isStateSaved = function() {
+		return state.favorite === state.current;
+	};
+
+	t.getState = function() {
+		return state;
+	};
+    
+	t.setState = function(fav, curr) {
+		state.favorite = fav || state.favorite || null;
+		state.current = curr || state.current || null;
+
+		t.uiManager.setState(fav, curr);
+	};
+    
     t.getApiResource = function() {
         return apiResource;
     };
@@ -33,22 +52,6 @@ InstanceManager = function(config) {
 
     t.setFn = function(func) {
         fn = func;
-    };
-
-    t.getLayoutWindow = function() {
-        return layoutWindow;
-    };
-
-    t.setLayoutWindow = function(win) {
-        layoutWindow = win;
-    };
-
-    t.getOptionWindow = function() {
-        return optionWindow;
-    };
-
-    t.setOptionWindow = function(win) {
-        optionWindow = win;
     };
 };
 

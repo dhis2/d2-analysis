@@ -1,4 +1,4 @@
-import {isObject, arrayTo} from 'd2-utilizr';
+import {isString, isObject, isArray, arrayTo} from 'd2-utilizr';
 
 export var UiManager;
 
@@ -7,11 +7,24 @@ UiManager = function() {
 
     var components = {};
 
+    var componentTags = {
+		onCurrent: [],
+		onFavorite: []
+	};
+
     // components
-    t.register = function(cmp, name, keep) {
+    t.register = function(cmp, name, tags, keep) {
         if (components.hasOwnProperty(name) && keep) {
             return;
         }
+
+        if (isString(tags)) {
+			tags.split(',').forEach(function(item) {
+				if (isArray(componentTags[item])) {
+					componentTags[item].push(cmp);
+				}
+			});
+		}
 
         return components[name] = cmp;
     };
@@ -19,6 +32,25 @@ UiManager = function() {
     t.get = function(name) {
         return components[name];
     };
+
+	// state
+	t.setState = function(fav, curr) {
+		if (curr) {
+			componentTags.onCurrent.forEach(function(item) {
+				if (item.enable) {
+					item.enable();
+				}
+			});
+		}
+
+		if (fav) {
+			componentTags.onFavorite.forEach(function(item) {
+				if (item.enable) {
+					item.enable();
+				}
+			});
+		}
+	};
 
     // browser
     t.getScrollbarSize = function() {
