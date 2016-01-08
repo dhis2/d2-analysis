@@ -13,6 +13,13 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     c = isObject(c) ? c : {};
     $.extend(c, applyConfig);
 
+    // constants
+    var source = '/api/analytics';
+    var format = 'json';
+
+    // private
+    var response;
+
     // constructor
     t.columns = (Axis(c.columns)).val();
     t.rows = (Axis(c.rows)).val();
@@ -87,6 +94,19 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
     // uninitialized
     t.dimensionNameRecordIdsMap;
+
+    // setter/getter
+    t.getResponse = function() {
+        return response;
+    };
+
+    t.setResponse = function(r) {
+        response = r;
+    };
+
+    t.getRequestPath = function(s, f) {
+        return t.klass.appManager.getPath() + (s || source) + '.' + (f || format);
+    };
 };
 
 Layout.prototype.log = function(text, noError) {
@@ -276,7 +296,7 @@ Layout.prototype.val = function(noError) {
     return this;
 };
 
-Layout.prototype.req = function(baseUrl, isSorted) {
+Layout.prototype.req = function(source, format, isSorted) {
     var aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
         //displayProperty = this.displayProperty || init.userAccount.settings.keyAnalysisDisplayProperty || 'name',
         displayProperty = this.displayProperty || 'name',
@@ -338,27 +358,20 @@ Layout.prototype.req = function(baseUrl, isSorted) {
     // display property
     request.add('displayProperty=' + displayProperty.toUpperCase());
 
-    // base url
-    if (baseUrl) {
-        request.setBaseUrl(baseUrl);
-    }
+    // base
+    request.setBaseUrl(this.getRequestPath(source, format));
 
     return request;
 };
 
 // dep 3
 
-Layout.prototype.data = function(request) {
-    var path = this.klass.appManager ? this.klass.appManager.getPath() : '',
-        analyticsPath = '/api/analytics.json';
+Layout.prototype.data = function(source, format) {
+    var contextPath = this.klass.appManager.getPath();
+    var requestPath = this.getRequestPath(source, format);
 
-    if (request) {
-        return $.getJSON(path + analyticsPath + request.url());
-    }
-
-    var baseUrl = '/api/analytics.json',
-        metaDataRequest = this.req(path + analyticsPath, true),
-        dataRequest = this.req(path + analyticsPath);
+    var metaDataRequest = this.req(source, format, true);
+    var dataRequest = this.req(source, format);
 
     return {
         metaData: $.getJSON(metaDataRequest.url('skipData=true')),

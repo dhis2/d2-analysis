@@ -3755,6 +3755,16 @@ Viewport = function(c) {
                 shadow: false,
                 showSeparator: false,
                 items: function() {
+console.log(instanceManager.getState());
+                    var layout = instanceManager.getState().current;
+
+                    var jsonReq = layout.req();
+                    var xmlReq = layout.req('xml');
+                    var xlsReq = layout.req('xls');
+                    var csvReq = layout.req('csv');
+                    var jrxmlReq = layout.req('jrxml');
+                    var sqlReq = layout.req('/api/analytics/debug/sql', 'sql');
+
                     var items = [
                         {
                             xtype: 'label',
@@ -3791,7 +3801,7 @@ Viewport = function(c) {
                             text: 'JSON',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(path + '/api/analytics.json' + getParamString(), true);
+                                openPlainDataSource(jsonReq, true);
                             },
                             menu: [
                                 {
@@ -3803,21 +3813,21 @@ Viewport = function(c) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.json' + getParamString() + '&outputIdScheme=ID', true);
+                                        openPlainDataSource(jsonReq + '&outputIdScheme=ID', true);
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.json' + getParamString() + '&outputIdScheme=CODE', true);
+                                        openPlainDataSource(jsonReq + '&outputIdScheme=CODE', true);
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.json' + getParamString() + '&outputIdScheme=NAME', true);
+                                        openPlainDataSource(jsonReq + '&outputIdScheme=NAME', true);
                                     }
                                 }
                             ]
@@ -3826,7 +3836,7 @@ Viewport = function(c) {
                             text: 'XML',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(path + '/api/analytics.xml' + getParamString(), true);
+                                openPlainDataSource(xmlReq, true);
                             },
                             menu: [
                                 {
@@ -3838,21 +3848,21 @@ Viewport = function(c) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xml' + getParamString() + '&outputIdScheme=ID', true);
+                                        openPlainDataSource(xmlReq + '&outputIdScheme=ID', true);
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xml' + getParamString() + '&outputIdScheme=CODE', true);
+                                        openPlainDataSource(xmlReq + '&outputIdScheme=CODE', true);
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xml' + getParamString() + '&outputIdScheme=NAME', true);
+                                        openPlainDataSource(xmlReq + '&outputIdScheme=NAME', true);
                                     }
                                 }
                             ]
@@ -3861,7 +3871,7 @@ Viewport = function(c) {
                             text: 'Microsoft Excel',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(path + '/api/analytics.xls' + getParamString());
+                                openPlainDataSource(xlsReq);
                             },
                             menu: [
                                 {
@@ -3873,21 +3883,21 @@ Viewport = function(c) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xls' + getParamString() + '&outputIdScheme=ID');
+                                        openPlainDataSource(xlsReq + '&outputIdScheme=ID');
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xls' + getParamString() + '&outputIdScheme=CODE');
+                                        openPlainDataSource(xlsReq + '&outputIdScheme=CODE');
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.xls' + getParamString() + '&outputIdScheme=NAME');
+                                        openPlainDataSource(xlsReq + '&outputIdScheme=NAME');
                                     }
                                 }
                             ]
@@ -3896,7 +3906,7 @@ Viewport = function(c) {
                             text: 'CSV',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(path + '/api/analytics.csv' + getParamString());
+                                openPlainDataSource(csvReq);
                             },
                             menu: [
                                 {
@@ -3908,21 +3918,21 @@ Viewport = function(c) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.csv' + getParamString() + '&outputIdScheme=ID');
+                                        openPlainDataSource(csvReq + '&outputIdScheme=ID');
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.csv' + getParamString() + '&outputIdScheme=CODE');
+                                        openPlainDataSource(csvReq + '&outputIdScheme=CODE');
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.csv' + getParamString() + '&outputIdScheme=NAME');
+                                        openPlainDataSource(csvReq + '&outputIdScheme=NAME');
                                     }
                                 }
                             ]
@@ -3935,21 +3945,21 @@ Viewport = function(c) {
                                     text: 'JRXML',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics.jrxml' + getParamString(), true);
+                                        openPlainDataSource(jrxmlReq, true);
                                     }
                                 },
                                 {
                                     text: 'Raw data SQL',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
-                                        openPlainDataSource(path + '/api/analytics/debug/sql' + getParamString(), true);
+                                        openPlainDataSource(sqlReq, true);
                                     }
                                 }
                             ]
                         }
                     ];
 
-                    if (ns.app.layout && !!ns.app.layout.showHierarchy && ns.app.xResponse.nameHeaderMap.hasOwnProperty('ou')) {
+                    if (layout && !!layout.showHierarchy && layout.hasDimension('ou')) {
                         items.push({
                             xtype: 'label',
                             text: i18n.plain_data_sources + ' w/ hierarchy',
@@ -3959,9 +3969,8 @@ Viewport = function(c) {
                         items.push({
                             text: 'CSV',
                             iconCls: 'ns-menu-item-datasource',
-                            hidden: !(ns.app.layout && !!ns.app.layout.showHierarchy && ns.app.xResponse.nameHeaderMap.hasOwnProperty('ou')),
                             handler: function() {
-                                var response = responseManager.addOuHierarchyDimensions(clone(ns.app.response));
+                                var response = responseManager.addOuHierarchyDimensions(clone(layout.getResponse()));
 
                                 responseManager.printResponseCSV(response);
                             }
@@ -3971,9 +3980,6 @@ Viewport = function(c) {
                     return items;
                 }(),
                 listeners: {
-                    added: function() {
-                        ns.app.downloadButton = this;
-                    },
                     show: function() {
                         uiManager.setAnchorPosition(b.menu, b);
                     },

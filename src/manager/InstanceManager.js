@@ -23,21 +23,25 @@ InstanceManager = function(config) {
     var fn;
 
     // getter/setter
-    t.isStateSaved = function() {
-		return state.favorite === state.current;
-	};
-
 	t.getState = function() {
 		return state;
 	};
-    
+
 	t.setState = function(fav, curr) {
 		state.favorite = fav || state.favorite || null;
 		state.current = curr || state.current || null;
 
 		t.uiManager.setState(fav, curr);
 	};
-    
+
+    t.isStateCurrent = function() {
+        return !!state.current;
+    };
+
+    t.isStateSaved = function() {
+		return state.favorite === state.current;
+	};
+
     t.getApiResource = function() {
         return apiResource;
     };
@@ -105,34 +109,35 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout, response) {
+InstanceManager.prototype.getReport = function(layout) {
     var t = this;
 
     t.uiManager.mask();
 
     if (!layout) {
         layout = this.getLayout();
-        response = null;
 
         if (!layout) {
             return;
         }
     }
 
-    if (!response) {
+    var response = layout.getResponse();
+
+    if (response) {
+        t.getFn()(layout);
+    }
+    else {
         var reqMap = layout.data();
 
         reqMap.metaData.done(function(md) {
             reqMap.data.done(function(res) {
                 res.metaData = md.metaData;
 
-                response = new t.api.Response(res);
+                layout.setResponse(new t.api.Response(res));
 
-                t.getFn()(layout, response);
+                t.getFn()(layout);
             });
         });
-    }
-    else {
-        t.fn(layout, response);
     }
 };
