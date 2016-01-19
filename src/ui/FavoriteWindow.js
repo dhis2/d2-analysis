@@ -178,7 +178,7 @@ FavoriteWindow = function(c) {
                         headers: {'Content-Type': 'application/json'},
                         params: Ext.encode(favorite),
                         failure: function(r) {
-                            uiManager.unmask('centerRegion');
+                            uiManager.unmask();
                             uiManager.alert(r);
                         },
                         success: function(r) {
@@ -212,7 +212,7 @@ FavoriteWindow = function(c) {
                         url: path + '/api/reportTables/' + id + '.json?fields=' + fields,
                         method: 'GET',
                         failure: function(r) {
-                            uiManager.unmask('centerRegion');
+                            uiManager.unmask();
                             uiManager.alert(r);
                         },
                         success: function(r) {
@@ -225,7 +225,7 @@ FavoriteWindow = function(c) {
                                 headers: {'Content-Type': 'application/json'},
                                 params: Ext.encode(reportTable),
                                 failure: function(r) {
-                                    uiManager.unmask('centerRegion');
+                                    uiManager.unmask();
                                     uiManager.alert(r);
                                 },
                                 success: function(r) {
@@ -301,7 +301,7 @@ FavoriteWindow = function(c) {
 	onSearchTextfieldKeyUp = function(value) {
 		var t = searchTextfield,
 			value = Ext.isString(value) ? value : t.getValue();
-			
+
 		if (value !== t.currentValue) {
 			t.currentValue = value;
 
@@ -632,7 +632,7 @@ FavoriteWindow = function(c) {
                         uiManager.addHideOnBlurHandler(w);
                     }
                 }
-				
+
 				searchTextfield.reset();
 				onSearchTextfieldKeyUp('');
                 searchTextfield.focus(false, 500);

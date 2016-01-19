@@ -12,6 +12,8 @@ UiManager = function() {
 		onFavorite: []
 	};
 
+    var updateComponent = 'centerRegion';
+
     // components
     t.register = function(cmp, name, tags, keep) {
         if (components.hasOwnProperty(name) && keep) {
@@ -31,6 +33,14 @@ UiManager = function() {
 
     t.get = function(name) {
         return components[name];
+    };
+
+    t.getUpdateComponent = function() {
+        return t.get(updateComponent);
+    };
+
+    t.setUpdateComponent = function(name) {
+        updateComponent = name;
     };
 
 	// state
@@ -156,10 +166,10 @@ UiManager = function() {
 
     // mask
     t.mask = function(component, message) {
-        component = isObject(component) ? component : t.get(component || 'centerRegion');
+        component = isObject(component) ? component : t.get(component || t.getUpdateComponent());
 
         if (!isObject(component)) {
-            console.log('mask: no component', component, message);
+            //console.log('mask: no component', component, message);
             return;
         }
 
@@ -181,10 +191,10 @@ UiManager = function() {
     };
 
     t.unmask = function(component) {
-        component = isObject(component) ? component : t.get(component || 'centerRegion');
+        component = isObject(component) ? component : t.get(component || t.getUpdateComponent());
 
         if (!isObject(component)) {
-            console.log('unmask: no component', component, message);
+            //console.log('unmask: no component', component, message);
             return;
         }
 
@@ -298,7 +308,7 @@ UiManager = function() {
 		document.body.oncontextmenu = true;
 	};
 
-	t.disableRightClick = function() {		
+	t.disableRightClick = function() {
 		document.body.oncontextmenu = function() {
 			return false;
 		};

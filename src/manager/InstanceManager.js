@@ -87,7 +87,7 @@ InstanceManager.prototype.getById = function(id) {
             t.getReport(layout);
         }
     }).error(function(r) {
-        uiManager.unmask(uiManager.get('centerRegion'));
+        uiManager.unmask();
 
         if (arrayContains([403], parseInt(r.httpStatusCode))) {
             r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
