@@ -3707,22 +3707,31 @@ Viewport = function(c, cmp) {
 
     var openTableLayoutTab = function(layout, type, isNewTab) {
         type = type || 'xls';
-        window.open(layout.req(null, type, false, true).url(), isNewTab ? '_blank' : '_top');
+
+        var url = layout.req(null, type, false, true).url();
+        var target = isNewTab ? '_blank' : '_top';
+
+        window.open(url, target);
     };
 
     var openPlainDataSource = function(url, extraParamString, isNewTab) {
         url = (isString(url) ? url : url.url()) + (extraParamString || '');
-        window.open(url, isNewTab ? '_blank' : '_top');
+        var target = isNewTab ? '_blank' : '_top';
+
+        window.open(url, target);
     };
 
     var openDataDump = function(format, scheme, isNewTab) {
-        var layout;
+        var layout = instanceManager.getLayout();
 
-        format = format || 'csv';
-        scheme = scheme || 'ID';
+        if (layout) {
+            format = format || 'csv';
+            scheme = scheme || 'ID';
 
-        if (layout = getLayout()) {
-            window.open(path + '/api/analytics.' + format + getParamString(layout) + (scheme ? '&outputIdScheme=' + scheme : ''), isNewTab ? '_blank' : '_top');
+            var url = layout.req(null, format).url('&outputIdScheme=' + scheme);
+            var target = isNewTab ? '_blank' : '_top';
+
+            window.open(url, target);
         }
     };
 
