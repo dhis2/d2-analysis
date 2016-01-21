@@ -3710,8 +3710,8 @@ Viewport = function(c, cmp) {
         window.open(layout.req(null, type, false, true).url(), isNewTab ? '_blank' : '_top');
     };
 
-    var openPlainDataSource = function(url, isNewTab) {
-        url = isString(url) ? url : url.url();
+    var openPlainDataSource = function(url, extraParamString, isNewTab) {
+        url = (isString(url) ? url : url.url()) + (extraParamString || '');
         window.open(url, isNewTab ? '_blank' : '_top');
     };
 
@@ -3740,10 +3740,10 @@ Viewport = function(c, cmp) {
                     var layout = instanceManager.getStateCurrent();
 
                     var jsonReq = layout.req();
-                    var xmlReq = layout.req('xml');
-                    var xlsReq = layout.req('xls');
-                    var csvReq = layout.req('csv');
-                    var jrxmlReq = layout.req('jrxml');
+                    var xmlReq = layout.req(null, 'xml');
+                    var xlsReq = layout.req(null, 'xls');
+                    var csvReq = layout.req(null, 'csv');
+                    var jrxmlReq = layout.req(null, 'jrxml');
                     var sqlReq = layout.req('/api/analytics/debug/sql', 'sql');
 
                     var items = [
@@ -3782,7 +3782,7 @@ Viewport = function(c, cmp) {
                             text: 'JSON',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(jsonReq, true);
+                                openPlainDataSource(jsonReq, null, true);
                             },
                             menu: [
                                 {
@@ -3794,21 +3794,21 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(jsonReq + '&outputIdScheme=ID', true);
+                                        openPlainDataSource(jsonReq, '&outputIdScheme=ID', true);
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(jsonReq + '&outputIdScheme=CODE', true);
+                                        openPlainDataSource(jsonReq, '&outputIdScheme=CODE', true);
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(jsonReq + '&outputIdScheme=NAME', true);
+                                        openPlainDataSource(jsonReq, '&outputIdScheme=NAME', true);
                                     }
                                 }
                             ]
@@ -3817,7 +3817,7 @@ Viewport = function(c, cmp) {
                             text: 'XML',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                openPlainDataSource(xmlReq, true);
+                                openPlainDataSource(xmlReq, null, true);
                             },
                             menu: [
                                 {
@@ -3829,21 +3829,21 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xmlReq + '&outputIdScheme=ID', true);
+                                        openPlainDataSource(xmlReq, '&outputIdScheme=ID', true);
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xmlReq + '&outputIdScheme=CODE', true);
+                                        openPlainDataSource(xmlReq, '&outputIdScheme=CODE', true);
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xmlReq + '&outputIdScheme=NAME', true);
+                                        openPlainDataSource(xmlReq, '&outputIdScheme=NAME', true);
                                     }
                                 }
                             ]
@@ -3864,21 +3864,21 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xlsReq + '&outputIdScheme=ID');
+                                        openPlainDataSource(xlsReq, '&outputIdScheme=ID');
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xlsReq + '&outputIdScheme=CODE');
+                                        openPlainDataSource(xlsReq, '&outputIdScheme=CODE');
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xlsReq + '&outputIdScheme=NAME');
+                                        openPlainDataSource(xlsReq, '&outputIdScheme=NAME');
                                     }
                                 }
                             ]
@@ -3899,21 +3899,21 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(csvReq + '&outputIdScheme=ID');
+                                        openPlainDataSource(csvReq, '&outputIdScheme=ID');
                                     }
                                 },
                                 {
                                     text: 'Code',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(csvReq + '&outputIdScheme=CODE');
+                                        openPlainDataSource(csvReq, '&outputIdScheme=CODE');
                                     }
                                 },
                                 {
                                     text: 'Name',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(csvReq + '&outputIdScheme=NAME');
+                                        openPlainDataSource(csvReq, '&outputIdScheme=NAME');
                                     }
                                 }
                             ]
@@ -3926,14 +3926,14 @@ Viewport = function(c, cmp) {
                                     text: 'JRXML',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
-                                        openPlainDataSource(jrxmlReq, true);
+                                        openPlainDataSource(jrxmlReq, null, true);
                                     }
                                 },
                                 {
                                     text: 'Raw data SQL',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
-                                        openPlainDataSource(sqlReq, true);
+                                        openPlainDataSource(sqlReq, null, true);
                                     }
                                 }
                             ]
@@ -3952,7 +3952,6 @@ Viewport = function(c, cmp) {
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
                                 var response = responseManager.addOuHierarchyDimensions(clone(layout.getResponse()));
-
                                 responseManager.printResponseCSV(response);
                             }
                         });
