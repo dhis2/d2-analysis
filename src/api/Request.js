@@ -32,7 +32,7 @@ Request = function(config) {
 
 Request.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this, config);
+        console.log(text, this);
     }
 };
 

@@ -47,11 +47,14 @@ InstanceManager = function(config) {
 		return clone(_state.current);
 	};
 
-	t.setState = function(fav, curr) {
-		_state.favorite = fav || _state.favorite || null;
-		_state.current = curr || _state.current || null;
+	t.setState = function(curr, isFavorite) {
+		_state.current = curr;
 
-		t.uiManager.setState(_state.favorite, _state.current);
+        if (isFavorite) {
+            _state.favorite = _state.current;
+        }
+
+		t.uiManager.setState(curr, isFavorite);
 	};
 
     t.isStateSaved = function() {
@@ -100,7 +103,7 @@ InstanceManager.prototype.getById = function(id) {
         var layout = new api.Layout(r);
 
         if (layout) {
-            t.getReport(layout);
+            t.getReport(layout, true);
         }
     }).error(function(r) {
         uiManager.unmask();
@@ -125,7 +128,7 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout) {
+InstanceManager.prototype.getReport = function(layout, isFavorite) {
     var t = this;
 
     t.uiManager.mask();
@@ -153,6 +156,8 @@ InstanceManager.prototype.getReport = function(layout) {
                 layout.setResponse(new t.api.Response(res));
 
                 t.getFn()(layout);
+
+                t.setState(layout, isFavorite);
             });
         });
     }

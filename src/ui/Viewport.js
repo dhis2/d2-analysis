@@ -5,6 +5,8 @@ import {Axis} from '../api/Axis.js';
 import {Layout} from '../api/Layout.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
+import {PluginItem} from './PluginItem.js';
+import {LinkItem} from './LinkItem.js';
 
 export var Viewport;
 
@@ -50,6 +52,8 @@ Viewport = function(c, cmp) {
 
     var northRegion = cmp.northRegion;
     var interpretationItem = InterpretationItem(c);
+    var pluginItem = PluginItem(c);
+    var linkItem = LinkItem(c);
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3987,172 +3991,13 @@ Viewport = function(c, cmp) {
     });
     uiManager.register(downloadButton, 'downloadButton', 'onCurrent');
 
-    var pluginItem = Ext.create('Ext.menu.Item', {
-        text: i18n.embed_in_web_page + '&nbsp;&nbsp;',
-        iconCls: 'ns-menu-item-datasource',
-        disabled: true,
-        xable: function() {
-            this.setDisabled(!instanceManager.isStateSaved());
-        },
-        handler: function() {
-            var textArea,
-                window,
-                text = '',
-                version = 'v' + parseFloat(appManager.systemInfo.version.split('.').join(''));
-
-            text += '<html>\n<head>\n';
-            text += '<link rel="stylesheet" href="//dhis2-cdn.org/' + version + '/ext/resources/css/ext-plugin-gray.css" />\n';
-            text += '<script src="//dhis2-cdn.org/' + version + '/ext/ext-all.js"></script>\n';
-            text += '<script src="//dhis2-cdn.org/' + version + '/plugin/table.js"></script>\n';
-            text += '</head>\n\n<body>\n';
-            text += '<div id="table1"></div>\n\n';
-            text += '<script>\n\n';
-            text += 'Ext.onReady(function() {\n\n';
-            text += 'DHIS.getTable(' + JSON.stringify(ns.core.service.layout.layout2plugin(ns.app.layout, 'table1'), null, 2) + ');\n\n';
-            text += '});\n\n';
-            text += '</script>\n\n';
-            text += '</body>\n</html>';
-
-            textArea = Ext.create('Ext.form.field.TextArea', {
-                width: 700,
-                height: 400,
-                readOnly: true,
-                cls: 'ns-textarea monospaced',
-                value: text
-            });
-
-            window = Ext.create('Ext.window.Window', {
-                title: i18n.embed_in_web_page + (ns.app.layout.name ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>' : ''),
-                layout: 'fit',
-                modal: true,
-                resizable: false,
-                items: textArea,
-                destroyOnBlur: true,
-                bbar: [
-                    '->',
-                    {
-                        text: 'Select',
-                        handler: function() {
-                            textArea.selectText();
-                        }
-                    }
-                ],
-                listeners: {
-                    show: function(w) {
-                        uiManager.setAnchorPosition(w, shareButton);
-
-                        document.body.oncontextmenu = true;
-
-                        if (!w.hasDestroyOnBlurHandler) {
-                            uiManager.addDestroyOnBlurHandler(w);
-                        }
-                    },
-                    hide: function() {
-                        document.body.oncontextmenu = function(){return false;};
-                    }
-                }
-            });
-
-            window.show();
-        }
-    });
-
-    var favoriteUrlItem = Ext.create('Ext.menu.Item', {
-        text: i18n.favorite_link + '&nbsp;&nbsp;',
-        iconCls: 'ns-menu-item-datasource',
-        disabled: true,
-        xable: function() {
-            this.setDisabled(!instanceManager.isStateSaved());
-        },
-        handler: function() {
-            var url = path + '/dhis-web-pivot/index.html?id=' + ns.app.layout.id,
-                textField,
-                window;
-
-            textField = Ext.create('Ext.form.field.Text', {
-                html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>'
-            });
-
-            window = Ext.create('Ext.window.Window', {
-                title: i18n.favorite_link + '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>',
-                layout: 'fit',
-                modal: true,
-                resizable: false,
-                destroyOnBlur: true,
-                bodyStyle: 'padding: 12px 18px; background-color: #fff; font-size: 11px',
-                html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>',
-                listeners: {
-                    show: function(w) {
-                        uiManager.setAnchorPosition(w, shareButton);
-
-                        document.body.oncontextmenu = true;
-
-                        if (!w.hasDestroyOnBlurHandler) {
-                            uiManager.addDestroyOnBlurHandler(w);
-                        }
-                    },
-                    hide: function() {
-                        document.body.oncontextmenu = function(){return false;};
-                    }
-                }
-            });
-
-            window.show();
-        }
-    });
-
-    var apiUrlItem = Ext.create('Ext.menu.Item', {
-        text: i18n.api_link + '&nbsp;&nbsp;',
-        iconCls: 'ns-menu-item-datasource',
-        disabled: true,
-        xable: function() {
-            this.setDisabled(!instanceManager.isStateSaved());
-        },
-        handler: function() {
-            var url = path + '/api/' + apiResource + '/' + ns.app.layout.id + '/data.html',
-                textField,
-                window;
-
-            textField = Ext.create('Ext.form.field.Text', {
-                html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>'
-            });
-
-            window = Ext.create('Ext.window.Window', {
-                title: i18n.api_link + '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>',
-                layout: 'fit',
-                modal: true,
-                resizable: false,
-                destroyOnBlur: true,
-                bodyStyle: 'padding: 12px 18px; background-color: #fff; font-size: 11px',
-                html: '<a class="user-select td-nobreak" target="_blank" href="' + url + '">' + url + '</a>',
-                listeners: {
-                    show: function(w) {
-                        uiManager.setAnchorPosition(w, shareButton);
-
-                        document.body.oncontextmenu = true;
-
-                        if (!w.hasDestroyOnBlurHandler) {
-                            uiManager.addDestroyOnBlurHandler(w);
-                        }
-                    },
-                    hide: function() {
-                        document.body.oncontextmenu = function(){return false;};
-                    }
-                }
-            });
-
-            window.show();
-        }
-    });
-
     var shareButton = Ext.create('Ext.button.Button', {
         text: i18n.share,
         disabled: true,
         xableItems: function() {
             interpretationItem.xable();
             pluginItem.xable();
-            favoriteUrlItem.xable();
-            apiUrlItem.xable();
+            linkItem.xable();
         },
         menu: {
             cls: 'ns-menu',
@@ -4161,8 +4006,7 @@ Viewport = function(c, cmp) {
             items: [
                 interpretationItem,
                 pluginItem,
-                favoriteUrlItem,
-                apiUrlItem
+                linkItem
             ],
             listeners: {
                 afterrender: function() {

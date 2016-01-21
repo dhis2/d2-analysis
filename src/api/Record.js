@@ -15,7 +15,7 @@ Record = function(config) {
 
 Record.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this, config);
+        console.log(text, this);
     }
 };
 
@@ -26,4 +26,8 @@ Record.prototype.val = function(noError) {
     }
 
     return this;
+};
+
+Record.prototype.toPlugin = function() {
+    delete this.klass;
 };

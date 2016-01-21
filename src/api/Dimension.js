@@ -22,7 +22,7 @@ Dimension = function(config) {
 
 Dimension.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this, config);
+        console.log(text, this);
     }
 };
 
@@ -56,6 +56,14 @@ Dimension.prototype.getRecordIds = function(isSorted, response) {
 
 Dimension.prototype.getRecordNames = function(isSorted, response) {
     return arrayPluck(this.getRecords((isSorted ? 'name' : null), response), 'name');
+};
+
+Dimension.prototype.toPlugin = function() {
+    delete this.klass;
+
+    this.items.forEach(function(item) {
+        item.toPlugin();
+    });
 };
 
 // dep 2

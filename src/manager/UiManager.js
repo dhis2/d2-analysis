@@ -49,6 +49,36 @@ UiManager = function() {
         return isString(param) ? t.get(param) : param;
     };
 
+    t.update = function(html) {
+        t.getUpdateComponent().update(html);
+    };
+
+	// state
+	t.setState = function(layout, isFavorite) {
+		if (layout) {
+
+            // toolbar
+            t.get('northRegion').setState(layout, isFavorite);
+
+            // current
+			componentTags.onCurrent.forEach(function(item) {
+				if (item.enable) {
+					item.enable();
+				}
+			});
+
+            // favorite
+            if (isFavorite) {
+                componentTags.onFavorite.forEach(function(item) {
+                    if (item.enable) {
+                        item.enable();
+                    }
+                });
+            }
+        }
+    };
+
+    // theme
     t.getTheme = function() {
         return theme;
     };
@@ -57,29 +87,6 @@ UiManager = function() {
         theme = newTheme;
     };
 
-	// state
-	t.setState = function(fav, curr) {
-		if (curr) {
-			componentTags.onCurrent.forEach(function(item) {
-				if (item.enable) {
-					item.enable();
-				}
-			});
-		}
-
-		if (fav) {
-
-            // components
-			componentTags.onFavorite.forEach(function(item) {
-				if (item.enable) {
-					item.enable();
-				}
-			});
-
-            // toolbar
-            t.get('northRegion').setTitle(fav.name);
-		}
-	};
 
     // browser
     t.getScrollbarSize = function() {

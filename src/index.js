@@ -27,10 +27,13 @@ import {OptionConfig} from './config/OptionConfig.js';
 import {UiConfig} from './config/UiConfig.js';
 
 import {Viewport} from './ui/Viewport.js';
+import {NorthRegion} from './ui/NorthRegion.js';
 import {FavoriteWindow} from './ui/FavoriteWindow.js';
 import {InterpretationWindow} from './ui/InterpretationWindow.js';
+import {InterpretationItem} from './ui/InterpretationItem.js';
+import {PluginItem} from './ui/PluginItem.js';
+import {LinkItem} from './ui/LinkItem.js';
 import {AboutWindow} from './ui/AboutWindow.js';
-import {NorthRegion} from './ui/NorthRegion.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -70,10 +73,13 @@ export {
     UiConfig,
 
     Viewport,
+    NorthRegion,
     FavoriteWindow,
     InterpretationWindow,
+    InterpretationItem,
+    PluginItem,
+    LinkItem,
     AboutWindow,
-    NorthRegion,
     //CenterRegion,
     //WestRegion,
     //MenuAccordion,
@@ -129,10 +135,13 @@ export const config = {
 
 export const ui = {
     Viewport: Viewport,
+    NorthRegion: NorthRegion,
     FavoriteWindow: FavoriteWindow,
     InterpretationWindow: InterpretationWindow,
+    InterpretationItem: InterpretationItem,
+    PluginItem: PluginItem,
+    LinkItem: LinkItem,
     AboutWindow: AboutWindow,
-    NorthRegion: NorthRegion,
     //CenterRegion: CenterRegion,
     //WestRegion: WestRegion,
     //MenuAccordion: MenuAccordion,

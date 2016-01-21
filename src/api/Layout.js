@@ -111,7 +111,7 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
 Layout.prototype.log = function(text, noError) {
     if (!noError) {
-        console.log(text, this, config, applyConfig, forceApplyConfig);
+        console.log(text, this);
     }
 };
 
@@ -131,116 +131,6 @@ Layout.prototype.getUserOrgUnitUrl = function() {
     }
 };
 
-Layout.prototype.toPlugin = function(layout, el) {
-    var layout = clone(layout),
-        dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || []));
-
-    layout.url = init.contextPath;
-
-    if (el) {
-        layout.el = el;
-    }
-
-    if (Ext.isString(layout.id)) {
-        return {id: layout.id};
-    }
-
-    for (var i = 0, dimension, item; i < dimensions.length; i++) {
-        dimension = dimensions[i];
-
-        delete dimension.id;
-        delete dimension.ids;
-        delete dimension.type;
-        delete dimension.dimensionName;
-        delete dimension.objectName;
-
-        for (var j = 0, item; j < dimension.items.length; j++) {
-            item = dimension.items[j];
-
-            delete item.name;
-            delete item.code;
-            delete item.created;
-            delete item.lastUpdated;
-            delete item.value;
-        }
-    }
-
-    if (layout.showRowTotals) {
-        delete layout.showRowTotals;
-    }
-
-    if (layout.showColTotals) {
-        delete layout.showColTotals;
-    }
-
-    if (layout.showColSubTotals) {
-        delete layout.showColSubTotals;
-    }
-
-    if (layout.showRowSubTotals) {
-        delete layout.showRowSubTotals;
-    }
-
-    if (layout.showDimensionLabels) {
-        delete layout.showDimensionLabels;
-    }
-
-    if (!layout.hideEmptyRows) {
-        delete layout.hideEmptyRows;
-    }
-
-    if (!layout.skipRounding) {
-        delete layout.skipRounding;
-    }
-
-    if (!layout.showHierarchy) {
-        delete layout.showHierarchy;
-    }
-
-    if (!layout.completedOnly) {
-        delete layout.completedOnly;
-    }
-
-    if (layout.displayDensity === conf.finals.style.normal) {
-        delete layout.displayDensity;
-    }
-
-    if (layout.fontSize === conf.finals.style.normal) {
-        delete layout.fontSize;
-    }
-
-    if (layout.digitGroupSeparator === conf.finals.style.space) {
-        delete layout.digitGroupSeparator;
-    }
-
-    if (!layout.legendSet) {
-        delete layout.legendSet;
-    }
-
-    if (!layout.sorting) {
-        delete layout.sorting;
-    }
-
-    if (layout.aggregationType === conf.finals.style.default_) {
-        delete layout.aggregationType;
-    }
-
-    if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === conf.finals.style.default_) {
-        delete layout.dataApprovalLevel;
-    }
-
-    delete layout.parentGraphMap;
-    delete layout.reportingPeriod;
-    delete layout.organisationUnit;
-    delete layout.parentOrganisationUnit;
-    delete layout.regression;
-    delete layout.cumulative;
-    delete layout.sortOrder;
-    delete layout.topLimit;
-
-    return layout;
-}
-
 // dep 1
 
 Layout.prototype.hasDimension = function(dimensionName, includeFilter) {
@@ -252,7 +142,7 @@ Layout.prototype.hasDimension = function(dimensionName, includeFilter) {
 Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
     var dimensions = [];
 
-    axes = axes ? arrayFrom(axes) : this.getAxes(includeFilter);
+    axes = arrayClean(axes ? arrayFrom(axes) : this.getAxes(includeFilter));
 
     axes.forEach(function(axis) {
         dimensions = dimensions.concat(axis);
@@ -379,6 +269,102 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     request.setBaseUrl(this.getRequestPath(source, format));
 
     return request;
+};
+
+Layout.prototype.toPlugin = function(el) {
+    var appManager = this.klass.appManager,
+        optionConfig = this.klass.optionConfig,
+        layout;
+
+    if (this.id) {
+        layout = {
+            id: this.id
+        };
+    }
+    else {
+        layout = clone(this);
+
+        // columns, rows, filters
+        layout.getAxes(true).forEach(function(item) {
+            item.toPlugin();
+        });
+
+        // properties
+        var deleteIfTruthy = [
+            'showRowTotals',
+            'showColTotals',
+            'showColSubTotals',
+            'showRowSubTotals',
+            'showDimensionLabels'
+        ];
+
+        var deleteIfFalsy = [
+            'hideEmptyRows',
+            'skipRounding',
+            'showHierarchy',
+            'completedOnly',
+            'legendSet',
+            'sorting'
+        ];
+
+        var deleteAnyway = [
+            'klass',
+            'name',
+            'parentGraphMap',
+            'dimensionNameRecordIdsMap',
+            'reportingPeriod',
+            'organisationUnit',
+            'parentOrganisationUnit',
+            'regression',
+            'cumulative',
+            'sortOrder',
+            'topLimit'
+        ];
+
+        deleteIfTruthy.forEach(function(item) {
+            if (!!layout[item]) {
+                delete layout[item];
+            }
+        });
+
+        deleteIfFalsy.forEach(function(item) {
+            if (!layout[item]) {
+                delete layout[item];
+            }
+        });
+
+        deleteAnyway.forEach(function(item) {
+            delete layout[item];
+        });
+
+        if (layout.displayDensity === optionConfig.getDisplayDensity('normal').id) {
+            delete layout.displayDensity;
+        }
+
+        if (layout.fontSize === optionConfig.getFontSize('normal').id) {
+            delete layout.fontSize;
+        }
+
+        if (layout.digitGroupSeparator === optionConfig.getDigitGroupSeparator('space').id) {
+            delete layout.digitGroupSeparator;
+        }
+
+        if (layout.aggregationType === optionConfig.getAggregationType('def').id) {
+            delete layout.aggregationType;
+        }
+
+        if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id) {
+            delete layout.dataApprovalLevel;
+        }
+    }
+
+    layout.url = appManager.getPath();
+
+    if (el) {
+        layout.el = el;
+    }
+
+    return layout;
 };
 
 // dep 3

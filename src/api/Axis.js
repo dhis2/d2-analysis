@@ -50,5 +50,13 @@ Axis = function(config) {
         return clone(this).sort(function(a, b) { return a.dimension > b.dimension;});
     };
 
+    t.toPlugin = function() {
+        delete t.klass;
+
+        t.forEach(function(item) {
+            item.toPlugin();
+        });
+    };
+
     return t;
 };

@@ -14,8 +14,8 @@ NorthRegion = function(c, cmpConfig) {
     cmpConfig = cmpConfig || {};
 
     cmpConfig.i18n = cmpConfig.i18n || {};
-    cmpConfig.i18n.about = cmpConfig.i18n.about || i18n.about || 'ABOUT';
-    cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'HOME';
+    cmpConfig.i18n.about = cmpConfig.i18n.about || i18n.about || 'about';
+    cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'home';
 
     cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
     cmpConfig.brandName = cmpConfig.brandName || 'DHIS 2';
@@ -37,9 +37,12 @@ NorthRegion = function(c, cmpConfig) {
         cmp.logo.setWidth(width + append);
     };
 
-    var setTitle = function(name) {
-        cmp.title.setTitle(name);
-        cmp.title.setSaved();
+    var setState = function(layout, isFavorite) {
+        if (layout.name) {
+            cmp.title.setTitle(layout.name);
+        }
+
+        cmp.title.setState(isFavorite);
     };
 
     return Ext.create('Ext.toolbar.Toolbar', {
@@ -48,7 +51,7 @@ NorthRegion = function(c, cmpConfig) {
         cls: cmpConfig.theme + ' ' + cmpConfig.cls,
         cmp: cmp,
         setLogoWidth: setLogoWidth,
-        setTitle: setTitle,
+        setState: setState,
         items: function() {
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
@@ -71,6 +74,14 @@ NorthRegion = function(c, cmpConfig) {
                 setUnsaved: function() {
                     this.update('* ' + this.titleValue);
                     this.getEl().addCls('unsaved');
+                },
+                setState: function(isFavorite) {
+                    if (isFavorite) {
+                        this.setSaved();
+                    }
+                    else {
+                        this.setUnsaved();
+                    }
                 }
             });
 
