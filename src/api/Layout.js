@@ -249,10 +249,12 @@ Layout.prototype.hasDimension = function(dimensionName, includeFilter) {
     });
 };
 
-Layout.prototype.getDimensions = function(includeFilter, isSorted) {
+Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
     var dimensions = [];
 
-    this.getAxes(includeFilter).forEach(function(axis) {
+    axes = axes ? arrayFrom(axes) : this.getAxes(includeFilter);
+
+    axes.forEach(function(axis) {
         dimensions = dimensions.concat(axis);
     });
 
@@ -275,8 +277,8 @@ Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
 
 // dep 2
 
-Layout.prototype.getDimensionNames = function(includeFilter, isSorted) {
-    var names = arrayPluck(this.getDimensions(includeFilter), 'dimension');
+Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
+    var names = arrayPluck(this.getDimensions(includeFilter, false, axes), 'dimension');
 
     return isSorted ? names.sort() : names;
 };
@@ -296,7 +298,7 @@ Layout.prototype.val = function(noError) {
     return this;
 };
 
-Layout.prototype.req = function(source, format, isSorted) {
+Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     var aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
         //displayProperty = this.displayProperty || init.userAccount.settings.keyAnalysisDisplayProperty || 'name',
         displayProperty = this.displayProperty || 'name',
@@ -311,43 +313,8 @@ Layout.prototype.req = function(source, format, isSorted) {
     // filters
     if (this.filters) {
         this.filters.forEach(function(dimension) {
-            request.add(dimension.url(isSorted));
+            request.add(dimension.url(isSorted, null, true));
         });
-    }
-
-    // hierarchy
-    if (this.showHierarchy) {
-        request.add('hierarchyMeta=true');
-    }
-
-    // completed only
-    if (this.completedOnly) {
-        request.add('completedOnly=true');
-    }
-
-    // aggregation type
-    if (arrayContains(aggTypes, this.aggregationType)) {
-        request.add('aggregationType=' + this.aggregationType);
-    }
-
-    // user org unit
-    if (isArray(this.userOrgUnit) && this.userOrgUnit.length) {
-        request.add(this.getUserOrgUnitUrl());
-    }
-
-    // data approval level
-    if (isObject(this.dataApprovalLevel) && isString(this.dataApprovalLevel.id) && this.dataApprovalLevel.id !== 'DEFAULT') {
-        request.add('approvalLevel=' + this.dataApprovalLevel.id);
-    }
-
-    // TODO program
-    if (isObject(this.program) && isString(this.program.id)) {
-        request.add('program=' + this.program.id);
-    }
-
-    // relative period date
-    if (this.relativePeriodDate) {
-        request.add('relativePeriodDate=' + this.relativePeriodDate);
     }
 
     // skip rounding
@@ -357,6 +324,56 @@ Layout.prototype.req = function(source, format, isSorted) {
 
     // display property
     request.add('displayProperty=' + displayProperty.toUpperCase());
+
+    // normal request only
+    if (!isTableLayout) {
+
+        // hierarchy
+        if (this.showHierarchy) {
+            request.add('hierarchyMeta=true');
+        }
+
+        // completed only
+        if (this.completedOnly) {
+            request.add('completedOnly=true');
+        }
+
+        // aggregation type
+        if (arrayContains(aggTypes, this.aggregationType)) {
+            request.add('aggregationType=' + this.aggregationType);
+        }
+
+        // user org unit
+        if (isArray(this.userOrgUnit) && this.userOrgUnit.length) {
+            request.add(this.getUserOrgUnitUrl());
+        }
+
+        // data approval level
+        if (isObject(this.dataApprovalLevel) && isString(this.dataApprovalLevel.id) && this.dataApprovalLevel.id !== 'DEFAULT') {
+            request.add('approvalLevel=' + this.dataApprovalLevel.id);
+        }
+
+        // relative period date
+        if (this.relativePeriodDate) {
+            request.add('relativePeriodDate=' + this.relativePeriodDate);
+        }
+    }
+    else {
+
+        // table layout
+        request.add('tableLayout=true');
+
+        // columns
+        request.add('columns=' + this.getDimensionNames(false, false, this.columns).join(';'));
+
+        // rows
+        request.add('rows=' + this.getDimensionNames(false, false, this.rows).join(';'));
+
+        // hide empty rows
+        if (this.hideEmptyRows) {
+            request.add('hideEmptyRows=true');
+        }
+    }
 
     // base
     request.setBaseUrl(this.getRequestPath(source, format));

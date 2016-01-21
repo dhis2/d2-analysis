@@ -6,7 +6,7 @@ export var Dimension;
 Dimension = function(config) {
     var t = this,
         items = [];
-        
+
     t.klass = Dimension;
 
     config = isObject(config) ? config : {};
@@ -60,6 +60,6 @@ Dimension.prototype.getRecordNames = function(isSorted, response) {
 
 // dep 2
 
-Dimension.prototype.url = function(isSorted, response) {
-    return 'dimension=' + this.dimension + ':' + arrayUnique(this.getRecordIds(false, response)).join(';');
+Dimension.prototype.url = function(isSorted, response, isFilter) {
+    return (isFilter ? 'filter' : 'dimension') + '=' + this.dimension + ':' + arrayUnique(this.getRecordIds(false, response)).join(';');
 };

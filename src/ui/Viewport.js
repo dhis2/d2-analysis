@@ -3705,35 +3705,14 @@ Viewport = function(c, cmp) {
         return paramString;
     };
 
-    var openTableLayoutTab = function(type, isNewTab) {
-        if (path && ns.app.paramString) {
-            var colDimNames = clone(ns.app.xLayout.columnDimensionNames),
-                colObjNames = ns.app.xLayout.columnObjectNames,
-                rowDimNames = clone(ns.app.xLayout.rowDimensionNames),
-                rowObjNames = ns.app.xLayout.rowObjectNames,
-                dc = operandObjectName,
-                co = categoryObjectName,
-                columnNames = arrayClean([].concat(colDimNames, (arrayContains(colObjNames, dc) ? co : []))),
-                rowNames = arrayClean([].concat(rowDimNames, (arrayContains(rowObjNames, dc) ? co : []))),
-                url = '';
-
-            url += path + '/api/analytics.' + type + getParamString();
-            url += '&tableLayout=true';
-            url += '&columns=' + columnNames.join(';');
-            url += '&rows=' + rowNames.join(';');
-            url += ns.app.layout.hideEmptyRows ? '&hideEmptyRows=true' : '';
-            url += ns.app.layout.skipRounding ? '&skipRounding=true' : '';
-
-            window.open(url, isNewTab ? '_blank' : '_top');
-        }
+    var openTableLayoutTab = function(layout, type, isNewTab) {
+        type = type || 'xls';
+        window.open(layout.req(null, type, false, true).url(), isNewTab ? '_blank' : '_top');
     };
 
     var openPlainDataSource = function(url, isNewTab) {
-        if (url) {
-            if (path && ns.app.paramString) {
-                window.open(url, isNewTab ? '_blank' : '_top');
-            }
-        }
+        url = isString(url) ? url : url.url();
+        window.open(url, isNewTab ? '_blank' : '_top');
     };
 
     var openDataDump = function(format, scheme, isNewTab) {
@@ -3758,8 +3737,7 @@ Viewport = function(c, cmp) {
                 shadow: false,
                 showSeparator: false,
                 items: function() {
-console.log(instanceManager.getState());
-                    var layout = instanceManager.getState().current;
+                    var layout = instanceManager.getStateCurrent();
 
                     var jsonReq = layout.req();
                     var xmlReq = layout.req('xml');
@@ -3778,21 +3756,21 @@ console.log(instanceManager.getState());
                             text: 'Microsoft Excel (.xls)',
                             iconCls: 'ns-menu-item-tablelayout',
                             handler: function() {
-                                openTableLayoutTab('xls');
+                                openTableLayoutTab(layout, 'xls');
                             }
                         },
                         {
                             text: 'CSV (.csv)',
                             iconCls: 'ns-menu-item-tablelayout',
                             handler: function() {
-                                openTableLayoutTab('csv');
+                                openTableLayoutTab(layout, 'csv');
                             }
                         },
                         {
                             text: 'HTML (.html)',
                             iconCls: 'ns-menu-item-tablelayout',
                             handler: function() {
-                                openTableLayoutTab('html+css', true);
+                                openTableLayoutTab(layout, 'html+css', true);
                             }
                         },
                         {
