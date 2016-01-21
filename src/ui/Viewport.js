@@ -1,14 +1,13 @@
-import {isString, isNumber, isObject, isIE, arrayFrom, arrayContains, arraySort, clone} from 'd2-utilizr';
+import {isString, isNumber, isObject, isIE, arrayFrom, arrayContains, arrayClean, arraySort, clone} from 'd2-utilizr';
 import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
 import {Layout} from '../api/Layout.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
-import {AboutWindow} from './AboutWindow.js';
 
 export var Viewport;
 
-Viewport = function(c) {
+Viewport = function(c, cmp) {
     var t = this,
 
         uiManager = c.uiManager,
@@ -46,6 +45,10 @@ Viewport = function(c) {
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
         dimensionPanelMap = {};
+
+    cmp = cmp || {};
+
+    var northRegion = cmp.northRegion;
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3536,7 +3539,7 @@ Viewport = function(c) {
     uiManager.register(accordionBody, 'accordionBody');
 
     var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        bodyStyle: 'border-style:none; border-top:1px solid #e1e1e1; padding:1px; padding-bottom:0; overflow-y:scroll;',
         items: accordionBody,
         panels: accordionPanels,
         setThisHeight: function(mx) {
@@ -4224,15 +4227,6 @@ console.log(instanceManager.getState());
     });
     uiManager.register(shareButton, 'shareButton', 'onCurrent');
 
-    var aboutButton = Ext.create('Ext.button.Button', {
-        text: i18n.about,
-        menu: {},
-        handler: function() {
-			uiManager.register(AboutWindow(c), 'aboutWindow').show();
-        }
-    });
-    uiManager.register(aboutButton, 'aboutButton');
-
     var defaultButton = Ext.create('Ext.button.Button', {
         text: i18n.table,
         iconCls: 'ns-button-icon-table',
@@ -4508,24 +4502,6 @@ console.log(instanceManager.getState());
                             centerRegion.cmp.push(this);
                         }
                     }
-                },
-                {
-                    xtype: 'tbseparator',
-                    height: 18,
-                    style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
-                    listeners: {
-                        render: function() {
-                            centerRegion.cmp.push(this);
-                        }
-                    }
-                },
-                aboutButton,
-                {
-                    xtype: 'button',
-                    text: i18n.home,
-                    handler: function() {
-                        window.location.href = path + '/dhis-web-commons-about/redirect.action';
-                    }
                 }
             ]
         },
@@ -4549,11 +4525,11 @@ console.log(instanceManager.getState());
             resize: function() {
                 var width = this.getWidth();
 
-                if (width < 768 && this.fullSize) {
+                if (width < 700 && this.fullSize) {
                     this.toggleCmp(false);
                     this.fullSize = false;
                 }
-                else if (width >= 768 && !this.fullSize) {
+                else if (width >= 700 && !this.fullSize) {
                     this.toggleCmp(true);
                     this.fullSize = true;
                 }
@@ -4846,7 +4822,7 @@ console.log(instanceManager.getState());
         return config;
     };
 
-    $.extend(this, Ext.create('Ext.container.Viewport', {
+    var viewport = Ext.create('Ext.container.Viewport', {
         layout: 'border',
         period: period,
         treePanel: treePanel,
@@ -4854,10 +4830,8 @@ console.log(instanceManager.getState());
         setUiState: setUiState,
         westRegion: westRegion,
         centerRegion: centerRegion,
-        items: [
-            westRegion,
-            centerRegion
-        ],
+        northRegion: northRegion,
+        items: arrayClean([westRegion, centerRegion, northRegion]),
         listeners: {
             afterrender: function() {
 
@@ -4886,6 +4860,9 @@ console.log(instanceManager.getState());
                 else {
                     westRegion.hasScrollbar = true;
                 }
+
+                // north
+                northRegion.setLogoWidth(centerRegion.getPosition()[0]);
 
                 // expand first panel
                 accordion.getFirstPanel().expand();
@@ -4925,8 +4902,8 @@ console.log(instanceManager.getState());
                 }, 300 );
             }
         }
-    }));
-    uiManager.register(this, 'viewport');
+    });
+    uiManager.register(viewport, 'viewport');
 
     // add listeners
     (function() {
@@ -4943,4 +4920,6 @@ console.log(instanceManager.getState());
             store.sort('name', 'ASC');
         });
     }());
+
+    return viewport;
 };

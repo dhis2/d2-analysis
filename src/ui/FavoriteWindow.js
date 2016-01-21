@@ -270,7 +270,7 @@ FavoriteWindow = function(c) {
                         uiManager.setAnchorPosition(w, addButton);
 
                         if (!w.hasDestroyOnBlurHandler) {
-                            uiManager.hasDestroyOnBlurHandler(w);
+                            uiManager.addDestroyOnBlurHandler(w);
                         }
                     }
 

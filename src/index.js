@@ -28,12 +28,8 @@ import {UiConfig} from './config/UiConfig.js';
 
 import {Viewport} from './ui/Viewport.js';
 import {FavoriteWindow} from './ui/FavoriteWindow.js';
-//import {WestRegion} from './ui/WestRegion.js';
-//import {MenuAccordion} from './ui/MenuAccordion.js';
-//import {IndicatorPanel} from './ui/IndicatorPanel.js';
-//import {DataElementPanel} from './ui/DataElementPanel.js';
-//import {DataTab} from './ui/DataTab.js';
-//import {PeriodTab} from './ui/PeriodTab.js';
+import {AboutWindow} from './ui/AboutWindow.js';
+import {NorthRegion} from './ui/NorthRegion.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -74,6 +70,8 @@ export {
 
     Viewport,
     FavoriteWindow,
+    AboutWindow,
+    NorthRegion,
     //CenterRegion,
     //WestRegion,
     //MenuAccordion,
@@ -130,6 +128,8 @@ export const config = {
 export const ui = {
     Viewport: Viewport,
     FavoriteWindow: FavoriteWindow,
+    AboutWindow: AboutWindow,
+    NorthRegion: NorthRegion,
     //CenterRegion: CenterRegion,
     //WestRegion: WestRegion,
     //MenuAccordion: MenuAccordion,

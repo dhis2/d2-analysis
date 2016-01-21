@@ -54,11 +54,16 @@ UiManager = function() {
 		}
 
 		if (fav) {
+
+            // components
 			componentTags.onFavorite.forEach(function(item) {
 				if (item.enable) {
 					item.enable();
 				}
 			});
+
+            // toolbar
+            t.get('northRegion').setTitle(fav.name);
 		}
 	};
 
