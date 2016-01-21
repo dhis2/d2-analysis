@@ -4,13 +4,12 @@ import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
 import {Layout} from '../api/Layout.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
+import {InterpretationItem} from './InterpretationItem.js';
 
 export var Viewport;
 
 Viewport = function(c, cmp) {
-    var t = this,
-
-        uiManager = c.uiManager,
+    var uiManager = c.uiManager,
         appManager = c.appManager,
         responseManager = c.responseManager,
         i18nManager = c.i18nManager,
@@ -22,6 +21,7 @@ Viewport = function(c, cmp) {
 
         path = appManager.getPath(),
         i18n = i18nManager.get(),
+        apiResource = instanceManager.getApiResource(),
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
@@ -49,6 +49,7 @@ Viewport = function(c, cmp) {
     cmp = cmp || {};
 
     var northRegion = cmp.northRegion;
+    var interpretationItem = InterpretationItem(c);
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3986,40 +3987,12 @@ Viewport = function(c, cmp) {
     });
     uiManager.register(downloadButton, 'downloadButton', 'onCurrent');
 
-    var interpretationItem = Ext.create('Ext.menu.Item', {
-        text: i18n.write_interpretation + '&nbsp;&nbsp;',
-        iconCls: 'ns-menu-item-tablelayout',
-        disabled: true,
-        xable: function() {
-            if (ns.app.layout.id) {
-                this.enable();
-            }
-            else {
-                this.disable();
-            }
-        },
-        handler: function() {
-            if (ns.app.interpretationWindow) {
-                ns.app.interpretationWindow.destroy();
-                ns.app.interpretationWindow = null;
-            }
-
-            ns.app.interpretationWindow = InterpretationWindow();
-            ns.app.interpretationWindow.show();
-        }
-    });
-
     var pluginItem = Ext.create('Ext.menu.Item', {
         text: i18n.embed_in_web_page + '&nbsp;&nbsp;',
         iconCls: 'ns-menu-item-datasource',
         disabled: true,
         xable: function() {
-            if (ns.app.layout) {
-                this.enable();
-            }
-            else {
-                this.disable();
-            }
+            this.setDisabled(!instanceManager.isStateSaved());
         },
         handler: function() {
             var textArea,
@@ -4089,12 +4062,7 @@ Viewport = function(c, cmp) {
         iconCls: 'ns-menu-item-datasource',
         disabled: true,
         xable: function() {
-            if (ns.app.layout.id) {
-                this.enable();
-            }
-            else {
-                this.disable();
-            }
+            this.setDisabled(!instanceManager.isStateSaved());
         },
         handler: function() {
             var url = path + '/dhis-web-pivot/index.html?id=' + ns.app.layout.id,
@@ -4138,15 +4106,10 @@ Viewport = function(c, cmp) {
         iconCls: 'ns-menu-item-datasource',
         disabled: true,
         xable: function() {
-            if (ns.app.layout.id) {
-                this.enable();
-            }
-            else {
-                this.disable();
-            }
+            this.setDisabled(!instanceManager.isStateSaved());
         },
         handler: function() {
-            var url = path + '/api/reportTables/' + ns.app.layout.id + '/data.html',
+            var url = path + '/api/' + apiResource + '/' + ns.app.layout.id + '/data.html',
                 textField,
                 window;
 

@@ -16,7 +16,9 @@ FavoriteWindow = function(c) {
         dimensionStoreMap = {},
         margin = 1,
         defaultWidth = 200,
-        defaultHeight = 220;
+        defaultHeight = 220,
+
+        apiResource = instanceManager.getApiResource();
 
     // components
     var favoriteStore,
@@ -50,7 +52,7 @@ FavoriteWindow = function(c) {
             type: 'ajax',
             reader: {
                 type: 'json',
-                root: 'reportTables'
+                root: apiResource
             },
             startParam: false,
             limitParam: false
@@ -58,7 +60,7 @@ FavoriteWindow = function(c) {
         isLoaded: false,
         pageSize: 10,
         page: 1,
-        defaultUrl: path + '/api/reportTables.json?fields=id,displayName|rename(name),access',
+        defaultUrl: path + '/api/' + apiResource + '.json?fields=id,displayName|rename(name),access',
         loadStore: function(url) {
             this.proxy.url = url || this.defaultUrl;
 
@@ -173,7 +175,7 @@ FavoriteWindow = function(c) {
 
                 if (favorite && favorite.name) {
                     Ext.Ajax.request({
-                        url: path + '/api/reportTables/',
+                        url: path + '/api/' + apiResource + '/',
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         params: Ext.encode(favorite),
@@ -209,7 +211,7 @@ FavoriteWindow = function(c) {
 
                 if (id && name) {
                     Ext.Ajax.request({
-                        url: path + '/api/reportTables/' + id + '.json?fields=' + fields,
+                        url: path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields,
                         method: 'GET',
                         failure: function(r) {
                             uiManager.unmask();
@@ -220,7 +222,7 @@ FavoriteWindow = function(c) {
                             reportTable.name = name;
 
                             Ext.Ajax.request({
-                                url: path + '/api/reportTables/' + reportTable.id + '?mergeStrategy=REPLACE',
+                                url: path + '/api/' + apiResource + '/' + reportTable.id + '?mergeStrategy=REPLACE',
                                 method: 'PUT',
                                 headers: {'Content-Type': 'application/json'},
                                 params: Ext.encode(reportTable),
@@ -305,7 +307,7 @@ FavoriteWindow = function(c) {
 		if (value !== t.currentValue) {
 			t.currentValue = value;
 
-			var url = value ? path + '/api/reportTables.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+			var url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
 
 			favoriteStore.page = 1;
 			favoriteStore.loadStore(url);
@@ -333,7 +335,7 @@ FavoriteWindow = function(c) {
         text: i18n.prev,
         handler: function() {
             var value = searchTextfield.getValue(),
-                url = value ? path + '/api/reportTables.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
 
             favoriteStore.page = store.page <= 1 ? 1 : store.page - 1;
             favoriteStore.loadStore(url);
@@ -344,7 +346,7 @@ FavoriteWindow = function(c) {
         text: i18n.next,
         handler: function() {
             var value = searchTextfield.getValue(),
-                url = value ? path + '/api/reportTables.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
 
             favoriteStore.page = favoriteStore.page + 1;
             favoriteStore.loadStore(url);
@@ -424,7 +426,7 @@ FavoriteWindow = function(c) {
 
                                     if (confirm(message)) {
                                         Ext.Ajax.request({
-                                            url: path + '/api/reportTables/' + record.data.id + '?mergeStrategy=REPLACE',
+                                            url: path + '/api/' + apiResource + '/' + record.data.id + '?mergeStrategy=REPLACE',
                                             method: 'PUT',
                                             headers: {'Content-Type': 'application/json'},
                                             params: Ext.encode(favorite),
@@ -487,7 +489,7 @@ FavoriteWindow = function(c) {
 
                                 if (confirm(message)) {
                                     Ext.Ajax.request({
-                                        url: path + '/api/reportTables/' + record.data.id,
+                                        url: path + '/api/' + apiResource + '/' + record.data.id,
                                         method: 'DELETE',
                                         success: function() {
                                             favoriteStore.loadStore();

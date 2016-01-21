@@ -1,9 +1,9 @@
+import {isObject} from 'd2-utilizr';
+
 export var AboutWindow;
 
 AboutWindow = function(c) {
-    var t = this,
-
-        appManager = c.appManager,
+    var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
 
@@ -25,7 +25,7 @@ AboutWindow = function(c) {
                             divStyle = 'padding:3px',
                             html = '<div class="user-select">';
 
-                        if (Ext.isObject(info)) {
+                        if (isObject(info)) {
                             html += '<div style="' + divStyle + '"><b>' + i18n.time_since_last_data_update + ': </b>' + info.intervalSinceLastAnalyticsTableSuccess + '</div>';
                             html += '<div style="' + divStyle + '"><b>' + i18n.version + ': </b>' + info.version + '</div>';
                             html += '<div style="' + divStyle + '"><b>' + i18n.revision + ': </b>' + info.revision + '</div>';

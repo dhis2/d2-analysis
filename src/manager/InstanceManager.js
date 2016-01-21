@@ -23,8 +23,24 @@ InstanceManager = function(config) {
     var fn;
 
     // getter/setter
+    t.isStateFavorite = function() {
+        return !!_state.favorite;
+    };
+
+    t.isStateCurrent = function() {
+        return !!_state.current;
+    };
+
 	t.getStateFavorite = function() {
 		return clone(_state.favorite);
+	};
+
+	t.getStateFavoriteId = function() {
+		return t.isStateFavorite() ? _state.favorite.id : null;
+	};
+
+	t.getStateFavoriteName = function() {
+		return t.isStateFavorite() ? _state.favorite.name : null;
 	};
 
 	t.getStateCurrent = function() {
@@ -35,15 +51,11 @@ InstanceManager = function(config) {
 		_state.favorite = fav || _state.favorite || null;
 		_state.current = curr || _state.current || null;
 
-		t.uiManager.setState(fav, curr);
+		t.uiManager.setState(_state.favorite, _state.current);
 	};
 
-    t.isStateCurrent = function() {
-        return !!_state.current;
-    };
-
     t.isStateSaved = function() {
-		return _state.favorite === _state.current;
+		return t.isStateFavorite() ? (_state.favorite !== _state.current) : false;
 	};
 
     t.getApiResource = function() {
@@ -79,12 +91,12 @@ InstanceManager.prototype.getById = function(id) {
 
     var path = t.appManager.getPath();
     var fields = t.appManager.getAnalysisFields();
-    var resource = t.getApiResource();
+    var apiResource = t.getApiResource();
     var uiManager = t.uiManager;
     var api = t.api;
     var i18n = t.i18nManager.get();
 
-    $.getJSON(path + '/api/' + resource + '/' + id + '.json?fields=' + fields, function(r) {
+    $.getJSON(path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields, function(r) {
         var layout = new api.Layout(r);
 
         if (layout) {

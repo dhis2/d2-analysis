@@ -12,7 +12,9 @@ UiManager = function() {
 		onFavorite: []
 	};
 
-    var updateComponent = 'centerRegion';
+    var defaultUpdateComponentName = 'centerRegion';
+
+    var theme = 'meringue';
 
     // components
     t.register = function(cmp, name, tags, keep) {
@@ -36,11 +38,23 @@ UiManager = function() {
     };
 
     t.getUpdateComponent = function() {
-        return t.get(updateComponent);
+        return t.get(defaultUpdateComponentName);
     };
 
     t.setUpdateComponent = function(name) {
-        updateComponent = name;
+        defaultUpdateComponentName = name;
+    };
+
+    t.componentFrom = function(param) {
+        return isString(param) ? t.get(param) : param;
+    };
+
+    t.getTheme = function() {
+        return theme;
+    };
+
+    t.setTheme = function(newTheme) {
+        theme = newTheme;
     };
 
 	// state
@@ -211,7 +225,8 @@ UiManager = function() {
 
     // window
     t.setAnchorPosition = function(w, target) {
-        //var vpw = app.getViewportWidth(),
+        target = t.componentFrom(target);
+
         var vpw = this.getWidth(),
             targetx = target ? target.getPosition()[0] : 4,
             winw = w.getWidth(),

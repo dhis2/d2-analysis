@@ -28,6 +28,7 @@ import {UiConfig} from './config/UiConfig.js';
 
 import {Viewport} from './ui/Viewport.js';
 import {FavoriteWindow} from './ui/FavoriteWindow.js';
+import {InterpretationWindow} from './ui/InterpretationWindow.js';
 import {AboutWindow} from './ui/AboutWindow.js';
 import {NorthRegion} from './ui/NorthRegion.js';
 
@@ -70,6 +71,7 @@ export {
 
     Viewport,
     FavoriteWindow,
+    InterpretationWindow,
     AboutWindow,
     NorthRegion,
     //CenterRegion,
@@ -128,6 +130,7 @@ export const config = {
 export const ui = {
     Viewport: Viewport,
     FavoriteWindow: FavoriteWindow,
+    InterpretationWindow: InterpretationWindow,
     AboutWindow: AboutWindow,
     NorthRegion: NorthRegion,
     //CenterRegion: CenterRegion,

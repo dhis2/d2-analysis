@@ -1,39 +1,40 @@
+import {AboutWindow} from './AboutWindow';
+
 export var NorthRegion;
 
-NorthRegion = function(c, tbConf) {
-    var t = this;
-    var appManager = c.appManager;
+NorthRegion = function(c, cmpConfig) {
+    var appManager = c.appManager,
+        uiManager = c.uiManager,
+        i18nManager = c.i18nManager,
+
+        i18n = i18nManager.get(),
+        path = appManager.getPath();
+
+    // component
+    cmpConfig = cmpConfig || {};
+
+    cmpConfig.i18n = cmpConfig.i18n || {};
+    cmpConfig.i18n.about = cmpConfig.i18n.about || i18n.about || 'ABOUT';
+    cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'HOME';
+
+    cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
+    cmpConfig.brandName = cmpConfig.brandName || 'DHIS 2';
+    cmpConfig.appName = cmpConfig.appName || '';
+    cmpConfig.logoWidth = cmpConfig.logoWidth ? parseFloat(cmpConfig.logoWidth) : 418;
+    cmpConfig.aboutFn = cmpConfig.aboutFn || function() {
+        AboutWindow(c).show();
+    };
+    cmpConfig.homeFn = cmpConfig.homeFn || function() {
+        window.location.href = path +  '/dhis-web-commons-about/redirect.action';
+    };
 
     var cmp = {};
 
-    var defaultValues = {
-        logoWidth: 418
-    };
-
-    var getDefaultConfig = function(config) {
-        config = config || {};
-
-        config.i18n = config.i18n || {};
-        config.i18n.about = config.i18n.about || 'About';
-        config.i18n.home = config.i18n.home || 'Home';
-
-        config.theme = config.theme || '';
-        config.brandName = config.brandName || 'DHIS2';
-        config.appName = config.appName || 'PIVOT TABLES';
-        config.logoWidth = config.logoWidth ? parseFloat(config.logoWidth) : defaultValues.logoWidth;
-        config.aboutFn = config.aboutFn || function() {};
-        config.homeFn = config.homeFn || function() {
-            window.location.href = appManager.getPath() +  '/dhis-web-commons-about/redirect.action';
-        };
-
-        return config;
-    };
-
     var setLogoWidth = function(width, append) {
-        width = width || this.defaultValues.logoWidth;
+        width = width || cmpConfig.logoWidth;
         append = append || 0;
 
-        this.cmp.logo.setWidth(width + append);
+        cmp.logo.setWidth(width + append);
     };
 
     var setTitle = function(name) {
@@ -44,18 +45,15 @@ NorthRegion = function(c, tbConf) {
     return Ext.create('Ext.toolbar.Toolbar', {
         componentCls: 'toolbar-north',
         region: 'north',
-
-        cls: tbConf.cls,
+        cls: cmpConfig.theme + ' ' + cmpConfig.cls,
         cmp: cmp,
         setLogoWidth: setLogoWidth,
         setTitle: setTitle,
         items: function() {
-            var config = getDefaultConfig(tbConf.config);
-
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
-                width: config.logoWidth,
-                html: '<span class="brand">' + config.brandName + '</span> ' + config.appName
+                width: cmpConfig.logoWidth,
+                html: '<span class="brand">' + cmpConfig.brandName + '</span> ' + cmpConfig.appName
             });
 
             cmp.title = Ext.create('Ext.toolbar.TextItem', {
@@ -78,7 +76,7 @@ NorthRegion = function(c, tbConf) {
 
             cmp.about = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'about',
-                html: 'ABOUT',
+                html: cmpConfig.i18n.about,
                 listeners: {
                     render: function(ti) {
                         var el = ti.getEl();
@@ -92,7 +90,7 @@ NorthRegion = function(c, tbConf) {
                         });
 
                         el.on('click', function() {
-                            config.aboutFn();
+                            cmpConfig.aboutFn();
                         });
                     }
                 }
@@ -100,7 +98,7 @@ NorthRegion = function(c, tbConf) {
 
             cmp.home = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'about home',
-                html: 'HOME',
+                html: cmpConfig.i18n.home,
                 listeners: {
                     render: function(ti) {
                         var el = ti.getEl();
@@ -114,7 +112,7 @@ NorthRegion = function(c, tbConf) {
                         });
 
                         el.on('click', function() {
-                            config.homeFn();
+                            cmpConfig.homeFn();
                         });
                     }
                 }
