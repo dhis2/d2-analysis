@@ -4342,14 +4342,15 @@ console.log(instanceManager.getState());
                                 {
                                     text: i18n.open_this_table_as_chart + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !(ns.app.layout),
+                                    disabled: !(instanceManager.isStateCurrent()),
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    ns.app.layout.parentGraphMap = treePanel.getParentGraphMap();
+                                                    var layout = instanceManager.getStateCurrent();
+                                                    layout.parentGraphMap = treePanel.getParentGraphMap();
 
-                                                    var supported = sessionStorageManager.set(ns.app.layout, 'analytical');
+                                                    var supported = sessionStorageManager.set(layout, 'analytical');
 
                                                     if (supported) {
                                                         if (e.button === 0 && !e.ctrlKey) {
@@ -4439,14 +4440,15 @@ console.log(instanceManager.getState());
                                 {
                                     text: i18n.open_this_table_as_map + '&nbsp;&nbsp;',
                                     cls: 'ns-menu-item-noicon',
-                                    disabled: !ns.app.layout,
+                                    disabled: !(instanceManager.isStateCurrent()),
                                     listeners: {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    ns.app.layout.parentGraphMap = treePanel.getParentGraphMap();
+                                                    var layout = instanceManager.getStateCurrent();
+                                                    layout.parentGraphMap = treePanel.getParentGraphMap();
 
-                                                    var supported = sessionStorageManager.set(ns.app.layout, 'analytical');
+                                                    var supported = sessionStorageManager.set(layout, 'analytical');
 
                                                     if (supported) {
                                                         if (e.button === 0 && !e.ctrlKey) {

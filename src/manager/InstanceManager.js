@@ -1,4 +1,4 @@
-import {isString, isObject, arrayContains} from 'd2-utilizr';
+import {isString, isObject, arrayContains, clone} from 'd2-utilizr';
 
 export var InstanceManager;
 
@@ -13,7 +13,7 @@ InstanceManager = function(config) {
     t.i18nManager = config.i18nManager;
 
     // state
-    var state = {
+    var _state = {
 		favorite: null,
 		current: null
 	};
@@ -23,23 +23,27 @@ InstanceManager = function(config) {
     var fn;
 
     // getter/setter
-	t.getState = function() {
-		return state;
+	t.getStateFavorite = function() {
+		return clone(_state.favorite);
+	};
+
+	t.getStateCurrent = function() {
+		return clone(_state.current);
 	};
 
 	t.setState = function(fav, curr) {
-		state.favorite = fav || state.favorite || null;
-		state.current = curr || state.current || null;
+		_state.favorite = fav || _state.favorite || null;
+		_state.current = curr || _state.current || null;
 
 		t.uiManager.setState(fav, curr);
 	};
 
     t.isStateCurrent = function() {
-        return !!state.current;
+        return !!_state.current;
     };
 
     t.isStateSaved = function() {
-		return state.favorite === state.current;
+		return _state.favorite === _state.current;
 	};
 
     t.getApiResource = function() {

@@ -171,7 +171,7 @@ UiManager = function() {
 
     // mask
     t.mask = function(component, message) {
-        component = isObject(component) ? component : t.get(component || t.getUpdateComponent());
+        component = isObject(component) ? component : t.get(component) || t.getUpdateComponent();
 
         if (!isObject(component)) {
             //console.log('mask: no component', component, message);
@@ -196,7 +196,7 @@ UiManager = function() {
     };
 
     t.unmask = function(component) {
-        component = isObject(component) ? component : t.get(component || t.getUpdateComponent());
+        component = isObject(component) ? component : t.get(component) || t.getUpdateComponent();
 
         if (!isObject(component)) {
             //console.log('unmask: no component', component, message);
