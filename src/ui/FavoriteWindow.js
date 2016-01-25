@@ -335,10 +335,11 @@ FavoriteWindow = function(c) {
         text: i18n.prev,
         handler: function() {
             var value = searchTextfield.getValue(),
-                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null,
+                store = favoriteStore;
 
-            favoriteStore.page = store.page <= 1 ? 1 : store.page - 1;
-            favoriteStore.loadStore(url);
+            store.page = store.page <= 1 ? 1 : store.page - 1;
+            store.loadStore(url);
         }
     });
 
@@ -346,10 +347,11 @@ FavoriteWindow = function(c) {
         text: i18n.next,
         handler: function() {
             var value = searchTextfield.getValue(),
-                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null,
+                store = favoriteStore;
 
-            favoriteStore.page = favoriteStore.page + 1;
-            favoriteStore.loadStore(url);
+            store.page = store.page + 1;
+            store.loadStore(url);
         }
     });
 
@@ -380,6 +382,7 @@ FavoriteWindow = function(c) {
                                 instanceManager.getById(record.data.id);
                             };
                             element.dom.setAttribute('onclick', 'Ext.get(this).load();');
+                            
                         }
                     };
 
@@ -599,7 +602,6 @@ FavoriteWindow = function(c) {
         //title: i18n.favorites + (ns.app.layout && ns.app.layout.name ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>' : ''),
         title: i18n.favorites, //TODO
         bodyStyle: 'padding:1px; background-color:#fff',
-        closeAction: 'hide',
         resizable: false,
         modal: true,
         width: windowWidth,

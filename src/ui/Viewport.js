@@ -3584,17 +3584,7 @@ Viewport = function(c, cmp) {
         collapsible: true,
         collapseMode: 'mini',
         border: false,
-        width: function() {
-            if (Ext.isWebKit) {
-                return uiConfig.west_width + 8;
-            }
-            else {
-                if (Ext.isLinux && Ext.isGecko) {
-                    return uiConfig.west_width + 13;
-                }
-                return uiConfig.west_width + 17;
-            }
-        }(),
+        width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: accordion
     });
     uiManager.register(westRegion, 'westRegion');
@@ -3693,7 +3683,7 @@ Viewport = function(c, cmp) {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            uiManager.register(FavoriteWindow(c), 'favoriteWindow').show();
+            FavoriteWindow(c).show();
         }
     });
     uiManager.register(favoriteButton, 'favoriteButton');
