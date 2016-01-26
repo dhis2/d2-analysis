@@ -59,60 +59,22 @@ NorthRegion = function(c, cmpConfig) {
                 html: '<span class="brand">' + cmpConfig.brandName + '</span> ' + cmpConfig.appName
             });
 
-            //cmp.title = Ext.create('Ext.toolbar.TextItem', {
-                //cls: 'title user-select',
-                //html: '&nbsp;',
-                //titleValue: '',
-                //setTitle: function(name) {
-                    //this.titleValue = name;
-                    //this.update(this.titleValue);
-                //},
-                //setSaved: function() {
-                    ////this.update(this.titleValue);
-                    //this.getEl().removeCls('unsaved');
-                //},
-                //setUnsaved: function() {
-                    ////this.update('* ' + this.titleValue);
-                    //if (this.titleValue) {
-						//this.getEl().addCls('unsaved');
-					//}
-                //},
-                //setState: function(isFavorite) {
-                    //if (isFavorite) {
-                        //this.setSaved();
-                    //}
-                    //else {
-                        //this.setUnsaved();
-                    //}
-                //}
-            //});
-
-            //cmp.tf = Ext.create('Ext.form.field.Text', {
-				////width: 300,
-				//disabled: true,
-				//fieldStyle: 'border:0 none; background:none; font-size:13px',
-				//value: 'Immunization: BMI population sample by gender and age group'
-			//});
-
-			cmp.title = Ext.create('Ext.form.field.Text', {
-				//width: uiManager.get('centerRegion').getWidth(),
-				fieldStyle: 'border:0 none; background:none; font-size:13px',
+            cmp.title = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'title user-select',
+                html: '&nbsp;',
                 titleValue: '',
                 setTitle: function(name) {
                     this.titleValue = name;
-                    this.setValue(this.titleValue);
+                    this.update(this.titleValue);
                 },
                 setSaved: function() {
-                    //this.getEl().removeCls('unsaved');
-                    Ext.get(this.getInputId()).removeCls('unsaved');
-                    this.enable();
+                    //this.update(this.titleValue);
+                    this.getEl().removeCls('unsaved');
                 },
                 setUnsaved: function() {
                     //this.update('* ' + this.titleValue);
                     if (this.titleValue) {
-						Ext.get(this.getInputId()).addCls('unsaved');
-						this.disable();
+						this.getEl().addCls('unsaved');
 					}
                 },
                 setState: function(isFavorite) {
@@ -122,13 +84,52 @@ NorthRegion = function(c, cmpConfig) {
                     else {
                         this.setUnsaved();
                     }
-                },
-                listeners: {
-					afterrender: function(cmp) {
-						cmp.setWidth(uiManager.get('northRegion').getWidth());
-					}
-				}
+                }
             });
+
+            //cmp.tf = Ext.create('Ext.form.field.Text', {
+				////width: 300,
+				//disabled: true,
+				//fieldStyle: 'border:0 none; background:none; font-size:13px',
+				//value: 'Immunization: BMI population sample by gender and age group'
+			//});
+
+			//cmp.title = Ext.create('Ext.form.field.Text', {
+				////width: uiManager.get('centerRegion').getWidth(),
+				//width: 200,
+				//fieldStyle: 'border:0 none; background:none; font-size:13px',
+                //cls: 'title user-select',
+                //titleValue: '',
+                //setTitle: function(name) {
+                    //this.titleValue = name;
+                    //this.setValue(this.titleValue);
+                //},
+                //setSaved: function() {
+                    ////this.getEl().removeCls('unsaved');
+                    //Ext.get(this.getInputId()).removeCls('unsaved');
+                    //this.enable();
+                //},
+                //setUnsaved: function() {
+                    ////this.update('* ' + this.titleValue);
+                    //if (this.titleValue) {
+						//Ext.get(this.getInputId()).addCls('unsaved');
+						//this.disable();
+					//}
+                //},
+                //setState: function(isFavorite) {
+                    //if (isFavorite) {
+                        //this.setSaved();
+                    //}
+                    //else {
+                        //this.setUnsaved();
+                    //}
+                //},
+                //listeners: {
+					//afterrender: function(cmp) {
+						//cmp.setWidth(uiManager.get('northRegion').getWidth());
+					//}
+				//}
+            //});
 
             cmp.about = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'about',
