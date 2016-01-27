@@ -247,10 +247,12 @@ UiManager = function() {
         }
     };
 
-    t.addHideOnBlurHandler = function(w) {
-        var el = Ext.get(Ext.query('.x-mask')[0]);
+    t.getBodyMask = function() {
+        return Ext.getBody().child('.x-mask');
+    };
 
-        el.on('click', function() {
+    t.addHideOnBlurHandler = function(w) {
+        t.getBodyMask().on('click', function() {
             if (w.hideOnBlur) {
                 w.hide();
             }
@@ -260,10 +262,7 @@ UiManager = function() {
     };
 
     t.addDestroyOnBlurHandler = function(w) {
-        var maskElements = Ext.query('.x-mask'),
-            el = Ext.get(maskElements[0]);
-
-        el.on('click', function() {
+        t.getBodyMask().on('click', function() {
             if (w.destroyOnBlur) {
                 w.destroy();
             }

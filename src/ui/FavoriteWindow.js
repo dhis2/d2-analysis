@@ -276,6 +276,8 @@ FavoriteWindow = function(c) {
                         }
                     }
 
+                    favoriteWindow.hideOnBlur = false;
+
                     nameTextfield.focus(false, 500);
                 },
                 destroy: function() {
@@ -601,6 +603,7 @@ FavoriteWindow = function(c) {
     favoriteWindow = Ext.create('Ext.window.Window', {
         title: i18n.favorites, //TODO
         bodyStyle: 'padding:1px; background-color:#fff',
+        closeAction: 'hide',
         resizable: false,
         modal: true,
         width: windowWidth,
@@ -639,9 +642,6 @@ FavoriteWindow = function(c) {
 				searchTextfield.reset();
 				onSearchTextfieldKeyUp('');
                 searchTextfield.focus(false, 500);
-            },
-            destroy: function() {
-                console.log("d");
             }
         }
     });
