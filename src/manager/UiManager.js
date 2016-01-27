@@ -34,7 +34,7 @@ UiManager = function() {
     };
 
     t.get = function(name) {
-        return components[name];
+        return components[name] || Ext.get(name) || null;
     };
 
     t.getUpdateComponent = function() {
@@ -234,16 +234,19 @@ UiManager = function() {
     t.setAnchorPosition = function(w, target) {
         target = t.componentFrom(target);
 
-        var vpw = this.getWidth(),
-            targetx = target ? target.getPosition()[0] : 4,
-            winw = w.getWidth(),
-            y = target ? target.getPosition()[1] + target.getHeight() + 4 : 33;
+        var txy = target.getPosition ? target.getPosition() : (target.getXY ? target.getXY() : null),
+            th = target.getHeight(),
+            vpw = t.get('viewport').getWidth(),
+            ww = w.getWidth();
 
-        if ((targetx + winw) > vpw) {
-            w.setPosition((vpw - winw - 2), y);
+        var tx = txy[0],
+            ty = txy[1] + th + 4;
+
+        if ((tx + ww) > vpw) {
+            w.setPosition((vpw - ww - 2), ty);
         }
         else {
-            w.setPosition(targetx, y);
+            w.setPosition(tx, ty);
         }
     };
 

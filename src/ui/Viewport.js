@@ -4026,7 +4026,7 @@ Viewport = function(c, cmp) {
                         text: i18n.clear_pivot_table + '&nbsp;&nbsp;', //i18n
                         cls: 'ns-menu-item-noicon',
                         handler: function() {
-                            window.location.href = path + '/dhis-web-pivot';
+                            window.location.href = '.';
                         }
                     }
                 ],

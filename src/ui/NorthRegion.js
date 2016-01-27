@@ -132,8 +132,10 @@ NorthRegion = function(c, cmpConfig) {
             //});
 
             cmp.about = Ext.create('Ext.toolbar.TextItem', {
+                id: 'aboutButton',
                 cls: 'about',
                 html: cmpConfig.i18n.about,
+                //rendered: true,
                 listeners: {
                     render: function(ti) {
                         var el = ti.getEl();
@@ -149,13 +151,17 @@ NorthRegion = function(c, cmpConfig) {
                         el.on('click', function() {
                             cmpConfig.aboutFn();
                         });
+
+                        el.rendered = true;
                     }
                 }
             });
 
             cmp.home = Ext.create('Ext.toolbar.TextItem', {
+                id: 'homeButton',
                 cls: 'about home',
                 html: cmpConfig.i18n.home,
+                //rendered: true,
                 listeners: {
                     render: function(ti) {
                         var el = ti.getEl();
@@ -171,6 +177,8 @@ NorthRegion = function(c, cmpConfig) {
                         el.on('click', function() {
                             cmpConfig.homeFn();
                         });
+
+                        el.rendered = true;
                     }
                 }
             });
