@@ -178,7 +178,7 @@ NorthRegion = function(c, cmpConfig) {
             return [
                 cmp.logo,
                 cmp.title,
-                cmp.tf,
+                //cmp.tf,
                 '->',
                 cmp.about,
                 cmp.home,

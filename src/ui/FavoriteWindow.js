@@ -382,7 +382,7 @@ FavoriteWindow = function(c) {
                                 instanceManager.getById(record.data.id);
                             };
                             element.dom.setAttribute('onclick', 'Ext.get(this).load();');
-                            
+
                         }
                     };
 
@@ -599,7 +599,6 @@ FavoriteWindow = function(c) {
     });
 
     favoriteWindow = Ext.create('Ext.window.Window', {
-        //title: i18n.favorites + (ns.app.layout && ns.app.layout.name ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + ns.app.layout.name + '</span>' : ''),
         title: i18n.favorites, //TODO
         bodyStyle: 'padding:1px; background-color:#fff',
         resizable: false,
@@ -640,6 +639,9 @@ FavoriteWindow = function(c) {
 				searchTextfield.reset();
 				onSearchTextfieldKeyUp('');
                 searchTextfield.focus(false, 500);
+            },
+            destroy: function() {
+                console.log("d");
             }
         }
     });

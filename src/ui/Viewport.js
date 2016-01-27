@@ -3683,7 +3683,7 @@ Viewport = function(c, cmp) {
         text: i18n.favorites,
         menu: {},
         handler: function() {
-            FavoriteWindow(c).show();
+            uiManager.get('favoriteWindow').show();
         }
     });
     uiManager.register(favoriteButton, 'favoriteButton');
