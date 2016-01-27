@@ -1,4 +1,5 @@
 import {clone} from 'd2-utilizr';
+import {SharingWindow} from './SharingWindow.js';
 
 export var FavoriteWindow;
 
@@ -110,10 +111,7 @@ FavoriteWindow = function(c) {
         var favorite,
             dimensions;
 
-        //if (ns.app.layout) { //TODO
-        if (true) {
-            //favorite = clone(ns.app.layout);
-            favorite = {};
+        if (favorite = uiManager.getStateCurrent()) {
             dimensions = [].concat(favorite.columns || [], favorite.rows || [], favorite.filters || []);
 
             // Server sync
@@ -472,7 +470,7 @@ FavoriteWindow = function(c) {
                                     },
                                     success: function(r) {
                                         var sharing = Ext.decode(r.responseText),
-                                            window = new SharingWindow(sharing);
+                                            window = SharingWindow(c, sharing);
 
                                         window.show();
                                     }
