@@ -20,6 +20,7 @@ import {ResponseManager} from './manager/ResponseManager.js';
 import {SessionStorageManager} from './manager/SessionStorageManager.js';
 import {UiManager} from './manager/UiManager.js';
 import {InstanceManager} from './manager/InstanceManager.js';
+import {TableManager} from './manager/TableManager.js';
 
 import {DimensionConfig} from './config/DimensionConfig.js';
 import {PeriodConfig} from './config/PeriodConfig.js';
@@ -66,6 +67,7 @@ export {
     SessionStorageManager,
     UiManager,
     InstanceManager,
+    TableManager,
 
     DimensionConfig,
     PeriodConfig,
@@ -123,7 +125,8 @@ export const manager = {
     ResponseManager: ResponseManager,
     SessionStorageManager: SessionStorageManager,
     UiManager: UiManager,
-    InstanceManager: InstanceManager
+    InstanceManager: InstanceManager,
+    TableManager: TableManager
 };
 
 export const config = {

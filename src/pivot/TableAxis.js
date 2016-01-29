@@ -47,7 +47,12 @@ TableAxis = function(layout, response, type) {
         var a = [];
 
         aDimensions.forEach(function(dimension) {
-            a.push(layout.getDimensionNameRecordIdsMap(response)[dimension.dimensionName]);
+            if (dimension.sorted) {
+                a.push(arrayPluck(dimension.items, 'id'));
+            }
+            else {
+                a.push(layout.getDimensionNameRecordIdsMap(response)[dimension.dimensionName]);
+            }
         });
 
         return a;

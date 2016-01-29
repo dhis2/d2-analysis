@@ -1,7 +1,8 @@
-import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, clone} from 'd2-utilizr';
+import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, arraySort, clone} from 'd2-utilizr';
 import {Axis} from './Axis.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
+import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
 import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
@@ -152,10 +153,6 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
 };
 
 Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
-    //if (this.dimensionNameRecordIdsMap) {
-        //return this.dimensionNameRecordIdsMap;
-    //}
-
     var map = {};
 
     this.getDimensions(true).forEach(function(dimension) {
@@ -365,6 +362,42 @@ Layout.prototype.toPlugin = function(el) {
     }
 
     return layout;
+};
+
+Layout.prototype.sort = function() {
+    var t = this,
+        id = this.sorting.id,
+        direction = this.sorting.direction,
+        dimension = this.rows[0],
+        response = this.getResponse(),
+        records = [],
+        ids,
+        sortingId;
+
+    if (!isString(id)) {
+        return;
+    }
+
+    id = id.toLowerCase() === 'total' ? 'total_' : id;
+
+    ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
+
+    ids.forEach(function(item) {
+        sortingId = parseFloat(response.getValue(new ResponseRowIdCombination([id, item]), t));
+
+        records.push(new Record({
+            id: isNumber(sortingId) ? sortingId : (Number.MAX_VALUE * -1),
+            name: ''
+        }));
+    });
+
+    // sort
+    arraySort(records, direction, 'sortingId');
+
+    dimension.sorted = true;
+    dimension.items = records;
+
+    this.sorting.id = id;
 };
 
 // dep 3

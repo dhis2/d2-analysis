@@ -131,8 +131,14 @@ InstanceManager.prototype.getData = function(layout) {
 InstanceManager.prototype.getReport = function(layout, isFavorite) {
     var t = this;
 
+    var fn = function() {
+        t.setState(layout, isFavorite);
+        t.getFn()(layout);
+    };
+
     t.uiManager.mask();
 
+    // layout
     if (!layout) {
         layout = this.getLayout();
 
@@ -141,10 +147,12 @@ InstanceManager.prototype.getReport = function(layout, isFavorite) {
         }
     }
 
+    // response
     var response = layout.getResponse();
 
+    // fn
     if (response) {
-        t.getFn()(layout);
+       fn();
     }
     else {
         var reqMap = layout.data();
@@ -155,9 +163,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite) {
 
                 layout.setResponse(new t.api.Response(res));
 
-                t.getFn()(layout);
-
-                t.setState(layout, isFavorite);
+                fn();
             });
         });
     }

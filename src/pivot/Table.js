@@ -55,9 +55,8 @@ Table = function(layout, response, colAxis, rowAxis) {
         htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
         objectNameMap = dimensionConfig.getObjectNameMap(),
-        idValueMap = response.getIdValueMap(layout);
-
-    response.sortableIdObjects = []; //todo
+        idValueMap = response.getIdValueMap(layout),
+        sortableIdObjects = []; //todo
 
     getRoundedHtmlValue = function(value, dec) {
         dec = dec || 2;
@@ -140,7 +139,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         if (isString(metaDataId)) {
             cls += ' td-sortable';
 
-            response.sortableIdObjects.push({
+            sortableIdObjects.push({
                 id: metaDataId,
                 uuid: config.uuid
             });
@@ -878,6 +877,10 @@ Table = function(layout, response, colAxis, rowAxis) {
     // constructor
     t.html = getHtml(htmlArray);
     t.uuidDimUuidsMap = uuidDimUuidsMap;
+    t.sortableIdObjects = sortableIdObjects;
+
+    t.layout = layout;
+    t.response = response;
     t.colAxis = colAxis;
     t.rowAxis = rowAxis;
     t.tdCount = tdCount;
