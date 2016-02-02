@@ -54,7 +54,7 @@ TableAxis = function(layout, response, type) {
                 a.push(layout.getDimensionNameRecordIdsMap(response)[dimension.dimensionName]);
             }
         });
-
+console.log(a);
         return a;
     }();
 //aaUniqueFloorIds	= [ [de-id1, de-id2, de-id3],

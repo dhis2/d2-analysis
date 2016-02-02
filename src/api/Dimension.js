@@ -18,6 +18,10 @@ Dimension = function(config) {
     t.items = config.items.map(function(record) {
         return (new Record(record)).val();
     });
+
+    if (config.sorted) {
+        t.sorted = config.sorted;
+    }
 };
 
 Dimension.prototype.log = function(text, noError) {

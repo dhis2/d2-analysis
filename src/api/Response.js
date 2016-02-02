@@ -149,7 +149,7 @@ Response.prototype.getIdValueMap = function(layout) {
 Response.prototype.getValue = function(param, layout) {
     var id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
-    return this.getIdValueMap(layout)[param];
+    return this.getIdValueMap(layout)[id];
 };
 
 // dep 5

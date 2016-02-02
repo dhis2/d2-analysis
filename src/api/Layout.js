@@ -1,5 +1,6 @@
 import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, arraySort, clone} from 'd2-utilizr';
 import {Axis} from './Axis.js';
+import {Dimension} from './Dimension.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
 import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
@@ -93,9 +94,6 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
     $.extend(t, forceApplyConfig);
 
-    // uninitialized
-    t.dimensionNameRecordIdsMap;
-
     // setter/getter
     t.getResponse = function() {
         return response;
@@ -152,6 +150,14 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
     return isSorted ? dimensions.sort(function(a, b) {return a.dimension > b.dimension;}) : dimensions;
 };
 
+// dep 2
+
+Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
+    var names = arrayPluck(this.getDimensions(includeFilter, false, axes), 'dimension');
+
+    return isSorted ? names.sort() : names;
+};
+
 Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
     var map = {};
 
@@ -159,15 +165,7 @@ Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
         map[dimension.dimension] = dimension.getRecordIds(false, response);
     });
 
-    return this.dimensionNameRecordIdsMap = map;
-};
-
-// dep 2
-
-Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
-    var names = arrayPluck(this.getDimensions(includeFilter, false, axes), 'dimension');
-
-    return isSorted ? names.sort() : names;
+    return map;
 };
 
 Layout.prototype.val = function(noError) {
@@ -308,7 +306,6 @@ Layout.prototype.toPlugin = function(el) {
             'klass',
             'name',
             'parentGraphMap',
-            'dimensionNameRecordIdsMap',
             'reportingPeriod',
             'organisationUnit',
             'parentOrganisationUnit',
@@ -372,7 +369,8 @@ Layout.prototype.sort = function() {
         response = this.getResponse(),
         records = [],
         ids,
-        sortingId;
+        sortingId,
+        obj;
 
     if (!isString(id)) {
         return;
@@ -385,17 +383,22 @@ Layout.prototype.sort = function() {
     ids.forEach(function(item) {
         sortingId = parseFloat(response.getValue(new ResponseRowIdCombination([id, item]), t));
 
-        records.push(new Record({
-            id: isNumber(sortingId) ? sortingId : (Number.MAX_VALUE * -1),
-            name: ''
-        }));
+        obj = {
+            id: item,
+            sortingId: isNumber(sortingId) ? sortingId : (Number.MAX_VALUE * -1)
+        };
+
+        records.push(obj);
     });
 
     // sort
     arraySort(records, direction, 'sortingId');
 
-    dimension.sorted = true;
+    // dimension
     dimension.items = records;
+    dimension.sorted = true;
+
+    dimension = new Dimension(dimension);
 
     this.sorting.id = id;
 };
