@@ -3585,7 +3585,9 @@ Viewport = function(c, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: accordion
+        items: accordion,
+        //setState: function(layout) {
+
     });
     uiManager.register(westRegion, 'westRegion');
 

@@ -75,6 +75,9 @@ UiManager = function() {
                     }
                 });
             }
+
+            // west
+            t.get('westRegion').setState(layout);
         }
     };
 
