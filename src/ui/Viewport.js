@@ -2072,6 +2072,31 @@ Viewport = function(c, cmp) {
 
             return config.items.length ? config : null;
         },
+        clearDimension: function() {
+			dataSelectedStore.removeAll();
+
+			indicatorAvailableStore.removeAll();
+			indicatorGroup.clearValue();
+
+			dataElementAvailableStore.removeAll();
+			dataElementGroup.clearValue();
+			dataElementDetailLevel.reset();
+
+			dataSetAvailableStore.removeAll();
+
+			eventDataItemAvailableStore.removeAll();
+			programIndicatorAvailableStore.removeAll();
+		},
+		setDimension: function(layout) {			
+            if (isObject(layout.program) && isString(layout.program.id)) {
+                eventDataItemProgram.setValue(layout.program.id);
+                onEventDataItemProgramSelect(layout.program.id)
+            }
+
+            if (layout.hasDimension(this.dimension, true)) {
+				dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
+			}
+		},
         onExpand: function() {
             var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_indicator : uiConfig.west_maxheight_accordion_indicator;
 
@@ -2500,6 +2525,32 @@ Viewport = function(c, cmp) {
         hideCollapseTool: true,
         dimension: periodObjectName,
         checkboxes: [],
+        clearDimension: function() {
+			fixedPeriodSelectedStore.removeAll();
+			period.resetRelativePeriods();
+		},
+		setDimension: function(layout) {
+			if (layout.hasDimension(this.dimension, true)) {
+				var records = layout.getDimension(this.dimension).getRecords(),
+					fixedRecords = [],
+					checkbox;
+
+				records.forEach(function(record) {
+					checkbox = relativePeriod.valueComponentMap[record.id];
+
+					if (checkbox) {
+						checkbox.setValue(true);
+					}
+					else {
+						fixedRecords.push(record);
+					}
+				});
+
+				fixedPeriodSelectedStore.add(fixedRecords);
+
+				uiManager.msFilterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
+			}
+		},
         getDimension: function() {
             var config = {
                     dimension: periodObjectName,
@@ -3509,12 +3560,15 @@ Viewport = function(c, cmp) {
 
     // viewport
 
+    var westRegionPanels = [];
+
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
         activeOnTop: true,
         cls: 'ns-accordion',
         bodyStyle: 'border:0 none; margin-bottom:2px',
         height: 700,
+        dimensionPanels: null,
         items: function() {
             var panels = [
                 data,
@@ -3537,6 +3591,8 @@ Viewport = function(c, cmp) {
 
             // last cls
             panels[panels.length - 1].cls = 'ns-accordion-last';
+
+            westRegionPanels = panels;
 
             return panels;
         }()
@@ -3586,8 +3642,9 @@ Viewport = function(c, cmp) {
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: accordion,
-        //setState: function(layout) {
-
+        setState: function(layout) {
+			setUiState(layout);
+		}
     });
     uiManager.register(westRegion, 'westRegion');
 
@@ -4325,73 +4382,80 @@ Viewport = function(c, cmp) {
     });
     uiManager.register(centerRegion, 'centerRegion');
 
-    var setUiState = function(layout, xLayout, updateGui) {
-        var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
-            dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
-            recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
-            graphMap = layout.parentGraphMap,
-            objectName,
-            periodRecords,
-            fixedPeriodRecords = [],
-            dimNames = [],
-            isOu = false,
-            isOuc = false,
-            isOugc = false,
-            levels = [],
-            groups = [],
-            orgunits = [],
+    var setUiState = function(layout) {
+		var graphMap = layout.parentGraphMap,
             layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow');
 
-        // state
-        downloadButton.enable();
-        shareButton.enable();
+		// panels
+		westRegionPanels.forEach(function(panel) {
+			panel.clearDimension();
+			panel.setDimension(layout);
+		});
+		
 
-        // set gui
-        if (!updateGui) {
-            return;
-        }
+	
+        //var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
+            //dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
+            //recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
+            //graphMap = layout.parentGraphMap,
+            //objectName,
+            //periodRecords,
+            //fixedPeriodRecords = [],
+            //dimNames = [],
+            //isOu = false,
+            //isOuc = false,
+            //isOugc = false,
+            //levels = [],
+            //groups = [],
+            //orgunits = [],
+            //layoutWindow = uiManager.get('layoutWindow'),
+            //optionsWindow = uiManager.get('optionsWindow');
 
-        // dx
-        dataSelectedStore.removeAll();
+        //// state
+        //downloadButton.enable();
+        //shareButton.enable();
 
-        indicatorAvailableStore.removeAll();
-        indicatorGroup.clearValue();
+        //// set gui
+        //if (!updateGui) {
+            //return;
+        //}
 
-        dataElementAvailableStore.removeAll();
-        dataElementGroup.clearValue();
-        dataElementDetailLevel.reset();
+        //// dx
+        //dataSelectedStore.removeAll();
 
-        dataSetAvailableStore.removeAll();
+        //indicatorAvailableStore.removeAll();
+        //indicatorGroup.clearValue();
 
-        eventDataItemAvailableStore.removeAll();
-        programIndicatorAvailableStore.removeAll();
+        //dataElementAvailableStore.removeAll();
+        //dataElementGroup.clearValue();
+        //dataElementDetailLevel.reset();
 
-        if (isObject(xLayout.program) && isString(xLayout.program.id)) {
-            eventDataItemProgram.setValue(xLayout.program.id);
-            onEventDataItemProgramSelect(xLayout.program.id)
-        }
+        //dataSetAvailableStore.removeAll();
 
-        if (dimMap['dx']) {
-            dataSelectedStore.addRecords(recMap['dx']);
-        }
+        //eventDataItemAvailableStore.removeAll();
+        //programIndicatorAvailableStore.removeAll();
 
-        // periods
-        fixedPeriodSelectedStore.removeAll();
-        period.resetRelativePeriods();
-        periodRecords = recMap[periodObjectName] || [];
-        for (var i = 0, periodRecord, checkbox; i < periodRecords.length; i++) {
-            periodRecord = periodRecords[i];
-            checkbox = relativePeriod.valueComponentMap[periodRecord.id];
-            if (checkbox) {
-                checkbox.setValue(true);
-            }
-            else {
-                fixedPeriodRecords.push(periodRecord);
-            }
-        }
-        fixedPeriodSelectedStore.add(fixedPeriodRecords);
-        ns.core.web.multiSelect.filterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
+        //if (dimMap['dx']) {
+            //dataSelectedStore.addRecords(recMap['dx']);
+        //}
+
+        //// periods
+        //fixedPeriodSelectedStore.removeAll();
+        //period.resetRelativePeriods();
+        //periodRecords = recMap[periodObjectName] || [];
+        //for (var i = 0, periodRecord, checkbox; i < periodRecords.length; i++) {
+            //periodRecord = periodRecords[i];
+            //checkbox = relativePeriod.valueComponentMap[periodRecord.id];
+            //if (checkbox) {
+                //checkbox.setValue(true);
+            //}
+            //else {
+                //fixedPeriodRecords.push(periodRecord);
+            //}
+        //}
+        //fixedPeriodSelectedStore.add(fixedPeriodRecords);
+        //ns.core.web.multiSelect.filterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
 
         // group sets
         for (var key in dimensionPanelMap) {

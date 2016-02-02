@@ -152,6 +152,12 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
 
 // dep 2
 
+Layout.prototype.getDimension = function(dimensionName) {
+    return this.getDimensions(true).find(function(dimension) {
+		return dimension.dimension === dimensionName;
+	});
+};
+
 Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     var names = arrayPluck(this.getDimensions(includeFilter, false, axes), 'dimension');
 

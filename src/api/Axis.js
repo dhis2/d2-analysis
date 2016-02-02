@@ -30,11 +30,11 @@ Axis = function(config) {
         return this;
     };
 
-    t.has = function(dimensionName) {
-        return this.some(function(dimension) {
-            return dimension.dimension === dimensionName;
-        });
-    };
+    t.getDimension = function(dimensionName) {
+		return this.find(function(dimension) {
+			return dimension.dimension === dimensionName;
+		});
+	};
 
     t.getDimensionNames = function() {
         var names = [];
@@ -46,8 +46,12 @@ Axis = function(config) {
         return names;
     };
 
+    t.has = function(dimensionName) {
+		return !!t.getDimension(dimensionName);
+	};
+
     t.sorted = function() {
-        return clone(this).sort(function(a, b) { return a.dimension > b.dimension;});
+        return clone(this).sort(function(a, b) {return a.dimension > b.dimension;});
     };
 
     t.toPlugin = function() {
