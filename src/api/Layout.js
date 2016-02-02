@@ -361,12 +361,13 @@ Layout.prototype.toPlugin = function(el) {
     return layout;
 };
 
-Layout.prototype.sort = function() {
+Layout.prototype.sort = function(table) {
     var t = this,
         id = this.sorting.id,
         direction = this.sorting.direction,
         dimension = this.rows[0],
         response = this.getResponse(),
+        idValueMap = table ? table.idValueMap : response.getIdValueMap(),
         records = [],
         ids,
         sortingId,
@@ -376,12 +377,10 @@ Layout.prototype.sort = function() {
         return;
     }
 
-    id = id.toLowerCase() === 'total' ? 'total_' : id;
-
     ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
-        sortingId = parseFloat(response.getValue(new ResponseRowIdCombination([id, item]), t));
+        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination([id, item]).get())]);
 
         obj = {
             id: item,

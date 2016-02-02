@@ -1,10 +1,9 @@
-import {isArray, arrayUnique, arraySort, clone, uuid} from 'd2-utilizr';
+import {isArray, arrayPluck, arrayUnique, arraySort, clone, uuid} from 'd2-utilizr';
 
 export var TableAxis;
 
 TableAxis = function(layout, response, type) {
-    var dimensionNames,
-        spanType,
+    var spanType,
         aDimensions = [],
         nAxisWidth = 1,
         nAxisHeight,
@@ -19,42 +18,32 @@ TableAxis = function(layout, response, type) {
         uuidObjectMap = {};
 
     if (type === 'col') {
-        dimensionNames = layout.columns.getDimensionNames(response);
+        aDimensions = layout.columns;
         spanType = 'colSpan';
     }
     else if (type === 'row') {
-        dimensionNames = layout.rows.getDimensionNames(response);
+        aDimensions = layout.rows;
         spanType = 'rowSpan';
     }
 
-    if (!(isArray(dimensionNames) && dimensionNames.length)) {
+    if (!(isArray(aDimensions) && aDimensions.length)) {
         return;
     }
-//dimensionNames = ['pe', 'ou'];
-
-    // aDimensions: array of dimension objects with dimensionName property
-    dimensionNames.forEach(function(name) {
-        aDimensions.push({
-            dimensionName: name
-        });
-    });
-//aDimensions = [{
-//dimensionName: 'pe'
-//}]
 
     // aaUniqueFloorIds: array of arrays with unique ids for each dimension floor
     aaUniqueFloorIds = function() {
-        var a = [];
+        var a = [],
+            dimensionNameRecordIdsMap = layout.getDimensionNameRecordIdsMap(response);
 
         aDimensions.forEach(function(dimension) {
             if (dimension.sorted) {
                 a.push(arrayPluck(dimension.items, 'id'));
             }
             else {
-                a.push(layout.getDimensionNameRecordIdsMap(response)[dimension.dimensionName]);
+                a.push(dimensionNameRecordIdsMap[dimension.dimension]);
             }
         });
-console.log(a);
+
         return a;
     }();
 //aaUniqueFloorIds	= [ [de-id1, de-id2, de-id3],

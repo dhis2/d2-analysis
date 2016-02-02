@@ -43,8 +43,10 @@ TableManager = function(c) {
         }
     };
 
-    t.setColumnHeaderMouseHandlers = function(layout, elObjects) {
-        var el;
+    t.setColumnHeaderMouseHandlers = function(layout, table) {
+        var elObjects = table.sortableIdObjects,
+            idValueMap = table.idValueMap,
+            el;
 
         elObjects.forEach(function(item) {
             el = Ext.get(item.uuid);

@@ -1,4 +1,5 @@
 import {isString, isNumber, isArray, isObject, isBoolean, isDefined, numberToFixed, arrayContains, arrayClean, uuid} from 'd2-utilizr';
+import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 
 export var Table;
 
@@ -358,7 +359,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 }
 
                 if (i === 0 && (j === colAxis.size - 1) && doRowTotals()) {
-                    totalId = doSortableColumnHeaders() ? 'total_' : null;
+                    totalId = doSortableColumnHeaders() ? 'total' : null;
 
                     dimHtml.push(getTdHtml({
                         uuid: uuid(),
@@ -512,10 +513,10 @@ Table = function(layout, response, colAxis, rowAxis) {
 
                 // add row totals to idValueMap to make sorting on totals possible
                 if (doSortableColumnHeaders()) {
-                    var totalId = 'total_' + rowAxis.ids[i],
+                    var totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]),
                         isEmpty = !arrayContains(empty, false);
 
-                    idValueMap[totalId] = isEmpty ? null : total;
+                    idValueMap[totalIdComb.get()] = isEmpty ? null : total;
                 }
 
                 empty = [];
@@ -878,6 +879,7 @@ Table = function(layout, response, colAxis, rowAxis) {
     t.html = getHtml(htmlArray);
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
+    t.idValueMap = idValueMap;
 
     t.layout = layout;
     t.response = response;
