@@ -27,8 +27,6 @@ FavoriteWindow = function(c) {
         NameWindow,
         nameWindow,
 
-        getBody,
-
         addButton,
         onSearchTextfieldKeyUp,
         searchTextfield,
@@ -107,43 +105,6 @@ FavoriteWindow = function(c) {
         }
     });
 
-    getBody = function() {
-        var favorite,
-            dimensions;
-
-        if (favorite = uiManager.getStateCurrent()) {
-            dimensions = [].concat(favorite.columns || [], favorite.rows || [], favorite.filters || []);
-
-            // Server sync
-            favorite.rowTotals = favorite.showRowTotals;
-            delete favorite.showRowTotals;
-
-            favorite.colTotals = favorite.showColTotals;
-            delete favorite.showColTotals;
-
-            favorite.rowSubTotals = favorite.showRowSubTotals;
-            delete favorite.showRowSubTotals;
-
-            favorite.colSubTotals = favorite.showColSubTotals;
-            delete favorite.showColSubTotals;
-
-            favorite.reportParams = {
-                paramReportingPeriod: favorite.reportingPeriod,
-                paramOrganisationUnit: favorite.organisationUnit,
-                paramParentOrganisationUnit: favorite.parentOrganisationUnit
-            };
-            delete favorite.reportingPeriod;
-            delete favorite.organisationUnit;
-            delete favorite.parentOrganisationUnit;
-
-            delete favorite.parentGraphMap;
-
-            delete favorite.id;
-        }
-
-        return favorite;
-    };
-
     NameWindow = function(id) {
         var window,
             record = favoriteStore.getById(id);
@@ -165,38 +126,24 @@ FavoriteWindow = function(c) {
         createButton = Ext.create('Ext.button.Button', {
             text: i18n.create,
             handler: function() {
-                var favorite = getBody();
-                favorite.name = nameTextfield.getValue();
+                var layout = instanceManager.getStateCurrent();
+                layout.name = nameTextfield.getValue();
 
-                //tmp
-                //delete favorite.legendSet;
+                var clonedLayout = clone(layout);
 
-                if (favorite && favorite.name) {
-                    Ext.Ajax.request({
-                        url: path + '/api/' + apiResource + '/',
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        params: Ext.encode(favorite),
-                        failure: function(r) {
-                            uiManager.unmask();
-                            uiManager.alert(r);
-                        },
-                        success: function(r) {
-                            var id = r.getAllResponseHeaders().location.split('/').pop();
-                            console.log("Favorite id: " + id);
-//TODO
-                            //ns.app.layout.id = id;
-                            //ns.app.xLayout.id = id;
+                layout.post(function(r) {
+console.log(r, r.getAllResponseHeaders(), r.getResponseHeader('location'));
+                    var id = r.getAllResponseHeaders().location.split('/').pop();
+                    console.log("Favorite id: " + id);
 
-                            //ns.app.layout.name = name;
-                            //ns.app.xLayout.name = name;
+                    clonedLayout.id = id;
 
-                            favoriteStore.loadStore();
+                    instanceManager.setState(clonedLayout, true);
 
-                            window.destroy();
-                        }
-                    });
-                }
+                    favoriteStore.loadStore();
+
+                    window.destroy();
+                });
             }
         });
 

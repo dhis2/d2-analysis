@@ -367,6 +367,43 @@ Layout.prototype.toPlugin = function(el) {
     return layout;
 };
 
+Layout.prototype.toPost = function() {
+    delete this.klass;
+    delete this.getResponse;
+    delete this.setResponse;
+    delete this.getRequestPath;
+
+    this.getDimensions().forEach(function(dimension) {
+        dimension.toPost();
+    });
+
+    this.rowTotals = this.showRowTotals;
+    delete this.showRowTotals;
+
+    this.colTotals = this.showColTotals;
+    delete this.showColTotals;
+
+    this.rowSubTotals = this.showRowSubTotals;
+    delete this.showRowSubTotals;
+
+    this.colSubTotals = this.showColSubTotals;
+    delete this.showColSubTotals;
+
+    this.reportParams = {
+        paramReportingPeriod: this.reportingPeriod,
+        paramOrganisationUnit: this.organisationUnit,
+        paramParentOrganisationUnit: this.parentOrganisationUnit
+    };
+
+    delete this.reportingPeriod;
+    delete this.organisationUnit;
+    delete this.parentOrganisationUnit;
+
+    delete this.parentGraphMap;
+
+    delete this.id;
+};
+
 Layout.prototype.sort = function(table) {
     var t = this,
         id = this.sorting.id,
@@ -421,4 +458,44 @@ Layout.prototype.data = function(source, format) {
         metaData: $.getJSON(metaDataRequest.url('skipData=true')),
         data: $.getJSON(dataRequest.url('skipMeta=true'))
     };
+};
+
+Layout.prototype.post = function(fn) {
+    var appManager = this.klass.appManager,
+        instanceManager = this.klass.instanceManager,
+        uiManager = this.klass.uiManager;
+
+    var path = appManager.getPath(),
+        apiResource = instanceManager.getApiResource();
+
+    this.toPost();
+
+    //$.post(, this, function() {
+        //console.log(arguments);
+    //}, 'json');
+
+    $.ajax({
+        type: 'POST',
+        url: path + '/api/' + apiResource + '/',
+        data: this,
+        dataType: 'json',
+        success: function() {
+            console.log(arguments);
+        }
+    });
+
+
+    //Ext.Ajax.request({
+        //url: path + '/api/' + apiResource + '/',
+        //method: 'POST',
+        //headers: {'Content-Type': 'application/json'},
+        //params: Ext.encode(this),
+        //failure: function(r) {
+            //uiManager.unmask();
+            //uiManager.alert(r);
+        //},
+        //success: function(r) {
+            //fn(r);
+        //}
+    //});
 };

@@ -2699,7 +2699,7 @@ Viewport = function(c, cmp) {
             }
         },
         multipleExpand: function(id, map, doUpdate) {
-            var that = this,
+            var t = this,
                 rootId = appManager.rootNodeId,
                 path = map[id];
 
@@ -2707,10 +2707,10 @@ Viewport = function(c, cmp) {
                 path = '/' + rootId + path;
             }
 
-            that.expandPath(path, 'id', '/', function() {
-                record = clone(that.getRootNode().findChild('id', id, true));
-                that.recordsToSelect.push(record);
-                that.multipleSelectIf(map, doUpdate);
+            t.expandPath(path, 'id', '/', function() {
+                var record = clone(t.getRootNode().findChild('id', id, true));
+                t.recordsToSelect.push(record);
+                t.multipleSelectIf(map, doUpdate);
             });
         },
         select: function(url, params) {
@@ -3027,7 +3027,8 @@ Viewport = function(c, cmp) {
         },
         setDimension: function(layout) {
             if (layout.hasDimension(this.dimension, true)) {
-                var dimension = layout.getDimension(this.dimension, true);
+                var dimension = layout.getDimension(this.dimension, true),
+                    parentGraphMap = layout.parentGraphMap;
 
                 var records = dimension.getRecords(),
                     ids = [],
@@ -3074,8 +3075,8 @@ Viewport = function(c, cmp) {
                 }
 
                 if (!(isOu || isOuc || isOugc)) {
-                    if (isObject(graphMap)) {
-                        treePanel.selectGraphMap(graphMap);
+                    if (isObject(parentGraphMap)) {
+                        treePanel.selectGraphMap(parentGraphMap);
                     }
                 }
             }
@@ -3557,14 +3558,16 @@ Viewport = function(c, cmp) {
                 selectedAll.setValue(false);
             },
             setDimension: function(layout) {
-                var records = layout.getDimension(this.dimension, true).getRecords();
+                if (layout.hasDimension(this.dimension, true)) {
+                    var records = layout.getDimension(this.dimension).getRecords();
 
-                if (records.length) {
-                    selectedStore.add(records);
-                    uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
-                }
-                else {
-                    selectedAll.setValue(true);
+                    if (records.length) {
+                        selectedStore.add(records);
+                        uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+                    }
+                    else {
+                        selectedAll.setValue(true);
+                    }
                 }
             },
             getDimension: function() {
@@ -4477,157 +4480,69 @@ Viewport = function(c, cmp) {
 			panel.setDimension(layout);
 		});
 
+        layoutWindow.reset(true);
+        layoutWindow.setDimensions(layout);
 
 
-        //var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
-            //dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
-            //recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
-            //graphMap = layout.parentGraphMap,
-            //objectName,
-            //periodRecords,
-            //fixedPeriodRecords = [],
-            //dimNames = [],
-            //isOu = false,
-            //isOuc = false,
-            //isOugc = false,
-            //levels = [],
-            //groups = [],
-            //orgunits = [],
-            //layoutWindow = uiManager.get('layoutWindow'),
-            //optionsWindow = uiManager.get('optionsWindow');
 
-        //// state
-        //downloadButton.enable();
-        //shareButton.enable();
 
-        //// set gui
-        //if (!updateGui) {
-            //return;
-        //}
 
-        //// dx
-        //dataSelectedStore.removeAll();
+        //if (layout.columns) {
+            //dimNames = [];
 
-        //indicatorAvailableStore.removeAll();
-        //indicatorGroup.clearValue();
+            //for (var i = 0, dim; i < layout.columns.length; i++) {
+                //dim = dimConf.objectNameMap[layout.columns[i].dimension];
 
-        //dataElementAvailableStore.removeAll();
-        //dataElementGroup.clearValue();
-        //dataElementDetailLevel.reset();
+                //if (!arrayContains(dimNames, dim.dimensionName)) {
+                    //ns.app.stores.col.add({
+                        //id: dim.dimensionName,
+                        //name: dimConf.objectNameMap[dim.dimensionName].name
+                    //});
 
-        //dataSetAvailableStore.removeAll();
-
-        //eventDataItemAvailableStore.removeAll();
-        //programIndicatorAvailableStore.removeAll();
-
-        //if (dimMap['dx']) {
-            //dataSelectedStore.addRecords(recMap['dx']);
-        //}
-
-        //// periods
-        //fixedPeriodSelectedStore.removeAll();
-        //period.resetRelativePeriods();
-        //periodRecords = recMap[periodObjectName] || [];
-        //for (var i = 0, periodRecord, checkbox; i < periodRecords.length; i++) {
-            //periodRecord = periodRecords[i];
-            //checkbox = relativePeriod.valueComponentMap[periodRecord.id];
-            //if (checkbox) {
-                //checkbox.setValue(true);
-            //}
-            //else {
-                //fixedPeriodRecords.push(periodRecord);
-            //}
-        //}
-        //fixedPeriodSelectedStore.add(fixedPeriodRecords);
-        //ns.core.web.multiSelect.filterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
-
-        //// group sets
-        //for (var key in dimensionPanelMap) {
-            //if (dimensionPanelMap.hasOwnProperty(key)) {
-                //var panel = dimensionPanelMap[key],
-                    //a = panel.availableStore,
-                    //s = panel.selectedStore;
-
-                //// reset
-                //a.reset();
-                //s.removeAll();
-                //panel.selectedAll.setValue(false);
-
-                //// add
-                //if (arrayContains(xLayout.objectNames, key)) {
-                    //if (recMap[key]) {
-                        //s.add(recMap[key]);
-                        //ns.core.web.multiSelect.filterAvailable({store: a}, {store: s});
-                    //}
-                    //else {
-                        //panel.selectedAll.setValue(true);
-                    //}
+                    //dimNames.push(dim.dimensionName);
                 //}
+
+                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
             //}
         //}
 
-        // layout
-        ns.app.stores.dimension.removeAll();
-        ns.app.stores.col.removeAll();
-        ns.app.stores.row.removeAll();
-        ns.app.stores.filter.removeAll();
+        //if (layout.rows) {
+            //dimNames = [];
 
-        if (layout.columns) {
-            dimNames = [];
+            //for (var i = 0, dim; i < layout.rows.length; i++) {
+                //dim = dimConf.objectNameMap[layout.rows[i].dimension];
 
-            for (var i = 0, dim; i < layout.columns.length; i++) {
-                dim = dimConf.objectNameMap[layout.columns[i].dimension];
+                //if (!arrayContains(dimNames, dim.dimensionName)) {
+                    //ns.app.stores.row.add({
+                        //id: dim.dimensionName,
+                        //name: dimConf.objectNameMap[dim.dimensionName].name
+                    //});
 
-                if (!arrayContains(dimNames, dim.dimensionName)) {
-                    ns.app.stores.col.add({
-                        id: dim.dimensionName,
-                        name: dimConf.objectNameMap[dim.dimensionName].name
-                    });
+                    //dimNames.push(dim.dimensionName);
+                //}
 
-                    dimNames.push(dim.dimensionName);
-                }
+                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
+            //}
+        //}
 
-                ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            }
-        }
+        //if (layout.filters) {
+            //dimNames = [];
 
-        if (layout.rows) {
-            dimNames = [];
+            //for (var i = 0, dim; i < layout.filters.length; i++) {
+                //dim = dimConf.objectNameMap[layout.filters[i].dimension];
 
-            for (var i = 0, dim; i < layout.rows.length; i++) {
-                dim = dimConf.objectNameMap[layout.rows[i].dimension];
+                //if (!arrayContains(dimNames, dim.dimensionName)) {
+                    //ns.app.stores.filter.add({
+                        //id: dim.dimensionName,
+                        //name: dimConf.objectNameMap[dim.dimensionName].name
+                    //});
 
-                if (!arrayContains(dimNames, dim.dimensionName)) {
-                    ns.app.stores.row.add({
-                        id: dim.dimensionName,
-                        name: dimConf.objectNameMap[dim.dimensionName].name
-                    });
+                    //dimNames.push(dim.dimensionName);
+                //}
 
-                    dimNames.push(dim.dimensionName);
-                }
-
-                ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            }
-        }
-
-        if (layout.filters) {
-            dimNames = [];
-
-            for (var i = 0, dim; i < layout.filters.length; i++) {
-                dim = dimConf.objectNameMap[layout.filters[i].dimension];
-
-                if (!arrayContains(dimNames, dim.dimensionName)) {
-                    ns.app.stores.filter.add({
-                        id: dim.dimensionName,
-                        name: dimConf.objectNameMap[dim.dimensionName].name
-                    });
-
-                    dimNames.push(dim.dimensionName);
-                }
-
-                ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            }
-        }
+                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
+            //}
+        //}
 
         // add assigned categories as dimension
         if (!layoutWindow.hasDimension(dimConf.category.dimensionName)) {

@@ -4,6 +4,7 @@ dimensionsInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,
+        dimensionConfig = c.dimensionConfig,
 
         path = appManager.getPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
@@ -16,6 +17,8 @@ dimensionsInit = function(c) {
         ],
         success: function(r) {
             appManager.addDimensions(r.dimensions);
+            dimensionConfig.add(r.dimensions);
+
             requestManager.ok(this);
         }
     };

@@ -97,8 +97,8 @@ DimensionConfig = function() {
     // prototype
     t.add = function(param) {
         arrayFrom(param).forEach(function(dimension) {
-            dimension.dimensionName = dimension.id;
-            dimension.objectName = dimension.id;
+            dimension.dimensionName = dimension.dimensionName || dimension.id;
+            dimension.objectName = dimension.objectName || dimension.id;
 
             dimensions[dimension.id] = dimension;
         });

@@ -65,8 +65,16 @@ Dimension.prototype.getRecordNames = function(isSorted, response) {
 Dimension.prototype.toPlugin = function() {
     delete this.klass;
 
-    this.items.forEach(function(item) {
-        item.toPlugin();
+    this.items.forEach(function(record) {
+        record.toPlugin();
+    });
+};
+
+Dimension.prototype.toPost = function() {
+    delete this.klass;
+
+    this.items.forEach(function(record) {
+        record.toPost();
     });
 };
 

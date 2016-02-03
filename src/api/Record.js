@@ -31,3 +31,7 @@ Record.prototype.val = function(noError) {
 Record.prototype.toPlugin = function() {
     delete this.klass;
 };
+
+Record.prototype.toPost = function() {
+    delete this.klass;
+};

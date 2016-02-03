@@ -1,4 +1,4 @@
-import {isString, isObject, arrayContains, clone} from 'd2-utilizr';
+import {isString, isObject, arrayContains, arrayTo, clone} from 'd2-utilizr';
 
 export var InstanceManager;
 
@@ -118,6 +118,14 @@ InstanceManager.prototype.getById = function(id) {
 
 InstanceManager.prototype.getUiState = function() {
     return this.uiManager.getUiState();
+};
+
+InstanceManager.prototype.applyTo = function(modules) {
+    var t = this;
+
+    arrayTo(modules).forEach(function(module) {
+        module.instanceManager = t;
+    });
 };
 
 // dep 1
