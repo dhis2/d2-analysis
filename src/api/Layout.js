@@ -470,32 +470,17 @@ Layout.prototype.post = function(fn) {
 
     this.toPost();
 
-    //$.post(, this, function() {
-        //console.log(arguments);
-    //}, 'json');
-
-    $.ajax({
-        type: 'POST',
+    Ext.Ajax.request({
         url: path + '/api/' + apiResource + '/',
-        data: this,
-        dataType: 'json',
-        success: function() {
-            console.log(arguments);
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        params: Ext.encode(this),
+        failure: function(r) {
+            uiManager.unmask();
+            uiManager.alert(r);
+        },
+        success: function(r) {
+            //fn(r);
         }
     });
-
-
-    //Ext.Ajax.request({
-        //url: path + '/api/' + apiResource + '/',
-        //method: 'POST',
-        //headers: {'Content-Type': 'application/json'},
-        //params: Ext.encode(this),
-        //failure: function(r) {
-            //uiManager.unmask();
-            //uiManager.alert(r);
-        //},
-        //success: function(r) {
-            //fn(r);
-        //}
-    //});
 };
