@@ -140,7 +140,7 @@ UiManager = function() {
             });
             s.store.add(array);
         }
-        this.filterAvailable(a, s);
+        t.msFilterAvailable(a, s);
     };
 
     t.msSelectAll = function(a, s, isReverse) {
@@ -149,7 +149,7 @@ UiManager = function() {
             array.reverse();
         }
         s.store.add(array);
-        this.filterAvailable(a, s);
+        t.msFilterAvailable(a, s);
     };
 
     t.msUnselect = function(a, s) {
@@ -159,7 +159,7 @@ UiManager = function() {
                 a.store.add(s.store.getAt(s.store.findExact('id', id)));
                 s.store.remove(s.store.getAt(s.store.findExact('id', id)));
             });
-            this.filterAvailable(a, s);
+            t.msFilterAvailable(a, s);
             a.store.sortStore();
         }
     };
@@ -167,7 +167,7 @@ UiManager = function() {
     t.msUnselectAll = function(a, s) {
         a.store.add(s.store.getRange());
         s.store.removeAll();
-        this.filterAvailable(a, s);
+        t.msFilterAvailable(a, s);
         a.store.sortStore();
     };
 

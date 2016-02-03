@@ -2087,7 +2087,7 @@ Viewport = function(c, cmp) {
 			eventDataItemAvailableStore.removeAll();
 			programIndicatorAvailableStore.removeAll();
 		},
-		setDimension: function(layout) {			
+		setDimension: function(layout) {
             if (isObject(layout.program) && isString(layout.program.id)) {
                 eventDataItemProgram.setValue(layout.program.id);
                 onEventDataItemProgramSelect(layout.program.id)
@@ -3016,6 +3016,73 @@ Viewport = function(c, cmp) {
         hideCollapseTool: true,
         dimension: organisationUnitObjectName,
         collapsed: false,
+        clearDimension: function(doClear) {
+            if (doClear) {
+                treePanel.reset();
+
+                userOrganisationUnit.setValue(false);
+                userOrganisationUnitChildren.setValue(false);
+                userOrganisationUnitGrandChildren.setValue(false);
+            }
+        },
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
+                var dimension = layout.getDimension(this.dimension, true);
+
+                var records = dimension.getRecords(),
+                    ids = [],
+                    levels = [],
+                    groups = [],
+                    isOu,
+                    isOuc,
+                    isOugc;
+
+                records.forEach(function(record) {
+                    if (record.id === 'USER_ORGUNIT') {
+                        isOu = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
+                        isOuc = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                        isOugc = true;
+                    }
+                    else if (record.id.substr(0,5) === 'LEVEL') {
+                        levels.push(parseInt(record.id.split('-')[1]));
+                    }
+                    else if (record.id === 'OU_GROUP') {
+                        groups.push(record.id.split('-')[1]);
+                    }
+                    else {
+                        ids.push(record.id);
+                    }
+                });
+
+                if (levels.length) {
+                    toolMenu.clickHandler('level');
+                    organisationUnitLevel.setValue(levels);
+                }
+                else if (groups.length) {
+                    toolMenu.clickHandler('group');
+                    organisationUnitGroup.setValue(groups);
+                }
+                else {
+                    toolMenu.clickHandler('orgunit');
+                    userOrganisationUnit.setValue(isOu);
+                    userOrganisationUnitChildren.setValue(isOuc);
+                    userOrganisationUnitGrandChildren.setValue(isOugc);
+                }
+
+                if (!(isOu || isOuc || isOugc)) {
+                    if (isObject(graphMap)) {
+                        treePanel.selectGraphMap(graphMap);
+                    }
+                }
+            }
+            else {
+                this.clearDimension(true);
+            }
+        },
         getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
@@ -3235,6 +3302,7 @@ Viewport = function(c, cmp) {
 
                     Ext.Ajax.request({
                         url: path + '/api' + url,
+                        method: 'GET',
                         params: params,
                         success: function(r) {
                             var response = Ext.decode(r.responseText),
@@ -3483,6 +3551,22 @@ Viewport = function(c, cmp) {
             availableStore: availableStore,
             selectedStore: selectedStore,
             selectedAll: selectedAll,
+            clearDimension: function() {
+                availableStore.reset();
+                selectedStore.removeAll();
+                selectedAll.setValue(false);
+            },
+            setDimension: function(layout) {
+                var records = layout.getDimension(this.dimension, true).getRecords();
+
+                if (records.length) {
+                    selectedStore.add(records);
+                    uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+                }
+                else {
+                    selectedAll.setValue(true);
+                }
+            },
             getDimension: function() {
                 var config = {};
 
@@ -4392,9 +4476,9 @@ Viewport = function(c, cmp) {
 			panel.clearDimension();
 			panel.setDimension(layout);
 		});
-		
 
-	
+
+
         //var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
             //dimMap = ns.core.service.layout.getObjectNameDimensionMapFromDimensionArray(dimensions),
             //recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
@@ -4457,30 +4541,30 @@ Viewport = function(c, cmp) {
         //fixedPeriodSelectedStore.add(fixedPeriodRecords);
         //ns.core.web.multiSelect.filterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
 
-        // group sets
-        for (var key in dimensionPanelMap) {
-            if (dimensionPanelMap.hasOwnProperty(key)) {
-                var panel = dimensionPanelMap[key],
-                    a = panel.availableStore,
-                    s = panel.selectedStore;
+        //// group sets
+        //for (var key in dimensionPanelMap) {
+            //if (dimensionPanelMap.hasOwnProperty(key)) {
+                //var panel = dimensionPanelMap[key],
+                    //a = panel.availableStore,
+                    //s = panel.selectedStore;
 
-                // reset
-                a.reset();
-                s.removeAll();
-                panel.selectedAll.setValue(false);
+                //// reset
+                //a.reset();
+                //s.removeAll();
+                //panel.selectedAll.setValue(false);
 
-                // add
-                if (arrayContains(xLayout.objectNames, key)) {
-                    if (recMap[key]) {
-                        s.add(recMap[key]);
-                        ns.core.web.multiSelect.filterAvailable({store: a}, {store: s});
-                    }
-                    else {
-                        panel.selectedAll.setValue(true);
-                    }
-                }
-            }
-        }
+                //// add
+                //if (arrayContains(xLayout.objectNames, key)) {
+                    //if (recMap[key]) {
+                        //s.add(recMap[key]);
+                        //ns.core.web.multiSelect.filterAvailable({store: a}, {store: s});
+                    //}
+                    //else {
+                        //panel.selectedAll.setValue(true);
+                    //}
+                //}
+            //}
+        //}
 
         // layout
         ns.app.stores.dimension.removeAll();
@@ -4565,53 +4649,53 @@ Viewport = function(c, cmp) {
             ns.app.optionsWindow.setOptions(layout);
         }
 
-        // organisation units
-        if (recMap[organisationUnitObjectName]) {
-            for (var i = 0, ouRecords = recMap[organisationUnitObjectName]; i < ouRecords.length; i++) {
-                if (ouRecords[i].id === 'USER_ORGUNIT') {
-                    isOu = true;
-                }
-                else if (ouRecords[i].id === 'USER_ORGUNIT_CHILDREN') {
-                    isOuc = true;
-                }
-                else if (ouRecords[i].id === 'USER_ORGUNIT_GRANDCHILDREN') {
-                    isOugc = true;
-                }
-                else if (ouRecords[i].id.substr(0,5) === 'LEVEL') {
-                    levels.push(parseInt(ouRecords[i].id.split('-')[1]));
-                }
-                else if (ouRecords[i].id.substr(0,8) === 'OU_GROUP') {
-                    groups.push(ouRecords[i].id.split('-')[1]);
-                }
-                else {
-                    orgunits.push(ouRecords[i].id);
-                }
-            }
+        //// organisation units
+        //if (recMap[organisationUnitObjectName]) {
+            //for (var i = 0, ouRecords = recMap[organisationUnitObjectName]; i < ouRecords.length; i++) {
+                //if (ouRecords[i].id === 'USER_ORGUNIT') {
+                    //isOu = true;
+                //}
+                //else if (ouRecords[i].id === 'USER_ORGUNIT_CHILDREN') {
+                    //isOuc = true;
+                //}
+                //else if (ouRecords[i].id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                    //isOugc = true;
+                //}
+                //else if (ouRecords[i].id.substr(0,5) === 'LEVEL') {
+                    //levels.push(parseInt(ouRecords[i].id.split('-')[1]));
+                //}
+                //else if (ouRecords[i].id.substr(0,8) === 'OU_GROUP') {
+                    //groups.push(ouRecords[i].id.split('-')[1]);
+                //}
+                //else {
+                    //orgunits.push(ouRecords[i].id);
+                //}
+            //}
 
-            if (levels.length) {
-                toolMenu.clickHandler('level');
-                organisationUnitLevel.setValue(levels);
-            }
-            else if (groups.length) {
-                toolMenu.clickHandler('group');
-                organisationUnitGroup.setValue(groups);
-            }
-            else {
-                toolMenu.clickHandler('orgunit');
-                userOrganisationUnit.setValue(isOu);
-                userOrganisationUnitChildren.setValue(isOuc);
-                userOrganisationUnitGrandChildren.setValue(isOugc);
-            }
+            //if (levels.length) {
+                //toolMenu.clickHandler('level');
+                //organisationUnitLevel.setValue(levels);
+            //}
+            //else if (groups.length) {
+                //toolMenu.clickHandler('group');
+                //organisationUnitGroup.setValue(groups);
+            //}
+            //else {
+                //toolMenu.clickHandler('orgunit');
+                //userOrganisationUnit.setValue(isOu);
+                //userOrganisationUnitChildren.setValue(isOuc);
+                //userOrganisationUnitGrandChildren.setValue(isOugc);
+            //}
 
-            if (!(isOu || isOuc || isOugc)) {
-                if (isObject(graphMap)) {
-                    treePanel.selectGraphMap(graphMap);
-                }
-            }
-        }
-        else {
-            treePanel.reset();
-        }
+            //if (!(isOu || isOuc || isOugc)) {
+                //if (isObject(graphMap)) {
+                    //treePanel.selectGraphMap(graphMap);
+                //}
+            //}
+        //}
+        //else {
+            //treePanel.reset();
+        //}
     };
 
     var getUiState = function() {
