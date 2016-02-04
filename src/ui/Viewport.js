@@ -7,6 +7,7 @@ import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';
 import {LinkItem} from './LinkItem.js';
+import {FavoriteButton} from './FavoriteButton.js';
 
 export var Viewport;
 
@@ -51,9 +52,12 @@ Viewport = function(c, cmp) {
     cmp = cmp || {};
 
     var northRegion = cmp.northRegion;
+
     var interpretationItem = InterpretationItem(c);
     var pluginItem = PluginItem(c);
     var linkItem = LinkItem(c);
+
+    var favoriteButton = FavoriteButton(c);
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3825,15 +3829,6 @@ Viewport = function(c, cmp) {
     });
     uiManager.register(optionsButton, 'optionsButton');
 
-    var favoriteButton = Ext.create('Ext.button.Button', {
-        text: i18n.favorites,
-        menu: {},
-        handler: function() {
-            uiManager.get('favoriteWindow').show();
-        }
-    });
-    uiManager.register(favoriteButton, 'favoriteButton');
-
     var getParamString = function(layout) {
         layout = layout || ns.app.layout;
 
@@ -3883,7 +3878,6 @@ Viewport = function(c, cmp) {
         handler: function(b) {
             b.menu = Ext.create('Ext.menu.Menu', {
                 closeAction: 'destroy',
-                //cls: 'ns-menu',
                 shadow: false,
                 showSeparator: false,
                 items: function() {
@@ -4492,7 +4486,7 @@ Viewport = function(c, cmp) {
             layoutWindow.addDimension({
                 id: co.dimensionName,
                 name: co.name
-            });
+            }, layoutWindow.dimensionStore);
         }
 
         // options window
