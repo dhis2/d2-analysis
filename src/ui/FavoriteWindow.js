@@ -126,24 +126,24 @@ FavoriteWindow = function(c) {
         createButton = Ext.create('Ext.button.Button', {
             text: i18n.create,
             handler: function() {
-                var layout = instanceManager.getStateCurrent();
-                layout.name = nameTextfield.getValue();
+                if (instanceManager.isStateCurrent()) {
+                    var layout = instanceManager.getStateCurrent();
+                    layout.name = nameTextfield.getValue();
 
-                var clonedLayout = clone(layout);
+                    clone(layout).post(function(id) {
+                        //var id = r.getAllResponseHeaders().location.split('/').pop();
+                        //console.log("Favorite id: " + id);
 
-                layout.post(function(r) {
-console.log(r.getAllResponseHeaders());
-                    //var id = r.getAllResponseHeaders().location.split('/').pop();
-                    //console.log("Favorite id: " + id);
+                        layout.id = id;
 
-                    //clonedLayout.id = id;
+                        instanceManager.setState(layout, true);
 
-                    instanceManager.setState(clonedLayout, true);
+                        favoriteStore.loadStore();
 
-                    favoriteStore.loadStore();
-
-                    window.destroy();
-                });
+                        layout = null;
+                        window.destroy();
+                    });
+                }
             }
         });
 

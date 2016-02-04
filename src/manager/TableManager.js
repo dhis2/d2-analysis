@@ -63,4 +63,3 @@ TableManager = function(c) {
         });
     };
 };
-

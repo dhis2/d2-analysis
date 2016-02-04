@@ -470,10 +470,12 @@ Layout.prototype.post = function(fn) {
     var path = appManager.getPath(),
         apiResource = instanceManager.getApiResource();
 
-    this.toPost();
+    var url = path + '/api/' + apiResource;
+
+    t.toPost();
 
     $.ajax({
-        url: path + '/api/' + apiResource + '/',
+        url: url,
         type: 'POST',
         data: JSON.stringify(t),
         dataType: 'json',
@@ -482,7 +484,10 @@ Layout.prototype.post = function(fn) {
             'Content-Type': 'application/json'
         },
         success: function(obj, success, r) {
-            fn(r);
+
+            $.getJSON(url + '.json?filter=name:ilike:' + t.name, function(json) {
+                fn(json[apiResource][0].id);
+            });
         }
     });
 };
