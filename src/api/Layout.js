@@ -461,26 +461,28 @@ Layout.prototype.data = function(source, format) {
 };
 
 Layout.prototype.post = function(fn) {
-    var appManager = this.klass.appManager,
-        instanceManager = this.klass.instanceManager,
-        uiManager = this.klass.uiManager;
+    var t = this;
+
+    var appManager = t.klass.appManager,
+        instanceManager = t.klass.instanceManager,
+        uiManager = t.klass.uiManager;
 
     var path = appManager.getPath(),
         apiResource = instanceManager.getApiResource();
 
     this.toPost();
 
-    Ext.Ajax.request({
+    $.ajax({
         url: path + '/api/' + apiResource + '/',
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        params: Ext.encode(this),
-        failure: function(r) {
-            uiManager.unmask();
-            uiManager.alert(r);
+        type: 'POST',
+        data: JSON.stringify(t),
+        dataType: 'json',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         },
-        success: function(r) {
-            //fn(r);
+        success: function(obj, success, r) {
+            fn(r);
         }
     });
 };

@@ -4472,7 +4472,8 @@ Viewport = function(c, cmp) {
     var setUiState = function(layout) {
 		var graphMap = layout.parentGraphMap,
             layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow');
+            optionsWindow = uiManager.get('optionsWindow'),
+            co = dimensionConfig.get('category');
 
 		// panels
 		westRegionPanels.forEach(function(panel) {
@@ -4480,137 +4481,24 @@ Viewport = function(c, cmp) {
 			panel.setDimension(layout);
 		});
 
-        layoutWindow.reset(true);
-        layoutWindow.setDimensions(layout);
-
-
-
-
-
-        //if (layout.columns) {
-            //dimNames = [];
-
-            //for (var i = 0, dim; i < layout.columns.length; i++) {
-                //dim = dimConf.objectNameMap[layout.columns[i].dimension];
-
-                //if (!arrayContains(dimNames, dim.dimensionName)) {
-                    //ns.app.stores.col.add({
-                        //id: dim.dimensionName,
-                        //name: dimConf.objectNameMap[dim.dimensionName].name
-                    //});
-
-                    //dimNames.push(dim.dimensionName);
-                //}
-
-                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            //}
-        //}
-
-        //if (layout.rows) {
-            //dimNames = [];
-
-            //for (var i = 0, dim; i < layout.rows.length; i++) {
-                //dim = dimConf.objectNameMap[layout.rows[i].dimension];
-
-                //if (!arrayContains(dimNames, dim.dimensionName)) {
-                    //ns.app.stores.row.add({
-                        //id: dim.dimensionName,
-                        //name: dimConf.objectNameMap[dim.dimensionName].name
-                    //});
-
-                    //dimNames.push(dim.dimensionName);
-                //}
-
-                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            //}
-        //}
-
-        //if (layout.filters) {
-            //dimNames = [];
-
-            //for (var i = 0, dim; i < layout.filters.length; i++) {
-                //dim = dimConf.objectNameMap[layout.filters[i].dimension];
-
-                //if (!arrayContains(dimNames, dim.dimensionName)) {
-                    //ns.app.stores.filter.add({
-                        //id: dim.dimensionName,
-                        //name: dimConf.objectNameMap[dim.dimensionName].name
-                    //});
-
-                    //dimNames.push(dim.dimensionName);
-                //}
-
-                //ns.app.stores.dimension.remove(ns.app.stores.dimension.getById(dim.dimensionName));
-            //}
-        //}
-
-        // add assigned categories as dimension
-        if (!layoutWindow.hasDimension(dimConf.category.dimensionName)) {
-            ns.app.stores.dimension.add({id: dimConf.category.dimensionName, name: dimConf.category.name});
+        // layout window
+        if (layoutWindow) {
+            layoutWindow.reset(true);
+            layoutWindow.setDimensions(layout);
         }
 
-        // add data as dimension
-        if (!layoutWindow.hasDimension(dimConf.data.dimensionName)) {
-            ns.app.stores.dimension.add({id: dimConf.data.dimensionName, name: dimConf.data.name});
+            // add assigned categories as dimension
+        if (!layoutWindow.hasDimension(co.dimensionName)) {
+            layoutWindow.addDimension({
+                id: co.dimensionName,
+                name: co.name
+            });
         }
 
-        // add orgunit as dimension
-        if (!layoutWindow.hasDimension(dimConf.organisationUnit.dimensionName)) {
-            ns.app.stores.dimension.add({id: dimConf.organisationUnit.dimensionName, name: dimConf.organisationUnit.name});
-        }
-
-        // options
+        // options window
         if (optionsWindow) {
-            ns.app.optionsWindow.setOptions(layout);
+            optionsWindow.setOptions(layout);
         }
-
-        //// organisation units
-        //if (recMap[organisationUnitObjectName]) {
-            //for (var i = 0, ouRecords = recMap[organisationUnitObjectName]; i < ouRecords.length; i++) {
-                //if (ouRecords[i].id === 'USER_ORGUNIT') {
-                    //isOu = true;
-                //}
-                //else if (ouRecords[i].id === 'USER_ORGUNIT_CHILDREN') {
-                    //isOuc = true;
-                //}
-                //else if (ouRecords[i].id === 'USER_ORGUNIT_GRANDCHILDREN') {
-                    //isOugc = true;
-                //}
-                //else if (ouRecords[i].id.substr(0,5) === 'LEVEL') {
-                    //levels.push(parseInt(ouRecords[i].id.split('-')[1]));
-                //}
-                //else if (ouRecords[i].id.substr(0,8) === 'OU_GROUP') {
-                    //groups.push(ouRecords[i].id.split('-')[1]);
-                //}
-                //else {
-                    //orgunits.push(ouRecords[i].id);
-                //}
-            //}
-
-            //if (levels.length) {
-                //toolMenu.clickHandler('level');
-                //organisationUnitLevel.setValue(levels);
-            //}
-            //else if (groups.length) {
-                //toolMenu.clickHandler('group');
-                //organisationUnitGroup.setValue(groups);
-            //}
-            //else {
-                //toolMenu.clickHandler('orgunit');
-                //userOrganisationUnit.setValue(isOu);
-                //userOrganisationUnitChildren.setValue(isOuc);
-                //userOrganisationUnitGrandChildren.setValue(isOugc);
-            //}
-
-            //if (!(isOu || isOuc || isOugc)) {
-                //if (isObject(graphMap)) {
-                    //treePanel.selectGraphMap(graphMap);
-                //}
-            //}
-        //}
-        //else {
-            //treePanel.reset();
-        //}
     };
 
     var getUiState = function() {

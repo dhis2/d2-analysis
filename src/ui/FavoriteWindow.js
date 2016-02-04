@@ -130,20 +130,20 @@ FavoriteWindow = function(c) {
                 layout.name = nameTextfield.getValue();
 
                 var clonedLayout = clone(layout);
-layout.post();
-                //layout.post(function(r) {
-//console.log(r, r.getAllResponseHeaders(), r.getResponseHeader('location'));
+
+                layout.post(function(r) {
+console.log(r.getAllResponseHeaders());
                     //var id = r.getAllResponseHeaders().location.split('/').pop();
                     //console.log("Favorite id: " + id);
 
                     //clonedLayout.id = id;
 
-                    //instanceManager.setState(clonedLayout, true);
+                    instanceManager.setState(clonedLayout, true);
 
-                    //favoriteStore.loadStore();
+                    favoriteStore.loadStore();
 
-                    //window.destroy();
-                //});
+                    window.destroy();
+                });
             }
         });
 

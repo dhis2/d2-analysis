@@ -20,7 +20,7 @@ Record.prototype.log = function(text, noError) {
 };
 
 Record.prototype.val = function(noError) {
-    if (!isString(this.id)) {
+    if (!this || !isString(this.id)) {
         this.log('(Record) Id is not a string', noError);
         return null;
     }

@@ -11,6 +11,14 @@ DimensionConfig = function() {
     // uninitialized
     var dimensions;
 
+    // map
+    var dimensionNameDimensionMap = {
+        'dx': 'data',
+        'co': 'category',
+        'pe': 'period',
+        'ou': 'organisationUnit'
+    };
+
     // setter
     var setDimensions = function() {
         dimensions = {
@@ -105,7 +113,9 @@ DimensionConfig = function() {
     };
 
     t.get = function(name) {
-        return name ? dimensions[name] : dimensions;
+        var map = dimensionNameDimensionMap;
+
+        return name ? dimensions[name] || dimensions[map[name]] : dimensions;
     };
 
     t.getDimensionNameMap = function() {
