@@ -73,6 +73,11 @@ UiManager = function() {
         if (isFavorite) {
             t.get('westRegion').setState(layout);
         }
+
+        // center
+        if (!layout) {
+            t.update('');
+        }
     };
 
     // theme

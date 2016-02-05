@@ -17,7 +17,7 @@ FavoriteButton = function(c) {
         text: i18n.favorites,
         menu: {},
         handler: function(b) {
-            this.menu = Ext.create('Ext.menu.Menu', {
+            b.menu = Ext.create('Ext.menu.Menu', {
                 closeAction: 'destroy',
                 shadow: false,
                 showSeparator: false,
@@ -36,7 +36,21 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-tablelayout',
                         disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
-                            console.log("save");
+                            var layout = instanceManager.getStateCurrent(),
+                                favorite = instanceManager.getStateFavorite();
+
+                            layout.id = favorite.id;
+                            layout.name = favorite.name;
+
+                            uiManager.mask();
+
+                            clone(layout).put(function() {
+                                layout.id = favorite.id;
+                                layout.name = favorite.name;
+
+                                instanceManager.setState(layout, true);
+                                uiManager.unmask();
+                            });
                         }
                     });
                     uiManager.register(saveItem, 'saveItem');
@@ -90,7 +104,7 @@ FavoriteButton = function(c) {
                 }
             });
 
-            this.menu.show();
+            b.menu.show();
         }
     });
 };

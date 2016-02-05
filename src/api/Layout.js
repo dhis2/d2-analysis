@@ -479,15 +479,38 @@ Layout.prototype.post = function(fn) {
         type: 'POST',
         data: JSON.stringify(t),
         dataType: 'json',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
+        headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
-console.log("getAllResponseHeaders", r.getAllResponseHeaders());
+
             $.getJSON(url + '.json?filter=name:ilike:' + t.name, function(json) {
                 fn(json[apiResource][0].id);
             });
+        }
+    });
+};
+
+Layout.prototype.put = function(fn) {
+    var t = this;
+
+    var appManager = t.klass.appManager,
+        instanceManager = t.klass.instanceManager,
+        uiManager = t.klass.uiManager;
+
+    var path = appManager.getPath(),
+        apiResource = instanceManager.getApiResource();
+
+    var url = path + '/api/' + apiResource + '/' + t.id;
+
+    t.toPost();
+
+    $.ajax({
+        url: url,
+        type: 'PUT',
+        data: JSON.stringify(t),
+        dataType: 'json',
+        headers: appManager.defaultRequestHeaders,
+        success: function(obj, success, r) {
+            fn();
         }
     });
 };

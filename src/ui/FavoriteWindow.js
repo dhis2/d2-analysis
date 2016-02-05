@@ -325,7 +325,7 @@ FavoriteWindow = function(c) {
                             element = element.parent('td');
                             element.addClsOnOver('link');
                             element.load = function() {
-                                favoriteWindow.hide();
+                                favoriteWindow.destroy();
                                 instanceManager.getById(record.data.id);
                             };
                             element.dom.setAttribute('onclick', 'Ext.get(this).load();');

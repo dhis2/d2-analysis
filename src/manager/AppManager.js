@@ -18,6 +18,11 @@ AppManager = function() {
         'aggregate': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE','BOOLEAN','TRUE_ONLY']
     };
 
+    t.defaultRequestHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
+
     t.defaultAnalysisFields = [
         '*',
         'program[id,displayName|rename(name)]',

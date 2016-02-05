@@ -65,7 +65,8 @@ InstanceManager = function(config) {
         if (!_state.current || isFavorite) {
             _state.favorite = _state.current;
         }
-
+console.log("curr", _state.current);
+console.log("fav", _state.favorite);
 		t.uiManager.setState(_state.current, isFavorite);
 	};
 
