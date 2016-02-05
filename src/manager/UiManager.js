@@ -55,31 +55,23 @@ UiManager = function() {
 
 	// state
 	t.setState = function(layout, isFavorite) {
-		if (layout) {
 
-            // toolbar
-            t.get('northRegion').setState(layout, isFavorite);
+        // toolbar
+        t.get('northRegion').setState(layout, isFavorite);
 
             // current
-			componentTags.onCurrent.forEach(function(item) {
-				if (item.enable) {
-					item.enable();
-				}
-			});
+        componentTags.onCurrent.forEach(function(item) {
+            item.setDisabled(!(layout && item.enable));
+        });
 
             // favorite
-            if (isFavorite) {
-                componentTags.onFavorite.forEach(function(item) {
-                    if (item.enable) {
-                        item.enable();
-                    }
-                });
-            }
+        componentTags.onFavorite.forEach(function(item) {
+            item.setDisabled(!(layout && item.enable && isFavorite));
+        });
 
-            // west
-            if (isFavorite) {
-                t.get('westRegion').setState(layout);
-            }
+        // west
+        if (isFavorite) {
+            t.get('westRegion').setState(layout);
         }
     };
 

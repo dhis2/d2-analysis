@@ -31,6 +31,18 @@ InstanceManager = function(config) {
         return !!_state.current;
     };
 
+    t.isStateDirty = function() {
+        return _state.favorite !== _state.current;
+    };
+
+    t.isStateSaved = function() {
+		return t.isStateFavorite() ? !t.isStateDirty() : false;
+	};
+
+    t.isStateUnsaved = function() {
+        return t.isStateFavorite() ? t.isStateDirty() : false;
+    };
+
 	t.getStateFavorite = function() {
 		return clone(_state.favorite);
 	};
@@ -48,17 +60,13 @@ InstanceManager = function(config) {
 	};
 
 	t.setState = function(curr, isFavorite) {
-		_state.current = curr;
+		_state.current = curr ? curr : null;
 
-        if (isFavorite) {
+        if (!_state.current || isFavorite) {
             _state.favorite = _state.current;
         }
 
-		t.uiManager.setState(curr, isFavorite);
-	};
-
-    t.isStateSaved = function() {
-		return t.isStateFavorite() ? (_state.favorite !== _state.current) : false;
+		t.uiManager.setState(_state.current, isFavorite);
 	};
 
     t.getApiResource = function() {

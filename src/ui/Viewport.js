@@ -57,7 +57,7 @@ Viewport = function(c, cmp) {
     var pluginItem = PluginItem(c);
     var linkItem = LinkItem(c);
 
-    var favoriteButton = FavoriteButton(c);
+    var favoriteButton = uiManager.register(FavoriteButton(c), 'favoriteButton');
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3829,18 +3829,6 @@ Viewport = function(c, cmp) {
     });
     uiManager.register(optionsButton, 'optionsButton');
 
-    var getParamString = function(layout) {
-        layout = layout || ns.app.layout;
-
-        var paramString = ns.core.web.analytics.getParamString(ns.core.service.layout.getExtendedLayout(layout));
-
-        if (layout.showHierarchy) {
-            paramString += '&showHierarchy=true';
-        }
-
-        return paramString;
-    };
-
     var openTableLayoutTab = function(layout, type, isNewTab) {
         type = type || 'xls';
 
@@ -4220,6 +4208,12 @@ Viewport = function(c, cmp) {
                     }
                 },
                 updateButton,
+                favoriteButton,
+                {
+                    xtype: 'tbseparator',
+                    height: 18,
+                    style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
+                },
                 layoutButton,
                 optionsButton,
                 {
@@ -4227,7 +4221,6 @@ Viewport = function(c, cmp) {
                     height: 18,
                     style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
                 },
-                favoriteButton,
                 downloadButton,
                 shareButton,
                 '->',
@@ -4464,34 +4457,45 @@ Viewport = function(c, cmp) {
     uiManager.register(centerRegion, 'centerRegion');
 
     var setUiState = function(layout) {
-		var graphMap = layout.parentGraphMap,
-            layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow'),
-            co = dimensionConfig.get('category');
+        var layoutWindow = uiManager.get('layoutWindow'),
+            optionsWindow = uiManager.get('optionsWindow');
 
-		// panels
-		westRegionPanels.forEach(function(panel) {
-			panel.clearDimension();
-			panel.setDimension(layout);
-		});
+        // clear panels
+        westRegionPanels.forEach(function(panel) {
+            panel.clearDimension();
+        });
 
-        // layout window
-        if (layoutWindow) {
-            layoutWindow.reset(true);
-            layoutWindow.setDimensions(layout);
+        if (layout) {
+            var graphMap = layout.parentGraphMap,
+                co = dimensionConfig.get('category');
+
+            // panels
+            westRegionPanels.forEach(function(panel) {
+                panel.setDimension(layout);
+            });
+
+            // layout window
+            if (layoutWindow) {
+                layoutWindow.reset(true);
+                layoutWindow.setDimensions(layout);
+            }
+
+                // add assigned categories as dimension
+            if (!layoutWindow.hasDimension(co.dimensionName)) {
+                layoutWindow.addDimension({
+                    id: co.dimensionName,
+                    name: co.name
+                }, layoutWindow.dimensionStore);
+            }
+
+            // options window
+            if (optionsWindow) {
+                optionsWindow.setOptions(layout);
+            }
         }
-
-            // add assigned categories as dimension
-        if (!layoutWindow.hasDimension(co.dimensionName)) {
-            layoutWindow.addDimension({
-                id: co.dimensionName,
-                name: co.name
-            }, layoutWindow.dimensionStore);
-        }
-
-        // options window
-        if (optionsWindow) {
-            optionsWindow.setOptions(layout);
+        else {
+            layoutWindow.reset();
+            optionsWindow.reset();
         }
     };
 

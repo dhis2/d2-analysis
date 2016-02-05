@@ -484,7 +484,7 @@ Layout.prototype.post = function(fn) {
             'Content-Type': 'application/json'
         },
         success: function(obj, success, r) {
-
+console.log("getAllResponseHeaders", r.getAllResponseHeaders());
             $.getJSON(url + '.json?filter=name:ilike:' + t.name, function(json) {
                 fn(json[apiResource][0].id);
             });

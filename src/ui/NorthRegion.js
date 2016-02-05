@@ -38,11 +38,7 @@ NorthRegion = function(c, cmpConfig) {
     };
 
     var setState = function(layout, isFavorite) {
-        if (layout.name) {
-            cmp.title.setTitle(layout.name);
-        }
-
-        cmp.title.setState(isFavorite);
+        cmp.title.setState(layout, isFavorite);
     };
 
     return Ext.create('Ext.toolbar.Toolbar', {
@@ -77,11 +73,18 @@ NorthRegion = function(c, cmpConfig) {
 						this.getEl().addCls('unsaved');
 					}
                 },
-                setState: function(isFavorite) {
-                    if (isFavorite) {
-                        this.setSaved();
+                setState: function(layout, isFavorite) {
+                    if (layout) {
+                        if (isFavorite && layout.name) {
+                            this.setTitle(layout.name);
+                            this.setSaved();
+                        }
+                        else {
+                            this.setUnsaved();
+                        }
                     }
-                    else {
+                    else {
+                        this.setTitle('');
                         this.setUnsaved();
                     }
                 }

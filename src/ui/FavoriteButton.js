@@ -1,5 +1,5 @@
 import {clone} from 'd2-utilizr';
-import {FavoriteWindow} from './SharingWindow.js';
+import {FavoriteWindow} from './FavoriteWindow.js';
 
 export var FavoriteButton;
 
@@ -12,8 +12,6 @@ FavoriteButton = function(c) {
 
         path = appManager.getPath(),
         apiResource = instanceManager.getApiResource();
-
-
 
     return Ext.create('Ext.button.Button', {
         text: i18n.favorites,
@@ -28,7 +26,7 @@ FavoriteButton = function(c) {
                         text: 'Open',
                         iconCls: 'ns-menu-item-tablelayout',
                         handler: function() {
-                            console.log("open");
+                            FavoriteWindow(c).show();
                         }
                     });
                     uiManager.register(openItem, 'openItem');
@@ -36,6 +34,7 @@ FavoriteButton = function(c) {
                     var saveItem = Ext.create('Ext.menu.Item', {
                         text: 'Save',
                         iconCls: 'ns-menu-item-tablelayout',
+                        disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
                             console.log("save");
                         }
@@ -45,6 +44,7 @@ FavoriteButton = function(c) {
                     var saveAsItem = Ext.create('Ext.menu.Item', {
                         text: 'Save as',
                         iconCls: 'ns-menu-item-tablelayout',
+                        disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             console.log("save as");
                         }
@@ -54,8 +54,16 @@ FavoriteButton = function(c) {
                     var closeItem = Ext.create('Ext.menu.Item', {
                         text: 'Close',
                         iconCls: 'ns-menu-item-tablelayout',
+                        disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
-                            console.log("close");
+                            if (instanceManager.isStateUnsaved()) {
+                                if (confirm("You have unsaved changes. Close anyway?")) {
+                                    instanceManager.setState();
+                                }
+                            }
+                            else {
+                                instanceManager.setState();
+                            }
                         }
                     });
                     uiManager.register(closeItem, 'closeItem');

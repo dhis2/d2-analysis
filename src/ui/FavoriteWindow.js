@@ -548,11 +548,10 @@ FavoriteWindow = function(c) {
     favoriteWindow = Ext.create('Ext.window.Window', {
         title: i18n.favorites, //TODO
         bodyStyle: 'padding:1px; background-color:#fff',
-        closeAction: 'hide',
         resizable: false,
         modal: true,
         width: windowWidth,
-        hideOnBlur: true,
+        destroyOnBlur: true,
         items: [
             {
                 xtype: 'panel',
@@ -579,8 +578,8 @@ FavoriteWindow = function(c) {
                 if (favoriteButton.rendered) {
                     uiManager.setAnchorPosition(w, favoriteButton);
 
-                    if (!w.hasHideOnBlurHandler) {
-                        uiManager.addHideOnBlurHandler(w);
+                    if (!w.hasDestroyOnBlurHandler) {
+                        uiManager.addDestroyOnBlurHandler(w);
                     }
                 }
 
