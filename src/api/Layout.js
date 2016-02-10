@@ -1,4 +1,4 @@
-import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, arraySort, clone} from 'd2-utilizr';
+import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, arraySort} from 'd2-utilizr';
 import {Axis} from './Axis.js';
 import {Dimension} from './Dimension.js';
 import {Record} from './Record.js';
@@ -118,6 +118,10 @@ Layout.prototype.alert = function(text, noError) {
     if (!noError) {
         alert(text);
     }
+};
+
+Layout.prototype.clone = function() {
+    return new Layout(this);
 };
 
 Layout.prototype.getAxes = function(includeFilter) {
@@ -283,7 +287,7 @@ Layout.prototype.toPlugin = function(el) {
         };
     }
     else {
-        layout = clone(this);
+        layout = this.clone();
 
         // columns, rows, filters
         layout.getAxes(true).forEach(function(item) {
@@ -481,10 +485,13 @@ Layout.prototype.post = function(fn) {
         dataType: 'json',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
+            var id = (r.getResponseHeader('location') || '').split("/").pop();
 
-            $.getJSON(url + '.json?filter=name:ilike:' + t.name, function(json) {
-                fn(json[apiResource][0].id);
-            });
+            if (!isString(id)) {
+                console.log('Layout post', 'Invalid id', id);
+            }
+
+            fn(id);
         }
     });
 };
@@ -514,3 +521,5 @@ Layout.prototype.put = function(fn) {
         }
     });
 };
+
+

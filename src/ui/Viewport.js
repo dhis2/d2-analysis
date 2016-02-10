@@ -2712,7 +2712,7 @@ Viewport = function(c, cmp) {
             }
 
             t.expandPath(path, 'id', '/', function() {
-                var record = clone(t.getRootNode().findChild('id', id, true));
+                var record = t.getRootNode().findChild('id', id, true);
                 t.recordsToSelect.push(record);
                 t.multipleSelectIf(map, doUpdate);
             });
@@ -4425,20 +4425,7 @@ Viewport = function(c, cmp) {
         },
         listeners: {
             afterrender: function(p) {
-                var html = '';
-
-                html += '<div class="ns-viewport-text" style="padding:20px">';
-                html += '<h3>' + i18n.example1 + '</h3>';
-                html += '<div>- ' + i18n.example2 + '</div>';
-                html += '<div>- ' + i18n.example3 + '</div>';
-                html += '<div>- ' + i18n.example4 + '</div>';
-                html += '<h3 style="padding-top:20px">' + i18n.example5 + '</h3>';
-                html += '<div>- ' + i18n.example6 + '</div>';
-                html += '<div>- ' + i18n.example7 + '</div>';
-                html += '<div>- ' + i18n.example8 + '</div>';
-                html += '</div>';
-
-                p.update(html);
+                p.update(uiManager.getIntroHtml());
             },
             resize: function() {
                 var width = this.getWidth();

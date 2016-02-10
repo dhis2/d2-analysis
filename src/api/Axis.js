@@ -30,6 +30,10 @@ Axis = function(config) {
         return this;
     };
 
+    t.clone = function() {
+        return Axis(this);
+    };
+
     t.getDimension = function(dimensionName) {
 		return this.find(function(dimension) {
 			return dimension.dimension === dimensionName;
@@ -51,7 +55,7 @@ Axis = function(config) {
 	};
 
     t.sorted = function() {
-        return clone(this).sort(function(a, b) {return a.dimension > b.dimension;});
+        return t.clone().sort(function(a, b) {return a.dimension > b.dimension;});
     };
 
     t.toPlugin = function() {

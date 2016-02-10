@@ -1,5 +1,6 @@
 import {clone} from 'd2-utilizr';
 import {SharingWindow} from './SharingWindow.js';
+import {Layout} from '../api/Layout.js';
 
 export var FavoriteWindow;
 
@@ -130,17 +131,13 @@ FavoriteWindow = function(c) {
                     var layout = instanceManager.getStateCurrent();
                     layout.name = nameTextfield.getValue();
 
-                    clone(layout).post(function(id) {
-                        //var id = r.getAllResponseHeaders().location.split('/').pop();
-                        //console.log("Favorite id: " + id);
-
+                    layout.clone().post(function(id) {
                         layout.id = id;
 
                         instanceManager.setState(layout, true);
 
                         favoriteStore.loadStore();
 
-                        layout = null;
                         window.destroy();
                     });
                 }

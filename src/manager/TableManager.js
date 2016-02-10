@@ -23,7 +23,7 @@ TableManager = function(c) {
         }
 
         uiManager.mask();
-
+console.log("layout to be run after sort click", layout);
         instanceManager.getReport(layout);
     };
 

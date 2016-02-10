@@ -16,6 +16,8 @@ UiManager = function() {
 
     var theme = 'meringue';
 
+    var introHtml = '';
+
     // components
     t.register = function(cmp, name, tags, keep) {
         if (components.hasOwnProperty(name) && keep) {
@@ -89,6 +91,13 @@ UiManager = function() {
         theme = newTheme;
     };
 
+    t.getIntroHtml = function() {
+        return introHtml;
+    };
+
+    t.setIntroHtml = function(html) {
+        introHtml = html;
+    };
 
     // browser
     t.getScrollbarSize = function() {

@@ -66,6 +66,7 @@ AppManager = function() {
     };
 
     // uninitialized
+    t.appName;
     t.manifest;
     t.systemInfo;
     t.systemSettings;

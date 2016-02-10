@@ -22,6 +22,23 @@ FavoriteButton = function(c) {
                 shadow: false,
                 showSeparator: false,
                 items: function() {
+                    var newItem = Ext.create('Ext.menu.Item', {
+                        text: 'New',
+                        iconCls: 'ns-menu-item-tablelayout',
+                        disabled: !instanceManager.isStateCurrent(),
+                        handler: function() {
+                            if (instanceManager.isStateUnsaved()) {
+                                if (confirm("You have unsaved changes. Discard anyway?")) {
+                                    instanceManager.setState();
+                                }
+                            }
+                            else {
+                                instanceManager.setState();
+                            }
+                        }
+                    });
+                    uiManager.register(newItem, 'newItem');
+
                     var openItem = Ext.create('Ext.menu.Item', {
                         text: 'Open',
                         iconCls: 'ns-menu-item-tablelayout',
@@ -44,7 +61,7 @@ FavoriteButton = function(c) {
 
                             uiManager.mask();
 
-                            clone(layout).put(function() {
+                            layout.put(function() {
                                 layout.id = favorite.id;
                                 layout.name = favorite.name;
 
@@ -65,30 +82,13 @@ FavoriteButton = function(c) {
                     });
                     uiManager.register(saveAsItem, 'saveAsItem');
 
-                    var closeItem = Ext.create('Ext.menu.Item', {
-                        text: 'Close',
-                        iconCls: 'ns-menu-item-tablelayout',
-                        disabled: !instanceManager.isStateCurrent(),
-                        handler: function() {
-                            if (instanceManager.isStateUnsaved()) {
-                                if (confirm("You have unsaved changes. Close anyway?")) {
-                                    instanceManager.setState();
-                                }
-                            }
-                            else {
-                                instanceManager.setState();
-                            }
-                        }
-                    });
-                    uiManager.register(closeItem, 'closeItem');
-
                     return [
+                        newItem,
+                        '-',
                         openItem,
                         '-',
                         saveItem,
-                        saveAsItem,
-                        '-',
-                        closeItem
+                        saveAsItem
                     ];
                 }(),
                 listeners: {

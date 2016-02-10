@@ -13,13 +13,14 @@ NorthRegion = function(c, cmpConfig) {
     // component
     cmpConfig = cmpConfig || {};
 
+    cmpConfig.appName = appManager.appName || '';
+
     cmpConfig.i18n = cmpConfig.i18n || {};
     cmpConfig.i18n.about = cmpConfig.i18n.about || i18n.about || 'about';
     cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'home';
 
     cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
     cmpConfig.brandName = cmpConfig.brandName || 'DHIS 2';
-    cmpConfig.appName = cmpConfig.appName || '';
     cmpConfig.logoWidth = cmpConfig.logoWidth ? parseFloat(cmpConfig.logoWidth) : 418;
     cmpConfig.aboutFn = cmpConfig.aboutFn || function() {
         AboutWindow(c).show();

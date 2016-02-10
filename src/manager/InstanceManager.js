@@ -44,7 +44,7 @@ InstanceManager = function(config) {
     };
 
 	t.getStateFavorite = function() {
-		return clone(_state.favorite);
+		return _state.favorite ? _state.favorite.clone() : _state.favorite;
 	};
 
 	t.getStateFavoriteId = function() {
@@ -56,7 +56,7 @@ InstanceManager = function(config) {
 	};
 
 	t.getStateCurrent = function() {
-		return clone(_state.current);
+		return _state.current ? _state.current.clone() : _state.current;
 	};
 
 	t.setState = function(curr, isFavorite) {
@@ -65,8 +65,7 @@ InstanceManager = function(config) {
         if (!_state.current || isFavorite) {
             _state.favorite = _state.current;
         }
-console.log("curr", _state.current);
-console.log("fav", _state.favorite);
+
 		t.uiManager.setState(_state.current, isFavorite);
 	};
 
@@ -163,6 +162,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite) {
             return;
         }
     }
+console.log(layout);
 
     // response
     var response = layout.getResponse();
