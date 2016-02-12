@@ -24,7 +24,7 @@ TableManager = function(c) {
 
         uiManager.mask();
 
-        instanceManager.getReport(layout);
+        instanceManager.getReport(layout, false, true);
     };
 
     var onColumnHeaderMouseOver = function(el) {

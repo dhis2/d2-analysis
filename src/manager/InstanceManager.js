@@ -144,11 +144,14 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout, isFavorite) {
+InstanceManager.prototype.getReport = function(layout, isFavorite, skipState) {
     var t = this;
 
     var fn = function() {
-        t.setState(layout, isFavorite);
+        if (!skipState) {
+            t.setState(layout, isFavorite);
+        }
+
         t.getFn()(layout);
     };
 
