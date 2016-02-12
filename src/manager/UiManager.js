@@ -52,6 +52,8 @@ UiManager = function() {
     };
 
     t.update = function(html) {
+        html = html || t.getIntroHtml();
+
         t.getUpdateComponent().update(html);
     };
 
@@ -72,13 +74,13 @@ UiManager = function() {
         });
 
         // west
-        if (isFavorite) {
+        if (!layout || isFavorite) {
             t.get('westRegion').setState(layout);
         }
 
         // center
         if (!layout) {
-            t.update('');
+            t.update();
         }
     };
 

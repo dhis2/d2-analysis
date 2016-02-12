@@ -4449,6 +4449,7 @@ Viewport = function(c, cmp) {
 
         // clear panels
         westRegionPanels.forEach(function(panel) {
+console.log("panel:", panel.dimension);
             panel.clearDimension();
         });
 

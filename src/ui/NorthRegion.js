@@ -84,7 +84,7 @@ NorthRegion = function(c, cmpConfig) {
                     }
                     else {
                         this.setTitle('');
-                        this.setUnsaved();
+                        this.setSaved();
                     }
                 }
             });

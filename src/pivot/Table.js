@@ -1,4 +1,4 @@
-import {isString, isNumber, isArray, isObject, isBoolean, isDefined, numberToFixed, arrayContains, arrayClean, uuid} from 'd2-utilizr';
+import {isString, isNumber, isArray, isObject, isBoolean, isDefined, numberToFixed, arrayPluck, arrayContains, arrayClean, uuid} from 'd2-utilizr';
 import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 
 export var Table;
