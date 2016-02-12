@@ -108,3 +108,4 @@ FavoriteButton = function(c) {
         }
     });
 };
+

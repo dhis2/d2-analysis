@@ -162,7 +162,6 @@ InstanceManager.prototype.getReport = function(layout, isFavorite) {
             return;
         }
     }
-console.log(layout);
 
     // response
     var response = layout.getResponse();
