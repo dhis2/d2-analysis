@@ -50,6 +50,8 @@ NorthRegion = function(c, cmpConfig) {
         setLogoWidth: setLogoWidth,
         setState: setState,
         items: function() {
+            var defaultTitleText = 'Untitled';
+
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
                 width: cmpConfig.logoWidth,
@@ -57,20 +59,27 @@ NorthRegion = function(c, cmpConfig) {
             });
 
             cmp.title = Ext.create('Ext.toolbar.TextItem', {
-                cls: 'title user-select',
-                html: '&nbsp;',
-                titleValue: '',
+                cls: 'title untitled user-select',
+                //html: '&nbsp;',
+                titleText: '',
+                text: defaultTitleText,
                 setTitle: function(name) {
-                    this.titleValue = name;
-                    this.update(this.titleValue);
+                    this.titleText = name || defaultTitleText;
+                    this.update(this.titleText);
                 },
                 setSaved: function() {
                     this.getEl().removeCls('unsaved');
+                    this.getEl().removeCls('untitled');
                 },
                 setUnsaved: function() {
-                    if (this.titleValue) {
+                    if (this.titleText) {
+                        this.getEl().removeCls('untitled');
 						this.getEl().addCls('unsaved');
 					}
+                },
+                setNew: function() {
+                    this.getEl().removeCls('unsaved');
+                    this.getEl().addCls('untitled');
                 },
                 setState: function(layout, isFavorite) {
                     if (layout) {
@@ -83,8 +92,8 @@ NorthRegion = function(c, cmpConfig) {
                         }
                     }
                     else {
-                        this.setTitle('');
-                        this.setSaved();
+                        this.setTitle();
+                        this.setNew();
                     }
                 }
             });

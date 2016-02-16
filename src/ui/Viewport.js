@@ -2532,6 +2532,8 @@ Viewport = function(c, cmp) {
         clearDimension: function() {
 			fixedPeriodSelectedStore.removeAll();
 			period.resetRelativePeriods();
+
+            relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
 		},
 		setDimension: function(layout) {
 			if (layout.hasDimension(this.dimension, true)) {
@@ -3691,7 +3693,7 @@ Viewport = function(c, cmp) {
     uiManager.register(accordionBody, 'accordionBody');
 
     var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; border-top:1px solid #e1e1e1; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
         items: accordionBody,
         panels: accordionPanels,
         setThisHeight: function(mx) {
@@ -4449,7 +4451,6 @@ Viewport = function(c, cmp) {
 
         // clear panels
         westRegionPanels.forEach(function(panel) {
-console.log("panel:", panel.dimension);
             panel.clearDimension();
         });
 

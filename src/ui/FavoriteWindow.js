@@ -28,7 +28,6 @@ FavoriteWindow = function(c) {
         NameWindow,
         nameWindow,
 
-        addButton,
         onSearchTextfieldKeyUp,
         searchTextfield,
         grid,
@@ -43,7 +42,10 @@ FavoriteWindow = function(c) {
         cancelButton,
         favoriteWindow,
 
-        windowWidth = 500,
+        windowWidth = 700,
+        lastUpdatedColWidth = 90,
+        buttonColWidth = 60,
+        paddingColWidth = 6,
         windowCmpWidth = windowWidth - 14;
 
     favoriteStore = Ext.create('Ext.data.Store', {
@@ -60,7 +62,7 @@ FavoriteWindow = function(c) {
         isLoaded: false,
         pageSize: 10,
         page: 1,
-        defaultUrl: path + '/api/' + apiResource + '.json?fields=id,displayName|rename(name),access',
+        defaultUrl: path + '/api/' + apiResource + '.json?fields=id,displayName|rename(name),lastUpdated,access',
         loadStore: function(url) {
             this.proxy.url = url || this.defaultUrl;
 
@@ -210,12 +212,10 @@ FavoriteWindow = function(c) {
             ],
             listeners: {
                 show: function(w) {
-                    if (addButton.rendered) {
-                        uiManager.setAnchorPosition(w, addButton);
+                    uiManager.setAnchorPosition(w, searchTextfield);
 
-                        if (!w.hasDestroyOnBlurHandler) {
-                            uiManager.addDestroyOnBlurHandler(w);
-                        }
+                    if (!w.hasDestroyOnBlurHandler) {
+                        uiManager.addDestroyOnBlurHandler(w);
                     }
 
                     favoriteWindow.hideOnBlur = false;
@@ -230,19 +230,6 @@ FavoriteWindow = function(c) {
 
         return window;
     };
-
-    addButton = Ext.create('Ext.button.Button', {
-        text: i18n.add_new,
-        width: 67,
-        height: 26,
-        style: 'border-radius: 1px;',
-        menu: {},
-        //disabled: !isObject(ns.app.xLayout), //TODO
-        handler: function() {
-            nameWindow = new NameWindow(null, 'create');
-            nameWindow.show();
-        }
-    });
 
 	onSearchTextfieldKeyUp = function(value) {
 		var t = searchTextfield,
@@ -259,8 +246,9 @@ FavoriteWindow = function(c) {
 	};
 
     searchTextfield = Ext.create('Ext.form.field.Text', {
-        width: windowCmpWidth - addButton.width - 3,
+        width: windowCmpWidth,
         height: 26,
+        style: 'margin-bottom: 1px',
         fieldStyle: 'padding-right: 0; padding-left: 4px; border-radius: 1px; border-color: #bbb; font-size:11px',
         emptyText: i18n.search_for_favorites,
         enableKeyEvents: true,
@@ -308,12 +296,13 @@ FavoriteWindow = function(c) {
     grid = Ext.create('Ext.grid.Panel', {
         cls: 'ns-grid',
         scroll: false,
-        hideHeaders: true,
+        //hideHeaders: true,
         columns: [
             {
                 dataIndex: 'name',
-                sortable: false,
-                width: windowCmpWidth - 88,
+                header: 'Name',
+                sortable: true,
+                width: windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2,
                 renderer: function(value, metaData, record) {
                     var fn = function() {
                         var element = Ext.get(record.data.id);
@@ -336,9 +325,18 @@ FavoriteWindow = function(c) {
                 }
             },
             {
+                dataIndex: 'lastUpdated',
+                header: 'Last updated',
+                sortable: true,
+                width: lastUpdatedColWidth,
+                renderer: function(value) {
+                    return (value || '').substring(0, 10);
+                }
+            },
+            {
                 xtype: 'actioncolumn',
                 sortable: false,
-                width: 80,
+                width: buttonColWidth,
                 items: [
                     {
                         iconCls: 'ns-grid-row-icon-edit',
@@ -351,48 +349,6 @@ FavoriteWindow = function(c) {
                             if (record.data.access.update) {
                                 nameWindow = new NameWindow(record.data.id);
                                 nameWindow.show();
-                            }
-                        }
-                    },
-                    {
-                        iconCls: 'ns-grid-row-icon-overwrite',
-                        getClass: function(value, metaData, record) {
-                            return 'tooltip-favorite-overwrite' + (!record.data.access.update ? ' disabled' : '');
-                        },
-                        handler: function(grid, rowIndex, colIndex, col, event) {
-                            var record = this.up('grid').store.getAt(rowIndex),
-                                message,
-                                favorite;
-
-                            if (record.data.access.update) {
-                                message = i18n.overwrite_favorite + '?\n\n' + record.data.name;
-                                favorite = getBody();
-
-                                if (favorite) {
-                                    favorite.name = record.data.name;
-
-                                    if (confirm(message)) {
-                                        Ext.Ajax.request({
-                                            url: path + '/api/' + apiResource + '/' + record.data.id + '?mergeStrategy=REPLACE',
-                                            method: 'PUT',
-                                            headers: {'Content-Type': 'application/json'},
-                                            params: Ext.encode(favorite),
-                                            success: function(r) {
-                                                //ns.app.layout.id = record.data.id;
-                                                //ns.app.xLayout.id = record.data.id;
-
-                                                //ns.app.layout.name = true;
-                                                //ns.app.xLayout.name = true;
-                                                //TODO
-
-                                                favoriteStore.loadStore();
-                                            }
-                                        });
-                                    }
-                                }
-                                else {
-                                    uiManager.alert(i18n.please_create_a_table_first);
-                                }
                             }
                         }
                     },
@@ -450,7 +406,7 @@ FavoriteWindow = function(c) {
             },
             {
                 sortable: false,
-                width: 6
+                width: paddingColWidth
             }
         ],
         store: favoriteStore,
@@ -543,29 +499,14 @@ FavoriteWindow = function(c) {
     });
 
     favoriteWindow = Ext.create('Ext.window.Window', {
-        title: i18n.favorites, //TODO
+        title: i18n.open_favorite,
         bodyStyle: 'padding:1px; background-color:#fff',
         resizable: false,
         modal: true,
         width: windowWidth,
         destroyOnBlur: true,
         items: [
-            {
-                xtype: 'panel',
-                layout: 'hbox',
-                bodyStyle: 'border:0 none',
-                height: 27,
-                items: [
-                    addButton,
-                    {
-                        height: 26,
-                        width: 1,
-                        style: 'width:1px; margin-left:1px; margin-right:1px',
-                        bodyStyle: 'border-left: 1px solid #aaa'
-                    },
-                    searchTextfield
-                ]
-            },
+            searchTextfield,
             grid
         ],
         listeners: {
