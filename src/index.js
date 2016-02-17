@@ -36,6 +36,7 @@ import {InterpretationItem} from './ui/InterpretationItem.js';
 import {PluginItem} from './ui/PluginItem.js';
 import {LinkItem} from './ui/LinkItem.js';
 import {AboutWindow} from './ui/AboutWindow.js';
+import {GridHeaders} from './ui/GridHeaders.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -84,6 +85,7 @@ export {
     PluginItem,
     LinkItem,
     AboutWindow,
+    GridHeaders,
     //CenterRegion,
     //WestRegion,
     //MenuAccordion,
@@ -128,7 +130,7 @@ export const manager = {
     SessionStorageManager: SessionStorageManager,
     UiManager: UiManager,
     InstanceManager: InstanceManager,
-    TableManager: TableManager
+    TableManager: TableManager,
 };
 
 export const config = {
@@ -148,6 +150,7 @@ export const ui = {
     PluginItem: PluginItem,
     LinkItem: LinkItem,
     AboutWindow: AboutWindow,
+    GridHeaders: GridHeaders,
     //CenterRegion: CenterRegion,
     //WestRegion: WestRegion,
     //MenuAccordion: MenuAccordion,

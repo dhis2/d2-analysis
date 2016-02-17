@@ -1,5 +1,6 @@
 import {clone} from 'd2-utilizr';
 import {SharingWindow} from './SharingWindow.js';
+import {GridHeaders} from './GridHeaders.js';
 import {Layout} from '../api/Layout.js';
 
 export var FavoriteWindow;
@@ -36,6 +37,7 @@ FavoriteWindow = function(c) {
         tbar,
         bbar,
         info,
+        gridHeaders,
         nameTextfield,
         createButton,
         updateButton,
@@ -43,10 +45,13 @@ FavoriteWindow = function(c) {
         favoriteWindow,
 
         windowWidth = 700,
+        windowCmpWidth = windowWidth - 14,
+
         lastUpdatedColWidth = 90,
         buttonColWidth = 60,
         paddingColWidth = 6,
-        windowCmpWidth = windowWidth - 14;
+
+        nameColWidth = windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2;
 
     favoriteStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'lastUpdated', 'access'],
@@ -293,16 +298,35 @@ FavoriteWindow = function(c) {
         height: 22
     });
 
+    gridHeaders = GridHeaders({
+        width: windowCmpWidth,
+        height: 22,
+        items: [
+            {
+                text: i18n.name,
+                textAlign: 'left',
+                width: nameColWidth,
+                height: 20
+            },
+            {
+                text: i18n.last_updated,
+                textAlign: 'left',
+                width: lastUpdatedColWidth,
+                height: 20
+            }
+        ]
+    });
+
     grid = Ext.create('Ext.grid.Panel', {
         cls: 'ns-grid',
         scroll: false,
-        //hideHeaders: true,
+        hideHeaders: true,
         columns: [
             {
                 dataIndex: 'name',
                 header: 'Name',
                 sortable: true,
-                width: windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2,
+                width: nameColWidth,
                 renderer: function(value, metaData, record) {
                     var fn = function() {
                         var element = Ext.get(record.data.id);
@@ -507,6 +531,7 @@ FavoriteWindow = function(c) {
         destroyOnBlur: true,
         items: [
             searchTextfield,
+            gridHeaders,
             grid
         ],
         listeners: {
