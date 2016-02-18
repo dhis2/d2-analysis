@@ -23,8 +23,9 @@ FavoriteWindow = function(c) {
 
         apiResource = instanceManager.getApiResource();
 
-    // components
-    var favoriteStore,
+    var getDirection,
+        getStoreUrl,
+        favoriteStore,
 
         NameWindow,
         nameWindow,
@@ -47,14 +48,29 @@ FavoriteWindow = function(c) {
         windowWidth = 700,
         windowCmpWidth = windowWidth - 14,
 
-        lastUpdatedColWidth = 90,
+        lastUpdatedColWidth = 130,
         buttonColWidth = 60,
         paddingColWidth = 6,
 
-        nameColWidth = windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2;
+        nameColWidth = windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2,
+
+        fields = 'id,name,lastUpdated,access',
+        sortField = 'name',
+        sortDirection = 'asc';
+
+    getDirection = function() {
+        return sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    };
+
+    getStoreUrl = function(field) {
+        sortField = field || sortField;
+
+        var value = searchTextfield.getValue();
+        return path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection();
+    };
 
     favoriteStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'lastUpdated', 'access'],
+        fields: fields.split(','),
         proxy: {
             type: 'ajax',
             reader: {
@@ -67,7 +83,7 @@ FavoriteWindow = function(c) {
         isLoaded: false,
         pageSize: 10,
         page: 1,
-        defaultUrl: path + '/api/' + apiResource + '.json?fields=id,displayName|rename(name),lastUpdated,access',
+        defaultUrl: path + '/api/' + apiResource + '.json?fields=' + fields + '&order=name:asc',
         loadStore: function(url) {
             this.proxy.url = url || this.defaultUrl;
 
@@ -91,8 +107,6 @@ FavoriteWindow = function(c) {
                 if (!this.isLoaded) {
                     this.isLoaded = true;
                 }
-
-                this.sort('name', 'ASC');
 
                 // pager
                 var pager = store.proxy.reader.jsonData.pager;
@@ -243,7 +257,7 @@ FavoriteWindow = function(c) {
 		if (value !== t.currentValue) {
 			t.currentValue = value;
 
-			var url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null;
+			var url = value ? path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') : null;
 
 			favoriteStore.page = 1;
 			favoriteStore.loadStore(url);
@@ -252,10 +266,10 @@ FavoriteWindow = function(c) {
 
     searchTextfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth,
-        height: 26,
+        height: 25,
         style: 'margin-bottom: 1px',
-        fieldStyle: 'padding-right: 0; padding-left: 4px; border-radius: 1px; border-color: #bbb; font-size:11px',
-        emptyText: i18n.search_for_favorites,
+        fieldStyle: 'padding-right: 0; padding-left: 6px; border-color: transparent; background: none; font-size: 11px',
+        emptyText: i18n.search_for_favorites + '..',
         enableKeyEvents: true,
         currentValue: '',
         listeners: {
@@ -271,8 +285,7 @@ FavoriteWindow = function(c) {
     prevButton = Ext.create('Ext.button.Button', {
         text: i18n.prev,
         handler: function() {
-            var value = searchTextfield.getValue(),
-                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null,
+            var url = getStoreUrl(),
                 store = favoriteStore;
 
             store.page = store.page <= 1 ? 1 : store.page - 1;
@@ -283,8 +296,7 @@ FavoriteWindow = function(c) {
     nextButton = Ext.create('Ext.button.Button', {
         text: i18n.next,
         handler: function() {
-            var value = searchTextfield.getValue(),
-                url = value ? path + '/api/' + apiResource + '.json?fields=id,name,access' + (value ? '&filter=name:ilike:' + value : '') : null,
+            var url = getStoreUrl(),
                 store = favoriteStore;
 
             store.page = store.page + 1;
@@ -300,19 +312,37 @@ FavoriteWindow = function(c) {
 
     gridHeaders = GridHeaders({
         width: windowCmpWidth,
-        height: 22,
+        height: 21,
+        direction: 'asc',
+        getDirection: function() {
+        },
         items: [
             {
                 text: i18n.name,
                 textAlign: 'left',
                 width: nameColWidth,
-                height: 20
+                height: 20,
+                handler: function() {
+                    var url = getStoreUrl('name'),
+                        store = favoriteStore;
+
+                    store.page = 1;
+                    store.loadStore(url);
+                }
             },
             {
                 text: i18n.last_updated,
                 textAlign: 'left',
                 width: lastUpdatedColWidth,
-                height: 20
+                height: 20,
+                direction: 'asc',
+                handler: function() {
+                    var url = getStoreUrl('lastUpdated'),
+                        store = favoriteStore;
+
+                    store.page = 1;
+                    store.loadStore(url);
+                }
             }
         ]
     });
@@ -324,7 +354,6 @@ FavoriteWindow = function(c) {
         columns: [
             {
                 dataIndex: 'name',
-                header: 'Name',
                 sortable: true,
                 width: nameColWidth,
                 renderer: function(value, metaData, record) {
@@ -350,11 +379,10 @@ FavoriteWindow = function(c) {
             },
             {
                 dataIndex: 'lastUpdated',
-                header: 'Last updated',
                 sortable: true,
                 width: lastUpdatedColWidth,
                 renderer: function(value) {
-                    return (value || '').substring(0, 10);
+                    return (value || '').substring(0, 16).split('T').join(', ');
                 }
             },
             {

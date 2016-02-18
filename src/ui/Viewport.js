@@ -4114,28 +4114,34 @@ Viewport = function(c, cmp) {
     var shareButton = Ext.create('Ext.button.Button', {
         text: i18n.share,
         disabled: true,
+        menu: {},
         xableItems: function() {
             interpretationItem.xable();
             pluginItem.xable();
             linkItem.xable();
         },
-        menu: {
-            cls: 'ns-menu',
-            shadow: false,
-            showSeparator: false,
-            items: [
-                interpretationItem,
-                pluginItem,
-                linkItem
-            ],
-            listeners: {
-                afterrender: function() {
-                    this.getEl().addCls('ns-toolbar-btn-menu');
-                },
-                show: function() {
-                    shareButton.xableItems();
+        handler: function(b) {
+            b.menu = Ext.create('Ext.menu.Menu', {
+                cls: 'ns-menu',
+                closeAction: 'destroy',
+                shadow: false,
+                showSeparator: false,
+                items: [
+                    interpretationItem,
+                    pluginItem,
+                    linkItem
+                ],
+                listeners: {
+                    afterrender: function() {
+                        this.getEl().addCls('ns-toolbar-btn-menu');
+                    },
+                    show: function() {
+                        shareButton.xableItems();
+                    }
                 }
-            }
+            });
+
+            b.menu.show();
         }
     });
     uiManager.register(shareButton, 'shareButton', 'onCurrent');
@@ -4210,20 +4216,25 @@ Viewport = function(c, cmp) {
                     }
                 },
                 updateButton,
+                ' ',
                 favoriteButton,
-                {
-                    xtype: 'tbseparator',
-                    height: 18,
-                    style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
-                },
+                //{
+                    //xtype: 'tbseparator',
+                    //height: 18,
+                    //style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
+                //},
+                ' ',' ',
                 layoutButton,
+                ' ',' ',
                 optionsButton,
-                {
-                    xtype: 'tbseparator',
-                    height: 18,
-                    style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
-                },
+                ' ',' ',
+                //{
+                    //xtype: 'tbseparator',
+                    //height: 18,
+                    //style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
+                //},
                 downloadButton,
+                ' ',
                 shareButton,
                 '->',
                 defaultButton,
