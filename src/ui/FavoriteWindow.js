@@ -5,7 +5,7 @@ import {Layout} from '../api/Layout.js';
 
 export var FavoriteWindow;
 
-FavoriteWindow = function(c) {
+FavoriteWindow = function(c, action) {
     var t = this,
 
         appManager = c.appManager,
@@ -268,7 +268,7 @@ FavoriteWindow = function(c) {
         width: windowCmpWidth,
         height: 25,
         style: 'margin-bottom: 1px',
-        fieldStyle: 'padding-right: 0; padding-left: 6px; border-color: transparent; background: none; font-size: 11px',
+        fieldStyle: 'padding-right: 0; padding-left: 5px; border-color: transparent; background: none; font-size: 11px',
         emptyText: i18n.search_for_favorites + '..',
         enableKeyEvents: true,
         currentValue: '',
