@@ -1,4 +1,3 @@
-import {clone} from 'd2-utilizr';
 import {FavoriteWindow} from './FavoriteWindow.js';
 
 export var FavoriteButton;
@@ -24,7 +23,7 @@ FavoriteButton = function(c) {
                 items: function() {
                     var newItem = Ext.create('Ext.menu.Item', {
                         text: 'New',
-                        iconCls: 'ns-menu-item-tablelayout',
+                        iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             if (instanceManager.isStateUnsaved()) {
@@ -41,7 +40,7 @@ FavoriteButton = function(c) {
 
                     var openItem = Ext.create('Ext.menu.Item', {
                         text: 'Open',
-                        iconCls: 'ns-menu-item-tablelayout',
+                        iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
                             FavoriteWindow(c).show();
                         }
@@ -50,7 +49,7 @@ FavoriteButton = function(c) {
 
                     var saveItem = Ext.create('Ext.menu.Item', {
                         text: 'Save',
-                        iconCls: 'ns-menu-item-tablelayout',
+                        iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
                             var layout = instanceManager.getStateCurrent(),
@@ -74,7 +73,7 @@ FavoriteButton = function(c) {
 
                     var saveAsItem = Ext.create('Ext.menu.Item', {
                         text: 'Save as',
-                        iconCls: 'ns-menu-item-tablelayout',
+                        iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             console.log("save as");

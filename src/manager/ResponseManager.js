@@ -1,4 +1,6 @@
-import {arrayClean, arrayInsert, clone} from 'd2-utilizr';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayInsert from 'd2-utilizr/lib/arrayInsert';
+import clone from 'd2-utilizr/lib/clone';
 
 export var ResponseManager;
 

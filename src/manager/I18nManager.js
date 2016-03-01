@@ -1,10 +1,10 @@
-import {arrayTo} from 'd2-utilizr';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var I18nManager;
 
 I18nManager = function(config) {
     var t = this;
-    
+
     var translations = config || {};
 
     // prototype
@@ -12,14 +12,14 @@ I18nManager = function(config) {
         if (force) {
             translations = obj;
         }
-        else {            
+        else {
             $.extend(translations, obj);
         }
     };
-    
+
     t.get = function(key) {
         return key ? translations[key] : translations;
-    };        
+    };
 };
 
 I18nManager.prototype.applyTo = function(modules) {

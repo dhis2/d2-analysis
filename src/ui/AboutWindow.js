@@ -1,4 +1,4 @@
-import {isObject} from 'd2-utilizr';
+import isObject from 'd2-utilizr/lib/isObject';
 
 export var AboutWindow;
 

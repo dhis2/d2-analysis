@@ -4,6 +4,7 @@ export var NorthRegion;
 
 NorthRegion = function(c, cmpConfig) {
     var appManager = c.appManager,
+        instanceManager = c.instanceManager,
         uiManager = c.uiManager,
         i18nManager = c.i18nManager,
 
@@ -26,6 +27,10 @@ NorthRegion = function(c, cmpConfig) {
         AboutWindow(c).show();
     };
     cmpConfig.homeFn = cmpConfig.homeFn || function() {
+        if (instanceManager.isStateUnsaved() && !uiManager.confirmUnsaved()) {
+            return;
+        }
+
         window.location.href = path +  '/dhis-web-commons-about/redirect.action';
     };
 

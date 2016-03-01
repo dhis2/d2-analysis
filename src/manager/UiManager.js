@@ -1,4 +1,7 @@
-import {isString, isObject, isArray, arrayTo} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isObject from 'd2-utilizr/lib/isObject';
+import isArray from 'd2-utilizr/lib/isArray';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var UiManager;
 
@@ -355,6 +358,11 @@ UiManager = function() {
 			return false;
 		};
 	};
+
+    // confirm
+    t.confirmUnsaved = function() {
+        return confirm("You have unsaved changes. Discard anyway?");
+    };
 };
 
 UiManager.prototype.applyTo = function(modules) {

@@ -1,4 +1,3 @@
-import {clone} from 'd2-utilizr';
 import {SharingWindow} from './SharingWindow.js';
 import {GridHeaders} from './GridHeaders.js';
 import {Layout} from '../api/Layout.js';
@@ -39,6 +38,7 @@ FavoriteWindow = function(c, action) {
         bbar,
         info,
         gridHeaders,
+        nameColumn,
         nameTextfield,
         createButton,
         updateButton,
@@ -347,36 +347,38 @@ FavoriteWindow = function(c, action) {
         ]
     });
 
+    nameColumn = {
+        dataIndex: 'name',
+        sortable: true,
+        width: nameColWidth,
+        renderer: function(value, metaData, record) {
+            var fn = function() {
+                var element = Ext.get(record.data.id);
+
+                if (element) {
+                    element = element.parent('td');
+                    element.addClsOnOver('link');
+                    element.load = function() {
+                        favoriteWindow.destroy();
+                        instanceManager.getById(record.data.id);
+                    };
+                    element.dom.setAttribute('onclick', 'Ext.get(this).load();');
+
+                }
+            };
+
+            Ext.defer(fn, 100);
+
+            return '<div id="' + record.data.id + '">' + value + '</div>';
+        }
+    };
+
     grid = Ext.create('Ext.grid.Panel', {
         cls: 'ns-grid',
         scroll: false,
         hideHeaders: true,
         columns: [
-            {
-                dataIndex: 'name',
-                sortable: true,
-                width: nameColWidth,
-                renderer: function(value, metaData, record) {
-                    var fn = function() {
-                        var element = Ext.get(record.data.id);
-
-                        if (element) {
-                            element = element.parent('td');
-                            element.addClsOnOver('link');
-                            element.load = function() {
-                                favoriteWindow.destroy();
-                                instanceManager.getById(record.data.id);
-                            };
-                            element.dom.setAttribute('onclick', 'Ext.get(this).load();');
-
-                        }
-                    };
-
-                    Ext.defer(fn, 100);
-
-                    return '<div id="' + record.data.id + '">' + value + '</div>';
-                }
-            },
+            nameColumn,
             {
                 dataIndex: 'lastUpdated',
                 sortable: true,

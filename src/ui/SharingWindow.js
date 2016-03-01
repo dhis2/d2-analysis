@@ -1,4 +1,4 @@
-import {isArray} from 'd2-utilizr';
+import isArray from 'd2-utilizr/lib/isArray';
 
 export var SharingWindow;
 

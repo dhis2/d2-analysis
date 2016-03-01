@@ -1,4 +1,15 @@
-import {isString, isNumber, isArray, isObject, isBoolean, isDefined, numberToFixed, arrayPluck, arrayContains, arrayClean, uuid} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isArray from 'd2-utilizr/lib/isArray';
+import isObject from 'd2-utilizr/lib/isObject';
+import isBoolean from 'd2-utilizr/lib/isBoolean';
+import isDefined from 'd2-utilizr/lib/isDefined';
+import numberToFixed from 'd2-utilizr/lib/numberToFixed';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import uuid from 'd2-utilizr/lib/uuid';
+
 import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 
 export var Table;

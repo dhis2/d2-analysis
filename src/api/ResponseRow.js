@@ -1,4 +1,4 @@
-import {arrayFrom} from 'd2-utilizr';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var ResponseRow;
 

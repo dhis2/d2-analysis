@@ -1,4 +1,10 @@
-import {isString, isObject, stringReplaceAll, arrayFrom, arrayTo, arrayClean, arraySort} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isObject from 'd2-utilizr/lib/isObject';
+import stringReplaceAll from 'd2-utilizr/lib/stringReplaceAll';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var AppManager;
 

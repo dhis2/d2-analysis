@@ -1,4 +1,5 @@
-import {isObject, isNumeric} from 'd2-utilizr';
+import isObject from 'd2-utilizr/lib/isObject';
+import isNumeric from 'd2-utilizr/lib/isNumeric';
 
 export var ResponseHeader;
 

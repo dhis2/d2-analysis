@@ -1,4 +1,5 @@
-import {arrayFrom, arrayTo} from 'd2-utilizr';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var DimensionConfig;
 

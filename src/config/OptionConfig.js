@@ -1,4 +1,5 @@
-import {arrayTo, arraySort} from 'd2-utilizr';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
+import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var OptionConfig;
 

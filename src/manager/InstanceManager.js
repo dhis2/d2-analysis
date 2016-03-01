@@ -1,4 +1,8 @@
-import {isString, isObject, arrayContains, arrayTo, clone} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isObject from 'd2-utilizr/lib/isObject';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
+import clone from 'd2-utilizr/lib/clone';
 
 export var InstanceManager;
 

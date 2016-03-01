@@ -1,4 +1,16 @@
-import {isString, isNumber, isBoolean, isArray, isObject, isDefined, isEmpty, arrayFrom, arrayContains, arrayClean, arrayPluck, arraySort} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isBoolean from 'd2-utilizr/lib/isBoolean';
+import isArray from 'd2-utilizr/lib/isArray';
+import isObject from 'd2-utilizr/lib/isObject';
+import isDefined from 'd2-utilizr/lib/isDefined';
+import isEmpty from 'd2-utilizr/lib/isEmpty';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
+import arraySort from 'd2-utilizr/lib/arraySort';
+
 import {Axis} from './Axis.js';
 import {Dimension} from './Dimension.js';
 import {Record} from './Record.js';

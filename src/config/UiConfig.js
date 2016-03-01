@@ -1,4 +1,4 @@
-import {arrayTo} from 'd2-utilizr';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var UiConfig;
 

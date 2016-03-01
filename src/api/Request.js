@@ -1,4 +1,8 @@
-import {isString, isObject, isFunction, arrayFrom, arrayContains} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isObject from 'd2-utilizr/lib/isObject';
+import isFunction from 'd2-utilizr/lib/isFunction';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
 
 export var Request;
 

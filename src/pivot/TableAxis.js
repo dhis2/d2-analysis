@@ -1,4 +1,9 @@
-import {isArray, arrayPluck, arrayUnique, arraySort, clone, uuid} from 'd2-utilizr';
+import isArray from 'd2-utilizr/lib/isArray';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
+import arraySort from 'd2-utilizr/lib/arraySort';
+import clone from 'd2-utilizr/lib/clone';
+import uuid from 'd2-utilizr/lib/uuid';
 
 export var TableAxis;
 

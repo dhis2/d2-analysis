@@ -1,4 +1,6 @@
-import {isObject, arrayFrom, arrayClean} from 'd2-utilizr';
+import isObject from 'd2-utilizr/lib/isObject';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
 import {Record} from './Record.js';
 import {ResponseHeader} from './ResponseHeader.js';
 import {ResponseRow} from './ResponseRow.js';

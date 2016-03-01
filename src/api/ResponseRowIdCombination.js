@@ -1,4 +1,5 @@
-import {isString, isArray} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isArray from 'd2-utilizr/lib/isArray';
 
 export var ResponseRowIdCombination;
 

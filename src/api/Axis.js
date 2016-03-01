@@ -1,4 +1,4 @@
-import {arrayFrom} from 'd2-utilizr';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import {Dimension} from './Dimension.js';
 
 export var Axis;

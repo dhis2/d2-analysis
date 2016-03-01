@@ -1,4 +1,10 @@
-import {isString, isObject, arrayFrom, arrayContains, arrayPluck, arrayUnique} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isObject from 'd2-utilizr/lib/isObject';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
+
 import {Record} from './Record.js';
 
 export var Dimension;

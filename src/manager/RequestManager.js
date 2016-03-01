@@ -1,4 +1,8 @@
-import {isArray, isObject, isFunction, arrayFrom, arrayTo} from 'd2-utilizr';
+import isArray from 'd2-utilizr/lib/isArray';
+import isObject from 'd2-utilizr/lib/isObject';
+import isFunction from 'd2-utilizr/lib/isFunction';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var RequestManager;
 
