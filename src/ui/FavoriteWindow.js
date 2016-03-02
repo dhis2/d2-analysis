@@ -36,8 +36,9 @@ FavoriteWindow = function(c, action) {
 
         textfieldKeyUpHandlers,
         searchTextfield,
-        saveButton,
         saveasTextField,
+        saveButtonHandler,
+        saveButton,
         prevButton,
         nextButton,
         info,
@@ -324,38 +325,38 @@ FavoriteWindow = function(c, action) {
         }
     });
 
-    saveButton = Ext.create('Ext.button.Button', {
-        text: i18n.save,
-        handler: function() {
-            var currentLayout = instanceManager.getStateCurrent(),
-                name = saveasTextField.getValue();
+    saveButtonHandler = function() {
+        var currentLayout = instanceManager.getStateCurrent(),
+            name = saveasTextField.getValue();
 
-            var record = favoriteStore.get('name', name);
+        var record = favoriteStore.get('name', name);
 
-            var preXhr = function() {
-                favoriteWindow.destroy();
-            };
+        var preXhr = function() {
+            favoriteWindow.destroy();
+        };
 
-            var fn = function(obj, success, r) {
-                instanceManager.setState(currentLayout, true);
-            };
+        var fn = function(obj, success, r) {
+            instanceManager.setState(currentLayout, true);
+        };
 
-            currentLayout.name = name;
+        currentLayout.name = name;
 
-            // execute
-
-            if (record) {
-                if (confirm('A favorite with this name already exists. Do you want to replace it?')) {
-                    preXhr();
-                    currentLayout.id = record.data.id;
-                    currentLayout.clone().put(fn, true, true);
-                }
-            }
-            else {
+        if (record) {
+            if (confirm('A favorite with this name already exists. Do you want to replace it?')) {
                 preXhr();
-                currentLayout.clone().post(fn, true, true);
+                currentLayout.id = record.data.id;
+                currentLayout.clone().put(fn, true, true);
             }
         }
+        else {
+            preXhr();
+            currentLayout.clone().post(fn, true, true);
+        }
+    };
+
+    saveButton = Ext.create('Ext.button.Button', {
+        text: i18n.save,
+        handler: saveButtonHandler
     });
 
     prevButton = Ext.create('Ext.button.Button', {
@@ -647,6 +648,11 @@ FavoriteWindow = function(c, action) {
             },
             selectionchange: function() {
                 this.currentItem.removeCls('x-grid-row-focused');
+            },
+            itemdblclick: function() {
+                if (action === 'saveas') {
+                    saveButtonHandler();
+                }
             }
         }
     });
