@@ -42,7 +42,7 @@ FavoriteButton = function(c) {
                         text: 'Open',
                         iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
-                            FavoriteWindow(c).show();
+                            FavoriteWindow(c, 'open').show();
                         }
                     });
                     uiManager.register(openItem, 'openItem');
@@ -76,7 +76,7 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
-                            console.log("save as");
+                            FavoriteWindow(c, 'saveas').show();
                         }
                     });
                     uiManager.register(saveAsItem, 'saveAsItem');

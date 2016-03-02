@@ -28,21 +28,25 @@ FavoriteWindow = function(c, action) {
 
         NameWindow,
         nameWindow,
-
-        onSearchTextfieldKeyUp,
-        searchTextfield,
-        grid,
-        prevButton,
-        nextButton,
-        tbar,
-        bbar,
-        info,
-        gridHeaders,
-        nameColumn,
         nameTextfield,
         createButton,
         updateButton,
         cancelButton,
+        window,
+
+        textfieldKeyUpHandlers,
+        textfield,
+        saveasTextField,
+        prevButton,
+        nextButton,
+        info,
+        gridHeaders,
+        renderers,
+        gridBbar,
+        grid,
+        titles,
+        windowItems,
+        saveButton,
         favoriteWindow,
 
         windowWidth = 700,
@@ -65,7 +69,7 @@ FavoriteWindow = function(c, action) {
     getStoreUrl = function(field) {
         sortField = field || sortField;
 
-        var value = searchTextfield.getValue();
+        var value = action === 'open' ? textfield.getValue() : null;
         return path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection();
     };
 
@@ -231,7 +235,7 @@ FavoriteWindow = function(c, action) {
             ],
             listeners: {
                 show: function(w) {
-                    uiManager.setAnchorPosition(w, searchTextfield);
+                    uiManager.setAnchorPosition(w, textfield);
 
                     if (!w.hasDestroyOnBlurHandler) {
                         uiManager.addDestroyOnBlurHandler(w);
@@ -250,21 +254,24 @@ FavoriteWindow = function(c, action) {
         return window;
     };
 
-	onSearchTextfieldKeyUp = function(value) {
-		var t = searchTextfield,
-			value = Ext.isString(value) ? value : t.getValue();
+    textfieldKeyUpHandlers = {
+        open: function(value) {
+            var t = textfield,
+                value = Ext.isString(value) ? value : t.getValue();
 
-		if (value !== t.currentValue) {
-			t.currentValue = value;
+            if (value !== t.currentValue) {
+                t.currentValue = value;
 
-			var url = value ? path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') : null;
+                var url = value ? path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') : null;
 
-			favoriteStore.page = 1;
-			favoriteStore.loadStore(url);
-		}
-	};
+                favoriteStore.page = 1;
+                favoriteStore.loadStore(url);
+            }
+        },
+        saveas: function() {}
+    };
 
-    searchTextfield = Ext.create('Ext.form.field.Text', {
+    textfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth,
         height: 25,
         style: 'margin-bottom: 1px',
@@ -275,7 +282,34 @@ FavoriteWindow = function(c, action) {
         listeners: {
             keyup: {
                 fn: function() {
-					onSearchTextfieldKeyUp();
+					//textfieldKeyUpHandlers[action]();
+					textfieldKeyUpHandlers['open']();
+                },
+                buffer: 100
+            }
+        }
+    });
+
+    saveButton = Ext.create('Ext.button.Button', {
+        text: i18n.save,
+        handler: function() {
+            alert(saveasTextField.getValue() === "Inpatient: Average age of deaths 2");
+        }
+    });
+
+    saveasTextField = Ext.create('Ext.form.field.Text', {
+        width: windowCmpWidth,
+        height: 29,
+        style: 'margin-bottom: 1px',
+        fieldStyle: 'padding-right: 0; padding-left: 5px; border-color: transparent; border-bottom-color: #ddd; background: none; font-size: 11px',
+        emptyText: 'Untitled',
+        enableKeyEvents: true,
+        currentValue: '',
+        value: instanceManager.getStateFavoriteName() || '',
+        listeners: {
+            keyup: {
+                fn: function() {
+                    textfieldKeyUpHandlers[action]();
                 },
                 buffer: 100
             }
@@ -347,11 +381,8 @@ FavoriteWindow = function(c, action) {
         ]
     });
 
-    nameColumn = {
-        dataIndex: 'name',
-        sortable: true,
-        width: nameColWidth,
-        renderer: function(value, metaData, record) {
+    renderers = {
+        open: function(value, metaData, record) {
             var fn = function() {
                 var element = Ext.get(record.data.id);
 
@@ -370,15 +401,54 @@ FavoriteWindow = function(c, action) {
             Ext.defer(fn, 100);
 
             return '<div id="' + record.data.id + '">' + value + '</div>';
+        },
+        saveas: function(value, metaData, record) {
+            var fn = function() {
+                var element = Ext.get(record.data.id);
+
+                if (element) {
+                    element = element.parent('td');
+                    element.load = function() {
+                        saveasTextField.setValue(record.data.name);
+                    };
+                    element.dom.setAttribute('onclick', 'Ext.get(this).load();');
+                }
+            };
+
+            Ext.defer(fn, 100);
+
+            return '<div id="' + record.data.id + '">' + value + '</div>';
         }
     };
+
+    gridBbar = function() {
+        var items = [];
+
+        items.push(info, '->', prevButton, nextButton);
+        items.push(' ', {
+                xtype: 'tbseparator',
+                height: 20,
+                style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
+        }, ' ');
+
+        if (action === 'saveas') {
+            items.push(saveButton);
+        }
+
+        return items;
+    }();
 
     grid = Ext.create('Ext.grid.Panel', {
         cls: 'ns-grid',
         scroll: false,
         hideHeaders: true,
         columns: [
-            nameColumn,
+            {
+                dataIndex: 'name',
+                sortable: true,
+                width: nameColWidth,
+                renderer: renderers[action]
+            },
             {
                 dataIndex: 'lastUpdated',
                 sortable: true,
@@ -464,12 +534,7 @@ FavoriteWindow = function(c, action) {
             }
         ],
         store: favoriteStore,
-        bbar: [
-            info,
-            '->',
-            prevButton,
-            nextButton
-        ],
+        bbar: gridBbar,
         listeners: {
             render: function() {
                 var size = Math.floor((uiManager.get('centerRegion').getHeight() - 155) / uiConfig.grid_row_height);
@@ -544,7 +609,9 @@ FavoriteWindow = function(c, action) {
                 this.currentItem.removeCls('x-grid-row-over');
             },
             select: function() {
-                this.currentItem.removeCls('x-grid-row-selected');
+                if (action === 'open') {
+                    this.currentItem.removeCls('x-grid-row-selected');
+                }
             },
             selectionchange: function() {
                 this.currentItem.removeCls('x-grid-row-focused');
@@ -552,18 +619,31 @@ FavoriteWindow = function(c, action) {
         }
     });
 
+    titles = {
+        open: i18n.open_favorite,
+        saveas: i18n.save_favorite_as
+    };
+
+    windowItems = function() {
+        var items = [];
+
+        if (action === 'saveas') {
+            items.push(saveasTextField);
+        }
+
+        items.push(textfield, gridHeaders, grid);
+
+        return items;
+    }();
+
     favoriteWindow = Ext.create('Ext.window.Window', {
-        title: i18n.open_favorite,
+        title: titles[action],
         bodyStyle: 'padding:1px; background-color:#fff',
         resizable: false,
         modal: true,
         width: windowWidth,
         destroyOnBlur: true,
-        items: [
-            searchTextfield,
-            gridHeaders,
-            grid
-        ],
+        items: windowItems,
         listeners: {
             show: function(w) {
                 var favoriteButton = uiManager.get('favoriteButton') || {};
@@ -576,9 +656,7 @@ FavoriteWindow = function(c, action) {
                     }
                 }
 
-				searchTextfield.reset();
-				onSearchTextfieldKeyUp('');
-                searchTextfield.focus(false, 500);
+                (action === 'open' ? textfield : saveasTextField).focus(false, 500);
             }
         }
     });
