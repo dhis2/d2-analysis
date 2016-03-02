@@ -36,6 +36,7 @@ FavoriteWindow = function(c, action) {
 
         textfieldKeyUpHandlers,
         textfield,
+        saveButton,
         saveasTextField,
         prevButton,
         nextButton,
@@ -46,21 +47,30 @@ FavoriteWindow = function(c, action) {
         grid,
         titles,
         windowItems,
-        saveButton,
         favoriteWindow,
 
         windowWidth = 700,
-        windowCmpWidth = windowWidth - 14,
+        borderWidth = 14,
+        windowCmpWidth = windowWidth - borderWidth,
 
-        lastUpdatedColWidth = 130,
+        lastUpdatedColWidth = 120,
         buttonColWidth = 60,
-        paddingColWidth = 6,
+        paddingColWidth = 8,
 
         nameColWidth = windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2,
 
         fields = 'id,name,lastUpdated,access',
         sortField = 'name',
-        sortDirection = 'asc';
+        sortDirection = 'asc',
+
+        textfieldStyle = [
+            'padding-right: 0',
+            'padding-left: 5px',
+            'border-color: transparent',
+            'background: none',
+            'font-size: 11px',
+            'line-height: 13px'
+        ];
 
     getDirection = function() {
         return sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -137,7 +147,7 @@ FavoriteWindow = function(c, action) {
 
         nameTextfield = Ext.create('Ext.form.field.Text', {
             height: 26,
-            width: 371,
+            width: nameColWidth - 5,
             fieldStyle: 'padding-left: 4px; border-radius: 1px; border-color: #bbb; font-size:11px',
             style: 'margin-bottom:0',
             emptyText: 'Favorite name',
@@ -235,7 +245,7 @@ FavoriteWindow = function(c, action) {
             ],
             listeners: {
                 show: function(w) {
-                    uiManager.setAnchorPosition(w, textfield);
+                    //uiManager.setAnchorPosition(w, textfield);
 
                     if (!w.hasDestroyOnBlurHandler) {
                         uiManager.addDestroyOnBlurHandler(w);
@@ -273,16 +283,17 @@ FavoriteWindow = function(c, action) {
 
     textfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth,
-        height: 25,
+        height: 27,
         style: 'margin-bottom: 1px',
-        fieldStyle: 'padding-right: 0; padding-left: 5px; border-color: transparent; background: none; font-size: 11px',
+        fieldStyle: textfieldStyle.concat([
+            'color: #333'
+        ]).join(';'),
         emptyText: i18n.search_for_favorites + '..',
         enableKeyEvents: true,
         currentValue: '',
         listeners: {
             keyup: {
                 fn: function() {
-					//textfieldKeyUpHandlers[action]();
 					textfieldKeyUpHandlers['open']();
                 },
                 buffer: 100
@@ -301,7 +312,9 @@ FavoriteWindow = function(c, action) {
         width: windowCmpWidth,
         height: 29,
         style: 'margin-bottom: 1px',
-        fieldStyle: 'padding-right: 0; padding-left: 5px; border-color: transparent; border-bottom-color: #ddd; background: none; font-size: 11px',
+        fieldStyle: textfieldStyle.concat([
+            'border-bottom-color: #ddd'
+        ]).join(';'),
         emptyText: 'Untitled',
         enableKeyEvents: true,
         currentValue: '',
@@ -309,7 +322,7 @@ FavoriteWindow = function(c, action) {
         listeners: {
             keyup: {
                 fn: function() {
-                    textfieldKeyUpHandlers[action]();
+                    textfieldKeyUpHandlers['saveas']();
                 },
                 buffer: 100
             }
@@ -425,13 +438,14 @@ FavoriteWindow = function(c, action) {
         var items = [];
 
         items.push(info, '->', prevButton, nextButton);
-        items.push(' ', {
+
+        if (action === 'saveas') {
+            items.push(' ', {
                 xtype: 'tbseparator',
                 height: 20,
                 style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
-        }, ' ');
+            }, ' ');
 
-        if (action === 'saveas') {
             items.push(saveButton);
         }
 
@@ -468,11 +482,13 @@ FavoriteWindow = function(c, action) {
                             return 'tooltip-favorite-edit' + (!record.data.access.update ? ' disabled' : '');
                         },
                         handler: function(grid, rowIndex, colIndex, col, event) {
-                            var record = this.up('grid').store.getAt(rowIndex);
+                            var record = this.up('grid').store.getAt(rowIndex),
+                                x = event.target.x - nameColWidth - lastUpdatedColWidth - borderWidth + 6,
+                                y = event.target.y - 34;
 
                             if (record.data.access.update) {
                                 nameWindow = new NameWindow(record.data.id);
-                                nameWindow.show();
+                                nameWindow.showAt(x, y);
                             }
                         }
                     },
@@ -551,8 +567,6 @@ FavoriteWindow = function(c, action) {
             afterrender: function() {
                 var fn = function() {
                     var editArray = Ext.query('.tooltip-favorite-edit'),
-                        overwriteArray = Ext.query('.tooltip-favorite-overwrite'),
-                        //dashboardArray = Ext.query('.tooltip-favorite-dashboard'),
                         sharingArray = Ext.query('.tooltip-favorite-sharing'),
                         deleteArray = Ext.query('.tooltip-favorite-delete'),
                         el;
@@ -562,17 +576,6 @@ FavoriteWindow = function(c, action) {
                         Ext.create('Ext.tip.ToolTip', {
                             target: el,
                             html: i18n.rename,
-                            'anchor': 'bottom',
-                            anchorOffset: -14,
-                            showDelay: 1000
-                        });
-                    }
-
-                    for (var i = 0; i < overwriteArray.length; i++) {
-                        el = overwriteArray[i];
-                        Ext.create('Ext.tip.ToolTip', {
-                            target: el,
-                            html: i18n.overwrite,
                             'anchor': 'bottom',
                             anchorOffset: -14,
                             showDelay: 1000
@@ -663,4 +666,3 @@ FavoriteWindow = function(c, action) {
 
     return favoriteWindow;
 };
-
