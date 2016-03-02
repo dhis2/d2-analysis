@@ -19,7 +19,7 @@
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
     "jquery": "2.1.4",
-    "d2-utilizr": "^0.2.3"
+    "d2-utilizr": "^0.2.4"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",

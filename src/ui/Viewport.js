@@ -1,4 +1,13 @@
-import {isString, isNumber, isObject, isIE, arrayFrom, arrayContains, arrayClean, arraySort, clone} from 'd2-utilizr';
+import isString from 'd2-utilizr/lib/isString';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isObject from 'd2-utilizr/lib/isObject';
+import isIE from 'd2-utilizr/lib/isIE';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arraySort from 'd2-utilizr/lib/arraySort';
+import clone from 'd2-utilizr/lib/clone';
+
 import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
