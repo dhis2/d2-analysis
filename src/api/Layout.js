@@ -476,7 +476,7 @@ Layout.prototype.data = function(source, format) {
     };
 };
 
-Layout.prototype.post = function(fn) {
+Layout.prototype.post = function(fn, doMask, doUnmask) {
     var t = this;
 
     var appManager = t.klass.appManager,
@@ -490,6 +490,10 @@ Layout.prototype.post = function(fn) {
 
     t.toPost();
 
+    if (doMask) {
+        uiManager.mask();
+    }
+
     $.ajax({
         url: url,
         type: 'POST',
@@ -497,18 +501,22 @@ Layout.prototype.post = function(fn) {
         dataType: 'json',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
-            var id = (r.getResponseHeader('location') || '').split("/").pop();
+            var id = (r.getResponseHeader('location') || '').split('/').pop();
 
             if (!isString(id)) {
                 console.log('Layout post', 'Invalid id', id);
             }
 
-            fn(id);
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+
+            fn(id, obj, success, r);
         }
     });
 };
 
-Layout.prototype.put = function(fn) {
+Layout.prototype.put = function(fn, doMask, doUnmask) {
     var t = this;
 
     var appManager = t.klass.appManager,
@@ -522,6 +530,10 @@ Layout.prototype.put = function(fn) {
 
     t.toPost();
 
+    if (doMask) {
+        uiManager.mask();
+    }
+
     $.ajax({
         url: url,
         type: 'PUT',
@@ -529,7 +541,11 @@ Layout.prototype.put = function(fn) {
         dataType: 'json',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
-            fn();
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+
+            fn(obj, success, r);
         }
     });
 };

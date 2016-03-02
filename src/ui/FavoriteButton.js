@@ -60,7 +60,7 @@ FavoriteButton = function(c) {
 
                             uiManager.mask();
 
-                            layout.put(function() {
+                            layout.put(null, function() {
                                 layout.id = favorite.id;
                                 layout.name = favorite.name;
 

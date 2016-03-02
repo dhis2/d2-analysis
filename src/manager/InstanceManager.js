@@ -132,6 +132,14 @@ InstanceManager.prototype.getUiState = function() {
     return this.uiManager.getUiState();
 };
 
+InstanceManager.prototype.getFavorite = function(id, fn) {
+    var url = appManager.getPath() + '/api/' + this.getApiResource() + '/' + id + '.json?fields=' + appManager.getAnalysisFields();
+
+    fn = fn || function() {};
+
+    $.getJSON(url, fn);
+};
+
 InstanceManager.prototype.applyTo = function(modules) {
     var t = this;
 

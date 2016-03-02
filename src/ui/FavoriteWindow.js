@@ -35,7 +35,7 @@ FavoriteWindow = function(c, action) {
         window,
 
         textfieldKeyUpHandlers,
-        textfield,
+        searchTextfield,
         saveButton,
         saveasTextField,
         prevButton,
@@ -79,7 +79,7 @@ FavoriteWindow = function(c, action) {
     getStoreUrl = function(field) {
         sortField = field || sortField;
 
-        var value = action === 'open' ? textfield.getValue() : null;
+        var value = action === 'open' ? searchTextfield.getValue() : null;
         return path + '/api/' + apiResource + '.json?fields=' + fields + (value ? '&filter=name:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection();
     };
 
@@ -115,6 +115,10 @@ FavoriteWindow = function(c, action) {
             else {
                 this.load(fn);
             }
+        },
+        get: function(field, value) {
+            var index = this.findExact(field, value);
+            return index === -1 ? null : this.getAt(index);
         },
         listeners: {
             load: function(store, records) {
@@ -180,7 +184,7 @@ FavoriteWindow = function(c, action) {
         });
 
         updateButton = Ext.create('Ext.button.Button', {
-            text: i18n.update,
+            text: i18n.rename,
             handler: function() {
                 var name = nameTextfield.getValue(),
                     fields = appManager.getAnalysisFields(),
@@ -245,8 +249,6 @@ FavoriteWindow = function(c, action) {
             ],
             listeners: {
                 show: function(w) {
-                    //uiManager.setAnchorPosition(w, textfield);
-
                     if (!w.hasDestroyOnBlurHandler) {
                         uiManager.addDestroyOnBlurHandler(w);
                     }
@@ -266,7 +268,7 @@ FavoriteWindow = function(c, action) {
 
     textfieldKeyUpHandlers = {
         open: function(value) {
-            var t = textfield,
+            var t = searchTextfield,
                 value = Ext.isString(value) ? value : t.getValue();
 
             if (value !== t.currentValue) {
@@ -281,7 +283,7 @@ FavoriteWindow = function(c, action) {
         saveas: function() {}
     };
 
-    textfield = Ext.create('Ext.form.field.Text', {
+    searchTextfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth,
         height: 27,
         style: 'margin-bottom: 1px',
@@ -298,13 +300,6 @@ FavoriteWindow = function(c, action) {
                 },
                 buffer: 100
             }
-        }
-    });
-
-    saveButton = Ext.create('Ext.button.Button', {
-        text: i18n.save,
-        handler: function() {
-            alert(saveasTextField.getValue() === "Inpatient: Average age of deaths 2");
         }
     });
 
@@ -325,6 +320,40 @@ FavoriteWindow = function(c, action) {
                     textfieldKeyUpHandlers['saveas']();
                 },
                 buffer: 100
+            }
+        }
+    });
+
+    saveButton = Ext.create('Ext.button.Button', {
+        text: i18n.save,
+        handler: function() {
+            var currentLayout = instanceManager.getStateCurrent(),
+                name = saveasTextField.getValue();
+
+            var record = favoriteStore.get('name', name);
+
+            var preXhr = function() {
+                favoriteWindow.destroy();
+            };
+
+            var fn = function(obj, success, r) {
+                instanceManager.setState(currentLayout, true);
+            };
+
+            currentLayout.name = name;
+
+            // execute
+
+            if (record) {
+                if (confirm('A favorite with this name already exists. Do you want to replace it?')) {
+                    preXhr();
+                    currentLayout.id = record.data.id;
+                    currentLayout.clone().put(fn, true, true);
+                }
+            }
+            else {
+                preXhr();
+                currentLayout.clone().post(fn, true, true);
             }
         }
     });
@@ -634,7 +663,7 @@ FavoriteWindow = function(c, action) {
             items.push(saveasTextField);
         }
 
-        items.push(textfield, gridHeaders, grid);
+        items.push(searchTextfield, gridHeaders, grid);
 
         return items;
     }();
@@ -659,7 +688,7 @@ FavoriteWindow = function(c, action) {
                     }
                 }
 
-                (action === 'open' ? textfield : saveasTextField).focus(false, 500);
+                (action === 'open' ? searchTextfield : saveasTextField).focus(false, 500);
             }
         }
     });
