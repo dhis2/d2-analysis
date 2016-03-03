@@ -27,7 +27,7 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             if (instanceManager.isStateUnsaved()) {
-                                if (confirm("You have unsaved changes. Discard anyway?")) {
+                                if (uiManager.confirmUnsaved()) {
                                     instanceManager.setState();
                                 }
                             }
@@ -36,16 +36,16 @@ FavoriteButton = function(c) {
                             }
                         }
                     });
-                    uiManager.register(newItem, 'newItem');
+                    uiManager.reg(newItem, 'newItem');
 
                     var openItem = Ext.create('Ext.menu.Item', {
                         text: 'Open',
                         iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
-                            FavoriteWindow(c, 'open').show();
+                            uiManager.reg(FavoriteWindow(c, 'open'), 'favoriteWindow').show();
                         }
                     });
-                    uiManager.register(openItem, 'openItem');
+                    uiManager.reg(openItem, 'openItem');
 
                     var saveItem = Ext.create('Ext.menu.Item', {
                         text: 'Save',
@@ -69,7 +69,7 @@ FavoriteButton = function(c) {
                             });
                         }
                     });
-                    uiManager.register(saveItem, 'saveItem');
+                    uiManager.reg(saveItem, 'saveItem');
 
                     var saveAsItem = Ext.create('Ext.menu.Item', {
                         text: 'Save as',
@@ -79,7 +79,7 @@ FavoriteButton = function(c) {
                             FavoriteWindow(c, 'saveas').show();
                         }
                     });
-                    uiManager.register(saveAsItem, 'saveAsItem');
+                    uiManager.reg(saveAsItem, 'saveAsItem');
 
                     return [
                         newItem,

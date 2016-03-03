@@ -21,7 +21,7 @@ NorthRegion = function(c, cmpConfig) {
     cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'home';
 
     cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
-    cmpConfig.brandName = cmpConfig.brandName || 'DHIS 2';
+    cmpConfig.systemTitle = cmpConfig.systemTitle || appManager.systemSettings.systemTitle || 'DHIS 2';
     cmpConfig.logoWidth = cmpConfig.logoWidth ? parseFloat(cmpConfig.logoWidth) : 418;
     cmpConfig.aboutFn = cmpConfig.aboutFn || function() {
         AboutWindow(c).show();
@@ -60,7 +60,7 @@ NorthRegion = function(c, cmpConfig) {
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
                 width: cmpConfig.logoWidth,
-                html: '<span class="brand">' + cmpConfig.brandName + '</span> ' + cmpConfig.appName
+                html: '<span class="brand">' + cmpConfig.systemTitle + '</span> ' + cmpConfig.appName
             });
 
             cmp.title = Ext.create('Ext.toolbar.TextItem', {

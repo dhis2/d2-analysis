@@ -66,7 +66,7 @@ Viewport = function(c, cmp) {
     var pluginItem = PluginItem(c);
     var linkItem = LinkItem(c);
 
-    var favoriteButton = uiManager.register(FavoriteButton(c), 'favoriteButton');
+    var favoriteButton = uiManager.reg(FavoriteButton(c), 'favoriteButton');
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3699,7 +3699,7 @@ Viewport = function(c, cmp) {
             return panels;
         }()
     });
-    uiManager.register(accordionBody, 'accordionBody');
+    uiManager.reg(accordionBody, 'accordionBody');
 
     var accordion = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
@@ -3734,7 +3734,7 @@ Viewport = function(c, cmp) {
             return this.panels[0];
         }
     });
-    uiManager.register(accordion, 'accordion');
+    uiManager.reg(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
@@ -3748,7 +3748,7 @@ Viewport = function(c, cmp) {
 			setUiState(layout);
 		}
     });
-    uiManager.register(westRegion, 'westRegion');
+    uiManager.reg(westRegion, 'westRegion');
 
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
@@ -3818,27 +3818,27 @@ Viewport = function(c, cmp) {
             this.menu.show();
         }
     });
-    uiManager.register(updateButton, 'updateButton');
+    uiManager.reg(updateButton, 'updateButton');
 
     var layoutButton = Ext.create('Ext.button.Button', {
         text: 'Layout',
         menu: {},
         handler: function() {
             var name = 'layoutWindow';
-            (uiManager.get(name) || uiManager.register(LayoutWindow(c), name)).show();
+            (uiManager.get(name) || uiManager.reg(LayoutWindow(c), name)).show();
         }
     });
-    uiManager.register(layoutButton, 'layoutButton');
+    uiManager.reg(layoutButton, 'layoutButton');
 
     var optionsButton = Ext.create('Ext.button.Button', {
         text: i18n.options,
         menu: {},
         handler: function() {
             var name = 'optionsWindow';
-            (uiManager.get(name) || uiManager.register(OptionsWindow(c), name)).show();
+            (uiManager.get(name) || uiManager.reg(OptionsWindow(c), name)).show();
         }
     });
-    uiManager.register(optionsButton, 'optionsButton');
+    uiManager.reg(optionsButton, 'optionsButton');
 
     var openTableLayoutTab = function(layout, type, isNewTab) {
         type = type || 'xls';
@@ -4118,7 +4118,7 @@ Viewport = function(c, cmp) {
             this.menu.show();
         }
     });
-    uiManager.register(downloadButton, 'downloadButton', 'onCurrent');
+    uiManager.reg(downloadButton, 'downloadButton', 'onCurrent');
 
     var shareButton = Ext.create('Ext.button.Button', {
         text: i18n.share,
@@ -4153,7 +4153,7 @@ Viewport = function(c, cmp) {
             b.menu.show();
         }
     });
-    uiManager.register(shareButton, 'shareButton', 'onCurrent');
+    uiManager.reg(shareButton, 'shareButton', 'onCurrent');
 
     var defaultButton = Ext.create('Ext.button.Button', {
         text: i18n.table,
@@ -4458,7 +4458,7 @@ Viewport = function(c, cmp) {
             }
         }
     });
-    uiManager.register(centerRegion, 'centerRegion');
+    uiManager.reg(centerRegion, 'centerRegion');
 
     var setUiState = function(layout) {
         var layoutWindow = uiManager.get('layoutWindow'),
@@ -4643,7 +4643,7 @@ Viewport = function(c, cmp) {
             }
         }
     });
-    uiManager.register(viewport, 'viewport');
+    uiManager.reg(viewport, 'viewport');
 
     // add listeners
     (function() {

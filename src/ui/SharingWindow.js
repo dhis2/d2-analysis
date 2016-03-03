@@ -269,8 +269,14 @@ SharingWindow = function(c, sharing) {
         ],
         listeners: {
             show: function(w) {
-                var xy = favoriteWindow.getPosition();
-                w.setPosition(xy[0] + 5, xy[1] + 5);
+                var x = w.getPosition()[0],
+                    y = w.getPosition()[1] - 200;
+
+                if (favoriteWindow) {
+                    x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0];
+                }
+
+                w.setPosition(x, y);
 
                 if (!w.hasDestroyOnBlurHandler) {
                     uiManager.addDestroyOnBlurHandler(w);

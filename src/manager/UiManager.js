@@ -21,8 +21,15 @@ UiManager = function() {
 
     var introHtml = '';
 
+    t.i18nManager;
+
+    // managers
+    t.setI18nManager = function(i18nManager) {
+        t.i18nManager = i18nManager;
+    };
+
     // components
-    t.register = function(cmp, name, tags, keep) {
+    t.reg = function(cmp, name, tags, keep) {
         if (components.hasOwnProperty(name) && keep) {
             return;
         }
@@ -361,7 +368,15 @@ UiManager = function() {
 
     // confirm
     t.confirmUnsaved = function() {
-        return confirm("You have unsaved changes. Discard anyway?");
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+
+        return confirm(i18n.you_have_unsaved_changes_discard || 'You have unsaved changes. Discard?');
+    };
+
+    t.confirmReplace= function() {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+
+        return confirm(i18n.favorite_name_exists_replace || 'A favorite with this name already exists. Do you want to replace it?');
     };
 };
 

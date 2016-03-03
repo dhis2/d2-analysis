@@ -254,7 +254,7 @@ FavoriteWindow = function(c, action) {
                         uiManager.addDestroyOnBlurHandler(w);
                     }
 
-                    favoriteWindow.hideOnBlur = false;
+                    favoriteWindow.destroyOnBlur = false;
 
                     nameTextfield.focus(false, 500);
                 },
@@ -268,9 +268,14 @@ FavoriteWindow = function(c, action) {
     };
 
     textfieldKeyUpHandlers = {
-        open: function(value) {
+        search: function(cmp, e) {
             var t = searchTextfield,
                 value = Ext.isString(value) ? value : t.getValue();
+
+            if (action === 'open' && e.keyCode === 13 && favoriteStore.getRange().length) {
+                favoriteWindow.destroy();
+                instanceManager.getById(favoriteStore.getAt(0).data.id);
+            }
 
             if (value !== t.currentValue) {
                 t.currentValue = value;
@@ -281,7 +286,11 @@ FavoriteWindow = function(c, action) {
                 favoriteStore.loadStore(url);
             }
         },
-        saveas: function() {}
+        saveas: function(cmp, e) {
+            if (e.keyCode === 13) {
+                saveButtonHandler();
+            }
+        }
     };
 
     searchTextfield = Ext.create('Ext.form.field.Text', {
@@ -296,8 +305,8 @@ FavoriteWindow = function(c, action) {
         currentValue: '',
         listeners: {
             keyup: {
-                fn: function() {
-					textfieldKeyUpHandlers['open']();
+                fn: function(cmp, e) {
+					textfieldKeyUpHandlers['search'](cmp, e);
                 },
                 buffer: 100
             }
@@ -316,11 +325,8 @@ FavoriteWindow = function(c, action) {
         currentValue: '',
         value: instanceManager.getStateFavoriteName() || '',
         listeners: {
-            keyup: {
-                fn: function() {
-                    textfieldKeyUpHandlers['saveas']();
-                },
-                buffer: 100
+            keyup: function(cmp, e) {
+                textfieldKeyUpHandlers['saveas'](cmp, e);
             }
         }
     });
@@ -342,7 +348,7 @@ FavoriteWindow = function(c, action) {
         currentLayout.name = name;
 
         if (record) {
-            if (confirm('A favorite with this name already exists. Do you want to replace it?')) {
+            if (uiManager.confirmReplace()) {
                 preXhr();
                 currentLayout.id = record.data.id;
                 currentLayout.clone().put(fn, true, true);
@@ -432,12 +438,21 @@ FavoriteWindow = function(c, action) {
                 if (element) {
                     element = element.parent('td');
                     element.addClsOnOver('link');
-                    element.load = function() {
+                    element.load = function() {
                         favoriteWindow.destroy();
                         instanceManager.getById(record.data.id);
                     };
-                    element.dom.setAttribute('onclick', 'Ext.get(this).load();');
-
+                    element.handler = function() {
+                        if (instanceManager.isStateUnsaved()) {
+                            if (uiManager.confirmUnsaved()) {
+                                element.load();
+                            }
+                        }
+                        else {
+                            element.load();
+                        }
+                    };
+                    element.dom.setAttribute('onclick', 'Ext.get(this).handler();');
                 }
             };
 
@@ -451,10 +466,10 @@ FavoriteWindow = function(c, action) {
 
                 if (element) {
                     element = element.parent('td');
-                    element.load = function() {
+                    element.handler = function() {
                         saveasTextField.setValue(record.data.name);
                     };
-                    element.dom.setAttribute('onclick', 'Ext.get(this).load();');
+                    element.dom.setAttribute('onclick', 'Ext.get(this).handler();');
                 }
             };
 
@@ -539,10 +554,8 @@ FavoriteWindow = function(c, action) {
                                         uiManager.alert(r);
                                     },
                                     success: function(r) {
-                                        var sharing = Ext.decode(r.responseText),
-                                            window = SharingWindow(c, sharing);
-
-                                        window.show();
+                                        var sharing = Ext.decode(r.responseText);
+                                        SharingWindow(c, sharing).show();
                                     }
                                 });
                             }

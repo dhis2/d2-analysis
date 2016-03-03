@@ -80,7 +80,7 @@ InterpretationWindow = function(c) {
             }
         }
     });
-    uiManager.register(window, 'interpretationWindow');
+    uiManager.reg(window, 'interpretationWindow');
 
     return window;
 };
