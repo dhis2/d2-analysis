@@ -81,10 +81,16 @@ Viewport = function(c, cmp) {
             indicatorSearch.hideFilter();
         },
         loadDataAndUpdate: function(data, append) {
-            this.clearFilter(); // work around
-            this.loadData(data, append);
-            this.updateFilter();
-        },
+                this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
+                this.loadData(data, append);
+
+                this.updateFilter();
+            },
         getRecordsByIds: function(ids) {
             var records = [];
 
@@ -232,10 +238,16 @@ Viewport = function(c, cmp) {
             dataElementSearch.hideFilter();
         },
         loadDataAndUpdate: function(data, append) {
-            this.clearFilter(); // work around
-            this.loadData(data, append);
-            this.updateFilter();
-        },
+                this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
+                this.loadData(data, append);
+
+                this.updateFilter();
+            },
         getRecordsByIds: function(ids) {
             var records = [];
 
@@ -529,10 +541,16 @@ Viewport = function(c, cmp) {
             this.sort('name', 'ASC');
         },
         loadDataAndUpdate: function(data, append) {
-            this.clearFilter(); // work around
-            this.loadData(data, append);
-            this.updateFilter();
-        },
+                this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
+                this.loadData(data, append);
+
+                this.updateFilter();
+            },
         getRecordsByIds: function(ids) {
             var records = [];
 
@@ -566,10 +584,16 @@ Viewport = function(c, cmp) {
             this.sort('name', 'ASC');
         },
         loadDataAndUpdate: function(data, append) {
-            this.clearFilter(); // work around
-            this.loadData(data, append);
-            this.updateFilter();
-        },
+                this.clearFilter(); // work around
+
+                if (!append) {
+                    this.removeAll();
+                }
+
+                this.loadData(data, append);
+
+                this.updateFilter();
+            },
         getRecordsByIds: function(ids) {
             var records = [];
 
@@ -851,7 +875,8 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                text: 'test',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     dataSelectedStore.removeAll();
@@ -860,7 +885,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                icon: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     dataSelectedStore.removeByIds(dataSelected.getValue());
@@ -1581,9 +1606,7 @@ Viewport = function(c, cmp) {
                             }),
                             data = arraySort(arrayClean([].concat(elements, attributes))) || [];
 
-                        if (data) {
-                            eventDataItemAvailableStore.loadDataAndUpdate(data);
-                        }
+                        eventDataItemAvailableStore.loadDataAndUpdate(data);
                     }
                 });
             }
@@ -1825,9 +1848,7 @@ Viewport = function(c, cmp) {
                 var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
                     data = arraySort(indicators);
 
-                if (data) {
-                    programIndicatorAvailableStore.loadDataAndUpdate(data);
-                }
+                programIndicatorAvailableStore.loadDataAndUpdate(data);
             }
         });
 
