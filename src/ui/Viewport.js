@@ -1023,7 +1023,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'images/arrowright.png',
                 width: 22,
                 handler: function() {
                     if (indicatorAvailable.getValue().length) {
