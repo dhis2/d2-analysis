@@ -511,7 +511,9 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
                 uiManager.unmask();
             }
 
-            fn(id, obj, success, r);
+            if (fn) {
+                fn(id, obj, success, r);
+            }
         }
     });
 };
@@ -545,7 +547,9 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
                 uiManager.unmask();
             }
 
-            fn(obj, success, r);
+            if (fn) {
+                fn(obj, success, r);
+            }
         }
     });
 };

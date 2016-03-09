@@ -2560,11 +2560,13 @@ Viewport = function(c, cmp) {
         hideCollapseTool: true,
         dimension: periodObjectName,
         checkboxes: [],
-        clearDimension: function() {
+        clearDimension: function(all) {
 			fixedPeriodSelectedStore.removeAll();
 			period.resetRelativePeriods();
 
-            relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
+            if (!all) {
+                relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
+            }
 		},
 		setDimension: function(layout) {
 			if (layout.hasDimension(this.dimension, true)) {
@@ -4495,7 +4497,7 @@ Viewport = function(c, cmp) {
 
         // clear panels
         westRegionPanels.forEach(function(panel) {
-            panel.clearDimension();
+            panel.clearDimension(!!layout);
         });
 
         if (layout) {
