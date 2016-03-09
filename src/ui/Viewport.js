@@ -2820,6 +2820,13 @@ Viewport = function(c, cmp) {
                 children: appManager.getRootNodes()
             },
             listeners: {
+                beforeload: function(store, operation) {
+                    if (!store.proxy._url) {
+                        store.proxy._url = store.proxy.url;
+                    }
+
+                    store.proxy.url = store.proxy._url + '/' + operation.node.data.id;
+                },
                 load: function(store, node, records) {
                     Ext.Array.each(records, function(record) {
                         if (Ext.isBoolean(record.data.hasChildren)) {
@@ -2872,7 +2879,7 @@ Viewport = function(c, cmp) {
                     v.menu.add({
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
-                        icon: 'images/node-select-child.png',
+                        iconCls: 'ns-button-icon-nodeselectchild',
                         handler: function() {
                             r.expand(false, function() {
                                 v.getSelectionModel().select(r.childNodes, true);
