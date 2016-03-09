@@ -876,7 +876,8 @@ Viewport = function(c, cmp) {
             {
                 xtype: 'button',
                 text: 'test',
-                iconCls: 'ns-button-icon-arrowleftdouble',
+                //iconCls: 'ns-button-icon-arrowleftdouble',
+                iconCls: 'ns-button-icon-map',
                 width: 22,
                 handler: function() {
                     dataSelectedStore.removeAll();
@@ -920,8 +921,8 @@ Viewport = function(c, cmp) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
+        iconCls: 'ns-button-icon-search',
         disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             indicatorLabel.hide();
             this.hide();
@@ -1023,7 +1024,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                iconCls: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     if (indicatorAvailable.getValue().length) {
@@ -1034,7 +1035,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     indicatorAvailableStore.loadPage(null, null, null, true, function() {
@@ -1070,7 +1071,7 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (dataSelectedStore.getRange().length) {
@@ -1080,7 +1081,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     if (indicatorSelected.getValue().length) {
@@ -1144,8 +1145,8 @@ Viewport = function(c, cmp) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
+        iconCls: 'ns-button-icon-search',
         disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             dataElementLabel.hide();
             this.hide();
@@ -1219,7 +1220,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     if (dataElementAvailable.getValue().length) {
@@ -1230,7 +1231,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     dataElementAvailableStore.loadPage(null, null, null, true, function() {
@@ -1266,7 +1267,7 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     if (dataSelectedStore.getRange().length) {
@@ -1276,7 +1277,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (dataElementSelected.getValue().length) {
@@ -1402,7 +1403,7 @@ Viewport = function(c, cmp) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
+        iconCls: 'ns-button-icon-search',
         showFilter: function() {
             dataSetLabel.hide();
             this.hide();
@@ -1470,7 +1471,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     if (dataSetAvailable.getValue().length) {
@@ -1481,7 +1482,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     dataSetAvailableStore.loadPage(null, null, true, function() {
@@ -1517,7 +1518,7 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     if (dataSelectedStore.getRange().length) {
@@ -1527,7 +1528,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (dataSetSelected.getValue().length) {
@@ -1640,8 +1641,8 @@ Viewport = function(c, cmp) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
+        iconCls: 'ns-button-icon-search',
         //disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             eventDataItemLabel.hide();
             this.hide();
@@ -1722,7 +1723,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     if (eventDataItemAvailable.getValue().length) {
@@ -1733,7 +1734,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     //eventDataItemAvailableStore.loadPage(null, null, null, true, function() {
@@ -1769,7 +1770,7 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     if (dataSelectedStore.getRange().length) {
@@ -1779,7 +1780,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (eventDataItemSelected.getValue().length) {
@@ -1881,8 +1882,8 @@ Viewport = function(c, cmp) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
+        iconCls: 'ns-button-icon-search',
         //disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             programIndicatorLabel.hide();
             this.hide();
@@ -1963,7 +1964,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     if (programIndicatorAvailable.getValue().length) {
@@ -1974,7 +1975,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     //programIndicatorAvailableStore.loadPage(null, null, null, true, function() {
@@ -2010,7 +2011,7 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     if (dataSelectedStore.getRange().length) {
@@ -2020,7 +2021,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (programIndicatorSelected.getValue().length) {
@@ -2452,7 +2453,7 @@ Viewport = function(c, cmp) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -2460,7 +2461,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
@@ -2489,7 +2490,7 @@ Viewport = function(c, cmp) {
             ' ',
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
@@ -2497,7 +2498,7 @@ Viewport = function(c, cmp) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -3407,7 +3408,7 @@ Viewport = function(c, cmp) {
             width: 22,
             height: 22,
             cls: 'ns-button-icon',
-            style: 'background: url(images/search_14.png) 3px 3px no-repeat',
+            iconCls: 'ns-button-icon-search',
             showFilter: function() {
                 dataLabel.hide();
                 this.hide();
@@ -3490,7 +3491,7 @@ Viewport = function(c, cmp) {
                 '->',
                 {
                     xtype: 'button',
-                    icon: 'images/arrowright.png',
+                    iconCls: 'ns-button-icon-arrowright',
                     width: 22,
                     handler: function() {
                         uiManager.msSelect(available, selected);
@@ -3498,7 +3499,7 @@ Viewport = function(c, cmp) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowrightdouble.png',
+                    iconCls: 'ns-button-icon-arrowrightdouble',
                     width: 22,
                     handler: function() {
                         availableStore.loadPage(null, null, true, function() {
@@ -3534,7 +3535,7 @@ Viewport = function(c, cmp) {
             tbar: [
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleftdouble.png',
+                    iconCls: 'ns-button-icon-arrowleftdouble',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselectAll(available, selected);
@@ -3542,7 +3543,7 @@ Viewport = function(c, cmp) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleft.png',
+                    iconCls: 'ns-button-icon-arrowleft',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselect(available, selected);
