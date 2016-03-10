@@ -341,7 +341,8 @@ FavoriteWindow = function(c, action) {
             favoriteWindow.destroy();
         };
 
-        var fn = function(obj, success, r) {
+        var fn = function(id, obj, success, r) {
+            currentLayout.id = id;
             instanceManager.setState(currentLayout, true);
         };
 
