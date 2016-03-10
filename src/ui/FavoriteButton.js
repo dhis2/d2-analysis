@@ -23,8 +23,12 @@ FavoriteButton = function(c) {
                 shadow: false,
                 showSeparator: false,
                 items: function() {
+                    var getTitle = function(text) {
+                        return text + '&nbsp;&nbsp;&nbsp;';
+                    };
+
                     var newItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.new_,
+                        text: getTitle(i18n.new_),
                         iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
@@ -41,7 +45,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(newItem, 'newItem');
 
                     var openItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.open,
+                        text: getTitle(i18n.open),
                         iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
                             uiManager.reg(FavoriteWindow(c, 'open'), 'favoriteWindow').show();
@@ -50,7 +54,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(openItem, 'openItem');
 
                     var saveItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.save,
+                        text: getTitle(i18n.save),
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
@@ -74,7 +78,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(saveItem, 'saveItem');
 
                     var saveAsItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.save_as,
+                        text: getTitle(i18n.save_as),
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
@@ -84,7 +88,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
                     var interpretationItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.write_interpretation,
+                        text: getTitle(i18n.write_interpretation),
                         iconCls: 'ns-menu-item-favorite-interpretation',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
@@ -94,7 +98,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(interpretationItem, 'interpretationItem');
 
                     var linkItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.get_link,
+                        text: getTitle(i18n.get_link),
                         iconCls: 'ns-menu-item-favorite-link',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
@@ -104,7 +108,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(linkItem, 'linkItem');
 
                     var deleteItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.delete_,
+                        text: getTitle(i18n.delete_),
                         iconCls: 'ns-menu-item-favorite-delete',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {

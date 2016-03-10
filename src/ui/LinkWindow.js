@@ -48,7 +48,7 @@ LinkWindow = function(c) {
     });
     uiManager.reg(window, 'linkWindow');
 
-    window.show();
+    return window;
 };
 
 
