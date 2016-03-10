@@ -74,6 +74,7 @@ AppManager = function() {
     // uninitialized
     t.appName;
     t.manifest;
+    t.env;
     t.systemInfo;
     t.systemSettings;
     t.userAccount;
@@ -118,7 +119,9 @@ AppManager = function() {
 };
 
 AppManager.prototype.getPath = function() {
-    return this.path ? this.path : (this.path = this.manifest.activities.dhis.href);
+    var dhis = this.manifest.activities.dhis;
+
+    return this.path ? this.path : (this.env === 'production' ? dhis.href : dhis.devHref || dhis.href);
 };
 
 AppManager.prototype.getDateFormat = function() {
@@ -185,8 +188,8 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
 };
 
-AppManager.prototype.setAuth = function(env) {
-    if (!(env === 'production' && !(this.manifest && isString(this.manifest.activities.dhis.auth)))) {
+AppManager.prototype.setAuth = function() {
+    if (this.env !== 'production' && (this.manifest && isString(this.manifest.activities.dhis.auth))) {
         var headers = {
             Authorization: 'Basic ' + btoa(this.manifest.activities.dhis.auth)
         };
