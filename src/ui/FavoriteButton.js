@@ -64,15 +64,13 @@ FavoriteButton = function(c) {
                             layout.id = favorite.id;
                             layout.name = favorite.name;
 
-                            uiManager.mask();
-
-                            layout.put(null, function() {
+                            layout.put(function() {
                                 layout.id = favorite.id;
                                 layout.name = favorite.name;
 
                                 instanceManager.setState(layout, true);
                                 uiManager.unmask();
-                            });
+                            }, true, true);
                         }
                     });
                     uiManager.reg(saveItem, 'saveItem');
