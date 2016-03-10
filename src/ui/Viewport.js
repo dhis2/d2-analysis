@@ -17,6 +17,7 @@ import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';
 import {LinkItem} from './LinkItem.js';
 import {FavoriteButton} from './FavoriteButton.js';
+import {EmbedButton} from './EmbedButton.js';
 
 export var Viewport;
 
@@ -62,11 +63,8 @@ Viewport = function(c, cmp) {
 
     var northRegion = cmp.northRegion;
 
-    var interpretationItem = InterpretationItem(c);
-    var pluginItem = PluginItem(c);
-    var linkItem = LinkItem(c);
-
     var favoriteButton = uiManager.reg(FavoriteButton(c), 'favoriteButton');
+    var embedButton = uiManager.reg(EmbedButton(c), 'embedButton', 'onCurrent');
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -4151,41 +4149,6 @@ Viewport = function(c, cmp) {
     });
     uiManager.reg(downloadButton, 'downloadButton', 'onCurrent');
 
-    var shareButton = Ext.create('Ext.button.Button', {
-        text: i18n.share,
-        disabled: true,
-        menu: {},
-        xableItems: function() {
-            interpretationItem.xable();
-            pluginItem.xable();
-            linkItem.xable();
-        },
-        handler: function(b) {
-            b.menu = Ext.create('Ext.menu.Menu', {
-                cls: 'ns-menu',
-                closeAction: 'destroy',
-                shadow: false,
-                showSeparator: false,
-                items: [
-                    interpretationItem,
-                    pluginItem,
-                    linkItem
-                ],
-                listeners: {
-                    afterrender: function() {
-                        this.getEl().addCls('ns-toolbar-btn-menu');
-                    },
-                    show: function() {
-                        shareButton.xableItems();
-                    }
-                }
-            });
-
-            b.menu.show();
-        }
-    });
-    uiManager.reg(shareButton, 'shareButton', 'onCurrent');
-
     var defaultButton = Ext.create('Ext.button.Button', {
         text: i18n.table,
         iconCls: 'ns-button-icon-table',
@@ -4270,7 +4233,7 @@ Viewport = function(c, cmp) {
                     style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
                 },
                 downloadButton,
-                shareButton,
+                embedButton,
                 '->',
                 defaultButton,
                 {

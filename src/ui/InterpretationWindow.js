@@ -45,7 +45,7 @@ InterpretationWindow = function(c) {
     });
 
     var window = Ext.create('Ext.window.Window', {
-        title: i18n.write_interpretation + '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + instanceManager.getStateFavoriteName() + '</span>',
+        title: i18n.write_interpretation,
         layout: 'fit',
         width: 550,
         bodyStyle: 'padding:1px; background-color:#fff',
@@ -67,7 +67,7 @@ InterpretationWindow = function(c) {
         },
         listeners: {
             show: function(w) {
-                uiManager.setAnchorPosition(w, 'shareButton');
+                uiManager.setAnchorPosition(w, 'favoriteButton');
 
                 uiManager.enableRightClick();
 

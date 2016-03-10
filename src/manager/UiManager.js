@@ -370,13 +370,19 @@ UiManager = function() {
     t.confirmUnsaved = function() {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.you_have_unsaved_changes_discard || 'You have unsaved changes. Discard?');
+        return confirm(i18n.you_have_unsaved_changes_discard || 'Discard unsaved changes?');
     };
 
     t.confirmReplace= function() {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.favorite_name_exists_replace || 'A favorite with this name already exists. Do you want to replace it?');
+        return confirm(i18n.favorite_name_exists_replace || 'Replace existing favorite?');
+    };
+
+    t.confirmDelete= function() {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+
+        return confirm(i18n.delete_this_favorite || 'Delete this favorite?');
     };
 };
 

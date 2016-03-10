@@ -1,4 +1,6 @@
 import {FavoriteWindow} from './FavoriteWindow.js';
+import {InterpretationWindow} from './InterpretationWindow.js';
+import {LinkWindow} from './LinkWindow.js';
 
 export var FavoriteButton;
 
@@ -22,7 +24,7 @@ FavoriteButton = function(c) {
                 showSeparator: false,
                 items: function() {
                     var newItem = Ext.create('Ext.menu.Item', {
-                        text: 'New',
+                        text: i18n.new_,
                         iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
@@ -39,7 +41,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(newItem, 'newItem');
 
                     var openItem = Ext.create('Ext.menu.Item', {
-                        text: 'Open',
+                        text: i18n.open,
                         iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
                             uiManager.reg(FavoriteWindow(c, 'open'), 'favoriteWindow').show();
@@ -48,7 +50,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(openItem, 'openItem');
 
                     var saveItem = Ext.create('Ext.menu.Item', {
-                        text: 'Save',
+                        text: i18n.save,
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
@@ -72,7 +74,7 @@ FavoriteButton = function(c) {
                     uiManager.reg(saveItem, 'saveItem');
 
                     var saveAsItem = Ext.create('Ext.menu.Item', {
-                        text: 'Save as',
+                        text: i18n.save_as,
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
@@ -81,13 +83,50 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
+                    var interpretationItem = Ext.create('Ext.menu.Item', {
+                        text: i18n.write_interpretation,
+                        iconCls: 'ns-menu-item-favorite-interpretation',
+                        disabled: !instanceManager.isStateFavorite(),
+                        handler: function() {
+                            InterpretationWindow(c).show();
+                        }
+                    });
+                    uiManager.reg(interpretationItem, 'interpretationItem');
+
+                    var linkItem = Ext.create('Ext.menu.Item', {
+                        text: i18n.get_link,
+                        iconCls: 'ns-menu-item-favorite-link',
+                        disabled: !instanceManager.isStateFavorite(),
+                        handler: function() {
+                            LinkWindow(c).show();
+                        }
+                    });
+                    uiManager.reg(linkItem, 'linkItem');
+
+                    var deleteItem = Ext.create('Ext.menu.Item', {
+                        text: i18n.delete_,
+                        iconCls: 'ns-menu-item-favorite-delete',
+                        disabled: !instanceManager.isStateFavorite(),
+                        handler: function() {
+                            if (uiManager.confirmDelete()) {
+                                instanceManager.getStateFavorite().del();
+                            }
+                        }
+                    });
+                    uiManager.reg(deleteItem, 'deleteItem');
+
                     return [
                         newItem,
                         '-',
                         openItem,
                         '-',
                         saveItem,
-                        saveAsItem
+                        saveAsItem,
+                        '-',
+                        interpretationItem,
+                        linkItem,
+                        '-',
+                        deleteItem
                     ];
                 }(),
                 listeners: {

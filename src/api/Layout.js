@@ -554,4 +554,36 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
     });
 };
 
+Layout.prototype.del = function(fn, doMask, doUnmask) {
+    var t = this;
 
+    var instanceManager = t.klass.instanceManager,
+        uiManager = t.klass.uiManager;
+
+    var path = appManager.getPath(),
+        apiResource = instanceManager.getApiResource();
+
+    fn = fn || function() {
+        instanceManager.setState();
+    };
+
+    if (t.id) {
+        var url = path + '/api/' + apiResource + '/' + t.id;
+
+        if (doMask) {
+            uiManager.mask();
+        }
+
+        $.ajax({
+            url: url,
+            type: 'DELETE',
+            success: function(obj, success, r) {
+                if (doUnmask) {
+                    uiManager.unmask();
+                }
+
+                fn(obj, success, r);
+            }
+        });
+    }
+};
