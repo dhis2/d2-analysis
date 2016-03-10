@@ -87,6 +87,18 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
+                    var discardItem = Ext.create('Ext.menu.Item', {
+                        text: i18n.discard_changes,
+                        iconCls: 'ns-menu-item-favorite-restore',
+                        disabled: !instanceManager.isStateUnsaved(),
+                        handler: function() {
+                            if (uiManager.confirmUnsaved()) {
+                                instanceManager.getReport(instanceManager.getStateFavorite(), true);
+                            }
+                        }
+                    });
+                    uiManager.reg(discardItem, 'discardItem');
+
                     var interpretationItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.write_interpretation),
                         iconCls: 'ns-menu-item-favorite-interpretation',
@@ -126,6 +138,8 @@ FavoriteButton = function(c) {
                         '-',
                         saveItem,
                         saveAsItem,
+                        '-',
+                        discardItem,
                         '-',
                         interpretationItem,
                         linkItem,

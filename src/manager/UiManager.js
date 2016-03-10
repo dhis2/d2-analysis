@@ -5,8 +5,12 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var UiManager;
 
-UiManager = function() {
+UiManager = function(config) {
     var t = this;
+
+    config = isObject(config) ? config : {};
+
+    t.instanceManager = config.instanceManager;
 
     var components = {};
 
@@ -21,9 +25,14 @@ UiManager = function() {
 
     var introHtml = '';
 
+    t.instanceManager;
     t.i18nManager;
 
     // managers
+    t.setInstanceManager = function(instanceManager) {
+        t.instanceManager = instanceManager;
+    };
+
     t.setI18nManager = function(i18nManager) {
         t.i18nManager = i18nManager;
     };
@@ -370,19 +379,19 @@ UiManager = function() {
     t.confirmUnsaved = function() {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.you_have_unsaved_changes_discard || 'Discard unsaved changes?');
+        return confirm(i18n.you_have_unsaved_changes_discard);
     };
 
-    t.confirmReplace= function() {
+    t.confirmReplace = function() {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.favorite_name_exists_replace || 'Replace existing favorite?');
+        return confirm(i18n.favorite_name_exists_replace);
     };
 
-    t.confirmDelete= function() {
+    t.confirmDelete = function() {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.delete_this_favorite || 'Delete this favorite?');
+        return confirm(i18n.delete_this_favorite);
     };
 };
 
@@ -404,4 +413,18 @@ UiManager.prototype.getHeight = function() {
 
 UiManager.prototype.getUiState = function() {
     return this.get('viewport').getUiState();
+};
+
+UiManager.prototype.enableConfirmUnload = function() {
+    var t = this;
+
+    window.onbeforeunload = function(event) {
+        return t.instanceManager && t.instanceManager.isStateUnsaved() ? ((typeof event ? event : window.event).returnValue = 'You have unsaved changes.') : null;
+    };
+};
+
+UiManager.prototype.disableConfirmUnload = function() {
+    window.onbeforeunload = function(event) {
+        return null;
+    };
 };
