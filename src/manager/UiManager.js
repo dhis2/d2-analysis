@@ -3,14 +3,16 @@ import isObject from 'd2-utilizr/lib/isObject';
 import isArray from 'd2-utilizr/lib/isArray';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
 
+import {ConfirmWindow} from '../ui/ConfirmWindow';
+
 export var UiManager;
 
-UiManager = function(config) {
+UiManager = function(c) {
     var t = this;
 
-    config = isObject(config) ? config : {};
+    c = isObject(c) ? c : {};
 
-    t.instanceManager = config.instanceManager;
+    t.instanceManager = c.instanceManager;
 
     var components = {};
 
@@ -376,22 +378,22 @@ UiManager = function(config) {
 	};
 
     // confirm
-    t.confirmUnsaved = function() {
+    t.confirmUnsaved = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.you_have_unsaved_changes_discard);
+        ConfirmWindow(c, i18n.you_have_unsaved_changes_discard, i18n.discard, fn).show();
     };
 
-    t.confirmReplace = function() {
+    t.confirmReplace = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.favorite_name_exists_replace);
+        ConfirmWindow(c, i18n.favorite_name_exists_replace, i18n.replace, fn).show();
     };
 
-    t.confirmDelete = function() {
+    t.confirmDelete = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        return confirm(i18n.delete_this_favorite);
+        ConfirmWindow(c, i18n.delete_this_favorite, i18n.delete_, fn).show();
     };
 };
 

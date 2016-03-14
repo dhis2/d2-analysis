@@ -349,11 +349,11 @@ FavoriteWindow = function(c, action) {
         currentLayout.name = name;
 
         if (record) {
-            if (uiManager.confirmReplace()) {
+            uiManager.confirmReplace(function() {
                 preXhr();
                 currentLayout.id = record.data.id;
                 currentLayout.clone().put(fn, true, true);
-            }
+            });
         }
         else {
             preXhr();
@@ -445,9 +445,9 @@ FavoriteWindow = function(c, action) {
                     };
                     element.handler = function() {
                         if (instanceManager.isStateUnsaved()) {
-                            if (uiManager.confirmUnsaved()) {
+                            uiManager.confirmUnsaved(function() {
                                 element.load();
-                            }
+                            });
                         }
                         else {
                             element.load();

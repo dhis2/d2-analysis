@@ -33,9 +33,9 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             if (instanceManager.isStateUnsaved()) {
-                                if (uiManager.confirmUnsaved()) {
+                                uiManager.confirmUnsaved(function() {
                                     instanceManager.setState();
-                                }
+                                });
                             }
                             else {
                                 instanceManager.setState();
@@ -90,9 +90,7 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-restore',
                         disabled: !instanceManager.isStateUnsaved(),
                         handler: function() {
-                            if (uiManager.confirmUnsaved()) {
-                                instanceManager.getReport(instanceManager.getStateFavorite(), true);
-                            }
+                            instanceManager.getReport(instanceManager.getStateFavorite(), true);
                         }
                     });
                     uiManager.reg(discardItem, 'discardItem');
@@ -122,9 +120,10 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-delete',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            if (uiManager.confirmDelete()) {
+                            uiManager.confirmDelete(function() {
+console.log(instanceManager.getStateFavorite());
                                 instanceManager.getStateFavorite().del();
-                            }
+                            });
                         }
                     });
                     uiManager.reg(deleteItem, 'deleteItem');

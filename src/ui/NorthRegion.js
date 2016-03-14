@@ -27,11 +27,17 @@ NorthRegion = function(c, cmpConfig) {
         AboutWindow(c).show();
     };
     cmpConfig.homeFn = cmpConfig.homeFn || function() {
-        if (instanceManager.isStateUnsaved() && !uiManager.confirmUnsaved()) {
-            return;
-        }
+        var dest = path +  '/dhis-web-commons-about/redirect.action';
 
-        window.location.href = path +  '/dhis-web-commons-about/redirect.action';
+        if (instanceManager.isStateUnsaved()) {
+            uiManager.confirmUnsaved(function() {
+                uiManager.disableConfirmUnload();
+                window.location.href = dest;
+            });
+        }
+        else {
+            window.location.href = dest;
+        }
     };
 
     var cmp = {};
