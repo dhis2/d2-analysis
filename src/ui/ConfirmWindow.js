@@ -41,7 +41,6 @@ ConfirmWindow = function(c, msg, btnText, fn) {
                         text: '<span style="font-weight:bold">' + btnText + '</span>',
                         padding: btnPadding,
                         handler: function() {
-console.log(fn);
                             fn && fn();
                             window.destroy();
                         }

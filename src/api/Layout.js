@@ -566,7 +566,7 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
     fn = fn || function() {
         instanceManager.setState();
     };
-console.log(t.id);
+
     if (t.id) {
         var url = path + '/api/' + apiResource + '/' + t.id;
 

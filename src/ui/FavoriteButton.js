@@ -121,7 +121,6 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
                             uiManager.confirmDelete(function() {
-console.log(instanceManager.getStateFavorite());
                                 instanceManager.getStateFavorite().del();
                             });
                         }
