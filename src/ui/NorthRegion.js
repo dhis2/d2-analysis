@@ -24,7 +24,7 @@ NorthRegion = function(c, cmpConfig) {
     cmpConfig.systemTitle = cmpConfig.systemTitle || appManager.systemSettings.systemTitle || 'DHIS 2';
     cmpConfig.logoWidth = cmpConfig.logoWidth ? parseFloat(cmpConfig.logoWidth) : 418;
     cmpConfig.aboutFn = cmpConfig.aboutFn || function() {
-        AboutWindow(c).show();
+        AboutWindow(c).getData();
     };
     cmpConfig.homeFn = cmpConfig.homeFn || function() {
         var dest = path +  '/dhis-web-commons-about/redirect.action';

@@ -16,46 +16,50 @@ AboutWindow = function(c) {
         modal: true,
         resizable: false,
         destroyOnBlur: true,
-        listeners: {
-            show: function(w) {
-                Ext.Ajax.request({
-                    url: path + '/api/system/info.json',
-                    success: function(r) {
-                        var info = Ext.decode(r.responseText),
-                            divStyle = 'padding:3px',
-                            html = '<div class="user-select">';
+        getData: function() {
+            var t = this;
 
-                        if (isObject(info)) {
-                            html += '<div style="' + divStyle + '"><b>' + i18n.time_since_last_data_update + ': </b>' + info.intervalSinceLastAnalyticsTableSuccess + '</div>';
-                            html += '<div style="' + divStyle + '"><b>' + i18n.version + ': </b>' + info.version + '</div>';
-                            html += '<div style="' + divStyle + '"><b>' + i18n.revision + ': </b>' + info.revision + '</div>';
-                            html += '<div style="' + divStyle + '"><b>' + i18n.username + ': </b>' + appManager.userAccount.username + '</div>';
-                            html += '</div>';
-                        }
-                        else {
-                            html += 'No system info found';
-                        }
+            Ext.Ajax.request({
+                url: path + '/api/system/info.json',
+                success: function(r) {
+                    var info = Ext.decode(r.responseText),
+                        divStyle = 'padding:3px',
+                        html = '<div class="user-select">';
 
-                        w.update(html);
-                    },
-                    failure: function(r) {
-                        w.update(r.status + '\n' + r.statusText + '\n' + r.responseText);
-                    },
-                    callback: function() {
-                        uiManager.enableRightClick();
+                    if (isObject(info)) {
+                        html += '<div style="' + divStyle + '"><b>' + i18n.time_since_last_data_update + ': </b>' + info.intervalSinceLastAnalyticsTableSuccess + '</div>';
+                        html += '<div style="' + divStyle + '"><b>' + i18n.version + ': </b>' + info.version + '</div>';
+                        html += '<div style="' + divStyle + '"><b>' + i18n.revision + ': </b>' + info.revision + '</div>';
+                        html += '<div style="' + divStyle + '"><b>' + i18n.username + ': </b>' + appManager.userAccount.username + '</div>';
+                        html += '</div>';
+                    }
+                    else {
+                        html += 'No system info found';
+                    }
 
-                        var aboutButton = uiManager.get('aboutButton') || {};
+                    t.update(html);
+                },
+                failure: function(r) {
+                    t.update(r.status + '\n' + r.statusText + '\n' + r.responseText);
+                },
+                callback: function() {
+                    t.show();
 
-                        if (aboutButton.rendered) {
-                            uiManager.setAnchorPosition(w, aboutButton);
+                    uiManager.enableRightClick();
 
-                            if (!w.hasDestroyOnBlurHandler) {
-                                uiManager.addDestroyOnBlurHandler(w);
-                            }
+                    var aboutButton = uiManager.get('aboutButton') || {};
+
+                    if (aboutButton.rendered) {
+                        uiManager.setAnchorPosition(t, aboutButton);
+
+                        if (!t.hasDestroyOnBlurHandler) {
+                            uiManager.addDestroyOnBlurHandler(t);
                         }
                     }
-                });
-            },
+                }
+            });
+        },
+        listeners: {
             hide: function() {
                 uiManager.disableRightClick();
             },
