@@ -1,24 +1,15 @@
 import {SharingWindow} from './SharingWindow.js';
 import {GridHeaders} from './GridHeaders.js';
-import {Layout} from '../api/Layout.js';
 
 export var FavoriteWindow;
 
 FavoriteWindow = function(c, action) {
-    var t = this,
-
-        appManager = c.appManager,
+    var appManager = c.appManager,
         uiManager = c.uiManager,
-        instanceManager = c.instanceManager,
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig,
 
         path = appManager.getPath(),
-
-        dimensionStoreMap = {},
-        margin = 1,
-        defaultWidth = 200,
-        defaultHeight = 220,
 
         apiResource = instanceManager.getApiResource();
 
@@ -32,7 +23,6 @@ FavoriteWindow = function(c, action) {
         createButton,
         updateButton,
         cancelButton,
-        window,
 
         textfieldKeyUpHandlers,
         searchTextfield,

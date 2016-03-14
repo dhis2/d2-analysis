@@ -748,7 +748,11 @@ Viewport = function(c, cmp) {
 
     var organisationUnitLevelStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'level'],
-        data: appManager.organisationUnitLevels
+        data: appManager.organisationUnitLevels,
+        sorters: [{
+            property: 'level',
+            direction: 'ASC'
+        }]
     });
 
     var organisationUnitGroupStore = Ext.create('Ext.data.Store', {

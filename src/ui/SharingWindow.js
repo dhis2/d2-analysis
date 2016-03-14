@@ -77,7 +77,8 @@ SharingWindow = function(c, sharing) {
 
             if (!isPublicAccess) {
                 items.push(Ext.create('Ext.Img', {
-                    src: 'images/grid-delete_16.png',
+                    //src: 'images/grid-delete_16.png',
+                    cls: 'ns-grid-row-icon-delete',
                     style: 'margin-top:2px; margin-left:7px',
                     overCls: 'pointer',
                     width: 16,

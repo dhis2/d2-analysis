@@ -209,8 +209,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     var aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
         //displayProperty = this.displayProperty || init.userAccount.settings.keyAnalysisDisplayProperty || 'name',
         displayProperty = this.displayProperty || 'name',
-        request = new Request(),
-        i;
+        request = new Request();
 
     // dimensions
     this.getDimensions(false, isSorted).forEach(function(dimension) {
@@ -421,8 +420,7 @@ Layout.prototype.toPost = function() {
 };
 
 Layout.prototype.sort = function(table) {
-    var t = this,
-        id = this.sorting.id,
+    var id = this.sorting.id,
         direction = this.sorting.direction,
         dimension = this.rows[0],
         response = this.getResponse(),
@@ -464,9 +462,6 @@ Layout.prototype.sort = function(table) {
 // dep 3
 
 Layout.prototype.data = function(source, format) {
-    var contextPath = this.klass.appManager.getPath();
-    var requestPath = this.getRequestPath(source, format);
-
     var metaDataRequest = this.req(source, format, true);
     var dataRequest = this.req(source, format);
 

@@ -10,8 +10,7 @@ import {Record} from './Record.js';
 export var Dimension;
 
 Dimension = function(config) {
-    var t = this,
-        items = [];
+    var t = this;
 
     t.klass = Dimension;
 

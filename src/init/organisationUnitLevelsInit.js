@@ -11,7 +11,7 @@ organisationUnitLevelsInit = function(c) {
     return {
         baseUrl: path + '/api/organisationUnitLevels.json',
         params: [
-            'fields=id,' + displayPropertyUrl + 'level',
+            'fields=id,' + displayPropertyUrl + ',level',
             'paging=false'
         ],
         success: function(r) {
