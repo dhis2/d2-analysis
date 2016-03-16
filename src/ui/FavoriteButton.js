@@ -81,15 +81,25 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
-                    var discardItem = Ext.create('Ext.menu.Item', {
-                        text: i18n.discard_changes,
-                        iconCls: 'ns-menu-item-favorite-restore',
-                        disabled: !instanceManager.isStateUnsaved(),
+                    //var discardItem = Ext.create('Ext.menu.Item', {
+                        //text: i18n.discard_changes,
+                        //iconCls: 'ns-menu-item-favorite-restore',
+                        //disabled: !instanceManager.isStateUnsaved(),
+                        //handler: function() {
+                            //instanceManager.getReport(instanceManager.getStateFavorite(), true);
+                        //}
+                    //});
+                    //uiManager.reg(discardItem, 'discardItem');
+
+                    var renameItem = Ext.create('Ext.menu.Item', {
+                        text: getTitle(i18n.rename),
+                        iconCls: 'ns-menu-item-favorite-rename',
+                        disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            instanceManager.getReport(instanceManager.getStateFavorite(), true);
+                            FavoriteWindow(c, 'saveas').show();
                         }
                     });
-                    uiManager.reg(discardItem, 'discardItem');
+                    uiManager.reg(saveAsItem, 'saveAsItem');
 
                     var interpretationItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.write_interpretation),
@@ -133,8 +143,8 @@ FavoriteButton = function(c) {
                         saveItem,
                         saveAsItem,
                         '-',
-                        discardItem,
-                        '-',
+                        //discardItem,
+                        //'-',
                         interpretationItem,
                         linkItem,
                         '-',
@@ -158,4 +168,3 @@ FavoriteButton = function(c) {
         }
     });
 };
-

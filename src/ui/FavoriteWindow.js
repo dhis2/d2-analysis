@@ -250,7 +250,7 @@ FavoriteWindow = function(c, action) {
                     nameTextfield.focus(false, 500);
                 },
                 destroy: function() {
-                    favoriteWindow.hideOnBlur = true;
+                    favoriteWindow.destroyOnBlur = true;
                 }
             }
         });
