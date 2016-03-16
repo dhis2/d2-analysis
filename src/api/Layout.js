@@ -555,37 +555,4 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
     var instanceManager = t.klass.instanceManager;
 
     instanceManager.delById(t.id, fn, doMask, doUnmask);
-
-
-
-
-
-    //var path = appManager.getPath(),
-        //apiResource = instanceManager.getApiResource();
-
-
-
-
-
-    //if (t.id) {
-        //var url = path + '/api/' + apiResource + '/' + t.id;
-
-        //if (doMask) {
-            //uiManager.mask();
-        //}
-
-        //$.ajax({
-            //url: url,
-            //type: 'DELETE',
-            //success: function(obj, success, r) {
-                //if (doUnmask) {
-                    //uiManager.unmask();
-                //}
-
-                //if (fn) {
-                    //fn(obj, success, r);
-                //}
-            //}
-        //});
-    //}
 };
