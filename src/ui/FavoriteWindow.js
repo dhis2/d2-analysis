@@ -1,3 +1,4 @@
+import {RenameWindow} from './RenameWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {GridHeaders} from './GridHeaders.js';
 
@@ -521,10 +522,28 @@ FavoriteWindow = function(c, action) {
                         handler: function(grid, rowIndex, colIndex, col, event) {
                             var record = this.up('grid').store.getAt(rowIndex),
                                 x = event.target.x - nameColWidth - lastUpdatedColWidth - borderWidth + 6,
-                                y = event.target.y - 34;
+                                y = event.target.y - 34,
+                                obj = {
+                                    id: record.data.id,
+                                    name: record.data.name
+                                },
+                                listeners = {},
+                                fn;
 
                             if (record.data.access.update) {
-                                nameWindow = new NameWindow(record.data.id);
+                                fn = function() {
+                                    favoriteStore.loadStore();
+                                };
+
+                                listeners.onShow = function() {
+                                    favoriteWindow.destroyOnBlur = false;
+                                };
+
+                                listeners.onDestroy = function() {
+                                    favoriteWindow.destroyOnBlur = true;
+                                };
+
+                                nameWindow = RenameWindow(c, obj, fn, listeners);
                                 nameWindow.showAt(x, y);
                             }
                         }

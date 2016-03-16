@@ -73,6 +73,12 @@ InstanceManager = function(config) {
 		t.uiManager.setState(_state.current, isFavorite);
 	};
 
+    t.setStateIf = function(curr, isFavorite) {
+        if (curr.id === t.getStateFavoriteId()) {
+            t.setState(curr, isFavorite);
+        }
+    };
+
     t.getApiResource = function() {
         return apiResource;
     };
