@@ -38,7 +38,9 @@ RenameWindow = function(c, layout, fn, listeners) {
             var name = nameTextfield.getValue(),
                 put = function() {
                     layout.clone().put(function() {
-                        fn();
+                        if (fn) {
+                            fn();
+                        }
                         instanceManager.setStateIf(layout, true);
                         window.destroy();
                     }, true, true);

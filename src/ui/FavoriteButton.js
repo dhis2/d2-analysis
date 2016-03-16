@@ -1,4 +1,5 @@
 import {FavoriteWindow} from './FavoriteWindow.js';
+import {RenameWindow} from './RenameWindow.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {LinkWindow} from './LinkWindow.js';
 
@@ -96,7 +97,7 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-rename',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            FavoriteWindow(c, 'saveas').show();
+                            RenameWindow(c, instanceManager.getStateFavorite()).show();
                         }
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
@@ -145,6 +146,8 @@ FavoriteButton = function(c) {
                         '-',
                         //discardItem,
                         //'-',
+                        renameItem,
+                        '-',
                         interpretationItem,
                         linkItem,
                         '-',
