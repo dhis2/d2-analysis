@@ -96,7 +96,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     return new this.api.Layout(layoutConfig);
 };
 
-InstanceManager.prototype.getById = function(id) {
+InstanceManager.prototype.getById = function(id, fn) {
     if (!isString(id)) {
         console.log('Invalid id', id);
         return;
@@ -111,11 +111,15 @@ InstanceManager.prototype.getById = function(id) {
     var api = t.api;
     var i18n = t.i18nManager.get();
 
+    fn = fn || function(layout, isFavorite) {
+        t.getReport(layout, isFavorite);
+    };
+
     $.getJSON(path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields, function(r) {
         var layout = new api.Layout(r);
 
         if (layout) {
-            t.getReport(layout, true);
+            fn(layout, true);
         }
     }).error(function(r) {
         uiManager.unmask();
@@ -125,6 +129,47 @@ InstanceManager.prototype.getById = function(id) {
         }
 
         uiManager.alert(r);
+    });
+};
+
+InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
+    if (!isString(id)) {
+        console.log('Invalid id', id);
+        return;
+    }
+
+    var t = this;
+
+    var path = t.appManager.getPath();
+    var fields = t.appManager.getAnalysisFields();
+    var apiResource = t.getApiResource();
+    var uiManager = t.uiManager;
+    var api = t.api;
+    var i18n = t.i18nManager.get();
+
+    var url = path + '/api/' + apiResource + '/' + id;
+
+    if (doMask) {
+        uiManager.mask();
+    }
+
+    $.ajax({
+        url: url,
+        type: 'DELETE',
+        success: function(obj, success, r) {
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+
+            if (fn) {
+                fn(obj, success, r);
+            }
+        },
+        error: function(r) {
+            uiManager.unmask();
+
+            uiManager.alert(r);
+        }
     });
 };
 

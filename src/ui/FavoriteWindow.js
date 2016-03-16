@@ -5,6 +5,7 @@ export var FavoriteWindow;
 
 FavoriteWindow = function(c, action) {
     var appManager = c.appManager,
+        instanceManager = c.instanceManager,
         uiManager = c.uiManager,
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig,
@@ -559,20 +560,19 @@ FavoriteWindow = function(c, action) {
                         },
                         handler: function(grid, rowIndex, colIndex, col, event) {
                             var record = this.up('grid').store.getAt(rowIndex),
+                                id = record.data.id,
                                 message;
 
                             if (record.data.access['delete']) {
-                                message = i18n.delete_favorite + '?\n\n' + record.data.name;
+                                uiManager.confirmDelete(function() {
+                                    instanceManager.delById(id, function() {
+                                        favoriteStore.loadStore();
 
-                                if (confirm(message)) {
-                                    Ext.Ajax.request({
-                                        url: path + '/api/' + apiResource + '/' + record.data.id,
-                                        method: 'DELETE',
-                                        success: function() {
-                                            favoriteStore.loadStore();
+                                        if (id === instanceManager.getStateFavoriteId()) {
+                                            instanceManager.setState();
                                         }
-                                    });
-                                }
+                                    }, true, true);
+                                });
                             }
                         }
                     }

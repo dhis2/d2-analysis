@@ -492,9 +492,9 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
     $.ajax({
         url: url,
         type: 'POST',
+        headers: appManager.defaultRequestHeaders,
         data: JSON.stringify(t),
         dataType: 'json',
-        headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
             var id = (r.getResponseHeader('location') || '').split('/').pop();
 
@@ -552,33 +552,40 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
 Layout.prototype.del = function(fn, doMask, doUnmask) {
     var t = this;
 
-    var instanceManager = t.klass.instanceManager,
-        uiManager = t.klass.uiManager;
+    var instanceManager = t.klass.instanceManager;
 
-    var path = appManager.getPath(),
-        apiResource = instanceManager.getApiResource();
+    instanceManager.delById(t.id, fn, doMask, doUnmask);
 
-    fn = fn || function() {
-        instanceManager.setState();
-    };
 
-    if (t.id) {
-        var url = path + '/api/' + apiResource + '/' + t.id;
 
-        if (doMask) {
-            uiManager.mask();
-        }
 
-        $.ajax({
-            url: url,
-            type: 'DELETE',
-            success: function(obj, success, r) {
-                if (doUnmask) {
-                    uiManager.unmask();
-                }
 
-                fn(obj, success, r);
-            }
-        });
-    }
+    //var path = appManager.getPath(),
+        //apiResource = instanceManager.getApiResource();
+
+
+
+
+
+    //if (t.id) {
+        //var url = path + '/api/' + apiResource + '/' + t.id;
+
+        //if (doMask) {
+            //uiManager.mask();
+        //}
+
+        //$.ajax({
+            //url: url,
+            //type: 'DELETE',
+            //success: function(obj, success, r) {
+                //if (doUnmask) {
+                    //uiManager.unmask();
+                //}
+
+                //if (fn) {
+                    //fn(obj, success, r);
+                //}
+            //}
+        //});
+    //}
 };

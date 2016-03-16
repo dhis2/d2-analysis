@@ -117,7 +117,9 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
                             uiManager.confirmDelete(function() {
-                                instanceManager.getStateFavorite().del();
+                                instanceManager.getStateFavorite().del(function() {
+                                    instanceManager.setState();
+                                });
                             });
                         }
                     });
