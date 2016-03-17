@@ -27,12 +27,12 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     c = isObject(c) ? c : {};
     $.extend(c, applyConfig);
 
-    // constants
-    var source = '/api/analytics';
-    var format = 'json';
-
     // private
-    var response;
+    var _source = '/api/analytics';
+    var _format = 'json';
+
+    var _response;
+    var _access;
 
     // constructor
     t.columns = (Axis(c.columns)).val();
@@ -72,6 +72,8 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
     t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
+        // sharing
+    _access = isObject(c.access) ? c.access : null;
         // non model
 
         // id
@@ -108,15 +110,23 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
     // setter/getter
     t.getResponse = function() {
-        return response;
+        return _response;
     };
 
     t.setResponse = function(r) {
-        response = r;
+        _response = r;
+    };
+
+    t.getAccess = function() {
+        return _access;
+    };
+
+    t.setAccess = function(a) {
+        _access = a;
     };
 
     t.getRequestPath = function(s, f) {
-        return t.klass.appManager.getPath() + (s || source) + '.' + (f || format);
+        return t.klass.appManager.getPath() + (s || _source) + '.' + (f || _format);
     };
 };
 
@@ -133,7 +143,14 @@ Layout.prototype.alert = function(text, noError) {
 };
 
 Layout.prototype.clone = function() {
-    return new Layout(this);
+    var t = this;
+
+    var layout = new Layout(t);
+
+    layout.setResponse(t.getResponse());
+    layout.setAccess(t.getAccess());
+
+    return layout;
 };
 
 Layout.prototype.getAxes = function(includeFilter) {

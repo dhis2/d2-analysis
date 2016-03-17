@@ -138,127 +138,6 @@ FavoriteWindow = function(c, action) {
         }
     });
 
-    NameWindow = function(id) {
-        var window,
-            record = favoriteStore.getById(id);
-
-        nameTextfield = Ext.create('Ext.form.field.Text', {
-            height: 26,
-            width: nameColWidth - 5,
-            fieldStyle: 'padding-left: 4px; border-radius: 1px; border-color: #bbb; font-size:11px',
-            style: 'margin-bottom:0',
-            emptyText: 'Favorite name',
-            value: id ? record.data.name : '',
-            listeners: {
-                afterrender: function() {
-                    this.focus();
-                }
-            }
-        });
-
-        createButton = Ext.create('Ext.button.Button', {
-            text: i18n.create,
-            handler: function() {
-                if (instanceManager.isStateCurrent()) {
-                    var layout = instanceManager.getStateCurrent();
-                    layout.name = nameTextfield.getValue();
-
-                    layout.clone().post(function(id) {
-                        layout.id = id;
-
-                        instanceManager.setState(layout, true);
-
-                        favoriteStore.loadStore();
-
-                        window.destroy();
-                    });
-                }
-            }
-        });
-
-        updateButton = Ext.create('Ext.button.Button', {
-            text: i18n.rename,
-            handler: function() {
-                var name = nameTextfield.getValue(),
-                    fields = appManager.getAnalysisFields(),
-                    reportTable;
-
-                if (id && name) {
-                    Ext.Ajax.request({
-                        url: path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields,
-                        method: 'GET',
-                        failure: function(r) {
-                            uiManager.unmask();
-                            uiManager.alert(r);
-                        },
-                        success: function(r) {
-                            reportTable = Ext.decode(r.responseText);
-                            reportTable.name = name;
-
-                            Ext.Ajax.request({
-                                url: path + '/api/' + apiResource + '/' + reportTable.id + '?mergeStrategy=REPLACE',
-                                method: 'PUT',
-                                headers: {'Content-Type': 'application/json'},
-                                params: Ext.encode(reportTable),
-                                failure: function(r) {
-                                    uiManager.unmask();
-                                    uiManager.alert(r);
-                                },
-                                success: function(r) {
-                                    //if (ns.app.layout && ns.app.layout.id && ns.app.layout.id === id) {
-                                        //ns.app.layout.name = name;
-                                        //ns.app.xLayout.name = name;
-                                    //}
-                                    //TODO
-
-                                    favoriteStore.loadStore();
-                                    window.destroy();
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
-
-        cancelButton = Ext.create('Ext.button.Button', {
-            text: i18n.cancel,
-            handler: function() {
-                window.destroy();
-            }
-        });
-
-        window = Ext.create('Ext.window.Window', {
-            title: id ? 'Rename favorite' : 'Create new favorite',
-            bodyStyle: 'padding:1px; background:#fff',
-            resizable: false,
-            modal: true,
-            items: nameTextfield,
-            destroyOnBlur: true,
-            bbar: [
-                cancelButton,
-                '->',
-                id ? updateButton : createButton
-            ],
-            listeners: {
-                show: function(w) {
-                    if (!w.hasDestroyOnBlurHandler) {
-                        uiManager.addDestroyOnBlurHandler(w);
-                    }
-
-                    favoriteWindow.destroyOnBlur = false;
-
-                    nameTextfield.focus(false, 500);
-                },
-                destroy: function() {
-                    favoriteWindow.destroyOnBlur = true;
-                }
-            }
-        });
-
-        return window;
-    };
-
     textfieldKeyUpHandlers = {
         search: function(cmp, e) {
             var t = searchTextfield,
@@ -557,17 +436,8 @@ FavoriteWindow = function(c, action) {
                             var record = this.up('grid').store.getAt(rowIndex);
 
                             if (record.data.access.manage) {
-                                Ext.Ajax.request({
-                                    url: path + '/api/sharing?type=reportTable&id=' + record.data.id,
-                                    method: 'GET',
-                                    failure: function(r) {
-                                        uiManager.unmask('viewport');
-                                        uiManager.alert(r);
-                                    },
-                                    success: function(r) {
-                                        var sharing = Ext.decode(r.responseText);
-                                        SharingWindow(c, sharing).show();
-                                    }
+                                instanceManager.getSharingById(record.data.id, function(r) {
+                                    SharingWindow(c, r).show();
                                 });
                             }
                         }
@@ -718,6 +588,9 @@ FavoriteWindow = function(c, action) {
                 }
 
                 (action === 'open' ? searchTextfield : saveasTextField).focus(false, 500);
+            },
+            destroy: function(w) {
+                uiManager.unreg('favoriteWindow');
             }
         }
     });

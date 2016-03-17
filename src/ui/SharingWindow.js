@@ -3,16 +3,15 @@ import isArray from 'd2-utilizr/lib/isArray';
 export var SharingWindow;
 
 SharingWindow = function(c, sharing) {
-    var t = this,
+    var t = this;
 
-        appManager = c.appManager,
+    var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
         i18n = c.i18nManager.get(),
-        uiConfig = c.uiConfig,
+        uiConfig = c.uiConfig;
 
-        path = appManager.getPath(),
-
+    var path = appManager.getPath(),
         favoriteWindow = uiManager.get('favoriteWindow');
 
     var UserGroupRow,
@@ -270,23 +269,29 @@ SharingWindow = function(c, sharing) {
         ],
         listeners: {
             show: function(w) {
-                var x = w.getPosition()[0],
-                    y = w.getPosition()[1] - 200;
-
                 if (favoriteWindow) {
-                    x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0];
-                }
 
-                w.setPosition(x, y);
+                    // position
+                    var x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0],
+                        y = w.getPosition()[1] / 3;
+
+                    w.setPosition(x, y);
+
+                    // blur
+                    favoriteWindow.destroyOnBlur = false;
+                }
+                else {
+                    uiManager.setAnchorPosition(w, 'favoriteButton');
+                }
 
                 if (!w.hasDestroyOnBlurHandler) {
                     uiManager.addDestroyOnBlurHandler(w);
                 }
-
-                favoriteWindow.destroyOnBlur = false;
             },
             destroy: function() {
-                favoriteWindow.destroyOnBlur = true;
+                if (favoriteWindow) {
+                    favoriteWindow.destroyOnBlur = true;
+                }
             }
         }
     });

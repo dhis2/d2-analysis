@@ -60,7 +60,9 @@ Dimension.prototype.getRecords = function(sortProperty, response) {
 // dep 1
 
 Dimension.prototype.getRecordIds = function(isSorted, response) {
-    return arrayPluck(this.getRecords((isSorted ? 'id' : null), response), 'id');
+    var rec = this.getRecords((isSorted ? 'id' : null), response);
+
+    return arrayPluck(rec, 'id');
 };
 
 Dimension.prototype.getRecordNames = function(isSorted, response) {

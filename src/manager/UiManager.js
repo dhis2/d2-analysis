@@ -56,6 +56,10 @@ UiManager = function(c) {
         return components[name] = cmp;
     };
 
+    t.unreg = function(name) {
+        components[name] = null;
+    };
+
     t.get = function(name) {
         return components[name] || Ext.get(name) || null;
     };

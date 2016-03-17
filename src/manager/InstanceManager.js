@@ -179,6 +179,28 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     });
 };
 
+InstanceManager.prototype.getSharingById = function(id, fn) {
+    var t = this;
+
+    var apiResource = t.getApiResource(),
+        path = appManager.getPath();
+
+    if (!isString(apiResource)) {
+        alert('No api resource defined');
+    }
+
+    var type = apiResource.substring(0, apiResource.length - 1);
+
+    var url = path + '/api/sharing?type=' + type + '&id=' + id,
+        fn = fn || function() {};
+
+    $.getJSON(url, function(r) {
+        fn(r);
+    }).error(function() {
+        uiManager.unmask();
+    });
+};
+
 InstanceManager.prototype.getUiState = function() {
     return this.uiManager.getUiState();
 };

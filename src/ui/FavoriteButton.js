@@ -1,5 +1,6 @@
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {RenameWindow} from './RenameWindow.js';
+import {SharingWindow} from './SharingWindow.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {LinkWindow} from './LinkWindow.js';
 
@@ -102,6 +103,18 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
+                    var shareItem = Ext.create('Ext.menu.Item', {
+                        text: getTitle(i18n.share),
+                        iconCls: 'ns-menu-item-favorite-share',
+                        disabled: !(instanceManager.isStateFavorite() && instanceManager.getStateFavorite().getAccess().manage),
+                        handler: function() {
+                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
+                                SharingWindow(c, r).show();
+                            });
+                        }
+                    });
+                    uiManager.reg(interpretationItem, 'interpretationItem');
+
                     var interpretationItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.write_interpretation),
                         iconCls: 'ns-menu-item-favorite-interpretation',
@@ -148,6 +161,7 @@ FavoriteButton = function(c) {
                         //'-',
                         renameItem,
                         '-',
+                        shareItem,
                         interpretationItem,
                         linkItem,
                         '-',
