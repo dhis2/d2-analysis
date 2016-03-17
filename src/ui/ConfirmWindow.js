@@ -9,14 +9,14 @@ ConfirmWindow = function(c, msg, btnText, fn) {
         };
 
     var window = Ext.create('Ext.window.Window', {
-        bodyStyle: 'background:#fff; padding:8px',
+        bodyStyle: 'background:#fff; padding:5px',
         defaults: defaults,
         modal: true,
         preventHeader: true,
         items: [
             {
                 html: msg,
-                bodyStyle: 'padding:20px 15px 30px 15px; border:0 none; font-size:14px'
+                bodyStyle: 'padding:30px 35px 25px; border:0 none; font-size:14px'
             },
             {
                 layout: 'hbox',
