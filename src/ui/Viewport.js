@@ -28,6 +28,7 @@ Viewport = function(c, cmp) {
         i18nManager = c.i18nManager,
         sessionStorageManager = c.sessionStorageManager,
         instanceManager = c.instanceManager,
+        calendarManager = c.calendarManager,
         dimensionConfig = c.dimensionConfig,
         periodConfig = c.periodConfig,
         uiConfig = c.uiConfig,
