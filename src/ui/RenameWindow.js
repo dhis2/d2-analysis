@@ -47,6 +47,7 @@ RenameWindow = function(c, layout, fn, listeners) {
                 };
 
             if (layout.put) {
+                layout.name = name;
                 put();
             }
             else {
@@ -84,19 +85,25 @@ RenameWindow = function(c, layout, fn, listeners) {
         ],
         listeners: {
             show: function(w) {
-                if (!w.hasDestroyOnBlurHandler) {
-                    uiManager.addDestroyOnBlurHandler(w);
+                var favoriteButton = uiManager.get('favoriteButton') || {};
+
+                if (favoriteButton.rendered) {
+                    uiManager.setAnchorPosition(w, favoriteButton);
+
+                    if (!w.hasDestroyOnBlurHandler) {
+                        uiManager.addDestroyOnBlurHandler(w);
+                    }
                 }
 
                 nameTextfield.focus(false, 500);
 
-                if (listeners.onShow) {
-                    listeners.onShow();
+                if (listeners.show) {
+                    listeners.show();
                 }
             },
             destroy: function() {
-                if (listeners.onDestroy) {
-                    listeners.onDestroy();
+                if (listeners.destroy) {
+                    listeners.destroy();
                 }
             }
         }

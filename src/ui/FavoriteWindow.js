@@ -523,7 +523,7 @@ FavoriteWindow = function(c, action) {
                             var record = this.up('grid').store.getAt(rowIndex),
                                 x = event.target.x - nameColWidth - lastUpdatedColWidth - borderWidth + 6,
                                 y = event.target.y - 34,
-                                obj = {
+                                layoutObj = {
                                     id: record.data.id,
                                     name: record.data.name
                                 },
@@ -535,15 +535,15 @@ FavoriteWindow = function(c, action) {
                                     favoriteStore.loadStore();
                                 };
 
-                                listeners.onShow = function() {
+                                listeners.show = function() {
                                     favoriteWindow.destroyOnBlur = false;
                                 };
 
-                                listeners.onDestroy = function() {
+                                listeners.destroy = function() {
                                     favoriteWindow.destroyOnBlur = true;
                                 };
 
-                                nameWindow = RenameWindow(c, obj, fn, listeners);
+                                nameWindow = RenameWindow(c, layoutObj, fn, listeners);
                                 nameWindow.showAt(x, y);
                             }
                         }
