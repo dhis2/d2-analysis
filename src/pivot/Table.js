@@ -125,7 +125,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         tdCount = tdCount + 1;
 
         // background color from legend set
-        if (isValue && layout.legendSet) {
+        if (isValue && layout.legendSet && layout.legendSet.legends) {
             var value = parseFloat(config.value);
             legends = layout.legendSet.legends;
 
