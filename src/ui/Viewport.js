@@ -4601,7 +4601,9 @@ Viewport = function(c, cmp) {
                 }
 
                 // north
-                northRegion.setLogoWidth(centerRegion.getPosition()[0]);
+                if (northRegion) {
+					northRegion.setLogoWidth(centerRegion.getPosition()[0]);
+				}
 
                 // expand first panel
                 accordion.getFirstPanel().expand();

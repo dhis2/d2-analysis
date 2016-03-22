@@ -142,7 +142,7 @@ Response.prototype.getIdValueMap = function(layout) {
 
         idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
     });
-
+    
     return this.idValueMap = idValueMap;
 };
 

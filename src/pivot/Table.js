@@ -452,13 +452,14 @@ Table = function(layout, response, colAxis, rowAxis) {
             valueItemsRow = [];
             valueObjectsRow = [];
 
-            for (var j = 0, id, value, responseValue, htmlValue, empty, _uuid, uuids; j < colAxisSize; j++) {
+            for (var j = 0, rric, value, responseValue, htmlValue, empty, _uuid, uuids; j < colAxisSize; j++) {
+                rric = new ResponseRowIdCombination();
                 empty = false;
                 uuids = [];
 
                 // meta data uid
-                id = [(colAxis.type ? colAxis.ids[j] : ''), (rowAxis.type ? rowAxis.ids[i] : '')].join('-');
-
+                rric.add(colAxis.type ? colAxis.ids[j] : '');
+                rric.add(rowAxis.type ? rowAxis.ids[i] : '');
 
                 // value html element id
                 _uuid = uuid();
@@ -472,7 +473,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 }
 
                 // value, htmlValue
-                responseValue = idValueMap[id];
+                responseValue = idValueMap[rric.get()];
 
                 if (isDefined(responseValue)) {
                     value = getValue(responseValue);

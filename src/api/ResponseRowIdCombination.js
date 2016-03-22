@@ -14,7 +14,9 @@ ResponseRowIdCombination = function(config) {
 };
 
 ResponseRowIdCombination.prototype.add = function(id) {
-    this.ids.push(id);
+	if (id) {
+		this.ids.push(id);
+	}
 };
 
 ResponseRowIdCombination.prototype.get = function() {
