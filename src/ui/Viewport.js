@@ -1270,21 +1270,21 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                iconCls: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
-                    }
-                }
-            },
-            {
-                xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (dataElementSelected.getValue().length) {
                         dataSelectedStore.removeByIds(dataElementSelected.getValue());
+                    }
+                }
+            },
+            {
+                xtype: 'button',
+                iconCls: 'ns-button-icon-arrowleft',
+                width: 22,
+                handler: function() {
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -1521,21 +1521,21 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                iconCls: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
-                    }
-                }
-            },
-            {
-                xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (dataSetSelected.getValue().length) {
                         dataSelectedStore.removeByIds(dataSetSelected.getValue());
+                    }
+                }
+            },
+            {
+                xtype: 'button',
+                iconCls: 'ns-button-icon-arrowleft',
+                width: 22,
+                handler: function() {
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -1773,21 +1773,21 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                iconCls: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
-                    }
-                }
-            },
-            {
-                xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (eventDataItemSelected.getValue().length) {
                         dataSelectedStore.removeByIds(eventDataItemSelected.getValue());
+                    }
+                }
+            },
+            {
+                xtype: 'button',
+                iconCls: 'ns-button-icon-arrowleft',
+                width: 22,
+                handler: function() {
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -2014,21 +2014,21 @@ Viewport = function(c, cmp) {
         tbar: [
             {
                 xtype: 'button',
-                iconCls: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
-                    }
-                }
-            },
-            {
-                xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     if (programIndicatorSelected.getValue().length) {
                         dataSelectedStore.removeByIds(programIndicatorSelected.getValue());
+                    }
+                }
+            },
+            {
+                xtype: 'button',
+                iconCls: 'ns-button-icon-arrowleft',
+                width: 22,
+                handler: function() {
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
