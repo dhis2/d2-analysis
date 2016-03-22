@@ -92,28 +92,33 @@ OptionConfig = function() {
                 id: 'COUNT',
                 name: i18nManager.get('count') || 'Count'
             },
-            'sum': {
+            'avg': {
                 index: 3,
+                id: 'AVERAGE',
+                name: i18nManager.get('average') || 'Average'
+            },
+            'sum': {
+                index: 4,
                 id: 'SUM',
                 name: i18nManager.get('sum') || 'Sum'
             },
             'stddev': {
-                index: 4,
+                index: 5,
                 id: 'STDDEV',
                 name: i18nManager.get('stddev') || 'Standard deviation'
             },
             'variance': {
-                index: 5,
+                index: 6,
                 id: 'VARIANCE',
                 name: i18nManager.get('variance') || 'Variance'
             },
             'min': {
-                index: 6,
+                index: 7,
                 id: 'MIN',
                 name: i18nManager.get('min') || 'Min'
             },
             'max': {
-                index: 7,
+                index: 8,
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
             }

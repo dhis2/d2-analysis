@@ -223,10 +223,11 @@ Layout.prototype.val = function(noError) {
 };
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
-    var aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
-        //displayProperty = this.displayProperty || init.userAccount.settings.keyAnalysisDisplayProperty || 'name',
+    var optionConfig = this.klass.optionConfig,
         displayProperty = this.displayProperty || 'name',
         request = new Request();
+
+    var defAggTypeId = optionConfig.getAggregationType('def').id;
 
     // dimensions
     this.getDimensions(false, isSorted).forEach(function(dimension) {
@@ -262,7 +263,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
         }
 
         // aggregation type
-        if (arrayContains(aggTypes, this.aggregationType)) {
+        if (isString(this.aggregationType) && this.aggregationType !== defAggTypeId) {
             request.add('aggregationType=' + this.aggregationType);
         }
 
