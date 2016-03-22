@@ -106,7 +106,15 @@ FavoriteButton = function(c) {
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
-                        disabled: !(instanceManager.isStateFavorite() && instanceManager.getStateFavorite().getAccess().manage),
+                        disabled: function() {
+							var fav = instanceManager.getStateFavorite();
+							
+							if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
+								return false;
+							}
+
+							return true;
+						}(),
                         handler: function() {
                             instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
                                 SharingWindow(c, r).show();
