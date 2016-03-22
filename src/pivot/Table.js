@@ -43,7 +43,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         getUniqueFactor = function(xAxis) {
             var unique;
 
-            if (!xAxis) {
+            if (!xAxis.xItems) {
                 return null;
             }
 
@@ -235,21 +235,21 @@ Table = function(layout, response, colAxis, rowAxis) {
     };
 
     doColSubTotals = function() {
-        return !!layout.showColSubTotals && rowAxis && rowAxis.dims > 1;
+        return !!layout.showColSubTotals && rowAxis.type && rowAxis.dims > 1;
     };
 
     doRowSubTotals = function() {
-        return !!layout.showRowSubTotals && colAxis && colAxis.dims > 1;
+        return !!layout.showRowSubTotals && colAxis.type && colAxis.dims > 1;
     };
 
     doSortableColumnHeaders = function() {
-        return (rowAxis && rowAxis.dims === 1);
+        return (rowAxis.type && rowAxis.dims === 1);
     };
 
     getColAxisHtmlArray = function() {
         var a = [],
-            columnDimensionNames = colAxis ? layout.columns.getDimensionNames(response) : [],
-            rowDimensionNames = rowAxis ? layout.rows.getDimensionNames(response) : [],
+            columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [],
+            rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [],
             getEmptyNameTdConfig,
             getEmptyHtmlArray;
 
@@ -269,7 +269,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
             // if not the intersection cell
             if (i < colAxis.dims - 1) {
-                if (rowAxis && rowAxis.dims) {
+                if (rowAxis.type && rowAxis.dims) {
                     for (var j = 0; j < rowAxis.dims - 1; j++) {
                         a.push(getEmptyNameTdConfig({
                             cls: 'pivot-dim-label'
@@ -283,7 +283,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 }));
             }
             else {
-                if (rowAxis && rowAxis.dims) {
+                if (rowAxis.type && rowAxis.dims) {
                     for (var j = 0; j < rowAxis.dims - 1; j++) {
                         a.push(getEmptyNameTdConfig({
                             cls: 'pivot-dim-label',
@@ -294,17 +294,17 @@ Table = function(layout, response, colAxis, rowAxis) {
 
                 a.push(getEmptyNameTdConfig({
                     cls: 'pivot-dim-label',
-                    htmlValue: response.getNameById(rowDimensionNames[j]) + (colAxis && rowAxis ? '&nbsp;/&nbsp;' : '') + response.getNameById(columnDimensionNames[i])
+                    htmlValue: response.getNameById(rowDimensionNames[j]) + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + response.getNameById(columnDimensionNames[i])
                 }));
             }
 
             return a;
         };
 
-        if (!colAxis) {
+        if (!colAxis.type) {
 
             // show row dimension labels
-            if (rowAxis && layout.showDimensionLabels) {
+            if (rowAxis.type && layout.showDimensionLabels) {
                 var dimLabelHtml = [];
 
                 // labels from row object names
@@ -331,7 +331,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 dimHtml = dimHtml.concat(getEmptyHtmlArray(i));
             }
             else if (i === 0) {
-                dimHtml.push(colAxis && rowAxis ? getEmptyNameTdConfig({
+                dimHtml.push(colAxis.type && rowAxis.type ? getEmptyNameTdConfig({
                     colSpan: rowAxis.dims,
                     rowSpan: colAxis.dims
                 }) : '');
@@ -395,8 +395,8 @@ Table = function(layout, response, colAxis, rowAxis) {
             totalValueObjects = [],
             mergedObjects = [],
             valueItemsCopy,
-            colAxisSize = colAxis ? colAxis.size : 1,
-            rowAxisSize = rowAxis ? rowAxis.size : 1,
+            colAxisSize = colAxis.type ? colAxis.size : 1,
+            rowAxisSize = rowAxis.type ? rowAxis.size : 1,
             recursiveReduce;
 
         recursiveReduce = function(obj) {
@@ -414,7 +414,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         };
 
         // dimension
-        if (rowAxis) {
+        if (rowAxis.type) {
             for (var i = 0, row; i < rowAxis.size; i++) {
                 row = [];
 
@@ -457,17 +457,17 @@ Table = function(layout, response, colAxis, rowAxis) {
                 uuids = [];
 
                 // meta data uid
-                id = [(colAxis ? colAxis.ids[j] : ''), (rowAxis ? rowAxis.ids[i] : '')].join('-');
+                id = [(colAxis.type ? colAxis.ids[j] : ''), (rowAxis.type ? rowAxis.ids[i] : '')].join('-');
 
 
                 // value html element id
                 _uuid = uuid();
 
                 // get uuids array from colaxis/rowaxis leaf
-                if (colAxis) {
+                if (colAxis.type) {
                     uuids = uuids.concat(colAxis.objects.all[colAxis.dims - 1][j].uuids);
                 }
-                if (rowAxis) {
+                if (rowAxis.type) {
                     uuids = uuids.concat(rowAxis.objects.all[rowAxis.dims - 1][i].uuids);
                 }
 
@@ -504,7 +504,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         }
 
         // totals
-        if (colAxis && doRowTotals()) {
+        if (colAxis.type && doRowTotals()) {
             for (var i = 0, empty = [], total = 0; i < valueObjects.length; i++) {
                 for (j = 0, obj; j < valueObjects[i].length; j++) {
                     obj = valueObjects[i][j];
@@ -536,7 +536,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         }
 
         // hide empty rows (dims/values/totals)
-        if (colAxis && rowAxis) {
+        if (colAxis.type && rowAxis.type) {
             if (layout.hideEmptyRows) {
                 for (var i = 0, valueRow, isValueRowEmpty, dimLeaf; i < valueObjects.length; i++) {
                     valueRow = valueObjects[i];
@@ -728,7 +728,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
             row = row.concat(xValueObjects[i]);
 
-            if (colAxis) {
+            if (colAxis.type) {
                 row = row.concat(totalValueObjects[i]);
             }
 
@@ -752,7 +752,7 @@ Table = function(layout, response, colAxis, rowAxis) {
     getColTotalHtmlArray = function() {
         var a = [];
 
-        if (rowAxis && doColTotals()) {
+        if (rowAxis.type && doColTotals()) {
             var xTotalColObjects;
 
             // total col items
@@ -779,7 +779,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
             xTotalColObjects = totalColObjects;
 
-            if (colAxis && doRowSubTotals()) {
+            if (colAxis.type && doRowSubTotals()) {
                 var tmp = [];
 
                 for (var i = 0, item, subTotal = 0, empty = [], colCount = 0; i < xTotalColObjects.length; i++) {
@@ -828,7 +828,7 @@ Table = function(layout, response, colAxis, rowAxis) {
                 empty.push(obj.empty);
             }
 
-            if (colAxis && rowAxis) {
+            if (colAxis.type && rowAxis.type) {
                 a.push(getTdHtml({
                     type: 'valueGrandTotal',
                     cls: 'pivot-value-grandtotal',
@@ -850,7 +850,7 @@ Table = function(layout, response, colAxis, rowAxis) {
             a = [];
 
         if (doColTotals()) {
-            if (rowAxis) {
+            if (rowAxis.type) {
                 dimTotalArray = [getTdHtml({
                     type: 'dimensionSubtotal',
                     cls: 'pivot-dim-total',
