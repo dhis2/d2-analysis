@@ -15,6 +15,7 @@ InstanceManager = function(config) {
     t.appManager = config.appManager;
     t.uiManager = config.uiManager;
     t.i18nManager = config.i18nManager;
+    t.tableManager = config.tableManager;
 
     // state
     var _state = {
@@ -240,16 +241,16 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState) {
         t.getFn()(layout);
     };
 
-    t.uiManager.mask();
-
     // layout
     if (!layout) {
-        layout = this.getLayout();
+        layout = t.getLayout();
 
         if (!layout) {
             return;
         }
     }
+
+    t.uiManager.mask();
 
     // response
     var response = layout.getResponse();

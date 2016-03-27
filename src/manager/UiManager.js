@@ -84,9 +84,13 @@ UiManager = function(c) {
 
 	// state
 	t.setState = function(layout, isFavorite) {
+        var north = t.get('northRegion'),
+            west = t.get('westRegion');
 
         // toolbar
-        t.get('northRegion').setState(layout, isFavorite);
+        if (north) {
+            north.setState(layout, isFavorite);
+        }
 
             // current
         componentTags.onCurrent.forEach(function(item) {
@@ -100,7 +104,9 @@ UiManager = function(c) {
 
         // west
         if (!layout || isFavorite) {
-            t.get('westRegion').setState(layout);
+            if (west) {
+                west.setState(layout);
+            }
         }
 
         // center

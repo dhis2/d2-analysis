@@ -34,6 +34,8 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     var _response;
     var _access;
 
+    var _dataDimensionItems;
+
     // constructor
     t.columns = (Axis(c.columns)).val();
     t.rows = (Axis(c.rows)).val();
@@ -46,13 +48,13 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.showDimensionLabels = isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : (isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : true);
     t.hideEmptyRows = isBoolean(c.hideEmptyRows) ? c.hideEmptyRows : false;
     t.skipRounding = isBoolean(c.skipRounding) ? c.skipRounding : false;
-    t.aggregationType = isString(c.aggregationType) ? c.aggregationType : OptionConf.getAggregationType('def').id;
+    t.aggregationType = isString(c.aggregationType) ? c.aggregationType : t.klass.optionConfig.getAggregationType('def').id;
     t.dataApprovalLevel = isObject(c.dataApprovalLevel) && isString(c.dataApprovalLevel.id) ? c.dataApprovalLevel : null;
     t.showHierarchy = isBoolean(c.showHierarchy) ? c.showHierarchy : false;
     t.completedOnly = isBoolean(c.completedOnly) ? c.completedOnly : false;
-    t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : OptionConf.getDisplayDensity('normal').id;
-    t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : OptionConf.getFontSize('normal').id;
-    t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : OptionConf.getDigitGroupSeparator('space').id;
+    t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : t.klass.optionConfig.getDisplayDensity('normal').id;
+    t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : t.klass.optionConfig.getFontSize('normal').id;
+    t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : t.klass.optionConfig.getDigitGroupSeparator('space').id;
 
     t.legendSet = (new Record(c.legendSet)).val(true);
 
@@ -74,6 +76,10 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
         // sharing
     _access = isObject(c.access) ? c.access : null;
+
+        // data dimension items
+    _dataDimensionItems = isArray(c.dataDimensionItems) ? c.dataDimensionItems : null;
+
         // non model
 
         // id
@@ -123,6 +129,14 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
     t.setAccess = function(a) {
         _access = a;
+    };
+
+    t.getDataDimensionItems = function() {
+        return _dataDimensionItems;
+    };
+
+    t.setDataDimensionItems = function(a) {
+        _dataDimensionItems = a;
     };
 
     t.getRequestPath = function(s, f) {

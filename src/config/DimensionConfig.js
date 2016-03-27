@@ -35,13 +35,13 @@ DimensionConfig = function() {
                 objectName: 'co',
             },
             indicator: {
-                value: 'indicators',
+                value: 'indicator',
                 name: i18nManager.get('indicators') || 'Indicators',
                 dimensionName: 'dx',
                 objectName: 'in'
             },
             dataElement: {
-                value: 'dataElements',
+                value: 'dataElement',
                 name: i18nManager.get('data_elements') || 'Data elements',
                 dimensionName: 'dx',
                 objectName: 'de'
@@ -53,7 +53,7 @@ DimensionConfig = function() {
                 objectName: 'dc'
             },
             dataSet: {
-                value: 'dataSets',
+                value: 'dataSet',
                 name: i18nManager.get('data_sets') || 'Data sets',
                 dimensionName: 'dx',
                 objectName: 'ds'
@@ -77,13 +77,13 @@ DimensionConfig = function() {
                 objectName: 'pe'
             },
             fixedPeriod: {
-                value: 'periods'
+                value: 'period'
             },
             relativePeriod: {
-                value: 'relativePeriods'
+                value: 'relativePeriod'
             },
             organisationUnit: {
-                value: 'organisationUnits',
+                value: 'organisationUnit',
                 name: i18nManager.get('i18n.organisation_units') || 'Organisation units',
                 dimensionName: 'ou',
                 objectName: 'ou'
