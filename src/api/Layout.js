@@ -163,6 +163,7 @@ Layout.prototype.clone = function() {
 
     layout.setResponse(t.getResponse());
     layout.setAccess(t.getAccess());
+    layout.setDataDimensionItems(t.getDataDimensionItems());
 
     return layout;
 };
