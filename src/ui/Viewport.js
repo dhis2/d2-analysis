@@ -1273,8 +1273,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
-                    if (dataElementSelected.getValue().length) {
-                        dataSelectedStore.removeByIds(dataElementSelected.getValue());
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -1283,8 +1283,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
+                    if (dataElementSelected.getValue().length) {
+                        dataSelectedStore.removeByIds(dataElementSelected.getValue());
                     }
                 }
             },
@@ -1524,8 +1524,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
-                    if (dataSetSelected.getValue().length) {
-                        dataSelectedStore.removeByIds(dataSetSelected.getValue());
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -1534,8 +1534,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
+                    if (dataSetSelected.getValue().length) {
+                        dataSelectedStore.removeByIds(dataSetSelected.getValue());
                     }
                 }
             },
@@ -1776,8 +1776,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
-                    if (eventDataItemSelected.getValue().length) {
-                        dataSelectedStore.removeByIds(eventDataItemSelected.getValue());
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -1786,8 +1786,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
+                    if (eventDataItemSelected.getValue().length) {
+                        dataSelectedStore.removeByIds(eventDataItemSelected.getValue());
                     }
                 }
             },
@@ -2017,8 +2017,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
-                    if (programIndicatorSelected.getValue().length) {
-                        dataSelectedStore.removeByIds(programIndicatorSelected.getValue());
+                    if (dataSelectedStore.getRange().length) {
+                        dataSelectedStore.removeAll();
                     }
                 }
             },
@@ -2027,8 +2027,8 @@ Viewport = function(c, cmp) {
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
-                    if (dataSelectedStore.getRange().length) {
-                        dataSelectedStore.removeAll();
+                    if (programIndicatorSelected.getValue().length) {
+                        dataSelectedStore.removeByIds(programIndicatorSelected.getValue());
                     }
                 }
             },
@@ -2469,8 +2469,7 @@ Viewport = function(c, cmp) {
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
                 }
-            },
-            ' '
+            }
         ],
         listeners: {
             afterrender: function() {
@@ -2490,7 +2489,6 @@ Viewport = function(c, cmp) {
         ddReorder: true,
         store: fixedPeriodSelectedStore,
         tbar: [
-            ' ',
             {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
