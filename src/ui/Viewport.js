@@ -951,10 +951,10 @@ Viewport = function(c, cmp) {
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
         onTriggerClick: function() {
-            if (this.getValue()) {
-                this.reset();
-                this.onKeyUpHandler();
-            }
+            this.reset();
+            this.onKeyUpHandler();
+
+            indicatorSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var value = indicatorGroup.getValue(),
@@ -1175,10 +1175,10 @@ Viewport = function(c, cmp) {
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
         onTriggerClick: function() {
-            if (this.getValue()) {
-                this.reset();
-                this.onKeyUpHandler();
-            }
+            this.reset();
+            this.onKeyUpHandler();
+
+            dataElementSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var value = dataElementGroup.getValue(),
@@ -1432,10 +1432,10 @@ Viewport = function(c, cmp) {
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
         onTriggerClick: function() {
-            if (this.getValue()) {
-                this.reset();
-                this.onKeyUpHandler();
-            }
+            this.reset();
+            this.onKeyUpHandler();
+
+            dataSetSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var store = dataSetAvailableStore;
@@ -1671,21 +1671,15 @@ Viewport = function(c, cmp) {
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
         onTriggerClick: function() {
-            if (this.getValue()) {
-                this.reset();
-                this.onKeyUpHandler();
+            this.reset();
+            this.onKeyUpHandler();
 
-                eventDataItemAvailableStore.clearFilter();
-            }
+            eventDataItemSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var value = this.getValue() || '',
                 store = eventDataItemAvailableStore,
                 str;
-
-            //if (isString(value) || isNumber(value)) {
-                //store.loadPage(null, this.getValue(), false);
-            //}
 
             store.filterBy(function(record) {
                 str = record.data.name || '';
@@ -1912,21 +1906,15 @@ Viewport = function(c, cmp) {
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
         onTriggerClick: function() {
-            if (this.getValue()) {
-                this.reset();
-                this.onKeyUpHandler();
+            this.reset();
+            this.onKeyUpHandler();
 
-                programIndicatorAvailableStore.clearFilter();
-            }
+            programIndicatorSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var value = this.getValue() || '',
                 store = programIndicatorAvailableStore,
                 str;
-
-            //if (isString(value) || isNumber(value)) {
-                //store.loadPage(null, this.getValue(), false);
-            //}
 
             store.filterBy(function(record) {
                 str = record.data.name || '';
@@ -3444,10 +3432,10 @@ Viewport = function(c, cmp) {
             fieldStyle: 'height:22px; border-right:0 none',
             style: 'height:22px',
             onTriggerClick: function() {
-                if (this.getValue()) {
-                    this.reset();
-                    this.onKeyUpHandler();
-                }
+                this.reset();
+                this.onKeyUpHandler();
+
+                dataSearch.hideFilter();
             },
             onKeyUpHandler: function() {
                 var value = this.getValue(),

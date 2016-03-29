@@ -8,8 +8,6 @@ TableManager = function(c) {
         uiManager = c.uiManager,
         sessionStorageManager = c.sessionStorageManager;
 
-    var path = appManager.getPath();
-
     var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
     };
@@ -70,6 +68,7 @@ TableManager = function(c) {
         var uuids = uuidDimUuidsMap[uuid],
             parentGraphMap = {},
             objects = [],
+            path = appManager.getPath(),
             menu;
 
         // modify layout dimension items based on uuid objects
