@@ -24,7 +24,6 @@ export var Viewport;
 Viewport = function(c, cmp) {
     var uiManager = c.uiManager,
         appManager = c.appManager,
-        responseManager = c.responseManager,
         i18nManager = c.i18nManager,
         sessionStorageManager = c.sessionStorageManager,
         instanceManager = c.instanceManager,
@@ -4127,10 +4126,6 @@ Viewport = function(c, cmp) {
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
                                 layout.getResponse().clone().addOuHierarchyDimensions().printResponseCSV();
-
-                                //response.printResponseCSV();
-                                //var response = responseManager.addOuHierarchyDimensions(clone(layout.getResponse()));
-                                //responseManager.printResponseCSV(response);
                             }
                         });
                     }
