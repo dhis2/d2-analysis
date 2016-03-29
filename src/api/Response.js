@@ -61,7 +61,7 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
     var metaData = this.metaData,
         name = '';
 
-    if (isHierarchy) {
+    if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
         a.shift();
 
@@ -142,7 +142,7 @@ Response.prototype.getIdValueMap = function(layout) {
 
         idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
     });
-    
+
     return this.idValueMap = idValueMap;
 };
 
