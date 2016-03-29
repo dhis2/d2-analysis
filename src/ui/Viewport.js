@@ -4126,8 +4126,11 @@ Viewport = function(c, cmp) {
                             text: 'CSV',
                             iconCls: 'ns-menu-item-datasource',
                             handler: function() {
-                                var response = responseManager.addOuHierarchyDimensions(clone(layout.getResponse()));
-                                responseManager.printResponseCSV(response);
+                                layout.getResponse().clone().addOuHierarchyDimensions().printResponseCSV();
+
+                                //response.printResponseCSV();
+                                //var response = responseManager.addOuHierarchyDimensions(clone(layout.getResponse()));
+                                //responseManager.printResponseCSV(response);
                             }
                         });
                     }
@@ -4212,13 +4215,24 @@ Viewport = function(c, cmp) {
             },
             items: [
                 {
-                    text: '<<<',
+                    text: ' ',
+                    width: 22,
+                    iconCls: 'ns-button-icon-arrowleftdouble',
+                    iconClsLeft: 'ns-button-icon-arrowleftdouble',
+                    iconClsRight: 'ns-button-icon-arrowrightdouble',
+                    iconState: 0,
+                    setIconState: function() {
+                        if (this.iconState++ % 2) {
+                            this.setIconCls(this.iconClsLeft);
+                        }
+                        else {
+                            this.setIconCls(this.iconClsRight);
+                        }
+                    },
                     handler: function(b) {
-                        var text = b.getText();
-                        text = text === '<<<' ? '>>>' : '<<<';
-                        b.setText(text);
-
                         westRegion.toggleCollapse();
+
+                        this.setIconState();
                     }
                 },
                 updateButton,
