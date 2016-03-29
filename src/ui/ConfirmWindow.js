@@ -3,20 +3,20 @@ export var ConfirmWindow;
 ConfirmWindow = function(c, msg, btnText, fn) {
     var i18n = c.i18nManager.get();
 
-    var btnPadding = '4',
+    var btnPadding = '4 12 4 12',
         defaults = {
             bodyStyle: 'background:#fff; border:0 none'
         };
 
     var window = Ext.create('Ext.window.Window', {
-        bodyStyle: 'background:#fff; padding:5px',
+        bodyStyle: 'background:#fff; padding:8px',
         defaults: defaults,
         modal: true,
         preventHeader: true,
         items: [
             {
                 html: msg,
-                bodyStyle: 'padding:30px 35px 25px; border:0 none; font-size:14px'
+                bodyStyle: 'padding:40px 60px 35px; border:0 none; font-size:14px'
             },
             {
                 layout: 'hbox',
@@ -27,7 +27,7 @@ ConfirmWindow = function(c, msg, btnText, fn) {
                     },
                     {
                         xtype: 'button',
-                        text: 'Cancel',
+                        text: i18n.cancel,
                         padding: btnPadding,
                         handler: function() {
                             window.destroy();
@@ -39,6 +39,7 @@ ConfirmWindow = function(c, msg, btnText, fn) {
                     {
                         xtype: 'button',
                         text: '<span style="font-weight:bold">' + btnText + '</span>',
+                        style: 'border-color:#888',
                         padding: btnPadding,
                         handler: function() {
                             fn && fn();
@@ -50,7 +51,7 @@ ConfirmWindow = function(c, msg, btnText, fn) {
         ],
         listeners: {
             afterrender: function() {
-                this.setPosition(this.getPosition()[0], this.getPosition()[1] / 4);
+                this.setPosition(this.getPosition()[0], this.getPosition()[1] / 2);
             }
         }
     });

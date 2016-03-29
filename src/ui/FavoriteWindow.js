@@ -214,7 +214,7 @@ FavoriteWindow = function(c, action) {
 
         var fn = function(id, obj, success, r) {
             currentLayout.id = id;
-            instanceManager.setState(currentLayout, true);
+            instanceManager.setState(currentLayout, true, true);
         };
 
         currentLayout.name = name;

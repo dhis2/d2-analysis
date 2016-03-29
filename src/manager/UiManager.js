@@ -83,7 +83,7 @@ UiManager = function(c) {
     };
 
 	// state
-	t.setState = function(layout, isFavorite) {
+	t.setState = function(layout, isFavorite, skipSelect) {
         var north = t.get('northRegion'),
             west = t.get('westRegion');
 
@@ -103,8 +103,8 @@ UiManager = function(c) {
         });
 
         // west
-        if (!layout || isFavorite) {
-            if (west) {
+        if (west && !skipSelect) {
+            if (!layout || isFavorite) {
                 west.setState(layout);
             }
         }
@@ -391,7 +391,7 @@ UiManager = function(c) {
     t.confirmUnsaved = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, i18n.you_have_unsaved_changes_discard, i18n.discard, fn).show();
+        ConfirmWindow(c, i18n.you_have_unsaved_changes_discard, 'Discard', fn).show();
     };
 
     t.confirmReplace = function(fn) {

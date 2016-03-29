@@ -3075,7 +3075,7 @@ Viewport = function(c, cmp) {
             if (layout.hasDimension(this.dimension, true)) {
                 var dimension = layout.getDimension(this.dimension, true),
                     parentGraphMap = layout.parentGraphMap;
-
+console.log("parentGraphMap", parentGraphMap);
                 var records = dimension.getRecords(),
                     ids = [],
                     levels = [],
@@ -4564,6 +4564,8 @@ Viewport = function(c, cmp) {
                 }
             }
         }
+
+        config.parentGraphMap = treePanel.getParentGraphMap();
 
         return config;
     };

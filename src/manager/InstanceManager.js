@@ -64,14 +64,14 @@ InstanceManager = function(config) {
 		return _state.current ? _state.current.clone() : _state.current;
 	};
 
-	t.setState = function(curr, isFavorite) {
+	t.setState = function(curr, isFavorite, skipSelect) {
 		_state.current = curr ? curr : null;
 
         if (!_state.current || isFavorite) {
             _state.favorite = _state.current;
         }
 
-        t.uiManager.setState(_state.current, isFavorite);
+        t.uiManager.setState(_state.current, isFavorite, skipSelect);
 	};
 
     t.setStateIf = function(curr, isFavorite) {
