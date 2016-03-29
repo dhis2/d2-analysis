@@ -31,7 +31,7 @@ InterpretationWindow = function(c) {
         handler: function() {
             if (textArea.getValue()) {
                 Ext.Ajax.request({
-                    url: path + '/api/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId(),
+                    url: encodeURI(path + '/api/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
                     method: 'POST',
                     params: textArea.getValue(),
                     headers: {'Content-Type': 'text/html'},

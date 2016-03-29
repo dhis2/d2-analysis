@@ -140,13 +140,13 @@ Request.prototype.run = function(config) {
 
     if (this.type === 'ajax') {
         return $.ajax({
-            url: this.url(),
+            url: encodeURI(this.url()),
             success: config.success || t.success,
             error: config.error || t.error,
             complete: config.complete || t.complete
         });
     }
     else {
-        return $.getJSON(this.url(), config.success || t.success).error(config.error || t.error).complete(config.complete || t.complete);
+        return $.getJSON(encodeURI(this.url()), config.success || t.success).error(config.error || t.error).complete(config.complete || t.complete);
     }
 };

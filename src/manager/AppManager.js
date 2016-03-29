@@ -116,6 +116,10 @@ AppManager = function() {
         }
         return unescape(output);
     };
+
+    t.urlEncode = function(s) {
+        return stringReplaceAll(s, '|', '%7C');
+    };
 };
 
 AppManager.prototype.getPath = function() {

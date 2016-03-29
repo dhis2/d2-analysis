@@ -54,7 +54,7 @@ RenameWindow = function(c, layout, fn, listeners) {
                 var fields = appManager.getAnalysisFields(),
                     url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
 
-                $.getJSON(url, function(r) {
+                $.getJSON(encodeURI(url), function(r) {
                     layout = new Layout(r);
                     layout.name = name;
 

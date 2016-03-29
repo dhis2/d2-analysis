@@ -153,7 +153,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(indicatorAvailable.boundList);
 
-            $.getJSON(path + '/api' + url, params, function(response) {
+            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
                 var data = response.indicators || [],
                     pager = response.pager;
 
@@ -194,7 +194,7 @@ Viewport = function(c, cmp) {
         fields: ['id', 'name', 'index'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false',
+            url: encodeURI(path + '/api/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'indicatorGroups'
@@ -320,7 +320,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(path + '/api' + url, params, function(response) {
+            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
                 var data = response.dataElements || [],
                     pager = response.pager;
 
@@ -361,7 +361,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(path + '/api' + url, params, function(response) {
+            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
                 var data = response.objects || response.dataElementOperands || [],
                     pager = response.pager;
 
@@ -400,7 +400,7 @@ Viewport = function(c, cmp) {
         fields: ['id', 'name', 'index'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/dataElementGroups.json?fields=id,' + displayPropertyUrl + '&paging=false',
+            url: encodeURI(path + '/api/dataElementGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'dataElementGroups'
@@ -495,7 +495,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataSetAvailable.boundList);
 
-            $.getJSON(path + '/api' + url, params, function(response) {
+            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
                 var data = response.dataSets || [],
                     pager = response.pager;
 
@@ -623,7 +623,7 @@ Viewport = function(c, cmp) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/programs.json?fields=id,displayName|rename(name)&paging=false',
+            url: encodeURI(path + '/api/programs.json?fields=id,displayName|rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -760,7 +760,7 @@ Viewport = function(c, cmp) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false',
+            url: encodeURI(path + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
@@ -1593,7 +1593,7 @@ Viewport = function(c, cmp) {
         }
 
         Ext.Ajax.request({
-            url: path + '/api/programDataElements.json?program=' + programId + '&fields=dimensionItem|rename(id),name,valueType&paging=false',
+            url: encodeURI(path + '/api/programDataElements.json?program=' + programId + '&fields=dimensionItem|rename(id),name,valueType&paging=false'),
             disableCaching: false,
             success: function(r) {
                 var types = appManager.getValueTypesByType('aggregate'),
@@ -1602,7 +1602,7 @@ Viewport = function(c, cmp) {
                     });
 
                 Ext.Ajax.request({
-                    url: path + '/api/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + displayPropertyUrl + '|rename(name),valueType]&paging=false',
+                    url: encodeURI(path + '/api/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + displayPropertyUrl + '|rename(name),valueType]&paging=false'),
                     disableCaching: false,
                     success: function(r) {
                         var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
@@ -1846,7 +1846,7 @@ Viewport = function(c, cmp) {
         }
 
         Ext.Ajax.request({
-            url: path + '/api/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + displayPropertyUrl + ']&paging=false',
+            url: encodeURI(path + '/api/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + displayPropertyUrl + ']&paging=false'),
             disableCaching: false,
             success: function(r) {
                 var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
@@ -2758,7 +2758,7 @@ Viewport = function(c, cmp) {
                 params = {};
             }
             Ext.Ajax.request({
-                url: url,
+                url: encodeURI(url),
                 method: 'GET',
                 params: params,
                 scope: this,
@@ -3349,7 +3349,7 @@ Viewport = function(c, cmp) {
                     uiManager.mask(available.boundList);
 
                     Ext.Ajax.request({
-                        url: path + '/api' + url,
+                        url: encodeURI(path + '/api' + url),
                         method: 'GET',
                         params: params,
                         success: function(r) {

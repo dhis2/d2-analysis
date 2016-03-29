@@ -122,7 +122,7 @@ InstanceManager.prototype.getById = function(id, fn) {
         t.getReport(layout, isFavorite);
     };
 
-    $.getJSON(path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields, function(r) {
+    $.getJSON(encodeURI(path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields), function(r) {
         var layout = new api.Layout(r);
 
         if (layout) {
@@ -161,7 +161,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     }
 
     $.ajax({
-        url: url,
+        url: encodeURI(url),
         type: 'DELETE',
         success: function(obj, success, r) {
             if (doUnmask) {
@@ -195,7 +195,7 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
     var url = path + '/api/sharing?type=' + type + '&id=' + id,
         fn = fn || function() {};
 
-    $.getJSON(url, function(r) {
+    $.getJSON(encodeURI(url), function(r) {
         fn(r);
     }).error(function() {
         uiManager.unmask();
@@ -211,7 +211,7 @@ InstanceManager.prototype.getFavorite = function(id, fn) {
 
     fn = fn || function() {};
 
-    $.getJSON(url, fn);
+    $.getJSON(encodeURI(url), fn);
 };
 
 InstanceManager.prototype.applyTo = function(modules) {

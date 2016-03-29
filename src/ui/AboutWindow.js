@@ -20,7 +20,7 @@ AboutWindow = function(c) {
             var t = this;
 
             Ext.Ajax.request({
-                url: path + '/api/system/info.json',
+                url: encodeURI(path + '/api/system/info.json'),
                 success: function(r) {
                     var info = Ext.decode(r.responseText),
                         divStyle = 'padding:3px',

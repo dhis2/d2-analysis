@@ -92,7 +92,7 @@ FavoriteWindow = function(c, action) {
         page: 1,
         defaultUrl: path + '/api/' + apiResource + '.json?fields=' + fields + '&order=name:asc',
         loadStore: function(url) {
-            this.proxy.url = url || this.defaultUrl;
+            this.proxy.url = encodeURI(url || this.defaultUrl);
 
             this.load({
                 params: {

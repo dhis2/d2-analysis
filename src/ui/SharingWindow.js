@@ -140,7 +140,7 @@ SharingWindow = function(c, sharing) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: path + '/api/sharing/search',
+            url: encodeURI(path + '/api/sharing/search'),
             extraParams: {
                 pageSize: 50
             },
@@ -255,7 +255,7 @@ SharingWindow = function(c, sharing) {
                 text: i18n.save,
                 handler: function() {
                     Ext.Ajax.request({
-                        url: path + '/api/sharing?type=reportTable&id=' + sharing.object.id,
+                        url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

@@ -499,8 +499,8 @@ Layout.prototype.data = function(source, format) {
     var dataRequest = this.req(source, format);
 
     return {
-        metaData: $.getJSON(metaDataRequest.url('skipData=true')),
-        data: $.getJSON(dataRequest.url('skipMeta=true'))
+        metaData: $.getJSON(encodeURI(metaDataRequest.url('skipData=true'))),
+        data: $.getJSON(encodeURI(dataRequest.url('skipMeta=true')))
     };
 };
 
@@ -523,7 +523,7 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
     }
 
     $.ajax({
-        url: url,
+        url: encodeURI(url),
         type: 'POST',
         headers: appManager.defaultRequestHeaders,
         data: JSON.stringify(t),
@@ -565,7 +565,7 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
     }
 
     $.ajax({
-        url: url,
+        url: encodeURI(url),
         type: 'PUT',
         data: JSON.stringify(t),
         dataType: 'json',
