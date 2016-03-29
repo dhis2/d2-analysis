@@ -10,8 +10,8 @@ Axis = function(config) {
     config = arrayFrom(config);
 
     // constructor
-    config.forEach(function(dimension) {
-        t.push((new Dimension(dimension)).val());
+    config.forEach(function(dimensionConfig) {
+        t.push((new Dimension(dimensionConfig)).val());
     });
 
     // prototype
@@ -28,6 +28,14 @@ Axis = function(config) {
         }
 
         return this;
+    };
+
+    t.add = function(dimensionConfig) {
+        var dimension = (new Dimension(dimensionConfig)).val();
+
+        if (dimension) {
+            t.push(dimension);
+        }
     };
 
     t.clone = function() {

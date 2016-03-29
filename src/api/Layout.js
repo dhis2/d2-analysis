@@ -222,6 +222,12 @@ Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
     return map;
 };
 
+Layout.prototype.removeDimensionItems = function(includeFilter) {
+    this.getDimensions(includeFilter).forEach(function(dimension) {
+        dimension.removeItems();
+    });
+};
+
 Layout.prototype.val = function(noError) {
 
     if (!(this.columns || this.rows)) {

@@ -28,7 +28,7 @@ SessionStorageManager.prototype.get = function(session) {
     return db[session];
 };
 
-SessionStorageManager.prototype.set = function(layout, session, url) {
+SessionStorageManager.prototype.set = function(layout, session, redirectUrl) {
     if (!this.supportHandler()) {
         return;
     }
@@ -37,7 +37,7 @@ SessionStorageManager.prototype.set = function(layout, session, url) {
     db[session] = layout;
     sessionStorage.setItem(this.db, JSON.stringify(db));
 
-    if (url) {
-        window.location.href = url;
+    if (redirectUrl) {
+        window.location.href = redirectUrl;
     }
 };

@@ -49,12 +49,24 @@ Dimension.prototype.val = function(noError) {
     return this;
 };
 
+Dimension.prototype.add = function(recordConfig) {
+    var record = (new Record(recordConfig)).val();
+
+    if (record) {
+        this.items.push(record);
+    }
+};
+
 Dimension.prototype.getRecords = function(sortProperty, response) {
     var records = response ? response.getRecordsByDimensionName(this.dimension) : this.items;
 
     sortProperty = arrayContains(['id', 'name'], sortProperty) ? sortProperty : null;
 
     return sortProperty ? records.sort(function(a, b) { return a[sortProperty] > b[sortProperty];}) : records;
+};
+
+Dimension.prototype.removeItems = function() {
+    this.items = [];
 };
 
 // dep 1
