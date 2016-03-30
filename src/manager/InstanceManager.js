@@ -6,16 +6,17 @@ import clone from 'd2-utilizr/lib/clone';
 
 export var InstanceManager;
 
-InstanceManager = function(config) {
+InstanceManager = function(c) {
     var t = this;
 
-    config = isObject(config) ? config : {};
+    c = isObject(c) ? c : {};
 
-    t.api = config.api;
-    t.appManager = config.appManager;
-    t.uiManager = config.uiManager;
-    t.i18nManager = config.i18nManager;
-    t.tableManager = config.tableManager;
+    t.api = c.api;
+    t.appManager = c.appManager;
+    t.uiManager = c.uiManager;
+    t.i18nManager = c.i18nManager;
+    t.tableManager = c.tableManager;
+    t.sessionStorageManager = c.sessionStorageManager;
 
     // state
     var _state = {
@@ -23,9 +24,11 @@ InstanceManager = function(config) {
 		current: null
 	};
 
-    // uninitialized
-    var apiResource;
+    // done fn
     var fn;
+
+    // uninitialized
+    t.apiResource;
 
     // getter/setter
     t.isStateFavorite = function() {
@@ -71,6 +74,8 @@ InstanceManager = function(config) {
             _state.favorite = _state.current;
         }
 
+        t.sessionStorageManager.set(_state.current, appManager.sessionName);
+
         t.uiManager.setState(_state.current, isFavorite, skipSelect);
 	};
 
@@ -78,14 +83,6 @@ InstanceManager = function(config) {
         if (curr.id === t.getStateFavoriteId()) {
             t.setState(curr, isFavorite);
         }
-    };
-
-    t.getApiResource = function() {
-        return apiResource;
-    };
-
-    t.setApiResource = function(resource) {
-        apiResource = resource;
     };
 
     t.getFn = function() {
@@ -113,7 +110,7 @@ InstanceManager.prototype.getById = function(id, fn) {
 
     var path = t.appManager.getPath();
     var fields = t.appManager.getAnalysisFields();
-    var apiResource = t.getApiResource();
+    var apiResource = t.apiResource;
     var uiManager = t.uiManager;
     var api = t.api;
     var i18n = t.i18nManager.get();
@@ -149,7 +146,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 
     var path = t.appManager.getPath();
     var fields = t.appManager.getAnalysisFields();
-    var apiResource = t.getApiResource();
+    var apiResource = t.apiResource;
     var uiManager = t.uiManager;
     var api = t.api;
     var i18n = t.i18nManager.get();
@@ -183,7 +180,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
-    var apiResource = t.getApiResource(),
+    var apiResource = t.apiResource,
         path = appManager.getPath();
 
     if (!isString(apiResource)) {
@@ -207,7 +204,7 @@ InstanceManager.prototype.getUiState = function() {
 };
 
 InstanceManager.prototype.getFavorite = function(id, fn) {
-    var url = appManager.getPath() + '/api/' + this.getApiResource() + '/' + id + '.json?fields=' + appManager.getAnalysisFields();
+    var url = appManager.getPath() + '/api/' + this.apiResource + '/' + id + '.json?fields=' + appManager.getAnalysisFields();
 
     fn = fn || function() {};
 

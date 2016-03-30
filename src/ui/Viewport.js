@@ -34,7 +34,7 @@ Viewport = function(c, cmp) {
 
         path = appManager.getPath(),
         i18n = i18nManager.get(),
-        apiResource = instanceManager.getApiResource(),
+        apiResource = instanceManager.apiResource,
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 

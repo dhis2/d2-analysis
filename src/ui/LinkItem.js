@@ -8,7 +8,7 @@ LinkItem = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.getApiResource();
+        apiResource = instanceManager.apiResource;
 
     return Ext.create('Ext.menu.Item', {
         text: i18n.favorite_link + '&nbsp;&nbsp;',

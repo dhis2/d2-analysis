@@ -7,7 +7,7 @@ LinkWindow = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.getApiResource();
+        apiResource = instanceManager.apiResource;
 
     var window = Ext.create('Ext.window.Window', {
         title: i18n.favorite_link,

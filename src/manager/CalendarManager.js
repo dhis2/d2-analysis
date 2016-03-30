@@ -70,7 +70,7 @@ CalendarManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
-CalendarManager.prototype.generate = function(calendarId, dateFormat) {
+CalendarManager.prototype.init = function(calendarId, dateFormat) {
     calendarId = this.getCalendarIdMap()[calendarId] || calendarId || this.defaultCalendarId;
 
     if (this.calendar && this.periodGenerator) {

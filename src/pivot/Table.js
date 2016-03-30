@@ -5,6 +5,7 @@ import isObject from 'd2-utilizr/lib/isObject';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
+import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
@@ -898,4 +899,8 @@ Table = function(layout, response, colAxis, rowAxis) {
     t.colAxis = colAxis;
     t.rowAxis = rowAxis;
     t.tdCount = tdCount;
+};
+
+Table.prototype.getUuidObjectMap = function() {
+    return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };

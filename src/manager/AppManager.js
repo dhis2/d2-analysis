@@ -14,6 +14,7 @@ AppManager = function() {
     // constants
     t.defaultUiLocale = 'en';
     t.defaultDisplayProperty = 'displayName';
+    t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
 
     t.valueTypes = {
@@ -73,6 +74,7 @@ AppManager = function() {
 
     // uninitialized
     t.appName;
+    t.sessionName;
     t.manifest;
     t.env;
     t.systemInfo;

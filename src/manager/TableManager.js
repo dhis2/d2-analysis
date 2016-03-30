@@ -1,3 +1,6 @@
+import isString from 'd2-utilizr/lib/isString';
+import isArray from 'd2-utilizr/lib/isArray';
+
 export var TableManager;
 
 TableManager = function(c) {
@@ -64,12 +67,15 @@ TableManager = function(c) {
         });
     };
 
-    var onValueMouseClick = function(layout, response, uuidDimUuidsMap, uuidObjectMap, uuid) {
-        var uuids = uuidDimUuidsMap[uuid],
+    var onValueMouseClick = function(layout, table, uuid) {
+        var uuidObjectMap = table.getUuidObjectMap(),
+            response = layout.getResponse(),
             parentGraphMap = {},
             objects = [],
             path = appManager.getPath(),
             menu;
+
+        var uuids = table.uuidDimUuidsMap[uuid];
 
         // modify layout dimension items based on uuid objects
 
@@ -85,7 +91,7 @@ TableManager = function(c) {
         for (var i = 0, obj, axis, dimension; i < objects.length; i++) {
             obj = objects[i];
 
-            axis = obj.axis === 'col' ? layoutConfig.columns || [] : layoutConfig.rows || [];
+            axis = obj.axis === 'col' ? layout.columns || [] : layout.rows || [];
 
             if (axis.length) {
                 dimension = axis[obj.dim];
@@ -123,11 +129,11 @@ TableManager = function(c) {
                     listeners: {
                         render: function() { //TODO
                             this.getEl().on('mouseover', function() {
-                                web.events.onValueMenuMouseHover(uuidDimUuidsMap, uuid, 'mouseover', 'chart');
+                                onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
                             });
 
                             this.getEl().on('mouseout', function() {
-                                web.events.onValueMenuMouseHover(uuidDimUuidsMap, uuid, 'mouseout', 'chart');
+                                onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
                             });
                         }
                     }
@@ -138,16 +144,16 @@ TableManager = function(c) {
                     param: 'map',
                     disabled: true,
                     handler: function() {
-                        sessionStorageManager.set(layout, 'analytical', init.path + '/dhis-web-mapping/index.html?s=analytical');
+                        sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
                     },
                     listeners: {
                         render: function() {
                             this.getEl().on('mouseover', function() {
-                                web.events.onValueMenuMouseHover(uuidDimUuidsMap, uuid, 'mouseover', 'map');
+                                onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
                             });
 
                             this.getEl().on('mouseout', function() {
-                                web.events.onValueMenuMouseHover(uuidDimUuidsMap, uuid, 'mouseout', 'map');
+                                onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
                             });
                         }
                     }
@@ -164,5 +170,60 @@ TableManager = function(c) {
 
             return xy;
         }());
+    };
+
+    var onValueMouseOver = function(uuid) {
+        Ext.get(uuid).addCls('highlighted');
+    };
+
+    var onValueMouseOut = function(uuid) {
+        Ext.get(uuid).removeCls('highlighted');
+    };
+
+    var onValueMenuMouseHover = function(table, uuid, event, param) {
+        var uuidDimUuidsMap = table.uuidDimUuidsMap,
+            dimUuids;
+
+        // dimension elements
+        if (param === 'chart') {
+            if (isString(uuid) && isArray(uuidDimUuidsMap[uuid])) {
+                dimUuids = uuidDimUuidsMap[uuid];
+
+                for (var i = 0, el; i < dimUuids.length; i++) {
+                    el = Ext.get(dimUuids[i]);
+
+                    if (el) {
+                        if (event === 'mouseover') {
+                            el.addCls('highlighted');
+                        }
+                        else if (event === 'mouseout') {
+                            el.removeCls('highlighted');
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    t.setValueMouseHandlers = function(layout, table) {
+        var uuidDimUuidsMap = table.uuidDimUuidsMap,
+            valueEl;
+
+        for (var key in uuidDimUuidsMap) {
+            if (uuidDimUuidsMap.hasOwnProperty(key)) {
+                valueEl = Ext.get(key);
+
+                if (valueEl && parseFloat(valueEl.dom.textContent)) {
+                    valueEl.dom.onValueMouseClick = onValueMouseClick;
+                    valueEl.dom.onValueMouseOver = onValueMouseOver;
+                    valueEl.dom.onValueMouseOut = onValueMouseOut;
+                    valueEl.dom.layout = layout;
+                    valueEl.dom.table = table;
+                    valueEl.dom.setAttribute('onclick', 'this.onValueMouseClick(this.layout, this.table, this.id);');
+                    valueEl.dom.setAttribute('onmouseover', 'this.onValueMouseOver(this);');
+                    valueEl.dom.setAttribute('onmouseout', 'this.onValueMouseOut(this);');
+                }
+            }
+        }
     };
 };

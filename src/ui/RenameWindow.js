@@ -14,7 +14,7 @@ RenameWindow = function(c, layout, fn, listeners) {
         uiConfig = c.uiConfig,
 
         path = appManager.getPath(),
-        apiResource = instanceManager.getApiResource();
+        apiResource = instanceManager.apiResource;
 
     listeners = listeners || {};
 

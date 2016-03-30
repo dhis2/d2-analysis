@@ -10,7 +10,7 @@ EmbedButton = function(c) {
         uiConfig = c.uiConfig,
 
         path = appManager.getPath(),
-        apiResource = instanceManager.getApiResource();
+        apiResource = instanceManager.apiResource;
 
     return Ext.create('Ext.button.Button', {
         text: i18n.embed,

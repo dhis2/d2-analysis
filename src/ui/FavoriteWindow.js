@@ -13,7 +13,7 @@ FavoriteWindow = function(c, action) {
 
         path = appManager.getPath(),
 
-        apiResource = instanceManager.getApiResource();
+        apiResource = instanceManager.apiResource;
 
     var getDirection,
         getStoreUrl,
