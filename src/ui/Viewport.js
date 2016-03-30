@@ -4199,18 +4199,14 @@ Viewport = function(c, cmp) {
             items: [
                 {
                     text: ' ',
-                    width: 22,
-                    iconCls: 'ns-button-icon-arrowleftdouble',
-                    iconClsLeft: 'ns-button-icon-arrowleftdouble',
-                    iconClsRight: 'ns-button-icon-arrowrightdouble',
+                    width: 26,
+                    padding: '3',
+                    iconCls: 'ns-button-icon-arrowlefttriple',
+                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
+                    iconClsRight: 'ns-button-icon-arrowrighttriple',
                     iconState: 0,
                     setIconState: function() {
-                        if (this.iconState++ % 2) {
-                            this.setIconCls(this.iconClsLeft);
-                        }
-                        else {
-                            this.setIconCls(this.iconClsRight);
-                        }
+                        this.setIconCls(this.iconState++ % 2 ? this.iconClsLeft : this.iconClsRight);
                     },
                     handler: function(b) {
                         westRegion.toggleCollapse();
@@ -4218,6 +4214,7 @@ Viewport = function(c, cmp) {
                         this.setIconState();
                     }
                 },
+                ' ',
                 updateButton,
                 favoriteButton,
                 {
