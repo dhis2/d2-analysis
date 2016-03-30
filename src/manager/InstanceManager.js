@@ -74,7 +74,9 @@ InstanceManager = function(c) {
             _state.favorite = _state.current;
         }
 
-        t.sessionStorageManager.set(_state.current, t.appManager.sessionName);
+        if (t.sessionStorageManager) {
+            t.sessionStorageManager.set(_state.current, t.appManager.sessionName);
+        }
 
         t.uiManager.setState(_state.current, isFavorite, skipSelect);
 	};
