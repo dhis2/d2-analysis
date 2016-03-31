@@ -211,10 +211,8 @@ AppManager.prototype.setAuth = function(auth) {
             });
         }
 
-        var Ext = Ext || {};
-
-        if (isObject(Ext.Ajax)) {
-            Ext.Ajax.defaultHeaders = headers;
+        if (window.Ext && isObject(window.Ext.Ajax)) {
+            window.Ext.Ajax.defaultHeaders = headers;
         }
     }
 };
