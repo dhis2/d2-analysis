@@ -17,6 +17,8 @@ RequestManager = function(config) {
     t.responses = [];
 
     t.fn = isFunction(config.fn) ? config.fn : function() { console.log("Request manager is done"); };
+
+    t.fnParams = [];
 };
 
 RequestManager.prototype.add = function(param) {
@@ -30,8 +32,12 @@ RequestManager.prototype.add = function(param) {
     this.requests = [].concat(this.requests, requests);
 };
 
-RequestManager.prototype.set = function(fn) {
+RequestManager.prototype.set = function(fn, params) {
     this.fn = fn;
+
+    if (params) {
+        this.fnParams = params;
+    }
 };
 
 RequestManager.prototype.ok = function(xhr, suppress) {
@@ -50,7 +56,7 @@ RequestManager.prototype.run = function() {
 
 RequestManager.prototype.resolve = function() {
     if (this.responses.length === this.requests.length) {
-        this.fn();
+        this.fn(this.fnParams);
     }
 };
 

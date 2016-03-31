@@ -61,7 +61,7 @@ UiManager = function(c) {
     };
 
     t.get = function(name) {
-        return components[name] || Ext.get(name) || null;
+        return components[name] || document.getElementById(name) || null;
     };
 
     t.getUpdateComponent = function() {
@@ -84,7 +84,7 @@ UiManager = function(c) {
             return;
         }
 
-        t.getUpdateComponent().update(html);
+        t.getUpdateComponent() && t.getUpdateComponent().update(html);
     };
 
 	// state
@@ -181,7 +181,7 @@ UiManager = function(c) {
         var selected = a.getValue();
         if (selected.length) {
             var array = [];
-            Ext.Array.each(selected, function(item) {
+            selected.forEach(function(item) {
                 array.push(a.store.getAt(a.store.findExact('id', item)));
             });
             s.store.add(array);
@@ -190,7 +190,7 @@ UiManager = function(c) {
     };
 
     t.msSelectAll = function(a, s, isReverse) {
-        var array = a.store.getRange();
+        var afrray = a.store.getRange();
         if (isReverse) {
             array.reverse();
         }
@@ -201,7 +201,7 @@ UiManager = function(c) {
     t.msUnselect = function(a, s) {
         var selected = s.getValue();
         if (selected.length) {
-            Ext.Array.each(selected, function(id) {
+            selected.forEach(function(id) {
                 a.store.add(s.store.getAt(s.store.findExact('id', id)));
                 s.store.remove(s.store.getAt(s.store.findExact('id', id)));
             });

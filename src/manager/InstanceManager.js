@@ -115,7 +115,7 @@ InstanceManager.prototype.getById = function(id, fn) {
     var apiResource = t.apiResource;
     var uiManager = t.uiManager;
     var api = t.api;
-    var i18n = t.i18nManager.get();
+    var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
     fn = fn || function(layout, isFavorite) {
         t.getReport(layout, isFavorite);

@@ -32,38 +32,40 @@ TableManager = function(c) {
     };
 
     var onColumnHeaderMouseOver = function(el) {
-        var elObject = Ext.get(el);
+        var elObject = $(el);
 
         if (elObject) {
-            elObject.addCls('pointer highlighted');
+            elObject.addClass('pointer highlighted');
         }
     };
 
     var onColumnHeaderMouseOut = function(el) {
-        var elObject = Ext.get(el);
+        var elObject = $(el);
 
         if (elObject) {
-            elObject.removeCls('pointer highlighted');
+            elObject.removeClass('pointer highlighted');
         }
     };
 
     t.setColumnHeaderMouseHandlers = function(layout, table) {
         var elObjects = table.sortableIdObjects,
             idValueMap = table.idValueMap,
-            el;
+            dom;
 
         elObjects.forEach(function(item) {
-            el = Ext.get(item.uuid);
+            dom = document.getElementById(item.uuid);
 
-            el.dom.layout = layout;
-            el.dom.metaDataId = item.id;
-            el.dom.onColumnHeaderMouseClick = onColumnHeaderMouseClick;
-            el.dom.onColumnHeaderMouseOver = onColumnHeaderMouseOver;
-            el.dom.onColumnHeaderMouseOut = onColumnHeaderMouseOut;
+            if (dom) {
+                dom.layout = layout;
+                dom.metaDataId = item.id;
+                dom.onColumnHeaderMouseClick = onColumnHeaderMouseClick;
+                dom.onColumnHeaderMouseOver = onColumnHeaderMouseOver;
+                dom.onColumnHeaderMouseOut = onColumnHeaderMouseOut;
 
-            el.dom.setAttribute('onclick', 'this.onColumnHeaderMouseClick(this.layout, this.metaDataId)');
-            el.dom.setAttribute('onmouseover', 'this.onColumnHeaderMouseOver(this)');
-            el.dom.setAttribute('onmouseout', 'this.onColumnHeaderMouseOut(this)');
+                dom.setAttribute('onclick', 'this.onColumnHeaderMouseClick(this.layout, this.metaDataId)');
+                dom.setAttribute('onmouseover', 'this.onColumnHeaderMouseOver(this)');
+                dom.setAttribute('onmouseout', 'this.onColumnHeaderMouseOut(this)');
+            }
         });
     };
 

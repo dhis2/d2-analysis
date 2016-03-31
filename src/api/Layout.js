@@ -112,6 +112,10 @@ Layout = function(c, applyConfig, forceApplyConfig) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
     }
 
+    if (c.el && isString(c.el)) {
+        t.el = c.el;
+    }
+
     $.extend(t, forceApplyConfig);
 
     // setter/getter
@@ -456,6 +460,7 @@ Layout.prototype.toPost = function() {
     delete this.parentGraphMap;
 
     delete this.id;
+    delete this.el;
 };
 
 Layout.prototype.sort = function(table) {
