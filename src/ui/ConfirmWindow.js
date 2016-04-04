@@ -16,7 +16,7 @@ ConfirmWindow = function(c, msg, btnText, fn) {
         items: [
             {
                 html: msg,
-                bodyStyle: 'padding:40px 60px 35px; border:0 none; font-size:14px'
+                bodyStyle: 'padding:45px 60px 35px; border:0 none; font-size:14px'
             },
             {
                 layout: 'hbox',
