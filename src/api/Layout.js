@@ -162,9 +162,9 @@ Layout.prototype.alert = function(text, noError) {
 
 Layout.prototype.clone = function() {
     var t = this;
-
+    
     var layout = new Layout(t);
-
+    
     layout.setResponse(t.getResponse());
     layout.setAccess(t.getAccess());
     layout.setDataDimensionItems(t.getDataDimensionItems());
@@ -551,7 +551,7 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
             }
 
             if (fn) {
-                fn(id, obj, success, r);
+                fn(id, success, r);
             }
         }
     });
@@ -587,7 +587,7 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
             }
 
             if (fn) {
-                fn(obj, success, r);
+                fn(null, success, r);
             }
         }
     });

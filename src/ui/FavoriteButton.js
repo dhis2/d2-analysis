@@ -62,10 +62,8 @@ FavoriteButton = function(c) {
                             layout.id = favorite.id;
                             layout.name = favorite.name;
 
-                            layout.put(function() {
-                                layout.id = favorite.id;
-                                layout.name = favorite.name;
-
+                            layout.clone().put(function() {
+console.log("setState", layout);
                                 instanceManager.setState(layout, true);
                                 uiManager.unmask();
                             }, true, true);

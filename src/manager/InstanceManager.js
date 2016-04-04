@@ -52,7 +52,7 @@ InstanceManager = function(c) {
     };
 
 	t.getStateFavorite = function() {
-		return _state.favorite ? _state.favorite.clone() : _state.favorite;
+		return t.isStateFavorite() ? _state.favorite.clone() : _state.favorite;
 	};
 
 	t.getStateFavoriteId = function() {
