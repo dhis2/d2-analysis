@@ -75,17 +75,17 @@ SharingWindow = function(c, sharing) {
             items.push(combo);
 
             if (!isPublicAccess) {
-                items.push(Ext.create('Ext.Img', {
-                    //src: 'images/grid-delete_16.png',
+                items.push(Ext.create('Ext.container.Container', {
                     cls: 'ns-grid-row-icon-delete',
                     style: 'margin-top:2px; margin-left:7px',
+                    bodyStyle: 'border:0 none; background:#fff',
                     overCls: 'pointer',
                     width: 16,
                     height: 16,
                     listeners: {
-                        render: function(i) {
-                            i.getEl().on('click', function(e) {
-                                i.up('panel').destroy();
+                        render: function(cmp) {
+                            cmp.getEl().on('click', function(e) {
+                                cmp.up('panel').destroy();
                                 window.doLayout();
                             });
                         }

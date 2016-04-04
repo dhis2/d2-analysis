@@ -183,7 +183,7 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
     var apiResource = t.apiResource,
-        path = appManager.getPath();
+        path = t.appManager.getPath();
 
     if (!isString(apiResource)) {
         alert('No api resource defined');
@@ -206,7 +206,7 @@ InstanceManager.prototype.getUiState = function() {
 };
 
 InstanceManager.prototype.getFavorite = function(id, fn) {
-    var url = appManager.getPath() + '/api/' + this.apiResource + '/' + id + '.json?fields=' + appManager.getAnalysisFields();
+    var url = t.appManager.getPath() + '/api/' + this.apiResource + '/' + id + '.json?fields=' + t.appManager.getAnalysisFields();
 
     fn = fn || function() {};
 
