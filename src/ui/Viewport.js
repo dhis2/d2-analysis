@@ -4299,12 +4299,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-visualizer';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-visualizer', '_blank');
-                                                    }
+                                                    uiManager.redirectCtrl(path + '/dhis-web-visualizer', e);
                                                 }
                                             });
                                         }
@@ -4322,15 +4317,10 @@ Viewport = function(c, cmp) {
                                                     var layout = instanceManager.getStateCurrent();
                                                     layout.parentGraphMap = treePanel.getParentGraphMap();
 
-                                                    var supported = sessionStorageManager.set(layout, 'analytical');
-
-                                                    if (supported) {
-                                                        if (e.button === 0 && !e.ctrlKey) {
-                                                            window.location.href = path + '/dhis-web-visualizer/index.html?s=analytical';
-                                                        }
-                                                        else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                            window.open(path + '/dhis-web-visualizer/index.html?s=analytical', '_blank');
-                                                        }
+                                                    sessionStorageManager.set(layout, 'analytical');
+return;
+                                                    if (sessionStorageManager.supported) {
+                                                        uiManager.redirectCtrl(path + '/dhis-web-visualizer/index.html?s=analytical', e);
                                                     }
                                                 }
                                             });
@@ -4345,12 +4335,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-visualizer/index.html?s=chart';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-visualizer/index.html?s=chart', '_blank');
-                                                    }
+                                                    uiManager.redirectCtrl(path + '/dhis-web-visualizer/index.html?s=chart', e);
                                                 }
                                             });
                                         }
@@ -4397,12 +4382,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-mapping';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-mapping', '_blank');
-                                                    }
+                                                    uiManager.redirectCtrl(path + '/dhis-web-mapping', e);
                                                 }
                                             });
                                         }
@@ -4420,15 +4400,10 @@ Viewport = function(c, cmp) {
                                                     var layout = instanceManager.getStateCurrent();
                                                     layout.parentGraphMap = treePanel.getParentGraphMap();
 
-                                                    var supported = sessionStorageManager.set(layout, 'analytical');
+                                                    sessionStorageManager.set(layout, 'analytical');
 
-                                                    if (supported) {
-                                                        if (e.button === 0 && !e.ctrlKey) {
-                                                            window.location.href = path + '/dhis-web-mapping/index.html?s=analytical';
-                                                        }
-                                                        else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                            window.open(path + '/dhis-web-mapping/index.html?s=analytical', '_blank');
-                                                        }
+                                                    if (sessionStorageManager.supported) {
+                                                        uiManager.redirectCtrl(path + '/dhis-web-mapping/index.html?s=analytical', e);
                                                     }
                                                 }
                                             });
@@ -4443,12 +4418,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    if (e.button === 0 && !e.ctrlKey) {
-                                                        window.location.href = path + '/dhis-web-mapping/index.html?s=chart';
-                                                    }
-                                                    else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
-                                                        window.open(path + '/dhis-web-mapping/index.html?s=chart', '_blank');
-                                                    }
+                                                    uiManager.redirectCtrl(path + '/dhis-web-mapping/index.html?s=chart', e);
                                                 }
                                             });
                                         }

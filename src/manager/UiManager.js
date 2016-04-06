@@ -410,6 +410,16 @@ UiManager = function(c) {
 
         ConfirmWindow(c, i18n.delete_this_favorite, i18n.delete_, fn).show();
     };
+
+    // redirect
+    t.redirectCtrl = function(url, e) {
+        if (e.button === 0 && !e.ctrlKey) {
+            window.location.href = url;
+        }
+        else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
+            window.open(url, '_blank');
+        }
+    };
 };
 
 UiManager.prototype.applyTo = function(modules) {
