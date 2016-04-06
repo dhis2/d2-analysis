@@ -31,6 +31,7 @@ Viewport = function(c, cmp) {
         dimensionConfig = c.dimensionConfig,
         periodConfig = c.periodConfig,
         uiConfig = c.uiConfig,
+        optionConfig = c.optionConfig,
 
         path = appManager.getPath(),
         i18n = i18nManager.get(),
@@ -461,8 +462,10 @@ Viewport = function(c, cmp) {
 
             this.clearFilter();
 
+            var metric = dataSetMetric.getValue();
+
             this.filterBy(function(record) {
-                return !arrayContains(selectedStoreIds, record.data.id);
+                return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.indexOf(metric) !== -1);
             });
         },
         loadPage: function(filter, append, noPaging, fn) {
@@ -504,10 +507,34 @@ Viewport = function(c, cmp) {
                 uiManager.unmask(dataSetAvailable.boundList);
             });
         },
+        getProcessedData: function(data) {
+            var metricRecords = optionConfig.getDataSetMetricRecords(),
+                processedData = [];
+
+            data.forEach(function(item) {
+                metricRecords.forEach(function(record) {
+                    processedData.push({
+                        id: item.id + '.' + record.id,
+                        name: item.name + ' (' + record.name + ')'
+                    });
+                });
+            });
+
+            return processedData;
+        },
+        filterMetric: function(metric) {
+            this.clearFilter();
+            this.filterBy(function(record) {
+                return record.data.id.indexOf(metric) !== -1;
+            });
+        },
         loadStore: function(data, pager, append, fn) {
             pager = pager || {};
 
+            data = this.getProcessedData(data);
+
             this.loadDataAndUpdate(data, append);
+
             this.sortStore();
 
             this.lastPage = this.nextPage;
@@ -811,7 +838,7 @@ Viewport = function(c, cmp) {
 
             if (!dataSetAvailableStore.isLoaded) {
                 dataSetAvailableStore.isLoaded = true;
-                dataSetAvailableStore.loadPage(null, false);
+                dataSetAvailableStore.loadPage();
             }
         }
         else if (type === 'di') {
@@ -855,7 +882,7 @@ Viewport = function(c, cmp) {
             data: [
                  {id: 'in', name: i18n['indicators']},
                  {id: 'de', name: i18n['data_elements']},
-                 {id: 'ds', name: i18n['reporting_rates']},
+                 {id: 'ds', name: i18n['data_sets']},
                  {id: 'di', name: i18n['event_data_items']},
                  {id: 'pi', name: i18n['program_indicators']}
             ]
@@ -1554,6 +1581,26 @@ Viewport = function(c, cmp) {
         }
     });
 
+    var dataSetMetric = Ext.create('Ext.form.field.ComboBox', {
+        cls: 'ns-combo',
+        style: 'margin-bottom:1px; margin-top:0px',
+        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        valueField: 'id',
+        displayField: 'name',
+        emptyText: i18n['select_indicator_group'],
+        editable: false,
+        value: optionConfig.getDataSetMetric('reportingRates').id,
+        store: {
+            fields: ['id', 'name'],
+            data: optionConfig.getDataSetMetricRecords()
+        },
+        listeners: {
+            select: function(cmp) {
+                dataSetAvailableStore.updateFilter();
+            }
+        }
+    });
+
     var dataSet = Ext.create('Ext.panel.Panel', {
         xtype: 'panel',
         //title: '<div class="ns-panel-title-data">' + i18n.reporting_rates + '</div>',
@@ -1563,6 +1610,7 @@ Viewport = function(c, cmp) {
         bodyStyle: 'border:0 none',
         dimension: dataSetObjectName,
         items: [
+            dataSetMetric,
             {
                 xtype: 'panel',
                 layout: 'column',

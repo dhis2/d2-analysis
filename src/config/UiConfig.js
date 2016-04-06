@@ -12,7 +12,7 @@ UiConfig = function() {
         west_fill: 2,
         west_fill_accordion_indicator: 81,
         west_fill_accordion_dataelement: 81,
-        west_fill_accordion_dataset: 56,
+        west_fill_accordion_dataset: 81,
         west_fill_accordion_eventdataitem: 81,
         west_fill_accordion_programindicator: 81,
         west_fill_accordion_period: 310,

@@ -15,6 +15,7 @@ OptionConfig = function() {
     var digitGroupSeparator;
     var aggregationType;
     var dataApprovalLevel;
+    var dataSetMetric;
 
     // setter
     var setDisplayDensity = function() {
@@ -135,6 +136,26 @@ OptionConfig = function() {
         };
     };
 
+    var setDataSetMetric = function() {
+        dataSetMetric = {
+            'reportingRates': {
+                index: 1,
+                id: 'REPORTING_RATE',
+                name: i18nManager.get('reporting_rates') || 'Reporting rates'
+            },
+            'actualReports': {
+                index: 2,
+                id: 'ACTUAL_REPORTS',
+                name: i18nManager.get('actual_reports') || 'Actual reports'
+            },
+            'expectedReports': {
+                index: 3,
+                id: 'EXPECTED_REPORTS',
+                name: i18nManager.get('expected_reports') || 'Expected reports'
+            }
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -157,6 +178,7 @@ OptionConfig = function() {
         setDigitGroupSeparator();
         setAggregationType();
         setDataApprovalLevel();
+        setDataSetMetric();
     };
 
     // prototype
@@ -180,6 +202,10 @@ OptionConfig = function() {
         return key ? dataApprovalLevel[key] : dataApprovalLevel;
     };
 
+    t.getDataSetMetric = function(key) {
+        return key ? dataSetMetric[key] : dataSetMetric;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -194,6 +220,10 @@ OptionConfig = function() {
 
     t.getAggregationTypeRecords = function() {
         return getRecords(aggregationType);
+    };
+
+    t.getDataSetMetricRecords = function() {
+        return getRecords(dataSetMetric);
     };
 
     t.getDigitGroupSeparatorIdMap = function() {
