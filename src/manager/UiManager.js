@@ -190,7 +190,7 @@ UiManager = function(c) {
     };
 
     t.msSelectAll = function(a, s, isReverse) {
-        var afrray = a.store.getRange();
+        var array = a.store.getRange();
         if (isReverse) {
             array.reverse();
         }
