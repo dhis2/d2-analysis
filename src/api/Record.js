@@ -12,6 +12,7 @@ Record = function(config) {
     // constructor
     t.id = config.id;
     t.name = config.name;
+    t.dimensionItemType = config.dimensionItemType || '';
 };
 
 Record.prototype.log = function(text, noError) {
@@ -35,4 +36,5 @@ Record.prototype.toPlugin = function() {
 
 Record.prototype.toPost = function() {
     delete this.klass;
+    delete this.dimensionItemType;
 };

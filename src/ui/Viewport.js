@@ -117,7 +117,11 @@ Viewport = function(c, cmp) {
         loadPage: function(uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
-                url;
+                baseUrl = path + '/api/indicators.json?',
+                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
+
+            var url = baseUrl + fieldsUrl + filterUrl;
 
             uid = (isString(uid) || isNumber(uid)) ? uid : indicatorGroup.getValue();
             filter = filter || indicatorFilter.getValue() || null;
@@ -132,14 +136,7 @@ Viewport = function(c, cmp) {
             }
 
             if (isString(uid)) {
-                url = '/indicators.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=indicatorGroups.id:eq:' + uid + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-            else if (uid === 0) {
-                url = '/indicators.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-
-            if (!url) {
-                return;
+                url += '&filter=indicatorGroups.id:eq:' + uid;
             }
 
             if (noPaging) {
@@ -153,7 +150,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(indicatorAvailable.boundList);
 
-            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.indicators || [],
                     pager = response.pager;
 
@@ -292,21 +289,18 @@ Viewport = function(c, cmp) {
         loadTotalsPage: function(uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
-                url;
+                baseUrl = path + '/api/dataElements.json?',
+                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                filterUrl = '&filter=domainType:eq:AGGREGATE' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
+
+            var url = baseUrl + fieldsUrl + filterUrl;
 
             if (store.nextPage === store.lastPage) {
                 return;
             }
 
             if (isString(uid)) {
-                url = '/dataElements.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-            else if (uid === 0) {
-                url = '/dataElements.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=domainType:eq:AGGREGATE' + '' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-
-            if (!url) {
-                return;
+                url += '&filter=dataElementGroups.id:eq:' + uid;
             }
 
             if (noPaging) {
@@ -320,7 +314,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.dataElements || [],
                     pager = response.pager;
 
@@ -333,21 +327,18 @@ Viewport = function(c, cmp) {
         loadDetailsPage: function(uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
-                url;
+                baseUrl = path + '/api/dataElementOperands.json?',
+                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
+
+            var url = baseUrl + fieldsUrl + filterUrl;
 
             if (store.nextPage === store.lastPage) {
                 return;
             }
 
             if (isString(uid)) {
-                url = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '&filter=dataElement.dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-            else if (uid === 0) {
-                url = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-            }
-
-            if (!url) {
-                return;
+                url += '&filter=dataElement.dataElementGroups.id:eq:' + uid;
             }
 
             if (noPaging) {
@@ -361,7 +352,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.objects || response.dataElementOperands || [],
                     pager = response.pager;
 
@@ -471,7 +462,11 @@ Viewport = function(c, cmp) {
         loadPage: function(filter, append, noPaging, fn) {
             var store = this,
                 params = {},
-                url;
+                baseUrl = path + '/api/dataSets.json?',
+                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
+
+            var url = baseUrl + fieldsUrl + filterUrl;
 
             filter = filter || dataSetFilter.getValue() || null;
 
@@ -484,8 +479,6 @@ Viewport = function(c, cmp) {
                 return;
             }
 
-            url = '/dataSets.json?fields=dimensionItem|rename(id),' + displayPropertyUrl + '' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
-
             if (noPaging) {
                 params.paging = false;
             }
@@ -497,7 +490,7 @@ Viewport = function(c, cmp) {
             store.isPending = true;
             uiManager.mask(dataSetAvailable.boundList);
 
-            $.getJSON(encodeURI(path + '/api' + url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.dataSets || [],
                     pager = response.pager;
 
@@ -4318,7 +4311,7 @@ Viewport = function(c, cmp) {
                                                     layout.parentGraphMap = treePanel.getParentGraphMap();
 
                                                     sessionStorageManager.set(layout, 'analytical');
-return;
+
                                                     if (sessionStorageManager.supported) {
                                                         uiManager.redirectCtrl(path + '/dhis-web-visualizer/index.html?s=analytical', e);
                                                     }
@@ -4629,7 +4622,7 @@ return;
                     instanceManager.getById(id);
                 }
                 else if (isString(session) && sessionStorageManager.get(session)) {
-                    layout = new api.Layout(sessionStorageManager.get(session));
+                    layout = new Layout(sessionStorageManager.get(session));
 
                     if (layout) {
                         instanceManager.getReport(layout);
