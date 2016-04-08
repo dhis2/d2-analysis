@@ -429,9 +429,13 @@ Layout.prototype.toPost = function() {
     delete this.klass;
     delete this.getResponse;
     delete this.setResponse;
+    delete this.getAccess;
+    delete this.setAccess;
+    delete this.getDataDimensionItems;
+    delete this.setDataDimensionItems;
     delete this.getRequestPath;
 
-    this.getDimensions().forEach(function(dimension) {
+    this.getDimensions(true).forEach(function(dimension) {
         dimension.toPost();
     });
 
