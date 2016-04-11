@@ -178,7 +178,7 @@ FavoriteWindow = function(c, action) {
         listeners: {
             keyup: {
                 fn: function(cmp, e) {
-					textfieldKeyUpHandlers['search'](cmp, e);
+                    textfieldKeyUpHandlers['search'](cmp, e);
                 },
                 buffer: 100
             }

@@ -51,9 +51,9 @@ TableAxis = function(layout, response, type) {
 
         return a;
     }();
-//aaUniqueFloorIds	= [ [de-id1, de-id2, de-id3],
-//					    [pe-id1],
-//					    [ou-id1, ou-id2, ou-id3, ou-id4] ]
+//aaUniqueFloorIds  = [ [de-id1, de-id2, de-id3],
+//                      [pe-id1],
+//                      [ou-id1, ou-id2, ou-id3, ou-id4] ]
 
     // nAxisHeight
     nAxisHeight = aaUniqueFloorIds.length;
@@ -68,9 +68,9 @@ TableAxis = function(layout, response, type) {
         nAxisWidth = nAxisWidth * nUniqueFloorWidth;
         aAccFloorWidth.push(nAxisWidth);
     }
-//aUniqueFloorWidth	= [3, 1, 4]
-//nAxisWidth		= 12 (3 * 1 * 4)
-//aAccFloorWidth	= [3, 3, 12]
+//aUniqueFloorWidth = [3, 1, 4]
+//nAxisWidth        = 12 (3 * 1 * 4)
+//aAccFloorWidth    = [3, 3, 12]
 
     // aFloorSpan
     for (var i = 0; i < nAxisHeight; i++) {
@@ -109,10 +109,10 @@ TableAxis = function(layout, response, type) {
             aaGuiFloorIds.push(a);
         }
     }
-//aaGuiFloorIds	= [ [d1, d2, d3], (3)
-//					[p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (15)
-//					[o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2...] (30)
-//		  	  	  ]
+//aaGuiFloorIds = [ [d1, d2, d3], (3)
+//                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (15)
+//                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2...] (30)
+//                ]
 
     // aaAllFloorIds
     for (var i = 0, aAllFloorIds, aUniqueFloorIds, span, factor; i < nAxisHeight; i++) {
@@ -131,10 +131,10 @@ TableAxis = function(layout, response, type) {
 
         aaAllFloorIds.push(aAllFloorIds);
     }
-//aaAllFloorIds	= [ [d1, d1, d1, d1, d1, d1, d1, d1, d1, d1, d2, d2, d2, d2, d2, d2, d2, d2, d2, d2, d3, d3, d3, d3, d3, d3, d3, d3, d3, d3], (30)
-//					[p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (30)
-//					[o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2] (30)
-//		  	  	  ]
+//aaAllFloorIds = [ [d1, d1, d1, d1, d1, d1, d1, d1, d1, d1, d2, d2, d2, d2, d2, d2, d2, d2, d2, d2, d3, d3, d3, d3, d3, d3, d3, d3, d3, d3], (30)
+//                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (30)
+//                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2] (30)
+//                ]
 
     // aCondoId
     for (var i = 0, ids; i < nAxisWidth; i++) {

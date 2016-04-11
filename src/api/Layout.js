@@ -162,9 +162,9 @@ Layout.prototype.alert = function(text, noError) {
 
 Layout.prototype.clone = function() {
     var t = this;
-    
+
     var layout = new Layout(t);
-    
+
     layout.setResponse(t.getResponse());
     layout.setAccess(t.getAccess());
     layout.setDataDimensionItems(t.getDataDimensionItems());
@@ -206,8 +206,8 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
 
 Layout.prototype.getDimension = function(dimensionName) {
     return this.getDimensions(true).find(function(dimension) {
-		return dimension.dimension === dimensionName;
-	});
+        return dimension.dimension === dimensionName;
+    });
 };
 
 Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {

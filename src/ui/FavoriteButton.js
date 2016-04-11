@@ -63,7 +63,6 @@ FavoriteButton = function(c) {
                             layout.name = favorite.name;
 
                             layout.clone().put(function() {
-console.log("setState", layout);
                                 instanceManager.setState(layout, true);
                                 uiManager.unmask();
                             }, true, true);
@@ -105,14 +104,14 @@ console.log("setState", layout);
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
                         disabled: function() {
-							var fav = instanceManager.getStateFavorite();
-							
-							if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
-								return false;
-							}
+                            var fav = instanceManager.getStateFavorite();
 
-							return true;
-						}(),
+                            if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
+                                return false;
+                            }
+
+                            return true;
+                        }(),
                         handler: function() {
                             instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
                                 SharingWindow(c, r).show();
