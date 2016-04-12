@@ -4183,38 +4183,7 @@ Viewport = function(c, cmp) {
         text: i18n.table,
         iconCls: 'ns-button-icon-table',
         toggleGroup: 'module',
-        pressed: true,
-        menu: {},
-        handler: function(b) {
-            b.menu = Ext.create('Ext.menu.Menu', {
-                closeAction: 'destroy',
-                shadow: false,
-                showSeparator: false,
-                items: [
-                    {
-                        text: i18n.clear_pivot_table + '&nbsp;&nbsp;', //i18n
-                        cls: 'ns-menu-item-noicon',
-                        handler: function() {
-                            window.location.href = '.';
-                        }
-                    }
-                ],
-                listeners: {
-                    show: function() {
-                        uiManager.setAnchorPosition(b.menu, b);
-                    },
-                    hide: function() {
-                        b.menu.destroy();
-                        defaultButton.toggle();
-                    },
-                    destroy: function(m) {
-                        b.menu = null;
-                    }
-                }
-            });
-
-            b.menu.show();
-        }
+        pressed: true
     });
 
     var centerRegion = Ext.create('Ext.panel.Panel', {
