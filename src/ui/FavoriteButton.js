@@ -54,16 +54,20 @@ FavoriteButton = function(c) {
                     var saveItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.save),
                         iconCls: 'ns-menu-item-favorite-save',
-                        disabled: !instanceManager.isStateUnsaved(),
+                        disabled: !instanceManager.isStateDirty(),
                         handler: function() {
                             var layout = instanceManager.getStateCurrent(),
                                 favorite = instanceManager.getStateFavorite();
+
+                            if (!favorite) {
+                                saveAsItem.handlerFn();
+                                return;
+                            }
 
                             layout.id = favorite.id;
                             layout.name = favorite.name;
 
                             layout.clone().put(function() {
-console.log("setState", layout);
                                 instanceManager.setState(layout, true);
                                 uiManager.unmask();
                             }, true, true);
@@ -75,8 +79,11 @@ console.log("setState", layout);
                         text: getTitle(i18n.save_as),
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
-                        handler: function() {
+                        handlerFn: function() {
                             FavoriteWindow(c, 'saveas').show();
+                        },
+                        handler: function() {
+                            this.handlerFn();
                         }
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
@@ -99,14 +106,14 @@ console.log("setState", layout);
                             RenameWindow(c, instanceManager.getStateFavorite()).show();
                         }
                     });
-                    uiManager.reg(saveAsItem, 'saveAsItem');
+                    uiManager.reg(saveAsItem, 'renameItem');
 
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
                         disabled: function() {
 							var fav = instanceManager.getStateFavorite();
-							
+
 							if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
 								return false;
 							}
