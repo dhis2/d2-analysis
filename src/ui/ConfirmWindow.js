@@ -3,10 +3,21 @@ export var ConfirmWindow;
 ConfirmWindow = function(c, msg, btnText, fn) {
     var i18n = c.i18nManager.get();
 
-    var btnPadding = '4 12 4 12',
+    var btnPadding = '3 12 3 12',
         defaults = {
             bodyStyle: 'background:#fff; border:0 none'
         };
+
+    var confirmButton = Ext.create('Ext.button.Button', {
+        xtype: 'button',
+        text: '<span style="font-weight:bold">' + btnText + '</span>',
+        style: 'border-color:#888',
+        padding: btnPadding,
+        handler: function() {
+            fn && fn();
+            window.destroy();
+        }
+    });
 
     var window = Ext.create('Ext.window.Window', {
         bodyStyle: 'background:#fff; padding:8px',
@@ -36,22 +47,16 @@ ConfirmWindow = function(c, msg, btnText, fn) {
                     {
                         width: 5
                     },
-                    {
-                        xtype: 'button',
-                        text: '<span style="font-weight:bold">' + btnText + '</span>',
-                        style: 'border-color:#888',
-                        padding: btnPadding,
-                        handler: function() {
-                            fn && fn();
-                            window.destroy();
-                        }
-                    }
+                    confirmButton
                 ]
             }
         ],
         listeners: {
             afterrender: function() {
                 this.setPosition(this.getPosition()[0], this.getPosition()[1] / 2);
+            },
+            show: function() {
+                confirmButton.focus(false, 50);
             }
         }
     });
