@@ -112,7 +112,6 @@ FavoriteButton = function(c) {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
                         disabled: function() {
-<<<<<<< HEAD
                             var fav = instanceManager.getStateFavorite();
 
                             if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
@@ -121,16 +120,6 @@ FavoriteButton = function(c) {
 
                             return true;
                         }(),
-=======
-                            var fav = instanceManager.getStateFavorite();
-
-                            if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
-                                return false;
-                            }
-
-                            return true;
-                        }(),
->>>>>>> 585644b7e5674836128a7f03cef26644c1840b0f
                         handler: function() {
                             instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
                                 SharingWindow(c, r).show();
