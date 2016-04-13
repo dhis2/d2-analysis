@@ -2139,30 +2139,30 @@ Viewport = function(c, cmp) {
             return config.items.length ? config : null;
         },
         clearDimension: function() {
-			dataSelectedStore.removeAll();
+            dataSelectedStore.removeAll();
 
-			indicatorAvailableStore.removeAll();
-			indicatorGroup.clearValue();
+            indicatorAvailableStore.removeAll();
+            indicatorGroup.clearValue();
 
-			dataElementAvailableStore.removeAll();
-			dataElementGroup.clearValue();
-			dataElementDetailLevel.reset();
+            dataElementAvailableStore.removeAll();
+            dataElementGroup.clearValue();
+            dataElementDetailLevel.reset();
 
-			dataSetAvailableStore.removeAll();
+            dataSetAvailableStore.removeAll();
 
-			eventDataItemAvailableStore.removeAll();
-			programIndicatorAvailableStore.removeAll();
-		},
-		setDimension: function(layout) {
+            eventDataItemAvailableStore.removeAll();
+            programIndicatorAvailableStore.removeAll();
+        },
+        setDimension: function(layout) {
             if (isObject(layout.program) && isString(layout.program.id)) {
                 eventDataItemProgram.setValue(layout.program.id);
                 onEventDataItemProgramSelect(layout.program.id)
             }
 
             if (layout.hasDimension(this.dimension, true)) {
-				dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
-			}
-		},
+                dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
+            }
+        },
         onExpand: function() {
             var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_indicator : uiConfig.west_maxheight_accordion_indicator;
 
@@ -2590,35 +2590,35 @@ Viewport = function(c, cmp) {
         dimension: periodObjectName,
         checkboxes: [],
         clearDimension: function(all) {
-			fixedPeriodSelectedStore.removeAll();
-			period.resetRelativePeriods();
+            fixedPeriodSelectedStore.removeAll();
+            period.resetRelativePeriods();
 
             if (!all) {
                 relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
             }
-		},
-		setDimension: function(layout) {
-			if (layout.hasDimension(this.dimension, true)) {
-				var records = layout.getDimension(this.dimension).getRecords(),
-					fixedRecords = [],
-					checkbox;
+        },
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
+                var records = layout.getDimension(this.dimension).getRecords(),
+                    fixedRecords = [],
+                    checkbox;
 
-				records.forEach(function(record) {
-					checkbox = relativePeriod.valueComponentMap[record.id];
+                records.forEach(function(record) {
+                    checkbox = relativePeriod.valueComponentMap[record.id];
 
-					if (checkbox) {
-						checkbox.setValue(true);
-					}
-					else {
-						fixedRecords.push(record);
-					}
-				});
+                    if (checkbox) {
+                        checkbox.setValue(true);
+                    }
+                    else {
+                        fixedRecords.push(record);
+                    }
+                });
 
-				fixedPeriodSelectedStore.add(fixedRecords);
+                fixedPeriodSelectedStore.add(fixedRecords);
 
-				uiManager.msFilterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
-			}
-		},
+                uiManager.msFilterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
+            }
+        },
         getDimension: function() {
             var config = {
                     dimension: periodObjectName,
@@ -3273,7 +3273,7 @@ Viewport = function(c, cmp) {
     // dimensions
 
     var getDimensionPanel = function(dimension, iconCls) {
-        var	onSelect,
+        var onSelect,
             availableStore,
             selectedStore,
             dataLabel,
@@ -3805,8 +3805,8 @@ Viewport = function(c, cmp) {
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: accordion,
         setState: function(layout) {
-			setUiState(layout);
-		}
+            setUiState(layout);
+        }
     });
     uiManager.reg(westRegion, 'westRegion');
 
@@ -4576,8 +4576,8 @@ Viewport = function(c, cmp) {
 
                 // north
                 if (northRegion) {
-					northRegion.setLogoWidth(centerRegion.getPosition()[0]);
-				}
+                    northRegion.setLogoWidth(centerRegion.getPosition()[0]);
+                }
 
                 // expand first panel
                 accordion.getFirstPanel().expand();

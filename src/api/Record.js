@@ -14,8 +14,8 @@ Record = function(config) {
     t.name = config.name;
 
     if (isString(config.dimensionItemType)) {
-		t.dimensionItemType = config.dimensionItemType;
-	}
+        t.dimensionItemType = config.dimensionItemType;
+    }
 };
 
 Record.prototype.log = function(text, noError) {

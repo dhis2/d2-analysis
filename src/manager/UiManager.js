@@ -17,9 +17,9 @@ UiManager = function(c) {
     var components = {};
 
     var componentTags = {
-		onCurrent: [],
-		onFavorite: []
-	};
+        onCurrent: [],
+        onFavorite: []
+    };
 
     var defaultUpdateComponentName = 'centerRegion';
 
@@ -46,12 +46,12 @@ UiManager = function(c) {
         }
 
         if (isString(tags)) {
-			tags.split(',').forEach(function(item) {
-				if (isArray(componentTags[item])) {
-					componentTags[item].push(cmp);
-				}
-			});
-		}
+            tags.split(',').forEach(function(item) {
+                if (isArray(componentTags[item])) {
+                    componentTags[item].push(cmp);
+                }
+            });
+        }
 
         return components[name] = cmp;
     };
@@ -87,8 +87,8 @@ UiManager = function(c) {
         t.getUpdateComponent() && t.getUpdateComponent().update(html);
     };
 
-	// state
-	t.setState = function(layout, isFavorite, skipSelect) {
+    // state
+    t.setState = function(layout, isFavorite, skipSelect) {
         var north = t.get('northRegion'),
             west = t.get('westRegion');
 
@@ -381,16 +381,16 @@ UiManager = function(c) {
         window.show();
     };
 
-	// context menu
-	t.enableRightClick = function() {
-		document.body.oncontextmenu = true;
-	};
+    // context menu
+    t.enableRightClick = function() {
+        document.body.oncontextmenu = true;
+    };
 
-	t.disableRightClick = function() {
-		document.body.oncontextmenu = function() {
-			return false;
-		};
-	};
+    t.disableRightClick = function() {
+        document.body.oncontextmenu = function() {
+            return false;
+        };
+    };
 
     // confirm
     t.confirmUnsaved = function(fn) {

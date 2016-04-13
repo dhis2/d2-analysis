@@ -85,8 +85,8 @@ NorthRegion = function(c, cmpConfig) {
                 setUnsaved: function() {
                     if (this.titleText) {
                         this.getEl().removeCls('untitled');
-						this.getEl().addCls('unsaved');
-					}
+                        this.getEl().addCls('unsaved');
+                    }
                 },
                 setNew: function() {
                     this.getEl().removeCls('unsaved');

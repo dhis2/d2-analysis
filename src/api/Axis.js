@@ -43,10 +43,10 @@ Axis = function(config) {
     };
 
     t.getDimension = function(dimensionName) {
-		return this.find(function(dimension) {
-			return dimension.dimension === dimensionName;
-		});
-	};
+        return this.find(function(dimension) {
+            return dimension.dimension === dimensionName;
+        });
+    };
 
     t.getDimensionNames = function() {
         var names = [];
@@ -59,8 +59,8 @@ Axis = function(config) {
     };
 
     t.has = function(dimensionName) {
-		return !!t.getDimension(dimensionName);
-	};
+        return !!t.getDimension(dimensionName);
+    };
 
     t.sorted = function() {
         return t.clone().sort(function(a, b) {return a.dimension > b.dimension;});

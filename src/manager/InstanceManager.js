@@ -20,9 +20,9 @@ InstanceManager = function(c) {
 
     // state
     var _state = {
-		favorite: null,
-		current: null
-	};
+        favorite: null,
+        current: null
+    };
 
     // done fn
     var fn;
@@ -44,31 +44,31 @@ InstanceManager = function(c) {
     };
 
     t.isStateSaved = function() {
-		return t.isStateFavorite() ? !t.isStateDirty() : false;
-	};
+        return t.isStateFavorite() ? !t.isStateDirty() : false;
+    };
 
     t.isStateUnsaved = function() {
         return t.isStateFavorite() ? t.isStateDirty() : false;
     };
 
-	t.getStateFavorite = function() {
-		return t.isStateFavorite() ? _state.favorite.clone() : _state.favorite;
-	};
+    t.getStateFavorite = function() {
+        return t.isStateFavorite() ? _state.favorite.clone() : _state.favorite;
+    };
 
-	t.getStateFavoriteId = function() {
-		return t.isStateFavorite() ? _state.favorite.id : null;
-	};
+    t.getStateFavoriteId = function() {
+        return t.isStateFavorite() ? _state.favorite.id : null;
+    };
 
-	t.getStateFavoriteName = function() {
-		return t.isStateFavorite() ? _state.favorite.name : null;
-	};
+    t.getStateFavoriteName = function() {
+        return t.isStateFavorite() ? _state.favorite.name : null;
+    };
 
-	t.getStateCurrent = function() {
-		return _state.current ? _state.current.clone() : _state.current;
-	};
+    t.getStateCurrent = function() {
+        return _state.current ? _state.current.clone() : _state.current;
+    };
 
-	t.setState = function(curr, isFavorite, skipSelect) {
-		_state.current = curr ? curr : null;
+    t.setState = function(curr, isFavorite, skipSelect) {
+        _state.current = curr ? curr : null;
 
         if (!_state.current || isFavorite) {
             _state.favorite = _state.current;
@@ -79,7 +79,7 @@ InstanceManager = function(c) {
         }
 
         t.uiManager.setState(_state.current, isFavorite, skipSelect);
-	};
+    };
 
     t.setStateIf = function(curr, isFavorite) {
         if (curr.id === t.getStateFavoriteId()) {

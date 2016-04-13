@@ -444,9 +444,9 @@ Table = function(layout, response, colAxis, rowAxis) {
 
 
 //axisAllObjects = [ [ dim, dim ]
-//				     [ dim, dim ]
-//				     [ dim, dim ]
-//				     [ dim, dim ] ];
+//                   [ dim, dim ]
+//                   [ dim, dim ]
+//                   [ dim, dim ] ];
 
         // value
         for (var i = 0, valueItemsRow, valueObjectsRow; i < rowAxisSize; i++) {

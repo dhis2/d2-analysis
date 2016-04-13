@@ -166,4 +166,3 @@ export const init = {
     dimensionsInit: dimensionsInit,
     dataApprovalLevelsInit: dataApprovalLevelsInit,
 };
-
