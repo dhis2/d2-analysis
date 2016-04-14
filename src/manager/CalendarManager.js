@@ -11,7 +11,7 @@ CalendarManager = function(config) {
 
     // constructor
     t.baseUrl = config.baseUrl || '..';
-    t.dateFormat = config.dateFormat || null;
+    t.dateFormat = config.dateFormat || 'yyyy-MM-dd';
     t.defaultCalendarId = 'gregorian';
     t.defaultCalendarIsoId = 'iso8601';
     t.calendarIds = ['coptic', 'ethiopian', 'islamic', 'julian', 'nepali', 'thai'];
@@ -57,7 +57,6 @@ CalendarManager.prototype.createCalendar = function(calendarId) {
 
 CalendarManager.prototype.createPeriodGenerator = function(calendarId) {
     this.periodGenerator = new dhis2.period.PeriodGenerator(this.calendar, this.dateFormat);
-
 };
 
 CalendarManager.prototype.applyTo = function(modules) {
