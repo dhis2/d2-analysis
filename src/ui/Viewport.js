@@ -4562,11 +4562,7 @@ Viewport = function(c, cmp) {
                     numberOfTabs = appManager.dimensions.length + 3,
                     tabHeight = 28,
                     minPeriodHeight = 380;
-console.log("viewportHeight", viewportHeight);
-console.log("numberOfTabs", numberOfTabs);
-console.log("tabHeight", tabHeight);
-console.log("minPeriodHeight", minPeriodHeight);
-console.log("numberOfTabs * tabHeight + minPeriodHeight", numberOfTabs * tabHeight + minPeriodHeight);
+
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
                         accordion.setAutoScroll(false);

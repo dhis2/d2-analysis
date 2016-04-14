@@ -420,6 +420,20 @@ UiManager = function(c) {
             window.open(url, '_blank');
         }
     };
+
+    // plugin
+    t.getTitleHtml = function(text) {
+        return text ? '<div style="' +
+            'height:19px;' +
+            'line-height:14px;' +
+            'width:100%;' +
+            'font:bold 12px LiberationSans,arial,sans-serif;' +
+            'color:#333;' +
+            'text-align:center;' +
+            'letter-spacing:-0.1px">' +
+            text +
+            '</div>' : '';
+    };
 };
 
 UiManager.prototype.applyTo = function(modules) {
