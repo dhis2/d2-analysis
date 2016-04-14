@@ -39,7 +39,7 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     // constructor
     t.columns = (Axis(c.columns)).val();
     t.rows = (Axis(c.rows)).val();
-    t.filters = (Axis(c.filters)).val();
+    t.filters = (Axis(c.filters)).val(true);
 
     t.showColTotals = isBoolean(c.colTotals) ? c.colTotals : (isBoolean(c.showColTotals) ? c.showColTotals : true);
     t.showRowTotals = isBoolean(c.rowTotals) ? c.rowTotals : (isBoolean(c.showRowTotals) ? c.showRowTotals : true);

@@ -97,9 +97,11 @@ InstanceManager = function(c) {
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
-    layoutConfig = layoutConfig || this.uiManager.getUiState();
+    var t = this;
 
-    return new this.api.Layout(layoutConfig);
+    layoutConfig = layoutConfig || t.uiManager.getUiState();
+
+    return new t.api.Layout(layoutConfig);
 };
 
 InstanceManager.prototype.getById = function(id, fn) {
