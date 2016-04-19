@@ -13,6 +13,9 @@ Record = function(config) {
     t.id = config.id;
     t.name = config.name;
 
+    // tmp 2.22
+    t.objectName = config.objectName;
+
     if (isString(config.dimensionItemType)) {
         t.dimensionItemType = config.dimensionItemType;
     }
