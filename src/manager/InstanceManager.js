@@ -29,6 +29,7 @@ InstanceManager = function(c) {
 
     // uninitialized
     t.apiResource;
+    t.dataStatisticsEventType;
 
     // getter/setter
     t.isStateFavorite = function() {
@@ -213,6 +214,17 @@ InstanceManager.prototype.getFavorite = function(id, fn) {
     fn = fn || function() {};
 
     $.getJSON(encodeURI(url), fn);
+};
+
+InstanceManager.prototype.postDataStatistics = function() {
+    var t = this;
+
+    var url = t.appManager.getPath() + '/api/dataStatistics?eventType=' + t.dataStatisticsEventType;
+
+    $.ajax({
+        url: encodeURI(url),
+        type: 'POST'
+    });
 };
 
 InstanceManager.prototype.applyTo = function(modules) {
