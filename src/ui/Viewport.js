@@ -453,7 +453,7 @@ Viewport = function(c, cmp) {
 
             this.clearFilter();
 
-            var metric = dataSetMetric.getValue();
+            var metric = dataSetMetric.getValue() || '';
 
             this.filterBy(function(record) {
                 return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.indexOf(metric) !== -1);
@@ -1585,7 +1585,7 @@ Viewport = function(c, cmp) {
         value: optionConfig.getDataSetMetric('reportingRates').id,
         store: {
             fields: ['id', 'name'],
-            data: optionConfig.getDataSetMetricRecords()
+            data: [{id: 0, name: '[ ' + i18n.all_metrics + ' ]'}].concat(optionConfig.getDataSetMetricRecords())
         },
         listeners: {
             select: function(cmp) {
