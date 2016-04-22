@@ -13,6 +13,7 @@ i18nInit = function(c) {
     return {
         baseUrl: 'i18n/i18n_app.properties',
         type: 'ajax',
+        dataType: 'text',
         success: function(r) {
             var t = this;
 
