@@ -13,13 +13,17 @@ Request = function(config) {
     config = isObject(config) ? config : {};
 
     // constructor
-    t.baseUrl = isString(config.baseUrl) ? config.baseUrl : '';
-    t.params = arrayFrom(config.params);
-    t.manager = config.manager || null;
-    t.type = isString(config.type) ? config.type : 'json';
+    t.headers = isObject(config.headers) ? config.headers : null;
+    t.dataType = isString(config.dataType) ? config.dataType : null;
+    t.contentType = isString(config.contentType) ? config.contentType : null;
     t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
     t.error = isFunction(config.error) ? config.error : function() { t.defaultError(); };
     t.complete = isFunction(config.complete) ? config.complete : function() { t.defaultComplete(); };
+
+    t.type = isString(config.type) ? config.type : 'json';
+    t.baseUrl = isString(config.baseUrl) ? config.baseUrl : '';
+    t.params = arrayFrom(config.params);
+    t.manager = config.manager || null;
 
     // defaults
     t.defaultSuccess = function() {
@@ -134,19 +138,29 @@ Request.prototype.url = function(extraParams) {
 // dep 1
 
 Request.prototype.run = function(config) {
-    var t = this;
+    var t = this,
+        url = encodeURI(this.url());
 
     config = isObject(config) ? config : {};
 
     if (this.type === 'ajax') {
-        return $.ajax({
-            url: encodeURI(this.url()),
-            success: config.success || t.success,
-            error: config.error || t.error,
-            complete: config.complete || t.complete
-        });
+        var headers = config.headers || t.headers,
+            dataType = config.dataType || t.dataType,
+            contentType = config.contentType || t.contentType,
+            xhr = {};
+
+        xhr.url = url;
+        xhr.success = config.success || t.success;
+        xhr.error = config.error || t.error;
+        xhr.complete = config.complete || t.complete;
+
+        headers && (xhr.headers = headers);
+        dataType && (xhr.dataType = dataType);
+        contentType && (xhr.contentType = contentType);
+
+        return $.ajax(xhr);
     }
     else {
-        return $.getJSON(encodeURI(this.url()), config.success || t.success).error(config.error || t.error).complete(config.complete || t.complete);
+        return $.getJSON(url, config.success || t.success).error(config.error || t.error).complete(config.complete || t.complete);
     }
 };

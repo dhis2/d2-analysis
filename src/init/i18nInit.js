@@ -14,6 +14,9 @@ i18nInit = function(c) {
         baseUrl: 'i18n/i18n_app.properties',
         type: 'ajax',
         dataType: 'text',
+        headers: {
+            'Accept': 'text/plain; charset=utf-8'
+        },
         success: function(r) {
             var t = this;
 
