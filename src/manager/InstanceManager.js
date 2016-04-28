@@ -208,14 +208,6 @@ InstanceManager.prototype.getUiState = function() {
     return this.uiManager.getUiState();
 };
 
-InstanceManager.prototype.getFavorite = function(id, fn) {
-    var url = t.appManager.getPath() + '/api/' + this.apiResource + '/' + id + '.json?fields=' + t.appManager.getAnalysisFields();
-
-    fn = fn || function() {};
-
-    $.getJSON(encodeURI(url), fn);
-};
-
 InstanceManager.prototype.postDataStatistics = function() {
     var t = this;
 
