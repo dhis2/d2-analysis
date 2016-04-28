@@ -109,8 +109,7 @@ NorthRegion = function(c, cmpConfig) {
                 }
             });
 
-            cmp.about = Ext.create('Ext.toolbar.TextItem', {
-                id: 'aboutButton',
+            uiManager.reg(cmp.about = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'about',
                 html: cmpConfig.i18n.about,
                 listeners: {
@@ -132,10 +131,9 @@ NorthRegion = function(c, cmpConfig) {
                         el.rendered = true;
                     }
                 }
-            });
+            }), 'aboutButton');
 
-            cmp.home = Ext.create('Ext.toolbar.TextItem', {
-                id: 'homeButton',
+            uiManager.reg(cmp.home = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'about home',
                 html: cmpConfig.i18n.home,
                 listeners: {
@@ -157,7 +155,7 @@ NorthRegion = function(c, cmpConfig) {
                         el.rendered = true;
                     }
                 }
-            });
+            }), 'homeButton');
 
             return [
                 cmp.logo,
