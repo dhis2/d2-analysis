@@ -113,32 +113,40 @@ InstanceManager.prototype.getById = function(id, fn) {
 
     var t = this;
 
-    var path = t.appManager.getPath();
-    var fields = t.appManager.getAnalysisFields();
-    var apiResource = t.apiResource;
+    var appManager = t.appManager;
     var uiManager = t.uiManager;
-    var api = t.api;
     var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
     fn = fn || function(layout, isFavorite) {
         t.getReport(layout, isFavorite);
     };
 
-    $.getJSON(encodeURI(path + '/api/' + apiResource + '/' + id + '.json?fields=' + fields), function(r) {
-        var layout = new api.Layout(r);
+    var request = new t.api.Request({
+        baseUrl: t.appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
+        type: 'json',
+        params: {
+            fields: appManager.getAnalysisFields()
+        },
+        success: function(r) {
+console.log("r", r);
+            var layout = new t.api.Layout(r);
 
-        if (layout) {
-            fn(layout, true);
+            if (layout) {
+                fn(layout, true);
+            }
+        },
+        error: function(r) {
+            uiManager.unmask();
+
+            if (arrayContains([403], parseInt(r.httpStatusCode))) {
+                r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
+            }
+
+            uiManager.alert(r);
         }
-    }).error(function(r) {
-        uiManager.unmask();
-
-        if (arrayContains([403], parseInt(r.httpStatusCode))) {
-            r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
-        }
-
-        uiManager.alert(r);
     });
+
+    request.run();
 };
 
 InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
