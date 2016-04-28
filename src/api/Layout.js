@@ -249,7 +249,7 @@ Layout.prototype.val = function(noError) {
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     var optionConfig = this.klass.optionConfig,
-        displayProperty = this.displayProperty || 'name',
+        displayProperty = this.displayProperty || this.klass.appManager.getAnalyticsDisplayProperty(),
         request = new Request();
 
     var defAggTypeId = optionConfig.getAggregationType('def').id;

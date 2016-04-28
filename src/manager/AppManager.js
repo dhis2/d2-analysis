@@ -14,6 +14,7 @@ AppManager = function() {
     // constants
     t.defaultUiLocale = 'en';
     t.defaultDisplayProperty = 'displayName';
+    t.defaultAnalyticsDisplayProperty = 'name';
     t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
 
@@ -97,6 +98,7 @@ AppManager = function() {
     t.uiLocale;
     t.displayProperty;
     t.displayPropertyUrl;
+    t.analyticsDisplayProperty;
     t.analysisFields;
 
     // fns
@@ -144,6 +146,14 @@ AppManager.prototype.getDisplayProperty = function() {
     }
 
     return this.displayProperty = this.displayPropertyMap[(this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
+};
+
+AppManager.prototype.getAnalyticsDisplayProperty = function() {
+    if (this.analyticsDisplayProperty) {
+        return this.analyticsDisplayProperty;
+    }
+
+    return this.analyticsDisplayProperty = (this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
 };
 
 AppManager.prototype.getValueTypesByType = function(type) {
