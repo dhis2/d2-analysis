@@ -124,9 +124,6 @@ InstanceManager.prototype.getById = function(id, fn) {
     var request = new t.api.Request({
         baseUrl: appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
         type: 'json',
-        params: {
-            fields: appManager.getAnalysisFields()
-        },
         success: function(r) {
             var layout = new t.api.Layout(r);
 
@@ -143,6 +140,10 @@ InstanceManager.prototype.getById = function(id, fn) {
 
             uiManager.alert(r);
         }
+    });
+
+    request.add({
+        fields: appManager.getAnalysisFields()
     });
 
     request.run();
@@ -173,9 +174,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
                 uiManager.unmask();
             }
 
-            if (fn) {
-                fn(obj, success, r);
-            }
+            fn && fn(obj, success, r);
         },
         error: function(r) {
             uiManager.unmask();
@@ -190,23 +189,25 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
-    var apiResource = t.apiResource,
-        path = t.appManager.getPath();
+    var type = t.apiResource.substring(0, t.apiResource.length - 1);
 
-    if (!isString(apiResource)) {
-        alert('No api resource defined');
-    }
-
-    var type = apiResource.substring(0, apiResource.length - 1);
-
-    var url = path + '/api/sharing?type=' + type + '&id=' + id,
-        fn = fn || function() {};
-
-    $.getJSON(encodeURI(url), function(r) {
-        fn(r);
-    }).error(function() {
-        uiManager.unmask();
+    var request = new t.api.Request({
+        baseUrl: t.appManager.getPath() + '/api/sharing',
+        type: 'json',
+        success: function(r) {
+            fn && fn(r);
+        },
+        error: function() {
+            t.uiManager.unmask();
+        }
     });
+
+    request.add({
+        type: type,
+        id: id
+    });
+
+    request.run();
 };
 
 InstanceManager.prototype.getUiState = function() {
