@@ -122,13 +122,12 @@ InstanceManager.prototype.getById = function(id, fn) {
     };
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
+        baseUrl: appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
         type: 'json',
         params: {
             fields: appManager.getAnalysisFields()
         },
         success: function(r) {
-console.log("r", r);
             var layout = new t.api.Layout(r);
 
             if (layout) {
@@ -157,22 +156,18 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 
     var t = this;
 
-    var path = t.appManager.getPath();
-    var fields = t.appManager.getAnalysisFields();
-    var apiResource = t.apiResource;
+    var appManager = t.appManager;
     var uiManager = t.uiManager;
-    var api = t.api;
     var i18n = t.i18nManager.get();
 
-    var url = path + '/api/' + apiResource + '/' + id;
-
-    if (doMask) {
-        uiManager.mask();
-    }
-
-    $.ajax({
-        url: encodeURI(url),
-        type: 'DELETE',
+    var request = new t.api.Request({
+        baseUrl: t.appManager.getPath() + '/api/' + t.apiResource + '/' + id,
+        method: 'DELETE',
+        beforeRun: function() {
+            if (doMask) {
+                uiManager.mask();
+            }
+        },
         success: function(obj, success, r) {
             if (doUnmask) {
                 uiManager.unmask();
@@ -188,6 +183,8 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
             uiManager.alert(r);
         }
     });
+
+    request.run();
 };
 
 InstanceManager.prototype.getSharingById = function(id, fn) {

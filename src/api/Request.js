@@ -28,6 +28,8 @@ Request = function(config) {
     t.params = arrayFrom(config.params);
     t.manager = config.manager || null;
 
+    t.beforeRun = isFunction(config.beforeRun) ? config.beforeRun : null;
+
     // defaults
     t.defaultSuccess = function() {
         var t = this;
@@ -126,6 +128,12 @@ Request.prototype.setError = function(fn) {
     }
 };
 
+Request.prototype.setBeforeRun = function(fn) {
+    if (isFunction(fn)) {
+        this.beforeRun = fn;
+    }
+};
+
 Request.prototype.setComplete = function(fn) {
     if (isFunction(fn)) {
         this.complete = fn;
@@ -149,6 +157,10 @@ Request.prototype.run = function(config) {
     var success = config.success || t.success,
         error = config.error || t.error,
         complete = config.complete || t.complete;
+
+    if (t.beforeRun && t.beforeRun() === false) {
+        return;
+    }
 
     if (this.type === 'json') {
         return $.getJSON(url, success).error(error).complete(complete);
