@@ -174,6 +174,7 @@ Request.prototype.run = function(config) {
 
         xhr.url = url;
         xhr.method = method;
+        xhr.type = method;
         headers && (xhr.headers = headers);
         dataType && (xhr.dataType = dataType);
         contentType && (xhr.contentType = contentType);

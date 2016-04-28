@@ -218,7 +218,8 @@ InstanceManager.prototype.postDataStatistics = function() {
     var t = this;
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/dataStatistics'
+        baseUrl: t.appManager.getPath() + '/api/dataStatistics',
+        method: 'POST'
     });
 
     request.add({
