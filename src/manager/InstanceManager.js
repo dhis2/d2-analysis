@@ -219,12 +219,16 @@ InstanceManager.prototype.getFavorite = function(id, fn) {
 InstanceManager.prototype.postDataStatistics = function() {
     var t = this;
 
-    var url = t.appManager.getPath() + '/api/dataStatistics?eventType=' + t.dataStatisticsEventType;
-
-    $.ajax({
-        url: encodeURI(url),
-        type: 'POST'
+    var request = new t.api.Request({
+        baseUrl: t.appManager.getPath() + '/api/dataStatistics'
     });
+
+    request.add({
+        eventType: t.dataStatisticsEventType,
+        favorite: t.getStateFavoriteId()
+    });
+
+    request.run();
 };
 
 InstanceManager.prototype.applyTo = function(modules) {

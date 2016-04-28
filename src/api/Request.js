@@ -1,6 +1,8 @@
 import isString from 'd2-utilizr/lib/isString';
+import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isFunction from 'd2-utilizr/lib/isFunction';
+import isEmpty from 'd2-utilizr/lib/isEmpty';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 
@@ -13,6 +15,7 @@ Request = function(config) {
     config = isObject(config) ? config : {};
 
     // constructor
+    t.method = isString(config.method) ? config.method : 'GET';
     t.headers = isObject(config.headers) ? config.headers : null;
     t.dataType = isString(config.dataType) ? config.dataType : null;
     t.contentType = isString(config.contentType) ? config.contentType : null;
@@ -20,7 +23,7 @@ Request = function(config) {
     t.error = isFunction(config.error) ? config.error : function() { t.defaultError(); };
     t.complete = isFunction(config.complete) ? config.complete : function() { t.defaultComplete(); };
 
-    t.type = isString(config.type) ? config.type : 'json';
+    t.type = isString(config.type) ? config.type : 'ajax';
     t.baseUrl = isString(config.baseUrl) ? config.baseUrl : '';
     t.params = arrayFrom(config.params);
     t.manager = config.manager || null;
@@ -86,7 +89,7 @@ Request.prototype.add = function(param) {
     }
     else if (isObject(param)) {
         for (var key in param) {
-            if (param.hasOwnProperty(key)) {
+            if (param.hasOwnProperty(key) && !isEmpty(param[key])) {
                 t.params.push(key + '=' + param[key]);
             }
         }
@@ -143,24 +146,29 @@ Request.prototype.run = function(config) {
 
     config = isObject(config) ? config : {};
 
-    if (this.type === 'ajax') {
-        var headers = config.headers || t.headers,
+    var success = config.success || t.success,
+        error = config.error || t.error,
+        complete = config.complete || t.complete;
+
+    if (this.type === 'json') {
+        return $.getJSON(url, success).error(error).complete(complete);
+    }
+    else {
+        var method = config.method || t.method,
+            headers = config.headers || t.headers,
             dataType = config.dataType || t.dataType,
             contentType = config.contentType || t.contentType,
             xhr = {};
 
         xhr.url = url;
-        xhr.success = config.success || t.success;
-        xhr.error = config.error || t.error;
-        xhr.complete = config.complete || t.complete;
-
+        xhr.method = method;
         headers && (xhr.headers = headers);
         dataType && (xhr.dataType = dataType);
         contentType && (xhr.contentType = contentType);
+        xhr.success = success;
+        xhr.error = error;
+        xhr.complete = complete;
 
         return $.ajax(xhr);
-    }
-    else {
-        return $.getJSON(url, config.success || t.success).error(config.error || t.error).complete(config.complete || t.complete);
     }
 };
