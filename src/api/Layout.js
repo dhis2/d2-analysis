@@ -567,10 +567,11 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     var optionConfig = this.klass.optionConfig,
-        displayProperty = this.displayProperty || this.klass.appManager.getAnalyticsDisplayProperty(),
+        appManager = this.klass.appManager,
         request = new Request();
 
-    var defAggTypeId = optionConfig.getAggregationType('def').id;
+    var defAggTypeId = optionConfig.getAggregationType('def').id,
+        displayProperty = this.displayProperty || appManager.getAnalyticsDisplayProperty();
 
     // dimensions
     this.getDimensions(false, isSorted).forEach(function(dimension) {
@@ -640,6 +641,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
         if (this.hideEmptyRows) {
             request.add('hideEmptyRows=true');
         }
+    }
+
+    // relative orgunits / user
+    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
+        request.add('user=' + appManager.userAccount.id);
     }
 
     // base
