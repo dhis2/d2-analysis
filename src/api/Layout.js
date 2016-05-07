@@ -206,7 +206,29 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
     return isSorted ? dimensions.sort(function(a, b) {return a.dimension > b.dimension;}) : dimensions;
 };
 
+Layout.prototype.getRecords = function(includeFilter) {
+    var records = [];
+
+    this.getAxes(includeFilter).forEach(function(axis) {
+        axis.forEach(function(dimension) {
+            records = records.concat(dimension.getRecords());
+        });
+    });
+
+    return records;
+};
+
 // dep 2
+
+Layout.prototype.getRecordIds = function(includeFilter) {
+    var ids = [];
+
+    this.getRecords(includeFilter).forEach(function(record) {
+        ids.push(record.id);
+    });
+
+    return ids;
+};
 
 Layout.prototype.getDimension = function(dimensionName) {
     return this.getDimensions(true).find(function(dimension) {
@@ -249,89 +271,6 @@ Layout.prototype.val = function(noError) {
     }
 
     return this;
-};
-
-Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
-    var optionConfig = this.klass.optionConfig,
-        displayProperty = this.displayProperty || this.klass.appManager.getAnalyticsDisplayProperty(),
-        request = new Request();
-
-    var defAggTypeId = optionConfig.getAggregationType('def').id;
-
-    // dimensions
-    this.getDimensions(false, isSorted).forEach(function(dimension) {
-        request.add(dimension.url(isSorted));
-    });
-
-    // filters
-    if (this.filters) {
-        this.filters.forEach(function(dimension) {
-            request.add(dimension.url(isSorted, null, true));
-        });
-    }
-
-    // skip rounding
-    if (this.skipRounding) {
-        request.add('skipRounding=true');
-    }
-
-    // display property
-    request.add('displayProperty=' + displayProperty.toUpperCase());
-
-    // normal request only
-    if (!isTableLayout) {
-
-        // hierarchy
-        if (this.showHierarchy) {
-            request.add('hierarchyMeta=true');
-        }
-
-        // completed only
-        if (this.completedOnly) {
-            request.add('completedOnly=true');
-        }
-
-        // aggregation type
-        if (isString(this.aggregationType) && this.aggregationType !== defAggTypeId) {
-            request.add('aggregationType=' + this.aggregationType);
-        }
-
-        // user org unit
-        if (isArray(this.userOrgUnit) && this.userOrgUnit.length) {
-            request.add(this.getUserOrgUnitUrl());
-        }
-
-        // data approval level
-        if (isObject(this.dataApprovalLevel) && isString(this.dataApprovalLevel.id) && this.dataApprovalLevel.id !== 'DEFAULT') {
-            request.add('approvalLevel=' + this.dataApprovalLevel.id);
-        }
-
-        // relative period date
-        if (this.relativePeriodDate) {
-            request.add('relativePeriodDate=' + this.relativePeriodDate);
-        }
-    }
-    else {
-
-        // table layout
-        request.add('tableLayout=true');
-
-        // columns
-        request.add('columns=' + this.getDimensionNames(false, false, this.columns).join(';'));
-
-        // rows
-        request.add('rows=' + this.getDimensionNames(false, false, this.rows).join(';'));
-
-        // hide empty rows
-        if (this.hideEmptyRows) {
-            request.add('hideEmptyRows=true');
-        }
-    }
-
-    // base
-    request.setBaseUrl(this.getRequestPath(source, format));
-
-    return request;
 };
 
 Layout.prototype.toPlugin = function(el) {
@@ -513,6 +452,21 @@ Layout.prototype.sort = function(table) {
 
 // dep 3
 
+Layout.prototype.hasRecordIds = function(idParam, includeFilter) {
+    var ids = this.getRecordIds(includeFilter);
+    var has = false;
+
+    idParam = arrayFrom(idParam);
+
+    idParam.forEach(function(id) {
+        if (arrayContains(ids, id)) {
+            has = true;
+        }
+    });
+
+    return has;
+};
+
 Layout.prototype.data = function(source, format) {
     var metaDataRequest = this.req(source, format, true);
     var dataRequest = this.req(source, format);
@@ -607,4 +561,89 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
     var instanceManager = t.klass.instanceManager;
 
     instanceManager.delById(t.id, fn, doMask, doUnmask);
+};
+
+// dep 4
+
+Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
+    var optionConfig = this.klass.optionConfig,
+        displayProperty = this.displayProperty || this.klass.appManager.getAnalyticsDisplayProperty(),
+        request = new Request();
+
+    var defAggTypeId = optionConfig.getAggregationType('def').id;
+
+    // dimensions
+    this.getDimensions(false, isSorted).forEach(function(dimension) {
+        request.add(dimension.url(isSorted));
+    });
+
+    // filters
+    if (this.filters) {
+        this.filters.forEach(function(dimension) {
+            request.add(dimension.url(isSorted, null, true));
+        });
+    }
+
+    // skip rounding
+    if (this.skipRounding) {
+        request.add('skipRounding=true');
+    }
+
+    // display property
+    request.add('displayProperty=' + displayProperty.toUpperCase());
+
+    // normal request only
+    if (!isTableLayout) {
+
+        // hierarchy
+        if (this.showHierarchy) {
+            request.add('hierarchyMeta=true');
+        }
+
+        // completed only
+        if (this.completedOnly) {
+            request.add('completedOnly=true');
+        }
+
+        // aggregation type
+        if (isString(this.aggregationType) && this.aggregationType !== defAggTypeId) {
+            request.add('aggregationType=' + this.aggregationType);
+        }
+
+        // user org unit
+        if (isArray(this.userOrgUnit) && this.userOrgUnit.length) {
+            request.add(this.getUserOrgUnitUrl());
+        }
+
+        // data approval level
+        if (isObject(this.dataApprovalLevel) && isString(this.dataApprovalLevel.id) && this.dataApprovalLevel.id !== 'DEFAULT') {
+            request.add('approvalLevel=' + this.dataApprovalLevel.id);
+        }
+
+        // relative period date
+        if (this.relativePeriodDate) {
+            request.add('relativePeriodDate=' + this.relativePeriodDate);
+        }
+    }
+    else {
+
+        // table layout
+        request.add('tableLayout=true');
+
+        // columns
+        request.add('columns=' + this.getDimensionNames(false, false, this.columns).join(';'));
+
+        // rows
+        request.add('rows=' + this.getDimensionNames(false, false, this.rows).join(';'));
+
+        // hide empty rows
+        if (this.hideEmptyRows) {
+            request.add('hideEmptyRows=true');
+        }
+    }
+
+    // base
+    request.setBaseUrl(this.getRequestPath(source, format));
+
+    return request;
 };

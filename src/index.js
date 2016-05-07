@@ -86,13 +86,6 @@ export {
     LinkItem,
     AboutWindow,
     GridHeaders,
-    //CenterRegion,
-    //WestRegion,
-    //MenuAccordion,
-    //IndicatorPanel,
-    //DataElementPanel,
-    //DataTab,
-    //PeriodTab,
 
     i18nInit,
     authViewUnapprovedDataInit,
@@ -151,13 +144,6 @@ export const ui = {
     LinkItem: LinkItem,
     AboutWindow: AboutWindow,
     GridHeaders: GridHeaders,
-    //CenterRegion: CenterRegion,
-    //WestRegion: WestRegion,
-    //MenuAccordion: MenuAccordion,
-    //IndicatorPanel: IndicatorPanel,
-    //DataElementPanel: DataElementPanel,
-    //DataTab: DataTab,
-    //PeriodTab: PeriodTab,
 };
 
 export const init = {

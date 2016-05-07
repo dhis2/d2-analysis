@@ -73,6 +73,12 @@ AppManager = function() {
         'displayShortName': 'displayShortName'
     };
 
+    t.userIdDestroyCacheKeys = [
+        'USER_ORGUNIT',
+        'USER_ORGUNIT_CHILDREN',
+        'USER_ORGUNIT_GRANDCHILDREN'
+    ];
+
     // uninitialized
     t.appName;
     t.sessionName;
