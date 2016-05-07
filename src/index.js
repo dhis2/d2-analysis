@@ -7,6 +7,7 @@ import {ResponseHeader} from './api/ResponseHeader.js';
 import {ResponseRow} from './api/ResponseRow.js';
 import {ResponseRowIdCombination} from './api/ResponseRowIdCombination.js';
 import {Response} from './api/Response.js';
+import {Sorting} from './api/Sorting.js';
 
 import {TableAxis} from './pivot/TableAxis.js';
 import {Table} from './pivot/Table.js';
@@ -55,6 +56,7 @@ export {
     ResponseRow,
     ResponseRowIdCombination,
     Response,
+    Sorting,
 
     TableAxis,
     Table,
@@ -111,6 +113,7 @@ export const api = {
     ResponseRow: ResponseRow,
     ResponseRowIdCombination: ResponseRowIdCombination,
     Response: Response,
+    Sorting: Sorting,
 };
 
 export const pivot = {

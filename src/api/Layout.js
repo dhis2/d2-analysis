@@ -16,6 +16,7 @@ import {Dimension} from './Dimension.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
 import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
+import {Sorting} from './Sorting.js';
 import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
@@ -74,6 +75,9 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
     t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
+        // data table
+    t.reduceLayout = isBoolean(c.reduceLayout) ? c.reduceLayout : false;
+
         // sharing
     _access = isObject(c.access) ? c.access : null;
 
@@ -94,7 +98,7 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
-        t.sorting = c.sorting;
+        t.sorting = new Sorting(c.sorting);
     }
 
         // displayProperty
