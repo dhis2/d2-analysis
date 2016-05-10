@@ -75,9 +75,6 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
     t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
-        // data table
-    t.reduceLayout = isBoolean(c.reduceLayout) ? c.reduceLayout : false;
-
         // sharing
     _access = isObject(c.access) ? c.access : null;
 
