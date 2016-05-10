@@ -75,6 +75,9 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
     t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
+        // data table
+    t.reduceLayout = isBoolean(c.reduceLayout) ? c.reduceLayout : false;
+
         // sharing
     _access = isObject(c.access) ? c.access : null;
 
@@ -596,7 +599,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     request.add('displayProperty=' + displayProperty.toUpperCase());
 
     // normal request only
-    if (!isTableLayout) {
+    if (!isTableLayout) {
 
         // hierarchy
         if (this.showHierarchy) {
@@ -646,7 +649,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     }
 
     // relative orgunits / user
-    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
+    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
         request.add('user=' + appManager.userAccount.id);
     }
 
