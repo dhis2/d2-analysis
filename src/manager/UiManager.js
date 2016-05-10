@@ -76,11 +76,13 @@ UiManager = function(c) {
         return isString(param) ? t.get(param) : param;
     };
 
-    t.update = function(html, elementId) {
+    t.update = function(html, elementId) {
         html = html || t.getIntroHtml();
 
-        if (elementId) {
-            document.getElementById(elementId).innerHTML = html;
+        var el = document.getElementById(elementId);
+
+        if (elementId && el) {
+            el.innerHTML = html;
             return;
         }
 
