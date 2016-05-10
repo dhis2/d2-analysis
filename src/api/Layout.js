@@ -16,6 +16,7 @@ import {Dimension} from './Dimension.js';
 import {Record} from './Record.js';
 import {Request} from './Request.js';
 import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
+import {Sorting} from './Sorting.js';
 import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
@@ -94,7 +95,7 @@ Layout = function(c, applyConfig, forceApplyConfig) {
 
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
-        t.sorting = c.sorting;
+        t.sorting = new Sorting(c.sorting);
     }
 
         // displayProperty
@@ -110,6 +111,11 @@ Layout = function(c, applyConfig, forceApplyConfig) {
         // relative period date
     if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
+    }
+
+        // reduce layout
+    if (isBoolean(c.reduceLayout)) {
+        t.reduceLayout = c.reduceLayout;
     }
 
     if (c.el && isString(c.el)) {
@@ -249,10 +255,11 @@ Layout.prototype.val = function(noError) {
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     var optionConfig = this.klass.optionConfig,
-        displayProperty = this.displayProperty || this.klass.appManager.getAnalyticsDisplayProperty(),
+        appManager = this.klass.appManager,
         request = new Request();
 
-    var defAggTypeId = optionConfig.getAggregationType('def').id;
+    var defAggTypeId = optionConfig.getAggregationType('def').id,
+        displayProperty = this.displayProperty || appManager.getAnalyticsDisplayProperty();
 
     // dimensions
     this.getDimensions(false, isSorted).forEach(function(dimension) {
@@ -275,7 +282,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     request.add('displayProperty=' + displayProperty.toUpperCase());
 
     // normal request only
-    if (!isTableLayout) {
+    if (!isTableLayout) {
 
         // hierarchy
         if (this.showHierarchy) {
@@ -322,6 +329,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
         if (this.hideEmptyRows) {
             request.add('hideEmptyRows=true');
         }
+    }
+
+    // relative orgunits / user
+    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
+        request.add('user=' + appManager.userAccount.id);
     }
 
     // base
