@@ -143,13 +143,23 @@ OptionConfig = function() {
                 id: 'REPORTING_RATE',
                 name: i18nManager.get('reporting_rates') || 'Reporting rates'
             },
-            'actualReports': {
+            'reportingRatesOnTime': {
                 index: 2,
+                id: 'REPORTING_RATE_ON_TIME',
+                name: i18nManager.get('reporting_rates_on_time') || 'Reporting rates on time'
+            },
+            'actualReports': {
+                index: 3,
                 id: 'ACTUAL_REPORTS',
                 name: i18nManager.get('actual_reports') || 'Actual reports'
             },
+            'actualReportsOnTime': {
+                index: 4,
+                id: 'ACTUAL_REPORTS_ON_TIME',
+                name: i18nManager.get('actual_reports_on_time') || 'Actual reports on time'
+            },
             'expectedReports': {
-                index: 3,
+                index: 5,
                 id: 'EXPECTED_REPORTS',
                 name: i18nManager.get('expected_reports') || 'Expected reports'
             }
