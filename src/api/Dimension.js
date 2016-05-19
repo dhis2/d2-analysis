@@ -36,14 +36,17 @@ Dimension.prototype.log = function(text, noError) {
 };
 
 Dimension.prototype.val = function(noError) {
+
+    // error
     if (!isString(this.dimension)) {
         this.log('(Dimension) Dimension is not a string', noError);
         return null;
     }
 
+    // warning
     if (!this.items.length && this.dimension !== 'co') {
         this.log('(Dimension) No items', noError);
-        return null;
+        //return null;
     }
 
     return this;
@@ -100,5 +103,10 @@ Dimension.prototype.toPost = function() {
 // dep 2
 
 Dimension.prototype.url = function(isSorted, response, isFilter) {
-    return (isFilter ? 'filter' : 'dimension') + '=' + this.dimension + ':' + arrayUnique(this.getRecordIds(false, response)).join(';');
+    var url = (isFilter ? 'filter' : 'dimension') + '=' + this.dimension,
+        records = arrayUnique(this.getRecordIds(false, response));
+
+    url += records.length ? (':' + records.join(';')) : '';
+
+    return url;
 };
