@@ -114,6 +114,11 @@ PeriodTab = function() {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_52_WEEKS',
                                 boxLabel: i18n['last_52_weeks']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'WEEKS_THIS_YEAR',
+                                boxLabel: i18n['weeks_this_year']
                             }
                         ]
                     },
@@ -289,6 +294,11 @@ PeriodTab = function() {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_BIMONTHS',
                                 boxLabel: i18n['last_6_bimonths']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'BIMONTHS_THIS_YEAR',
+                                boxLabel: i18n['bimonths_this_year']
                             }
                         ]
                     },
