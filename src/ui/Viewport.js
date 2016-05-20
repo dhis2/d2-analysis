@@ -456,7 +456,7 @@ Viewport = function(c, cmp) {
             var metric = dataSetMetric.getValue() || '';
 
             this.filterBy(function(record) {
-                return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.indexOf(metric) !== -1);
+                return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.split('.')[1] === metric);
             });
         },
         loadPage: function(filter, append, noPaging, fn) {
@@ -514,12 +514,6 @@ Viewport = function(c, cmp) {
             });
 
             return processedData;
-        },
-        filterMetric: function(metric) {
-            this.clearFilter();
-            this.filterBy(function(record) {
-                return record.data.id.indexOf(metric) !== -1;
-            });
         },
         loadStore: function(data, pager, append, fn) {
             pager = pager || {};
