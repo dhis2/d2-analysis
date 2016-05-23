@@ -2261,6 +2261,11 @@ Viewport = function(c, cmp) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_52_WEEKS',
                                 boxLabel: i18n['last_52_weeks']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'WEEKS_THIS_YEAR',
+                                boxLabel: i18n['weeks_this_year']
                             }
                         ]
                     },
@@ -2289,6 +2294,11 @@ Viewport = function(c, cmp) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_4_QUARTERS',
                                 boxLabel: i18n['last_4_quarters']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'QUARTERS_THIS_YEAR',
+                                boxLabel: i18n['quarters_this_year']
                             }
                         ]
                     },
@@ -2362,6 +2372,11 @@ Viewport = function(c, cmp) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_12_MONTHS',
                                 boxLabel: i18n['last_12_months']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'MONTHS_THIS_YEAR',
+                                boxLabel: i18n['months_this_year']
                             }
                         ]
                     },
@@ -2426,6 +2441,11 @@ Viewport = function(c, cmp) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_BIMONTHS',
                                 boxLabel: i18n['last_6_bimonths']
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'BIMONTHS_THIS_YEAR',
+                                boxLabel: i18n['bimonths_this_year']
                             }
                         ]
                     },
