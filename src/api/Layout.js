@@ -470,8 +470,8 @@ Layout.prototype.hasRecordIds = function(idParam, includeFilter) {
 };
 
 Layout.prototype.data = function(source, format) {
-    var metaDataRequest = this.req(source, format, true);
-    var dataRequest = this.req(source, format);
+    var metaDataRequest = this.req(source, format);
+    var dataRequest = this.req(source, format, true);
 
     return {
         metaData: $.getJSON(encodeURI(metaDataRequest.url('skipData=true'))),
