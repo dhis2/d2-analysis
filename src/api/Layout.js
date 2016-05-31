@@ -643,6 +643,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
         if (this.hideEmptyRows) {
             request.add('hideEmptyRows=true');
         }
+
+        // show hierarchy
+        if (this.showHierarchy) {
+            request.add('showHierarchy=true');
+        }
     }
 
     // relative orgunits / user
