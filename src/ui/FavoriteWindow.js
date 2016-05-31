@@ -66,15 +66,15 @@ FavoriteWindow = function(c, action) {
             'line-height: 13px'
         ];
 
-    getDirection = function() {
-        return sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    getDirection = function(keepDir) {
+        return sortDirection = keepDir ? sortDirection : (sortDirection === 'asc' ? 'desc' : 'asc');
     };
 
-    getStoreUrl = function(field) {
+    getStoreUrl = function(field, keepDir) {
         sortField = field || sortField;
 
         var value = action === 'open' ? searchTextfield.getValue() : null;
-        return path + '/api/' + apiResource + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection();
+        return path + '/api/' + apiResource + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection(keepDir);
     };
 
     favoriteStore = Ext.create('Ext.data.Store', {
@@ -241,7 +241,7 @@ FavoriteWindow = function(c, action) {
     prevButton = Ext.create('Ext.button.Button', {
         text: i18n.prev,
         handler: function() {
-            var url = getStoreUrl(),
+            var url = getStoreUrl(null, true),
                 store = favoriteStore;
 
             store.page = store.page <= 1 ? 1 : store.page - 1;
@@ -252,7 +252,7 @@ FavoriteWindow = function(c, action) {
     nextButton = Ext.create('Ext.button.Button', {
         text: i18n.next,
         handler: function() {
-            var url = getStoreUrl(),
+            var url = getStoreUrl(null, true),
                 store = favoriteStore;
 
             store.page = store.page + 1;
