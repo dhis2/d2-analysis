@@ -104,7 +104,7 @@ Dimension.prototype.toPost = function() {
 
 Dimension.prototype.url = function(isSorted, response, isFilter) {
     var url = (isFilter ? 'filter' : 'dimension') + '=' + this.dimension,
-        records = arrayUnique(this.getRecordIds(false, response));
+        records = arrayUnique(this.getRecordIds(isSorted, response));
 
     url += records.length ? (':' + records.join(';')) : '';
 
