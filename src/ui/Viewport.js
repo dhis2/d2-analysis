@@ -453,11 +453,13 @@ Viewport = function(c, cmp) {
 
             this.clearFilter();
 
-            var metric = dataSetMetric.getValue() || '';
+            var metric = dataSetMetric.getValue();
 
-            this.filterBy(function(record) {
-                return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.split('.')[1] === metric);
-            });
+            if (metric) {
+                this.filterBy(function(record) {
+                    return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.split('.')[1] === metric);
+                });
+            }
         },
         loadPage: function(filter, append, noPaging, fn) {
             var store = this,
