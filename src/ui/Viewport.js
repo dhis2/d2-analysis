@@ -3919,7 +3919,7 @@ Viewport = function(c, cmp) {
             format = format || 'csv';
             scheme = scheme || 'ID';
 
-            var url = layout.req(null, format).url('&outputIdScheme=' + scheme);
+            var url = layout.req(null, format).url(['outputIdScheme=' + scheme, 'showHierarchy=true']);
             var target = isNewTab ? '_blank' : '_top';
 
             window.open(url, target);
