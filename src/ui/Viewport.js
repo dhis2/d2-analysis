@@ -3886,9 +3886,10 @@ Viewport = function(c, cmp) {
 
     var openDataDump = function(format, scheme, isNewTab) {
         var layout = instanceManager.getLayout();
+        var includeFilter = false;
 
         if (layout) {
-            layout.toRows();
+            layout.toRows(includeFilter);
 
             format = format || 'csv';
             //scheme = scheme || 'ID';
@@ -3901,7 +3902,7 @@ Viewport = function(c, cmp) {
 
             //extraParams.push('outputIdScheme=' + scheme);
 
-            extraParams.push('rows=' + layout.getDimensionNames().join(';'));
+            extraParams.push('rows=' + layout.getDimensionNames(includeFilter).join(';'));
 
             var url = layout.req(null, format).url(extraParams);
             var target = isNewTab ? '_blank' : '_top';
