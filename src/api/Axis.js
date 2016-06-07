@@ -42,6 +42,16 @@ Axis = function(config) {
         return Axis(this);
     };
 
+    t.empty = function() {
+        var cache = t.slice(0);
+
+        for (var i = 0, len = t.length; i < len; i++) {
+            t.pop();
+        }
+
+        return cache;
+    };
+
     t.getDimension = function(dimensionName) {
         return this.find(function(dimension) {
             return dimension.dimension === dimensionName;

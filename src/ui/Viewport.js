@@ -3826,36 +3826,8 @@ Viewport = function(c, cmp) {
                         text: 'CSV',
                         iconCls: 'ns-menu-item-datasource',
                         handler: function() {
-                            openDataDump('csv', 'ID');
-                        },
-                        menu: [
-                            {
-                                xtype: 'label',
-                                text: i18n.metadata_id_scheme,
-                                style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
-                            },
-                            {
-                                text: 'ID',
-                                iconCls: 'ns-menu-item-scheme',
-                                handler: function() {
-                                    openDataDump('csv', 'ID');
-                                }
-                            },
-                            {
-                                text: 'Code',
-                                iconCls: 'ns-menu-item-scheme',
-                                handler: function() {
-                                    openDataDump('csv', 'CODE');
-                                }
-                            },
-                            {
-                                text: 'Name',
-                                iconCls: 'ns-menu-item-scheme',
-                                handler: function() {
-                                    openDataDump('csv', 'NAME');
-                                }
-                            }
-                        ]
+                            openDataDump('csv');
+                        }
                     }
                 ],
                 listeners: {
@@ -3916,16 +3888,20 @@ Viewport = function(c, cmp) {
         var layout = instanceManager.getLayout();
 
         if (layout) {
-            format = format || 'csv';
-            scheme = scheme || 'ID';
+            layout.toRows();
 
-            var extraParams = [
-                'outputIdScheme=' + scheme
-            ];
+            format = format || 'csv';
+            //scheme = scheme || 'ID';
+
+            var extraParams = [];
 
             if (layout.showHierarchy) {
                 extraParams.push('showHierarchy=true');
             }
+
+            //extraParams.push('outputIdScheme=' + scheme);
+
+            extraParams.push('rows=' + layout.getDimensionNames().join(';'));
 
             var url = layout.req(null, format).url(extraParams);
             var target = isNewTab ? '_blank' : '_top';
