@@ -178,8 +178,8 @@ Layout.prototype.clone = function() {
     return layout;
 };
 
-Layout.prototype.toRows = function() {
-    this.rows = this.rows.concat(this.columns.empty(), this.filters.empty());
+Layout.prototype.toRows = function(includeFilter) {
+    this.rows = arrayClean(this.rows.concat(this.columns.empty(), includeFilter ? this.filters.empty() : []));
 };
 
 Layout.prototype.getAxes = function(includeFilter) {
