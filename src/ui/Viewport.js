@@ -2595,7 +2595,7 @@ Viewport = function(c, cmp) {
         },
         setDimension: function(layout) {
             if (layout.hasDimension(this.dimension, true)) {
-                var records = layout.getDimension(this.dimension).getRecords(),
+                var records = layout.getDimension(this.dimension).getRecords(null, layout.getResponse()),
                     fixedRecords = [],
                     checkbox;
 
