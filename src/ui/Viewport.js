@@ -2204,7 +2204,7 @@ Viewport = function(c, cmp) {
         listeners: {
             added: function(chb) {
                 if (chb.xtype === 'checkbox') {
-                    period.checkboxes.push(chb);
+                    period.checkboxes[chb.index] = chb;
                     relativePeriod.valueComponentMap[chb.relativePeriodId] = chb;
 
                     if (chb.relativePeriodId === appManager.getRelativePeriod()) {
@@ -2242,27 +2242,32 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_WEEK',
-                                boxLabel: i18n['this_week']
+                                boxLabel: i18n['this_week'],
+                                index: 0
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_WEEK',
-                                boxLabel: i18n['last_week']
+                                boxLabel: i18n['last_week'],
+                                index: 1
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_4_WEEKS',
-                                boxLabel: i18n['last_4_weeks']
+                                boxLabel: i18n['last_4_weeks'],
+                                index: 2
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_12_WEEKS',
-                                boxLabel: i18n['last_12_weeks']
+                                boxLabel: i18n['last_12_weeks'],
+                                index: 3
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_52_WEEKS',
-                                boxLabel: i18n['last_52_weeks']
+                                boxLabel: i18n['last_52_weeks'],
+                                index: 4
                             }
                         ]
                     },
@@ -2280,17 +2285,20 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_QUARTER',
-                                boxLabel: i18n['this_quarter']
+                                boxLabel: i18n['this_quarter'],
+                                index: 13
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_QUARTER',
-                                boxLabel: i18n['last_quarter']
+                                boxLabel: i18n['last_quarter'],
+                                index: 14
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_4_QUARTERS',
-                                boxLabel: i18n['last_4_quarters']
+                                boxLabel: i18n['last_4_quarters'],
+                                index: 15
                             }
                         ]
                     },
@@ -2308,17 +2316,20 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_YEAR',
-                                boxLabel: i18n['this_year']
+                                boxLabel: i18n['this_year'],
+                                index: 22
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_YEAR',
-                                boxLabel: i18n['last_year']
+                                boxLabel: i18n['last_year'],
+                                index: 23
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_YEARS',
-                                boxLabel: i18n['last_5_years']
+                                boxLabel: i18n['last_5_years'],
+                                index: 24
                             }
                         ]
                     }
@@ -2343,27 +2354,32 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_MONTH',
-                                boxLabel: i18n['this_month']
+                                boxLabel: i18n['this_month'],
+                                index: 5
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_MONTH',
-                                boxLabel: i18n['last_month']
+                                boxLabel: i18n['last_month'],
+                                index: 6
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_3_MONTHS',
-                                boxLabel: i18n['last_3_months']
+                                boxLabel: i18n['last_3_months'],
+                                index: 7
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_MONTHS',
-                                boxLabel: i18n['last_6_months']
+                                boxLabel: i18n['last_6_months'],
+                                index: 8
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_12_MONTHS',
-                                boxLabel: i18n['last_12_months']
+                                boxLabel: i18n['last_12_months'],
+                                index: 9
                             }
                         ]
                     },
@@ -2381,17 +2397,20 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_SIX_MONTH',
-                                boxLabel: i18n['this_sixmonth']
+                                boxLabel: i18n['this_sixmonth'],
+                                index: 16
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_SIX_MONTH',
-                                boxLabel: i18n['last_sixmonth']
+                                boxLabel: i18n['last_sixmonth'],
+                                index: 17
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_2_SIXMONTHS',
-                                boxLabel: i18n['last_2_sixmonths']
+                                boxLabel: i18n['last_2_sixmonths'],
+                                index: 18
                             }
                         ]
                     }
@@ -2417,17 +2436,20 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_BIMONTH',
-                                boxLabel: i18n['this_bimonth']
+                                boxLabel: i18n['this_bimonth'],
+                                index: 10
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_BIMONTH',
-                                boxLabel: i18n['last_bimonth']
+                                boxLabel: i18n['last_bimonth'],
+                                index: 11
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_BIMONTHS',
-                                boxLabel: i18n['last_6_bimonths']
+                                boxLabel: i18n['last_6_bimonths'],
+                                index: 12
                             }
                         ]
                     },
@@ -2445,17 +2467,20 @@ Viewport = function(c, cmp) {
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_FINANCIAL_YEAR',
-                                boxLabel: i18n['this_financial_year']
+                                boxLabel: i18n['this_financial_year'],
+                                index: 19
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_FINANCIAL_YEAR',
-                                boxLabel: i18n['last_financial_year']
+                                boxLabel: i18n['last_financial_year'],
+                                index: 20
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
-                                boxLabel: i18n['last_5_financial_years']
+                                boxLabel: i18n['last_5_financial_years'],
+                                index: 21
                             }
                         ]
                     }
