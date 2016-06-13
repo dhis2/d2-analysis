@@ -213,11 +213,13 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
 };
 
 Layout.prototype.getRecords = function(includeFilter) {
+    var t = this;
+
     var records = [];
 
     this.getAxes(includeFilter).forEach(function(axis) {
         axis.forEach(function(dimension) {
-            records = records.concat(dimension.getRecords());
+            records = records.concat(dimension.getRecords(null, t.getResponse()));
         });
     });
 
