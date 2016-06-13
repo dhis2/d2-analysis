@@ -2653,10 +2653,12 @@ Viewport = function(c, cmp) {
                 });
             });
 
-            for (var i = 0; i < this.checkboxes.length; i++) {
-                if (this.checkboxes[i].getValue()) {
+            for (var i = 0, chb; i < this.checkboxes.length; i++) {
+                chb = this.checkboxes[i];
+
+                if (chb && chb.getValue()) {
                     config.items.push({
-                        id: this.checkboxes[i].relativePeriodId,
+                        id: chb.relativePeriodId,
                         name: ''
                     });
                 }
