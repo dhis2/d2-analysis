@@ -27,6 +27,9 @@ InstanceManager = function(c) {
     // done fn
     var fn;
 
+    // initialized
+    t.isPlugin = false;
+
     // uninitialized
     t.apiResource;
     t.dataStatisticsEventType;
@@ -79,7 +82,7 @@ InstanceManager = function(c) {
             t.sessionStorageManager.set(_state.current, t.appManager.sessionName);
         }
 
-        t.uiManager.setState(_state.current, isFavorite, skipSelect);
+        t.uiManager.setState(_state.current, _state.favorite, isFavorite, skipSelect);
     };
 
     t.setStateIf = function(curr, isFavorite) {

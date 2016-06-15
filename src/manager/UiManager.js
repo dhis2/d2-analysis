@@ -90,34 +90,41 @@ UiManager = function(c) {
     };
 
     // state
-    t.setState = function(layout, isFavorite, skipSelect) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipSelect) {
         var north = t.get('northRegion'),
             west = t.get('westRegion');
 
-        // toolbar
-        if (north) {
-            north.setState(layout, isFavorite);
-        }
+        // app, not plugin
+        if (!t.instanceManager.isPlugin) {
 
-            // current
-        componentTags.onCurrent.forEach(function(item) {
-            item.setDisabled(!(layout && item.enable));
-        });
+            // set url state
+            t.setUrlState(favoriteState ? ('?id=' + favoriteState.id) : '.');
 
-            // favorite
-        componentTags.onFavorite.forEach(function(item) {
-            item.setDisabled(!(layout && item.enable && isFavorite));
-        });
+            // toolbar
+            if (north) {
+                north.setState(currentState, isFavorite);
+            }
 
-        // west
-        if (west && !skipSelect) {
-            if (!layout || isFavorite) {
-                west.setState(layout);
+                // current
+            componentTags.onCurrent.forEach(function(item) {
+                item.setDisabled(!(currentState && item.enable));
+            });
+
+                // favorite
+            componentTags.onFavorite.forEach(function(item) {
+                item.setDisabled(!(currentState && item.enable && isFavorite));
+            });
+
+            // west
+            if (west && !skipSelect) {
+                if (!currentState || isFavorite) {
+                    west.setState(currentState);
+                }
             }
         }
 
         // center
-        if (!layout) {
+        if (!currentState) {
             t.update();
         }
     };
@@ -421,6 +428,11 @@ UiManager = function(c) {
         else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
             window.open(url, '_blank');
         }
+    };
+
+    // url
+    t.setUrlState = function(text) {
+        global.history.pushState(null, null, text);
     };
 
     // plugin
