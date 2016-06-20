@@ -106,6 +106,7 @@ AppManager = function() {
     t.displayPropertyUrl;
     t.analyticsDisplayProperty;
     t.analysisFields;
+    t.legendSetMap;
 
     // fns
     t.getUrlParam = function(s) {
@@ -192,6 +193,22 @@ AppManager.prototype.addLegendSets = function(param) {
     this.legendSets = arrayClean(this.legendSets.concat(arrayFrom(param)));
 
     arraySort(this.legendSets, 'ASC', 'name');
+};
+
+AppManager.prototype.getLegendSetById = function(id) {
+    var t = this;
+
+    if (t.legendSetMap) {
+        return t.legendSetMap[id];
+    }
+
+    t.legendSetMap = {};
+
+    t.legendSets.forEach(function(set) {
+        t.legendSetMap[set.id] = set;
+    });
+
+    return t.legendSetMap[id];
 };
 
 AppManager.prototype.addDimensions = function(param) {
