@@ -212,14 +212,14 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
     return isSorted ? dimensions.sort(function(a, b) {return a.dimension > b.dimension;}) : dimensions;
 };
 
-Layout.prototype.getRecords = function(includeFilter) {
+Layout.prototype.getRecords = function(includeFilter, response) {
     var t = this;
 
     var records = [];
 
     this.getAxes(includeFilter).forEach(function(axis) {
         axis.forEach(function(dimension) {
-            records = records.concat(dimension.getRecords(null, t.getResponse()));
+            records = records.concat(dimension.getRecords(null, response));
         });
     });
 
@@ -416,6 +416,18 @@ Layout.prototype.toPost = function() {
 
     delete this.id;
     delete this.el;
+};
+
+Layout.prototype.toSession = function() {
+    var t = this;
+
+    var response = t.getResponse();
+
+    t.getRecords(true).forEach(function(record) {
+        record.setName(null, response);
+    });
+
+    return t;
 };
 
 Layout.prototype.sort = function(table) {

@@ -116,6 +116,8 @@ TableManager = function(c) {
 
         layout.parentGraphMap = parentGraphMap;
 
+        layout.toSession();
+
         // menu
         menu = Ext.create('Ext.menu.Menu', {
             shadow: true,

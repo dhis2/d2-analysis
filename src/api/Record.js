@@ -36,6 +36,12 @@ Record.prototype.val = function(noError) {
     return this;
 };
 
+Record.prototype.setName = function(name, response) {
+    var t = this;
+
+    t.name = t.name || name || (response ? response.metaData.names[t.id] : undefined);
+};
+
 Record.prototype.toPlugin = function() {
     delete this.klass;
 };

@@ -4284,7 +4284,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    var layout = instanceManager.getStateCurrent();
+                                                    var layout = instanceManager.getStateCurrent().toSession();
                                                     layout.parentGraphMap = treePanel.getParentGraphMap();
 
                                                     sessionStorageManager.set(layout, 'analytical');
@@ -4367,7 +4367,7 @@ Viewport = function(c, cmp) {
                                         render: function(b) {
                                             this.getEl().dom.addEventListener('click', function(e) {
                                                 if (!b.disabled) {
-                                                    var layout = instanceManager.getStateCurrent();
+                                                    var layout = instanceManager.getStateCurrent().toSession();
                                                     layout.parentGraphMap = treePanel.getParentGraphMap();
 
                                                     sessionStorageManager.set(layout, 'analytical');
