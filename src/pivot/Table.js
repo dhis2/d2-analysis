@@ -5,6 +5,7 @@ import isObject from 'd2-utilizr/lib/isObject';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
+import numberConstrain from 'd2-utilizr/lib/numberConstrain';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
@@ -19,6 +20,7 @@ Table = function(layout, response, colAxis, rowAxis) {
     var t = this,
         klass = Table,
 
+        appManager = klass.appManager,
         dimensionConfig = klass.dimensionConfig,
         optionConfig = klass.optionConfig;
 
@@ -62,8 +64,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         valueObjects = [],
         totalColObjects = [],
         uuidDimUuidsMap = {},
-        //isLegendSet = isObject(xLayout.legendSet) && isArray(xLayout.legendSet.legends) && xLayout.legendSet.legends.length,
-        isLegendSet = false,
+        legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
         tdCount = 0,
         htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
@@ -126,9 +127,9 @@ Table = function(layout, response, colAxis, rowAxis) {
         tdCount = tdCount + 1;
 
         // background color from legend set
-        if (isValue && layout.legendSet && layout.legendSet.legends) {
+        if (isValue && legendSet) {
             var value = parseFloat(config.value);
-            legends = layout.legendSet.legends;
+            legends = legendSet.legends;
 
             for (var i = 0; i < legends.length; i++) {
                 if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
