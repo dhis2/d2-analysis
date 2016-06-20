@@ -27,7 +27,6 @@ UiManager = function(c) {
 
     var introHtml = '';
 
-    t.instanceManager;
     t.i18nManager;
 
     // managers
