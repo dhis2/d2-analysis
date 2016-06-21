@@ -42,6 +42,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         getColTotalHtmlArray,
         getGrandTotalHtmlArray,
         getTotalHtmlArray,
+        getFilterHtmlArray,
         getHtml,
         getUniqueFactor = function(xAxis) {
             var unique;
@@ -141,7 +142,7 @@ Table = function(layout, response, colAxis, rowAxis) {
         colSpan = config.colSpan ? 'colspan="' + config.colSpan + '" ' : '';
         rowSpan = config.rowSpan ? 'rowspan="' + config.rowSpan + '" ' : '';
         htmlValue = getHtmlValue(config);
-        htmlValue = config.type !== 'dimension' ? prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
+        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
 
         cls += config.hidden ? ' td-hidden' : '';
         cls += config.collapsed ? ' td-collapsed' : '';
@@ -161,6 +162,7 @@ Table = function(layout, response, colAxis, rowAxis) {
 
         html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
         html += ' class="' + cls + '" ' + colSpan + rowSpan;
+        html += config.title ? ' title="' + config.title + '" ' : '';
 
         //if (bgColor && isValue) {
             //html += 'style="color:' + bgColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
@@ -252,8 +254,12 @@ Table = function(layout, response, colAxis, rowAxis) {
         var a = [],
             columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [],
             rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [],
+            getFilterRow,
             getEmptyNameTdConfig,
             getEmptyHtmlArray;
+
+        //getFilterRow = function() {
+
 
         getEmptyNameTdConfig = function(config) {
             config = config || {};
@@ -870,6 +876,25 @@ Table = function(layout, response, colAxis, rowAxis) {
         return a;
     };
 
+    getFilterHtmlArray = function(span) {
+        if (!layout.filters) {
+            return;
+        }
+
+        var row = [];
+        var text = layout.filters.getRecordNames(false, layout.getResponse(), true);
+
+        row.push(getTdHtml({
+            type: 'filter',
+            cls: 'pivot-filter cursor-default',
+            colSpan: span,
+            htmlValue: text,
+            title: text
+        }));
+
+        return [row];
+    };
+
     getHtml = function() {
         var cls = 'pivot',
             table;
@@ -887,7 +912,12 @@ Table = function(layout, response, colAxis, rowAxis) {
     };
 
     // get html
-    htmlArray = arrayClean([].concat(getColAxisHtmlArray() || [], getRowHtmlArray() || [], getTotalHtmlArray() || []));
+    (function() {
+        var colAxisHtmlArray = getColAxisHtmlArray();
+        var filterRowColSpan = (colAxisHtmlArray[0] || []).length;
+
+        htmlArray = arrayClean([].concat(getFilterHtmlArray(filterRowColSpan) || [], colAxisHtmlArray || [], getRowHtmlArray() || [], getTotalHtmlArray() || []));
+    }());
 
     // constructor
     t.html = getHtml(htmlArray);

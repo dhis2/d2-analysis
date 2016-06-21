@@ -78,7 +78,7 @@ InstanceManager = function(c) {
             _state.favorite = _state.current;
         }
 
-        if (t.sessionStorageManager) {
+        if (t.sessionStorageManager && _state.current) {
             t.sessionStorageManager.set(_state.current.toSession(), t.appManager.sessionName);
         }
 
