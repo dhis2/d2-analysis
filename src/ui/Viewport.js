@@ -2779,6 +2779,8 @@ Viewport = function(c, cmp) {
         recordsToSelect: [],
         recordsToRestore: [],
         multipleSelectIf: function(map, doUpdate) {
+            this.recordsToSelect = arrayClean(this.recordsToSelect);
+
             if (this.recordsToSelect.length === Object.keys(map).length) {
                 this.getSelectionModel().select(this.recordsToSelect);
                 this.recordsToSelect = [];
