@@ -16,7 +16,7 @@ RequestManager = function(config) {
 
     t.responses = [];
 
-    t.fn = isFunction(config.fn) ? config.fn : function() { console.log("Request manager is done"); };
+    t.fn = isFunction(config.fn) ? config.fn : function() { console.log('Request manager done'); };
 
     t.fnParams = [];
 };
