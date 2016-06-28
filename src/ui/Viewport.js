@@ -450,16 +450,13 @@ Viewport = function(c, cmp) {
         },
         updateFilter: function() {
             var selectedStoreIds = dataSelectedStore.getIds();
-
             this.clearFilter();
 
             var metric = dataSetMetric.getValue();
 
-            if (metric) {
-                this.filterBy(function(record) {
-                    return !arrayContains(selectedStoreIds, record.data.id) && (record.data.id.split('.')[1] === metric);
-                });
-            }
+            this.filterBy(function(record) {
+                return !arrayContains(selectedStoreIds, record.data.id) && (metric ? record.data.id.split('.')[1] === metric : true);
+            });
         },
         loadPage: function(filter, append, noPaging, fn) {
             var store = this,
