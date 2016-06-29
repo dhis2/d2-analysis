@@ -221,7 +221,7 @@ FavoriteWindow = function(c, action) {
         currentLayout.name = name;
 
         if (record) {
-            uiManager.confirmReplace(function() {
+            uiManager.confirmReplace(i18n.save_favorite, function() {
                 preXhr();
                 currentLayout.id = record.data.id;
                 currentLayout.clone().put(fn, true, true);
@@ -317,7 +317,7 @@ FavoriteWindow = function(c, action) {
                     };
                     element.handler = function() {
                         if (instanceManager.isStateUnsaved()) {
-                            uiManager.confirmUnsaved(function() {
+                            uiManager.confirmUnsaved(i18n.open, function() {
                                 element.load();
                             });
                         }
@@ -454,7 +454,7 @@ FavoriteWindow = function(c, action) {
                                 message;
 
                             if (record.data.access['delete']) {
-                                uiManager.confirmDelete(function() {
+                                uiManager.confirmDelete(i18n.delete_favorite, function() {
                                     instanceManager.delById(id, function() {
                                         favoriteStore.loadStore();
 

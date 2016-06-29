@@ -30,7 +30,7 @@ NorthRegion = function(c, cmpConfig) {
         var dest = path +  '/dhis-web-commons-about/redirect.action';
 
         if (instanceManager.isStateUnsaved()) {
-            uiManager.confirmUnsaved(function() {
+            uiManager.confirmUnsaved(i18n.leave_application, function() {
                 uiManager.disableConfirmUnload();
                 window.location.href = dest;
             });

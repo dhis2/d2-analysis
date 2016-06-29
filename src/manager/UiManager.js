@@ -405,22 +405,22 @@ UiManager = function(c) {
     };
 
     // confirm
-    t.confirmUnsaved = function(fn) {
+    t.confirmUnsaved = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, i18n.you_have_unsaved_changes_discard, 'Discard', fn).show();
+        ConfirmWindow(c, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
     };
 
-    t.confirmReplace = function(fn) {
+    t.confirmReplace = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, i18n.favorite_name_exists_replace, i18n.replace, fn).show();
+        ConfirmWindow(c, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
     };
 
-    t.confirmDelete = function(fn) {
+    t.confirmDelete = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, i18n.delete_this_favorite, i18n.delete_, fn).show();
+        ConfirmWindow(c, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
     // redirect

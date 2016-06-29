@@ -1,53 +1,69 @@
 export var ConfirmWindow;
 
-ConfirmWindow = function(c, msg, btnText, fn) {
+ConfirmWindow = function(c, title, msg, btnText, fn) {
     var i18n = c.i18nManager.get();
 
-    var btnPadding = '3 12 3 12',
-        defaults = {
-            bodyStyle: 'background:#fff; border:0 none'
-        };
+    var confirmButtonText = btnText || 'OK';
+    var cancelButtonText = i18n.cancel || 'Cancel';
+
+    var buttonBorderRadius = '2px';
+    var buttonWidth = 72;
+    var buttonHeight = 29;
+
+    var defaults = {
+        bodyStyle: 'background:#fff; border:0 none'
+    };
 
     var confirmButton = Ext.create('Ext.button.Button', {
         xtype: 'button',
-        text: '<span style="font-weight:bold">' + btnText + '</span>',
-        style: 'border-color:#888',
-        padding: btnPadding,
+        width: buttonWidth,
+        height: buttonHeight,
+        text: '<span style="color:#fff; font-weight:bold">' + confirmButtonText + '</span>',
+        style: 'border-color:#3079ed; background:#619dff; border-radius:' + buttonBorderRadius,
         handler: function() {
             fn && fn();
             window.destroy();
         }
     });
 
+    var cancelButton = Ext.create('Ext.button.Button', {
+        xtype: 'button',
+        width: buttonWidth,
+        height: buttonHeight,
+        text: '<span style="color:#555; font-weight:bold">' + cancelButtonText + '</span>',
+        style: 'border-color:#ccc; border-radius:' + buttonBorderRadius,
+        handler: function() {
+            window.destroy();
+        }
+    });
+
     var window = Ext.create('Ext.window.Window', {
-        bodyStyle: 'background:#fff; padding:8px',
+        bodyStyle: 'background:#fff; padding:30px 60px 26px 42px',
         defaults: defaults,
         modal: true,
         preventHeader: true,
+        resizable: false,
+        closeable: false,
         items: [
             {
+                html: title,
+                bodyStyle: 'padding:0; border:0 none; font-size:16px',
+                style: 'margin-bottom:20px'
+            },
+            {
                 html: msg,
-                bodyStyle: 'padding:45px 60px 35px; border:0 none; font-size:14px'
+                bodyStyle: 'padding:0; border:0 none; font-size:13px',
+                style: 'margin-bottom:16px'
             },
             {
                 layout: 'hbox',
                 defaults: defaults,
                 items: [
+                    confirmButton,
                     {
-                        flex: 1
+                        width: 10
                     },
-                    {
-                        xtype: 'button',
-                        text: i18n.cancel,
-                        padding: btnPadding,
-                        handler: function() {
-                            window.destroy();
-                        }
-                    },
-                    {
-                        width: 5
-                    },
-                    confirmButton
+                    cancelButton
                 ]
             }
         ],

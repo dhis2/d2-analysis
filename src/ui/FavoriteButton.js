@@ -31,7 +31,7 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
                             if (instanceManager.isStateUnsaved()) {
-                                uiManager.confirmUnsaved(function() {
+                                uiManager.confirmUnsaved(i18n.new_favorite, function() {
                                     instanceManager.setState();
                                 });
                             }
@@ -153,7 +153,7 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-delete',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            uiManager.confirmDelete(function() {
+                            uiManager.confirmDelete(i18n.delete_favorite, function() {
                                 instanceManager.getStateFavorite().del(function() {
                                     instanceManager.setState();
                                 });
