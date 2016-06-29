@@ -128,6 +128,10 @@ UiManager = function(c) {
         }
     };
 
+    t.setUrlState = function(text) {
+        global.history.pushState(null, null, text);
+    };
+
     // theme
     t.getTheme = function() {
         return theme;
@@ -427,11 +431,6 @@ UiManager = function(c) {
         else if ((e.ctrlKey && arrayContains([0,1], e.button)) || (!e.ctrlKey && e.button === 1)) {
             window.open(url, '_blank');
         }
-    };
-
-    // url
-    t.setUrlState = function(text) {
-        global.history.pushState(null, null, text);
     };
 
     // plugin
