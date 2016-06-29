@@ -72,6 +72,18 @@ Dimension.prototype.removeItems = function() {
     this.items = [];
 };
 
+Dimension.prototype.extendRecords = function(response) {
+    var t = this;
+
+    var records = t.getRecords(true);
+
+   records.forEach(function(record) {
+        record.setName(null, response);
+    });
+
+    return records;
+};
+
 // dep 1
 
 Dimension.prototype.getRecordIds = function(isSorted, response) {

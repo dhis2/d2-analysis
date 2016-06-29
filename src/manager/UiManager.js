@@ -122,6 +122,10 @@ UiManager = function(c) {
         }
     };
 
+    t.setUrlState = function(text) {
+        global.history.pushState(null, null, text);
+    };
+
     // theme
     t.getTheme = function() {
         return theme;
