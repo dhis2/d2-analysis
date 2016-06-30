@@ -19,6 +19,7 @@ NorthRegion = function(c, cmpConfig) {
     cmpConfig.i18n = cmpConfig.i18n || {};
     cmpConfig.i18n.about = cmpConfig.i18n.about || i18n.about || 'about';
     cmpConfig.i18n.home = cmpConfig.i18n.home || i18n.home || 'home';
+    cmpConfig.i18n.untitled = cmpConfig.i18n.untitled || i18n.untitled || 'Untitled';
 
     cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
     cmpConfig.systemTitle = cmpConfig.systemTitle || appManager.systemSettings.systemTitle || 'DHIS 2';
@@ -61,7 +62,7 @@ NorthRegion = function(c, cmpConfig) {
         setLogoWidth: setLogoWidth,
         setState: setState,
         items: function() {
-            var defaultTitleText = 'Untitled';
+            var defaultTitleText = cmpConfig.i18n.untitled;
 
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
@@ -75,8 +76,8 @@ NorthRegion = function(c, cmpConfig) {
                 titleText: '',
                 text: defaultTitleText,
                 setTitle: function(name) {
-                    this.titleText = name || defaultTitleText;
-                    this.update(this.titleText);
+                    this.titleText = name || '';
+                    this.update(this.titleText ? this.titleText : defaultTitleText);
                 },
                 setSaved: function() {
                     this.getEl().removeCls('unsaved');
