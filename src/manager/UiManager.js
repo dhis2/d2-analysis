@@ -89,7 +89,7 @@ UiManager = function(c) {
     };
 
     // state
-    t.setState = function(currentState, favoriteState, isFavorite, skipSelect) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
         var north = t.get('northRegion'),
             west = t.get('westRegion');
 
@@ -115,10 +115,8 @@ UiManager = function(c) {
             });
 
             // west
-            if (west && !skipSelect) {
-                if (!currentState || isFavorite) {
-                    west.setState(currentState);
-                }
+            if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
+                west.setState(currentState);
             }
         }
 

@@ -71,7 +71,7 @@ InstanceManager = function(c) {
         return _state.current ? _state.current.clone() : _state.current;
     };
 
-    t.setState = function(curr, isFavorite, skipSelect) {
+    t.setState = function(curr, isFavorite, skipSelect, forceUiState) {
         _state.current = curr ? curr : null;
 
         if (!_state.current || isFavorite) {
@@ -82,7 +82,7 @@ InstanceManager = function(c) {
             t.sessionStorageManager.set(_state.current.toSession(), t.appManager.sessionName);
         }
 
-        t.uiManager.setState(_state.current, _state.favorite, isFavorite, skipSelect);
+        t.uiManager.setState(_state.current, _state.favorite, isFavorite, skipSelect, forceUiState);
     };
 
     t.setStateIf = function(curr, isFavorite) {
@@ -249,12 +249,12 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout, isFavorite, skipState) {
+InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState) {
     var t = this;
 
     var fn = function() {
         if (!skipState) {
-            t.setState(layout, isFavorite);
+            t.setState(layout, isFavorite, false, forceUiState);
         }
 
         t.getFn()(layout);
@@ -268,7 +268,6 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState) {
             return;
         }
     }
-
     t.uiManager.mask();
 
     // response

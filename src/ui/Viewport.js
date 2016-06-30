@@ -4602,7 +4602,7 @@ Viewport = function(c, cmp) {
                     layout = new Layout(sessionStorageManager.get(session));
 
                     if (layout) {
-                        instanceManager.getReport(layout);
+                        instanceManager.getReport(layout, false, false, true);
                     }
                 }
 
