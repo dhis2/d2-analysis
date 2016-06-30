@@ -56,7 +56,7 @@ Axis = function(config) {
         var names = asString ? '' : [];
 
         t.forEach(function(dimension, dIndex, dArray) {
-            dimension.getRecordNames(isSorted, response).forEach(function(name, nIndex, nArray) {
+            dimension.getRecordNames(isSorted, response, true).forEach(function(name, nIndex, nArray) {
                 if (asString) {
                     names += name + (nIndex !== nArray.length - 1 ? ', ' : '');
                 }

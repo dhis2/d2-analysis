@@ -60,8 +60,12 @@ Dimension.prototype.add = function(recordConfig) {
     }
 };
 
-Dimension.prototype.getRecords = function(sortProperty, response) {
+Dimension.prototype.getRecords = function(sortProperty, response, isPure) {
     var records = response ? response.getRecordsByDimensionName(this.dimension) : this.items;
+
+    if (isPure) {
+        records = records.slice(0);
+    }
 
     sortProperty = arrayContains(['id', 'name'], sortProperty) ? sortProperty : null;
 
@@ -72,28 +76,28 @@ Dimension.prototype.removeItems = function() {
     this.items = [];
 };
 
-Dimension.prototype.extendRecords = function(response) {
-    var t = this;
-
-    var records = t.getRecords(true);
-
-   records.forEach(function(record) {
-        record.setName(null, response);
-    });
-
-    return records;
-};
-
 // dep 1
 
-Dimension.prototype.getRecordIds = function(isSorted, response) {
-    var rec = this.getRecords((isSorted ? 'id' : null), response);
+Dimension.prototype.getRecordIds = function(isSorted, response, isPure) {
+    var rec = this.getRecords((isSorted ? 'id' : null), response, isPure);
 
     return arrayPluck(rec, 'id');
 };
 
-Dimension.prototype.getRecordNames = function(isSorted, response) {
-    return arrayPluck(this.getRecords((isSorted ? 'name' : null), response), 'name');
+Dimension.prototype.getRecordNames = function(isSorted, response, isPure) {
+    return arrayPluck(this.getRecords((isSorted ? 'name' : null), response, isPure), 'name');
+};
+
+Dimension.prototype.extendRecords = function(response) {
+    var t = this;
+
+    var records = t.getRecords();
+
+    records.forEach(function(record) {
+        record.setName(null, response);
+    });
+
+    return records;
 };
 
 Dimension.prototype.toPlugin = function() {
@@ -116,7 +120,7 @@ Dimension.prototype.toPost = function() {
 
 Dimension.prototype.url = function(isSorted, response, isFilter) {
     var url = (isFilter ? 'filter' : 'dimension') + '=' + this.dimension,
-        records = arrayUnique(this.getRecordIds(isSorted, response));
+        records = arrayUnique(this.getRecordIds(isSorted, response, true));
 
     url += records.length ? (':' + records.join(';')) : '';
 

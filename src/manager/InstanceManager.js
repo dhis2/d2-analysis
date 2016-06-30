@@ -268,6 +268,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
             return;
         }
     }
+
     t.uiManager.mask();
 
     // response
