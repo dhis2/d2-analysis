@@ -234,6 +234,12 @@ Layout.prototype.getRecords = function(includeFilter, response) {
     return records;
 };
 
+Layout.prototype.extendRecords = function(response) {
+    this.getAxes(true).forEach(function(axis) {
+        axis.extendRecords(response);
+    });
+};
+
 // dep 2
 
 Layout.prototype.getRecordIds = function(includeFilter) {
@@ -431,9 +437,7 @@ Layout.prototype.toSession = function() {
 
     var response = t.getResponse();
 
-    t.getRecords(true).forEach(function(record) {
-        record.setName(null, response);
-    });
+    t.extendRecords(response);
 
     return t;
 };

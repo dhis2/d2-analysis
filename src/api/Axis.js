@@ -97,6 +97,12 @@ Axis = function(config) {
         return t.clone().sort(function(a, b) {return a.dimension > b.dimension;});
     };
 
+    t.extendRecords = function(response) {
+        t.forEach(function(dimension) {
+            dimension.extendRecords(response);
+        });
+    };
+
     t.toPlugin = function() {
         delete t.klass;
 
