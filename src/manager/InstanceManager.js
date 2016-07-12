@@ -82,7 +82,10 @@ InstanceManager = function(c) {
             t.sessionStorageManager.set(_state.current.toSession(), t.appManager.sessionName);
         }
 
-        t.uiManager.setState(_state.current, _state.favorite, isFavorite, skipSelect, forceUiState);
+        var current = _state.current ? _state.current.clone() : null;
+        var favorite = _state.favorite ? _state.favorite.clone() : null;
+
+        t.uiManager.setState(current, favorite, isFavorite, skipSelect, forceUiState);
     };
 
     t.setStateIf = function(curr, isFavorite) {

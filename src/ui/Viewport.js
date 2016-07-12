@@ -3678,7 +3678,7 @@ Viewport = function(c, cmp) {
                 if (selectedStore.getRange().length) {
                     config.items = [];
 
-                    selectedStore.each( function(r) {
+                    selectedStore.each(function(r) {
                         config.items.push({id: r.data.id});
                     });
                 }
