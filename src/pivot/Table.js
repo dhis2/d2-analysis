@@ -881,13 +881,28 @@ Table = function(layout, response, colAxis, rowAxis) {
             return;
         }
 
-        var row = [];
+        var rowDims = rowAxis.dims || 0;
+
+        var getSpan = function() {
+            if (!layout.showDimensionLabels) {
+                if (!colAxis.type && rowAxis.type) {
+                    return rowDims + 1;
+                }
+                else if (colAxis.type && rowAxis.type) {
+                    return span + (rowDims > 1 ? rowDims - 1 : rowDims);
+                }
+            }
+
+            return span;
+        };
+
         var text = layout.filters.getRecordNames(false, layout.getResponse(), true);
+        var row = [];
 
         row.push(getTdHtml({
             type: 'filter',
             cls: 'pivot-filter cursor-default',
-            colSpan: span,
+            colSpan: getSpan(),
             htmlValue: text,
             title: text
         }));
