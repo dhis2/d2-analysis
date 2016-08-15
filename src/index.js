@@ -37,6 +37,7 @@ import {PluginItem} from './ui/PluginItem.js';
 import {LinkItem} from './ui/LinkItem.js';
 import {AboutWindow} from './ui/AboutWindow.js';
 import {GridHeaders} from './ui/GridHeaders.js';
+import {ChartTypeToolbar} from './ui/ChartTypeToolbar.js';
 
 import {i18nInit} from './init/i18nInit.js';
 import {authViewUnapprovedDataInit} from './init/authViewUnapprovedDataInit.js';
@@ -144,6 +145,7 @@ export const ui = {
     LinkItem: LinkItem,
     AboutWindow: AboutWindow,
     GridHeaders: GridHeaders,
+    ChartTypeToolbar: ChartTypeToolbar
 };
 
 export const init = {

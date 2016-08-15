@@ -64,6 +64,8 @@ Viewport = function(c, cmp) {
 
     var northRegion = cmp.northRegion;
 
+    var chartTypeToolbar = cmp.chartTypeToolbar;
+
     var favoriteButton = uiManager.reg(FavoriteButton(c), 'favoriteButton');
     var embedButton = uiManager.reg(EmbedButton(c), 'embedButton', 'onCurrent');
 
@@ -3826,7 +3828,7 @@ Viewport = function(c, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: accordion,
+        items: arrayClean([chartTypeToolbar, accordion]),
         setState: function(layout) {
             setUiState(layout);
         }
