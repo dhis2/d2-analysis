@@ -12,6 +12,8 @@ import {Sorting} from './api/Sorting.js';
 import {TableAxis} from './pivot/TableAxis.js';
 import {Table} from './pivot/Table.js';
 
+import {Chart} from './pivot/Chart.js';
+
 import {AppManager} from './manager/AppManager.js';
 import {DateManager} from './manager/DateManager.js';
 import {CalendarManager} from './manager/CalendarManager.js';
@@ -62,6 +64,8 @@ export {
 
     TableAxis,
     Table,
+
+    Chart,
 
     AppManager,
     DateManager,
@@ -115,6 +119,10 @@ export const api = {
 export const pivot = {
     TableAxis,
     Table,
+};
+
+export const chart = {
+    Chart,
 };
 
 export const manager = {
