@@ -26,6 +26,7 @@ import {DimensionConfig} from './config/DimensionConfig.js';
 import {PeriodConfig} from './config/PeriodConfig.js';
 import {OptionConfig} from './config/OptionConfig.js';
 import {UiConfig} from './config/UiConfig.js';
+import {ChartConfig} from './config/ChartConfig.js';
 
 import {Viewport} from './ui/Viewport.js';
 import {NorthRegion} from './ui/NorthRegion.js';
@@ -76,6 +77,7 @@ export {
     PeriodConfig,
     OptionConfig,
     UiConfig,
+    ChartConfig,
 
     Viewport,
     NorthRegion,
@@ -98,62 +100,63 @@ export {
 };
 
 export const api = {
-    Record: Record,
-    Dimension: Dimension,
-    Axis: Axis,
-    Layout: Layout,
-    Request: Request,
-    ResponseHeader: ResponseHeader,
-    ResponseRow: ResponseRow,
-    ResponseRowIdCombination: ResponseRowIdCombination,
-    Response: Response,
-    Sorting: Sorting,
+    Record,
+    Dimension,
+    Axis,
+    Layout,
+    Request,
+    ResponseHeader,
+    ResponseRow,
+    ResponseRowIdCombination,
+    Response,
+    Sorting,
 };
 
 export const pivot = {
-    TableAxis: TableAxis,
-    Table: Table,
+    TableAxis,
+    Table,
 };
 
 export const manager = {
-    AppManager: AppManager,
-    DateManager: DateManager,
-    CalendarManager: CalendarManager,
-    I18nManager: I18nManager,
-    RequestManager: RequestManager,
-    SessionStorageManager: SessionStorageManager,
-    UiManager: UiManager,
-    InstanceManager: InstanceManager,
-    TableManager: TableManager,
+    AppManager,
+    DateManager,
+    CalendarManager,
+    I18nManager,
+    RequestManager,
+    SessionStorageManager,
+    UiManager,
+    InstanceManager,
+    TableManager,
 };
 
 export const config = {
-    DimensionConfig: DimensionConfig,
-    PeriodConfig: PeriodConfig,
-    OptionConfig: OptionConfig,
-    UiConfig: UiConfig,
+    DimensionConfig,
+    PeriodConfig,
+    OptionConfig,
+    UiConfig,
+    ChartConfig,
 };
 
 export const ui = {
-    Viewport: Viewport,
-    NorthRegion: NorthRegion,
-    FavoriteWindow: FavoriteWindow,
-    FavoriteButton: FavoriteButton,
-    InterpretationWindow: InterpretationWindow,
-    InterpretationItem: InterpretationItem,
-    PluginItem: PluginItem,
-    LinkItem: LinkItem,
-    AboutWindow: AboutWindow,
-    GridHeaders: GridHeaders,
-    ChartTypeToolbar: ChartTypeToolbar
+    Viewport,
+    NorthRegion,
+    FavoriteWindow,
+    FavoriteButton,
+    InterpretationWindow,
+    InterpretationItem,
+    PluginItem,
+    LinkItem,
+    AboutWindow,
+    GridHeaders,
+    ChartTypeToolbar,
 };
 
 export const init = {
-    i18nInit: i18nInit,
-    authViewUnapprovedDataInit: authViewUnapprovedDataInit,
-    rootNodesInit: rootNodesInit,
-    organisationUnitLevelsInit: organisationUnitLevelsInit,
-    legendSetsInit: legendSetsInit,
-    dimensionsInit: dimensionsInit,
-    dataApprovalLevelsInit: dataApprovalLevelsInit,
+    i18nInit,
+    authViewUnapprovedDataInit,
+    rootNodesInit,
+    organisationUnitLevelsInit,
+    legendSetsInit,
+    dimensionsInit,
+    dataApprovalLevelsInit,
 };
