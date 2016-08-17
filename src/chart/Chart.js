@@ -4,17 +4,21 @@ import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
+import isIE from 'd2-utilizr/lib/isIE';
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import numberConstrain from 'd2-utilizr/lib/numberConstrain';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayMax from 'd2-utilizr/lib/arrayMax';
+import arrayMin from 'd2-utilizr/lib/arrayMin';
+import clone from 'd2-utilizr/lib/clone';
 import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
-
-Chart = function(layout, response, colAxis, rowAxis) {
+console.log("uuid", uuid);
+Chart = function(layout, response, legendSet) {
     var t = this,
         klass = Chart,
 
@@ -23,38 +27,43 @@ Chart = function(layout, response, colAxis, rowAxis) {
         optionConfig = klass.optionConfig;
 
     // init
-    var columnIds = xLayout.columnDimensionNames[0] ? xLayout.dimensionNameIdsMap[xLayout.columnDimensionNames[0]] : [],
+    //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
+    var response = layout.getResponse(),
+        columnIds = layout.columns.getRecordIds(),
         failSafeColumnIds = [],
         failSafeColumnIdMap = {},
         createFailSafeColumnIds = function() {
-            for (var i = 0, uuid; i < columnIds.length; i++) {
-                uuid = Ext.data.IdGenerator.get('uuid').generate();
+            for (var i = 0, uuId; i < columnIds.length; i++) {
+                uuId = uuid();
 
-                failSafeColumnIds.push(uuid);
-                failSafeColumnIdMap[uuid] = columnIds[i];
+                failSafeColumnIds.push(uuId);
+                failSafeColumnIdMap[uuId] = columnIds[i];
 
-                xResponse.metaData.names[uuid] = xResponse.metaData.names[columnIds[i]];
+                //old xResponse.metaData.names[uuId] = xResponse.metaData.names[columnIds[i]];
+                response.metaData.names[uuId] = response.metaData.names[columnIds[i]];
             }
         }(),
 
         // row ids
-        rowIds = xLayout.rowDimensionNames[0] ? xLayout.dimensionNameIdsMap[xLayout.rowDimensionNames[0]] : [],
+        //old rowIds = layout.rowDimensionNames[0] ? layout.dimensionNameIdsMap[layout.rowDimensionNames[0]] : [],
+        rowIds = layout.rows.getRecordIds(),
 
         // filter ids
-        filterIds = function() {
-            var ids = [];
+        //old filterIds = function() {
+            //var ids = [];
 
-            if (xLayout.filters) {
-                for (var i = 0; i < xLayout.filters.length; i++) {
-                    ids = ids.concat(xLayout.filters[i].ids || []);
-                }
-            }
+            //if (layout.filters) {
+                //for (var i = 0; i < layout.filters.length; i++) {
+                    //ids = ids.concat(layout.filters[i].ids || []);
+                //}
+            //}
 
-            return ids;
-        }(),
+            //return ids;
+        //}(),
+        filterIds = layout.filters.getRecordIds(),
 
         // totals
-        dataTotalKey = Ext.data.IdGenerator.get('uuid').generate(),
+        dataTotalKey = uuid(),
         addDataTotals = function(data, ids) {
             for (var i = 0, obj, total; i < data.length; i++) {
                 obj = data[i];
@@ -107,19 +116,19 @@ Chart = function(layout, response, colAxis, rowAxis) {
             rowValues = [];
             isEmpty = false;
 
-            obj[conf.finals.data.domain] = xResponse.metaData.names[category];
+            obj[conf.finals.data.domain] = response.metaData.names[category];
 
             for (var j = 0, id, value; j < columnIds.length; j++) {
                 id = columnIds[j] + rowIds[i];
-                value = xResponse.idValueMap[id];
+                value = response.idValueMap[id];
                 rowValues.push(value);
 
                 obj[failSafeColumnIds[j]] = value ? parseFloat(value) : '0.0';
             }
 
-            isEmpty = !(Ext.Array.clean(rowValues).length);
+            isEmpty = !(arrayClean(rowValues).length);
 
-            if (!(isEmpty && xLayout.hideEmptyRows)) {
+            if (!(isEmpty && layout.hideEmptyRows)) {
                 data.push(obj);
             }
         }
@@ -130,9 +139,9 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }
 
         // sort order
-        if (xLayout.sortOrder) {
+        if (layout.sortOrder) {
             var valueKey = isStacked ? dataTotalKey : failSafeColumnIds[0],
-                sortKey = 'sorting_' + Ext.data.IdGenerator.get('uuid').generate();
+                sortKey = 'sorting_' + uuid();
 
             // create sort key
             for (var ii = 0, rec; ii < data.length; ii++) {
@@ -140,14 +149,14 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 rec[sortKey] = rec[valueKey] === '0.0' ? null : rec[valueKey];
             }
 
-            support.prototype.array.sort(data, xLayout.sortOrder === -1 ? 'ASC' : 'DESC', sortKey, (xLayout.sortOrder === -1));
+            support.prototype.array.sort(data, layout.sortOrder === -1 ? 'ASC' : 'DESC', sortKey, (layout.sortOrder === -1));
 
             // remove sort key
             support.prototype.array.deleteObjectKey(data, sortKey);
         }
 
         // trend lines
-        if (xLayout.showTrendLine) {
+        if (layout.showTrendLine) {
             var regression,
                 regressionKey;
 
@@ -165,7 +174,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 }
 
                 trendLineFields.push(regressionKey);
-                xResponse.metaData.names[regressionKey] = DV.i18n.trend + ' (Total)';
+                response.metaData.names[regressionKey] = DV.i18n.trend + ' (Total)';
             }
             else {
                 for (var i = 0; i < failSafeColumnIds.length; i++) {
@@ -182,24 +191,24 @@ Chart = function(layout, response, colAxis, rowAxis) {
                     }
 
                     trendLineFields.push(regressionKey);
-                    xResponse.metaData.names[regressionKey] = DV.i18n.trend + (appConfig.dashboard ? '' : ' (' + xResponse.metaData.names[failSafeColumnIds[i]] + ')');
+                    response.metaData.names[regressionKey] = DV.i18n.trend + (appConfig.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
                 }
             }
         }
 
         // target line
-        if (Ext.isNumber(xLayout.targetLineValue) || Ext.isNumber(parseFloat(xLayout.targetLineValue))) {
+        if (isNumber(layout.targetLineValue) || isNumber(parseFloat(layout.targetLineValue))) {
             for (var i = 0; i < data.length; i++) {
-                data[i][conf.finals.data.targetLine] = parseFloat(xLayout.targetLineValue);
+                data[i][conf.finals.data.targetLine] = parseFloat(layout.targetLineValue);
             }
 
             targetLineFields.push(conf.finals.data.targetLine);
         }
 
         // base line
-        if (Ext.isNumber(xLayout.baseLineValue) || Ext.isNumber(parseFloat(xLayout.baseLineValue))) {
+        if (isNumber(layout.baseLineValue) || isNumber(parseFloat(layout.baseLineValue))) {
             for (var i = 0; i < data.length; i++) {
-                data[i][conf.finals.data.baseLine] = parseFloat(xLayout.baseLineValue);
+                data[i][conf.finals.data.baseLine] = parseFloat(layout.baseLineValue);
             }
 
             baseLineFields.push(conf.finals.data.baseLine);
@@ -207,7 +216,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
 
         store = Ext.create('Ext.data.Store', {
             fields: function() {
-                var fields = Ext.clone(failSafeColumnIds);
+                var fields = clone(failSafeColumnIds);
                 fields.push(conf.finals.data.domain);
                 fields = fields.concat(trendLineFields, targetLineFields, baseLineFields);
 
@@ -230,7 +239,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 maximums.push(store.max(store.numericFields[i]));
             }
 
-            return Ext.Array.max(maximums);
+            return arrayMax(maximums);
         };
 
         store.getMinimum = function() {
@@ -240,7 +249,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 minimums.push(store.min(store.numericFields[i]));
             }
 
-            return Ext.Array.min(minimums);
+            return arrayMin(minimums);
         };
 
         store.getMaximumSum = function() {
@@ -257,7 +266,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 sums.push(recordSum);
             });
 
-            return Ext.Array.max(sums);
+            return arrayMax(sums);
         };
 
         store.hasDecimals = function() {
@@ -267,7 +276,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 for (var j = 0, value; j < store.rangeFields.length; j++) {
                     value = records[i].data[store.rangeFields[j]];
 
-                    if (Ext.isNumber(value) && (value % 1)) {
+                    if (isNumber(value) && (value % 1)) {
                         return true;
                     }
                 }
@@ -284,7 +293,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 for (var j = 0, value; j < store.rangeFields.length; j++) {
                     value = records[i].data[store.rangeFields[j]];
 
-                    if (Ext.isNumber(value) && (value % 1)) {
+                    if (isNumber(value) && (value % 1)) {
                         value = value.toString();
 
                         values.push(value.length - value.indexOf('.') - 1);
@@ -292,7 +301,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 }
             }
 
-            return Ext.Array.max(values);
+            return arrayMax(values);
         };
 
         if (DV.isDebug) {
@@ -331,10 +340,10 @@ Chart = function(layout, response, colAxis, rowAxis) {
         };
 
         // set maximum if stacked + extra line
-        if ((xLayout.type === typeConf.stackedcolumn || xLayout.type === typeConf.stackedbar) &&
-            (xLayout.showTrendLine || xLayout.targetLineValue || xLayout.baseLineValue)) {
+        if ((layout.type === typeConf.stackedcolumn || layout.type === typeConf.stackedbar) &&
+            (layout.showTrendLine || layout.targetLineValue || layout.baseLineValue)) {
             var a = [store.getMaximum(), store.getMaximumSum()];
-            maximum = Math.ceil(Ext.Array.max(a) * 1.1);
+            maximum = Math.ceil(arrayMax(a) * 1.1);
             maximum = Math.floor(maximum / 10) * 10;
         }
 
@@ -371,29 +380,29 @@ Chart = function(layout, response, colAxis, rowAxis) {
             axis.maximum = maximum;
         }
 
-        if (xLayout.rangeAxisMaxValue) {
-            axis.maximum = xLayout.rangeAxisMaxValue;
+        if (layout.rangeAxisMaxValue) {
+            axis.maximum = layout.rangeAxisMaxValue;
         }
 
-        if (xLayout.rangeAxisMinValue) {
-            axis.minimum = xLayout.rangeAxisMinValue;
+        if (layout.rangeAxisMinValue) {
+            axis.minimum = layout.rangeAxisMinValue;
         }
 
-        if (xLayout.rangeAxisSteps) {
-            axis.majorTickSteps = xLayout.rangeAxisSteps - 1;
+        if (layout.rangeAxisSteps) {
+            axis.majorTickSteps = layout.rangeAxisSteps - 1;
         }
 
-        if (xLayout.rangeAxisDecimals) {
-            axis.label.renderer = Ext.util.Format.numberRenderer(getRenderer(xLayout.rangeAxisDecimals));
+        if (layout.rangeAxisDecimals) {
+            axis.label.renderer = Ext.util.Format.numberRenderer(getRenderer(layout.rangeAxisDecimals));
         }
 
-        if (xLayout.rangeAxisTitle) {
-            axis.title = xLayout.rangeAxisTitle;
+        if (layout.rangeAxisTitle) {
+            axis.title = layout.rangeAxisTitle;
         }
 
         // style
-        if (Ext.isObject(xLayout.rangeAxisStyle)) {
-            var style = xLayout.rangeAxisStyle;
+        if (isObject(layout.rangeAxisStyle)) {
+            var style = layout.rangeAxisStyle;
 
             // label
             labelColor = style.labelColor || labelColor;
@@ -408,7 +417,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             }
 
             // rotation
-            if (Ext.isNumber(parseFloat(style.labelRotation))) {
+            if (isNumber(parseFloat(style.labelRotation))) {
                 labelRotation = 360 - parseFloat(style.labelRotation);
             }
 
@@ -453,13 +462,13 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 labelTitle: {}
             };
 
-        if (xLayout.domainAxisTitle) {
-            axis.title = xLayout.domainAxisTitle;
+        if (layout.domainAxisTitle) {
+            axis.title = layout.domainAxisTitle;
         }
 
         // style
-        if (Ext.isObject(xLayout.domainAxisStyle)) {
-            var style = xLayout.domainAxisStyle;
+        if (isObject(layout.domainAxisStyle)) {
+            var style = layout.domainAxisStyle;
 
             // label
             labelColor = style.labelColor || labelColor;
@@ -474,7 +483,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             }
 
             // rotation
-            if (Ext.isNumber(parseFloat(style.labelRotation))) {
+            if (isNumber(parseFloat(style.labelRotation))) {
                 labelRotation = 360 - parseFloat(style.labelRotation);
             }
 
@@ -534,7 +543,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 width = totalItemLength + (numberOfChars * charLength);
 
                 if (i === fallbackLength) {
-                    fallbackTitles = Ext.clone(newTitles);
+                    fallbackTitles = clone(newTitles);
                 }
 
                 if (width < maxWidth) {
@@ -550,9 +559,9 @@ Chart = function(layout, response, colAxis, rowAxis) {
 
     getDefaultSeriesTitle = function(store) {
         var a = [],
-            ls = Ext.isObject(xLayout.legendStyle) ? xLayout.legendStyle : null;
+            ls = isObject(layout.legendStyle) ? layout.legendStyle : null;
 
-        if (ls && Ext.isArray(ls.labelNames)) {
+        if (ls && isArray(ls.labelNames)) {
             return ls.labelNames;
         }
         else {
@@ -563,7 +572,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 if (ls && ls.labelMaxLength) {
                     var mxl = parseInt(ls.labelMaxLength);
 
-                    if (Ext.isNumber(mxl) && name.length > mxl) {
+                    if (isNumber(mxl) && name.length > mxl) {
                         name = name.substr(0, mxl) + '..';
                     }
                 }
@@ -577,9 +586,9 @@ Chart = function(layout, response, colAxis, rowAxis) {
 
     getPieSeriesTitle = function(store) {
         var a = [],
-            ls = Ext.isObject(xLayout.legendStyle) ? xLayout.legendStyle : null;
+            ls = isObject(layout.legendStyle) ? layout.legendStyle : null;
 
-        if (ls && Ext.isArray(ls.labelNames)) {
+        if (ls && isArray(ls.labelNames)) {
             return ls.labelNames;
         }
         else {
@@ -592,7 +601,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 if (ls && ls.labelMaxLength) {
                     var mxl = parseInt(ls.labelMaxLength);
 
-                    if (Ext.isNumber(mxl) && name.length > mxl) {
+                    if (isNumber(mxl) && name.length > mxl) {
                         name = name.substr(0, mxl) + '..';
                     }
                 }
@@ -622,12 +631,12 @@ Chart = function(layout, response, colAxis, rowAxis) {
             title: getDefaultSeriesTitle(store)
         };
 
-        if (xLayout.showValues) {
+        if (layout.showValues) {
             var labelFont = conf.chart.style.fontFamily,
                 labelColor = 'black';
 
-            if (Ext.isObject(xLayout.seriesStyle)) {
-                var style = xLayout.seriesStyle;
+            if (isObject(layout.seriesStyle)) {
+                var style = layout.seriesStyle;
 
                 // label
                 labelColor = style.labelColor || labelColor;
@@ -682,8 +691,8 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 },
                 title: function() {
                     var title = xResponse.metaData.names[store.trendLineFields[i]],
-                        ls = xLayout.legendStyle;
-                    return ls && Ext.isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
+                        ls = layout.legendStyle;
+                    return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
                 }()
             });
         }
@@ -705,9 +714,9 @@ Chart = function(layout, response, colAxis, rowAxis) {
             },
             showMarkers: false,
             title: function() {
-                var title = (Ext.isString(xLayout.targetLineTitle) ? xLayout.targetLineTitle : DV.i18n.target) + ' (' + xLayout.targetLineValue + ')',
-                    ls = xLayout.legendStyle;
-                return ls && Ext.isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
+                var title = (isString(layout.targetLineTitle) ? layout.targetLineTitle : DV.i18n.target) + ' (' + layout.targetLineValue + ')',
+                    ls = layout.legendStyle;
+                return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
             }()
         };
     };
@@ -726,9 +735,9 @@ Chart = function(layout, response, colAxis, rowAxis) {
             },
             showMarkers: false,
             title: function() {
-                var title = (Ext.isString(xLayout.baseLineTitle) ? xLayout.baseLineTitle : DV.i18n.base) + ' (' + xLayout.baseLineValue + ')',
-                    ls = xLayout.legendStyle;
-                return ls && Ext.isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
+                var title = (isString(layout.baseLineTitle) ? layout.baseLineTitle : DV.i18n.base) + ' (' + layout.baseLineValue + ')',
+                    ls = layout.legendStyle;
+                return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
             }()
         };
     };
@@ -772,17 +781,17 @@ Chart = function(layout, response, colAxis, rowAxis) {
             padding = 0,
             positions = ['top', 'right', 'bottom', 'left'],
             series = chartConfig.series,
-            labelMarkerSize = xLayout.legendStyle && xLayout.legendStyle.labelMarkerSize ? xLayout.legendStyle.labelMarkerSize : null,
+            labelMarkerSize = layout.legendStyle && layout.legendStyle.labelMarkerSize ? layout.legendStyle.labelMarkerSize : null,
             chartConfig;
 
         for (var i = 0, title; i < series.length; i++) {
             title = series[i].title;
 
-            if (Ext.isString(title)) {
+            if (isString(title)) {
                 numberOfItems += 1;
                 numberOfChars += title.length;
             }
-            else if (Ext.isArray(title)) {
+            else if (isArray(title)) {
                 numberOfItems += title.length;
                 numberOfChars += title.toString().split(',').join('').length;
             }
@@ -795,12 +804,12 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }
 
         // style
-        if (Ext.isObject(xLayout.legendStyle)) {
-            var style = xLayout.legendStyle;
+        if (isObject(layout.legendStyle)) {
+            var style = layout.legendStyle;
 
             labelColor = style.labelColor || labelColor;
 
-            if (Ext.Array.contains(positions, style.position)) {
+            if (arrayContains(positions, style.position)) {
                 position = style.position;
             }
 
@@ -848,8 +857,8 @@ Chart = function(layout, response, colAxis, rowAxis) {
         titleColor = 'black';
 
         // legend
-        if (Ext.isObject(xLayout.legendStyle)) {
-            var style = xLayout.legendStyle;
+        if (isObject(layout.legendStyle)) {
+            var style = layout.legendStyle;
 
             titleColor = style.titleColor || titleColor;
 
@@ -875,11 +884,11 @@ Chart = function(layout, response, colAxis, rowAxis) {
     };
 
     getFavoriteTitle = function() {
-        return appConfig.dashboard && xLayout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
+        return appConfig.dashboard && layout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
             type: 'text',
-            text: xLayout.name,
+            text: layout.name,
             y: 7
-        }, getTitleStyle(xLayout.name))) : null;
+        }, getTitleStyle(layout.name))) : null;
     };
 
     getDefaultChartTitle = function(store) {
@@ -887,8 +896,8 @@ Chart = function(layout, response, colAxis, rowAxis) {
             text = '',
             titleFont,
             titleColor,
-            isPie = xLayout.type === conf.finals.chart.client.pie,
-            isGauge = xLayout.type === conf.finals.chart.client.gauge;
+            isPie = layout.type === conf.finals.chart.client.pie,
+            isGauge = layout.type === conf.finals.chart.client.gauge;
 
         if (isPie) {
             ids.push(columnIds[0]);
@@ -897,17 +906,17 @@ Chart = function(layout, response, colAxis, rowAxis) {
             ids.push(columnIds[0], rowIds[0]);
         }
 
-        ids = Ext.Array.clean(ids.concat(filterIds || []));
+        ids = arrayClean(ids.concat(filterIds || []));
 
-        if (Ext.isArray(ids) && ids.length) {
+        if (isArray(ids) && ids.length) {
             for (var i = 0; i < ids.length; i++) {
                 text += xResponse.metaData.names[ids[i]];
                 text += i < ids.length - 1 ? ', ' : '';
             }
         }
 
-        if (xLayout.title) {
-            text = xLayout.title;
+        if (layout.title) {
+            text = layout.title;
         }
 
         return Ext.create('Ext.draw.Sprite', Ext.apply({
@@ -915,7 +924,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             text: text,
             height: 14,
             y: appConfig.dashboard ? 24 : 20
-        }, getTitleStyle((appConfig.dashboard ? xLayout.name : text), true)));
+        }, getTitleStyle((appConfig.dashboard ? layout.name : text), true)));
     };
 
     getDefaultChartSizeHandler = function() {
@@ -935,7 +944,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             if (this.items) {
                 for (var i = 0, title, titleWidth, titleXFallback, legend, legendCenterX, titleX; i < this.items.length; i++) {
                     title = this.items[i];
-                    titleWidth = Ext.isIE ? title.el.dom.scrollWidth : title.el.getWidth();
+                    titleWidth = ieIE ? title.el.dom.scrollWidth : title.el.getWidth();
                     titleXFallback = 10;
                     legend = this.legend;
                     legendCenterX;
@@ -963,7 +972,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             store = config.store || {},
             width = app.getCenterRegionWidth(),
             height = app.getCenterRegionHeight(),
-            isLineBased = Ext.Array.contains(['LINE', 'AREA'], xLayout.type),
+            isLineBased = arrayContains(['LINE', 'AREA'], layout.type),
             defaultConfig = {
                 //animate: true,
                 animate: false,
@@ -981,7 +990,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             };
 
         // legend
-        if (!xLayout.hideLegend) {
+        if (!layout.hideLegend) {
             defaultConfig.legend = getDefaultLegend(store, config);
 
             if (defaultConfig.legend.position === 'right') {
@@ -991,12 +1000,12 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }
 
         // title
-        if (xLayout.hideTitle) {
+        if (layout.hideTitle) {
             defaultConfig.insetPadding = appConfig.dashboard ? 1 : 10;
             defaultConfig.insetPaddingObject.top = appConfig.dashboard ? 3 : 10;
         }
         else {
-            defaultConfig.items = Ext.Array.clean([getFavoriteTitle(), getDefaultChartTitle(store)]);
+            defaultConfig.items = arrayClean([getFavoriteTitle(), getDefaultChartTitle(store)]);
         }
 
         Ext.apply(defaultConfig, config);
@@ -1028,15 +1037,15 @@ Chart = function(layout, response, colAxis, rowAxis) {
             series = [getDefaultSeries(store)];
 
         // options
-        if (xLayout.showTrendLine) {
+        if (layout.showTrendLine) {
             series = series.concat(getDefaultTrendLines(store, isStacked));
         }
 
-        if (xLayout.targetLineValue) {
+        if (layout.targetLineValue) {
             series.push(getDefaultTargetLine(store));
         }
 
-        if (xLayout.baseLineValue) {
+        if (layout.baseLineValue) {
             series.push(getDefaultBaseLine(store));
         }
 
@@ -1086,7 +1095,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
         series.axis = 'bottom';
 
         // Options
-        if (xLayout.showValues) {
+        if (layout.showValues) {
             series.label = {
                 display: 'outside',
                 'text-anchor': 'middle',
@@ -1096,7 +1105,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
 
         series = [series];
 
-        if (xLayout.showTrendLine) {
+        if (layout.showTrendLine) {
             trendLines = getDefaultTrendLines(store, isStacked);
 
             for (var i = 0; i < trendLines.length; i++) {
@@ -1108,7 +1117,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             series = series.concat(trendLines);
         }
 
-        if (xLayout.targetLineValue) {
+        if (layout.targetLineValue) {
             targetLine = getDefaultTargetLine(store);
             targetLine.axis = 'bottom';
             targetLine.xField = store.targetLineFields;
@@ -1117,7 +1126,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             series.push(targetLine);
         }
 
-        if (xLayout.baseLineValue) {
+        if (layout.baseLineValue) {
             baseLine = getDefaultBaseLine(store);
             baseLine.axis = 'bottom';
             baseLine.xField = store.baseLineFields;
@@ -1178,7 +1187,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 title: seriesTitles[i]
             };
 
-            //if (xLayout.showValues) {
+            //if (layout.showValues) {
                 //line.label = {
                     //display: 'over',
                     //field: store.rangeFields[i]
@@ -1189,19 +1198,19 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }
 
         // options, theme colors
-        if (xLayout.showTrendLine) {
+        if (layout.showTrendLine) {
             series = getDefaultTrendLines(store).concat(series);
 
             colors = colors.concat(colors);
         }
 
-        if (xLayout.targetLineValue) {
+        if (layout.targetLineValue) {
             series.push(getDefaultTargetLine(store));
 
             colors.push('#051a2e');
         }
 
-        if (xLayout.baseLineValue) {
+        if (layout.baseLineValue) {
             series.push(getDefaultBaseLine(store));
 
             colors.push('#051a2e');
@@ -1227,7 +1236,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
     generator.area = function() {
 
         // NB, always true for area charts as extjs area charts cannot handle nulls
-        xLayout.hideEmptyRows = true;
+        layout.hideEmptyRows = true;
 
         var store = getDefaultStore(true),
             numericAxis = getDefaultNumericAxis(store),
@@ -1243,15 +1252,15 @@ Chart = function(layout, response, colAxis, rowAxis) {
         series = [series];
 
         // Options
-        if (xLayout.showTrendLine) {
+        if (layout.showTrendLine) {
             series = series.concat(getDefaultTrendLines(store, true));
         }
 
-        if (xLayout.targetLineValue) {
+        if (layout.targetLineValue) {
             series.push(getDefaultTargetLine(store));
         }
 
-        if (xLayout.baseLineValue) {
+        if (layout.baseLineValue) {
             series.push(getDefaultBaseLine(store));
         }
 
@@ -1275,12 +1284,12 @@ Chart = function(layout, response, colAxis, rowAxis) {
             };
 
         // label
-        if (xLayout.showValues) {
+        if (layout.showValues) {
             var labelFont = conf.chart.style.fontFamily,
                 labelColor;
 
-            if (Ext.isObject(xLayout.seriesStyle)) {
-                var style = xLayout.seriesStyle;
+            if (isObject(layout.seriesStyle)) {
+                var style = layout.seriesStyle;
 
                 // color
                 labelColor = style.labelColor || labelColor;
@@ -1338,7 +1347,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }];
 
         // theme
-        colors = conf.chart.theme.dv1.slice(0, xResponse.nameHeaderMap[xLayout.rowDimensionNames[0]].ids.length);
+        colors = conf.chart.theme.dv1.slice(0, xResponse.nameHeaderMap[layout.rowDimensionNames[0]].ids.length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
             constructor: function(config) {
@@ -1396,7 +1405,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                 title: seriesTitles[i]
             };
 
-            if (xLayout.showValues) {
+            if (layout.showValues) {
                 obj.label = {
                     display: 'over',
                     field: store.rangeFields[i]
@@ -1407,8 +1416,8 @@ Chart = function(layout, response, colAxis, rowAxis) {
         }
 
         // style
-        if (Ext.isObject(xLayout.seriesStyle)) {
-            var style = xLayout.seriesStyle;
+        if (isObject(layout.seriesStyle)) {
+            var style = layout.seriesStyle;
 
             // label
             labelColor = style.labelColor || labelColor;
@@ -1498,7 +1507,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
             animate: false
         });
 
-        if (xLayout.showValues) {
+        if (layout.showValues) {
             chart.items.push(Ext.create('Ext.draw.Sprite', {
                 type: 'text',
                 text: store.getRange()[0].data[failSafeColumnIds[0]],
@@ -1522,7 +1531,7 @@ Chart = function(layout, response, colAxis, rowAxis) {
                     item = this.items[i];
 
                     if (item) {
-                        itemWidth = Ext.isIE ? item.el.dom.scrollWidth : item.el.getWidth();
+                        itemWidth = ieIE ? item.el.dom.scrollWidth : item.el.getWidth();
                         itemX = itemWidth ? (app.getCenterRegionWidth() / 2) - (itemWidth / 2) : itemXFallback;
 
                         item.setAttributes({
@@ -1536,5 +1545,5 @@ Chart = function(layout, response, colAxis, rowAxis) {
         return chart;
     };
 
-    Object.assign(this, generator[xLayout.type]());
+    Object.assign(this, generator[layout.type]());
 };

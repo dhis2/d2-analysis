@@ -52,6 +52,27 @@ Axis = function(config) {
         return cache;
     };
 
+    t.getRecordIds = function(isSorted, asString) {
+        var ids = asString ? '' : [];
+
+        t.forEach(function(dimension, dIndex, dArray) {
+            dimension.getRecordIds(isSorted, null, true).forEach(function(id, nIndex, nArray) {
+                if (asString) {
+                    ids += id + (nIndex !== nArray.length - 1 ? ', ' : '');
+                }
+                else {
+                    ids.push(id);
+                }
+            });
+
+            if (asString) {
+                ids += (dIndex !== dArray.length - 1 ? ' - ' : '');
+            }
+        });
+
+        return ids;
+    };
+
     t.getRecordNames = function(isSorted, response, asString) {
         var names = asString ? '' : [];
 
