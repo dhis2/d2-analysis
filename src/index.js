@@ -12,7 +12,7 @@ import {Sorting} from './api/Sorting.js';
 import {TableAxis} from './pivot/TableAxis.js';
 import {Table} from './pivot/Table.js';
 
-import {Chart} from './pivot/Chart.js';
+import {Chart} from './chart/Chart.js';
 
 import {AppManager} from './manager/AppManager.js';
 import {DateManager} from './manager/DateManager.js';
