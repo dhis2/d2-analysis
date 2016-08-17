@@ -4005,7 +4005,7 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(jsonReq, '&outputIdScheme=ID', true);
+                                        openPlainDataSource(jsonReq, '&outputIdScheme=UID', true);
                                     }
                                 },
                                 {
@@ -4040,7 +4040,7 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xmlReq, '&outputIdScheme=ID', true);
+                                        openPlainDataSource(xmlReq, '&outputIdScheme=UID', true);
                                     }
                                 },
                                 {
@@ -4075,7 +4075,7 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(xlsReq, '&outputIdScheme=ID');
+                                        openPlainDataSource(xlsReq, '&outputIdScheme=UID');
                                     }
                                 },
                                 {
@@ -4110,7 +4110,7 @@ Viewport = function(c, cmp) {
                                     text: 'ID',
                                     iconCls: 'ns-menu-item-scheme',
                                     handler: function() {
-                                        openPlainDataSource(csvReq, '&outputIdScheme=ID');
+                                        openPlainDataSource(csvReq, '&outputIdScheme=UID');
                                     }
                                 },
                                 {
