@@ -43,35 +43,6 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     t.rows = (Axis(c.rows)).val();
     t.filters = (Axis(c.filters)).val(true);
 
-    //t.showColTotals = isBoolean(c.colTotals) ? c.colTotals : (isBoolean(c.showColTotals) ? c.showColTotals : true);
-    //t.showRowTotals = isBoolean(c.rowTotals) ? c.rowTotals : (isBoolean(c.showRowTotals) ? c.showRowTotals : true);
-    //t.showColSubTotals = isBoolean(c.colSubTotals) ? c.colSubTotals : (isBoolean(c.showColSubTotals) ? c.showColSubTotals : true);
-    //t.showRowSubTotals = isBoolean(c.rowSubTotals) ? c.rowSubTotals : (isBoolean(c.showRowSubTotals) ? c.showRowSubTotals : true);
-    //t.showDimensionLabels = isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : (isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : true);
-    //t.hideEmptyRows = isBoolean(c.hideEmptyRows) ? c.hideEmptyRows : false;
-    //t.skipRounding = isBoolean(c.skipRounding) ? c.skipRounding : false;
-    //t.aggregationType = isString(c.aggregationType) ? c.aggregationType : t.klass.optionConfig.getAggregationType('def').id;
-    //t.dataApprovalLevel = isObject(c.dataApprovalLevel) && isString(c.dataApprovalLevel.id) ? c.dataApprovalLevel : null;
-    //t.showHierarchy = isBoolean(c.showHierarchy) ? c.showHierarchy : false;
-    //t.completedOnly = isBoolean(c.completedOnly) ? c.completedOnly : false;
-    //t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : t.klass.optionConfig.getDisplayDensity('normal').id;
-    //t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : t.klass.optionConfig.getFontSize('normal').id;
-    //t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : t.klass.optionConfig.getDigitGroupSeparator('space').id;
-
-    //t.legendSet = (new Record(c.legendSet)).val(true);
-
-    //t.parentGraphMap = isObject(c.parentGraphMap) ? c.parentGraphMap : null;
-
-        //// report table
-    //t.reportingPeriod = isObject(c.reportParams) && isBoolean(c.reportParams.paramReportingPeriod) ? c.reportParams.paramReportingPeriod : (isBoolean(c.reportingPeriod) ? c.reportingPeriod : false);
-    //t.organisationUnit =  isObject(c.reportParams) && isBoolean(c.reportParams.paramOrganisationUnit) ? c.reportParams.paramOrganisationUnit : (isBoolean(c.organisationUnit) ? c.organisationUnit : false);
-    //t.parentOrganisationUnit = isObject(c.reportParams) && isBoolean(c.reportParams.paramParentOrganisationUnit) ? c.reportParams.paramParentOrganisationUnit : (isBoolean(c.parentOrganisationUnit) ? c.parentOrganisationUnit : false);
-
-    //t.regression = isBoolean(c.regression) ? c.regression : false;
-    //t.cumulative = isBoolean(c.cumulative) ? c.cumulative : false;
-    //t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
-    //t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
-
         // sharing
     _access = isObject(c.access) ? c.access : null;
 
@@ -110,7 +81,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
     }
 
-        // reduce layout
+        // reduce layout //todo: move to specific app
     if (isBoolean(c.reduceLayout)) {
         t.reduceLayout = c.reduceLayout;
     }

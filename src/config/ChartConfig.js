@@ -30,6 +30,13 @@ ChartConfig = function() {
         gauge: 'GAUGE'
     };
 
+    t.consts = {
+        domain: 'domain_',
+        targetLine: 'targetline_',
+        baseLine: 'baseline_',
+        trendLine: 'trendline_'
+    };
+
     // transient
 
     t.c2s = {};

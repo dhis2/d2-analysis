@@ -18,13 +18,19 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
 
-Chart = function(layout, response, legendSet) {
+Chart = function(refs, layout, response, legendSet) {
     var t = this,
-        klass = Chart,
+        klass = Chart;
 
-        appManager = klass.appManager,
-        dimensionConfig = klass.dimensionConfig,
-        optionConfig = klass.optionConfig;
+    refs = isObject(refs) ? refs : klass;
+
+    var appManager = refs.appManager,
+        i18nManager = refs.i18nManager,
+        dimensionConfig = refs.dimensionConfig,
+        optionConfig = refs.optionConfig,
+        chartConfig = refs.chartConfig;
+
+    var i18n = i18nManager.get();
 
     // init
     //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
@@ -100,6 +106,7 @@ Chart = function(layout, response, legendSet) {
         getDefaultChartTitlePositionHandler,
         getDefaultChart,
 
+        idValueMap = response.getIdValueMap(layout),
         generator = {};
 
     getDefaultStore = function(isStacked) {
@@ -116,11 +123,11 @@ Chart = function(layout, response, legendSet) {
             rowValues = [];
             isEmpty = false;
 
-            obj[conf.finals.data.domain] = response.metaData.names[category];
+            obj[chartConfig.consts.domain] = response.metaData.names[category];
 
             for (var j = 0, id, value; j < columnIds.length; j++) {
                 id = columnIds[j] + rowIds[i];
-                value = response.idValueMap[id];
+                value = idValueMap[id];
                 rowValues.push(value);
 
                 obj[failSafeColumnIds[j]] = value ? parseFloat(value) : '0.0';
@@ -162,7 +169,7 @@ Chart = function(layout, response, legendSet) {
 
             if (isStacked) {
                 regression = new SimpleRegression();
-                regressionKey = conf.finals.data.trendLine + dataTotalKey;
+                regressionKey = chartConfig.consts.trendLine + dataTotalKey;
 
                 for (var i = 0, value; i < data.length; i++) {
                     value = data[i][dataTotalKey];
@@ -174,12 +181,12 @@ Chart = function(layout, response, legendSet) {
                 }
 
                 trendLineFields.push(regressionKey);
-                response.metaData.names[regressionKey] = DV.i18n.trend + ' (Total)';
+                response.metaData.names[regressionKey] = i18n.trend + ' (Total)';
             }
             else {
                 for (var i = 0; i < failSafeColumnIds.length; i++) {
                     regression = new SimpleRegression();
-                    regressionKey = conf.finals.data.trendLine + failSafeColumnIds[i];
+                    regressionKey = chartConfig.consts.trendLine + failSafeColumnIds[i];
 
                     for (var j = 0, value; j < data.length; j++) {
                         value = data[j][failSafeColumnIds[i]];
@@ -191,7 +198,7 @@ Chart = function(layout, response, legendSet) {
                     }
 
                     trendLineFields.push(regressionKey);
-                    response.metaData.names[regressionKey] = DV.i18n.trend + (appConfig.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
+                    response.metaData.names[regressionKey] = i18n.trend + (appConfig.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
                 }
             }
         }
@@ -199,25 +206,25 @@ Chart = function(layout, response, legendSet) {
         // target line
         if (isNumber(layout.targetLineValue) || isNumber(parseFloat(layout.targetLineValue))) {
             for (var i = 0; i < data.length; i++) {
-                data[i][conf.finals.data.targetLine] = parseFloat(layout.targetLineValue);
+                data[i][chartConfig.consts.targetLine] = parseFloat(layout.targetLineValue);
             }
 
-            targetLineFields.push(conf.finals.data.targetLine);
+            targetLineFields.push(chartConfig.consts.targetLine);
         }
 
         // base line
         if (isNumber(layout.baseLineValue) || isNumber(parseFloat(layout.baseLineValue))) {
             for (var i = 0; i < data.length; i++) {
-                data[i][conf.finals.data.baseLine] = parseFloat(layout.baseLineValue);
+                data[i][chartConfig.consts.baseLine] = parseFloat(layout.baseLineValue);
             }
 
-            baseLineFields.push(conf.finals.data.baseLine);
+            baseLineFields.push(chartConfig.consts.baseLine);
         }
 
         store = Ext.create('Ext.data.Store', {
             fields: function() {
                 var fields = clone(failSafeColumnIds);
-                fields.push(conf.finals.data.domain);
+                fields.push(chartConfig.consts.domain);
                 fields = fields.concat(trendLineFields, targetLineFields, baseLineFields);
 
                 return fields;
@@ -226,7 +233,7 @@ Chart = function(layout, response, legendSet) {
         });
 
         store.rangeFields = failSafeColumnIds;
-        store.domainFields = [conf.finals.data.domain];
+        store.domainFields = [chartConfig.consts.domain];
         store.trendLineFields = trendLineFields;
         store.targetLineFields = targetLineFields;
         store.baseLineFields = baseLineFields;
@@ -304,15 +311,6 @@ Chart = function(layout, response, legendSet) {
             return arrayMax(values);
         };
 
-        if (DV.isDebug) {
-            console.log("data", data);
-            console.log("rangeFields", store.rangeFields);
-            console.log("domainFields", store.domainFields);
-            console.log("trendLineFields", store.trendLineFields);
-            console.log("targetLineFields", store.targetLineFields);
-            console.log("baseLineFields", store.baseLineFields);
-        }
-
         return store;
     };
 
@@ -323,6 +321,8 @@ Chart = function(layout, response, legendSet) {
             titleFont = 'bold 12px ' + conf.chart.style.fontFamily,
             titleColor = 'black',
 
+            stackedcolumn = chartConfig.client.stackedcolumn,
+            stackedbar = chartConfig.client.stackedbar,
             typeConf = conf.finals.chart,
             minimum = store.getMinimum(),
             maximum,
@@ -340,7 +340,7 @@ Chart = function(layout, response, legendSet) {
         };
 
         // set maximum if stacked + extra line
-        if ((layout.type === typeConf.stackedcolumn || layout.type === typeConf.stackedbar) &&
+        if ((layout.type === stackedcolumn || layout.type === stackedbar) &&
             (layout.showTrendLine || layout.targetLineValue || layout.baseLineValue)) {
             var a = [store.getMaximum(), store.getMaximumSum()];
             maximum = Math.ceil(arrayMax(a) * 1.1);
@@ -714,7 +714,7 @@ Chart = function(layout, response, legendSet) {
             },
             showMarkers: false,
             title: function() {
-                var title = (isString(layout.targetLineTitle) ? layout.targetLineTitle : DV.i18n.target) + ' (' + layout.targetLineValue + ')',
+                var title = (isString(layout.targetLineTitle) ? layout.targetLineTitle : i18n.target) + ' (' + layout.targetLineValue + ')',
                     ls = layout.legendStyle;
                 return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
             }()
@@ -735,7 +735,7 @@ Chart = function(layout, response, legendSet) {
             },
             showMarkers: false,
             title: function() {
-                var title = (isString(layout.baseLineTitle) ? layout.baseLineTitle : DV.i18n.base) + ' (' + layout.baseLineValue + ')',
+                var title = (isString(layout.baseLineTitle) ? layout.baseLineTitle : i18n.base) + ' (' + layout.baseLineValue + ')',
                     ls = layout.legendStyle;
                 return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
             }()
@@ -749,7 +749,7 @@ Chart = function(layout, response, legendSet) {
             renderer: function(si, item) {
                 if (item.value) {
                     var value = item.value[1] === '0.0' ? '-' : item.value[1];
-                    this.update('<div style="font-size:17px; font-weight:bold">' + support.prototype.number.prettyPrint(value) + '</div><div style="font-size:10px">' + si.data[conf.finals.data.domain] + '</div>');
+                    this.update('<div style="font-size:17px; font-weight:bold">' + support.prototype.number.prettyPrint(value) + '</div><div style="font-size:10px">' + si.data[chartConfig.consts.domain] + '</div>');
                 }
             }
         };
@@ -896,8 +896,8 @@ Chart = function(layout, response, legendSet) {
             text = '',
             titleFont,
             titleColor,
-            isPie = layout.type === conf.finals.chart.client.pie,
-            isGauge = layout.type === conf.finals.chart.client.gauge;
+            isPie = layout.type === chartConfig.client.pie,
+            isGauge = layout.type === chartConfig.client.gauge;
 
         if (isPie) {
             ids.push(columnIds[0]);
@@ -1065,7 +1065,7 @@ Chart = function(layout, response, legendSet) {
         for (var i = 0, item; i < chart.series.items.length; i++) {
             item = chart.series.items[i];
 
-            if (item.type === conf.finals.chart.client.column) {
+            if (item.type === chartConfig.client.column) {
                 item.stacked = true;
             }
         }
@@ -1151,7 +1151,7 @@ Chart = function(layout, response, legendSet) {
         for (var i = 0, item; i < chart.series.items.length; i++) {
             item = chart.series.items[i];
 
-            if (item.type === conf.finals.chart.client.bar) {
+            if (item.type === chartConfig.client.bar) {
                 item.stacked = true;
             }
         }
@@ -1280,7 +1280,7 @@ Chart = function(layout, response, legendSet) {
             colors,
             chart,
             label = {
-                field: conf.finals.data.domain
+                field: chartConfig.consts.domain
             };
 
         // label
@@ -1309,7 +1309,7 @@ Chart = function(layout, response, legendSet) {
             label.font = labelFont;
             label.fill = labelColor;
             label.renderer = function(value) {
-                var record = store.getAt(store.findExact(conf.finals.data.domain, value)),
+                var record = store.getAt(store.findExact(chartConfig.consts.domain, value)),
                     v = record.data[store.rangeFields[0]];
 
                 return support.prototype.number.prettyPrint(v);
@@ -1337,7 +1337,7 @@ Chart = function(layout, response, legendSet) {
                 cls: 'dv-chart-tips',
                 renderer: function(item) {
                     var value = support.prototype.number.prettyPrint(item.data[store.rangeFields[0]]),
-                        data = item.data[conf.finals.data.domain];
+                        data = item.data[chartConfig.consts.domain];
 
                     this.update('<div style="text-align:center"><div style="font-size:17px; font-weight:bold">' + value + '</div><div style="font-size:10px">' + data + '</div></div>');
                 }
