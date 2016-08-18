@@ -315,21 +315,21 @@ Chart = function(refs, layout, response, legendSet) {
     };
 
     getDefaultNumericAxis = function(store) {
-        var labelFont = 'normal 11px ' + conf.chart.style.fontFamily,
+        var labelFont = 'normal 11px ' + chartConfig.style.fontFamily,
             labelColor = 'black',
             labelRotation = 0,
-            titleFont = 'bold 12px ' + conf.chart.style.fontFamily,
+            titleFont = 'bold 12px ' + chartConfig.style.fontFamily,
             titleColor = 'black',
 
             stackedcolumn = chartConfig.client.stackedcolumn,
             stackedbar = chartConfig.client.stackedbar,
-            typeConf = conf.finals.chart,
             minimum = store.getMinimum(),
             maximum,
             numberOfDecimals,
+            renderer,
             axis;
 
-        getRenderer = function(numberOfDecimals) {
+        var getRenderer = function(numberOfDecimals) {
             var renderer = '0.';
 
             for (var i = 0; i < numberOfDecimals; i++) {
@@ -413,7 +413,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                 labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '11px ';
-                labelFont +=  style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                labelFont +=  style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
             }
 
             // rotation
@@ -430,7 +430,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 titleFont = style.titleFontWeight ? style.titleFontWeight + ' ' : 'bold ';
                 titleFont += style.titleFontSize ? parseFloat(style.titleFontSize) + 'px ' : '12px ';
-                titleFont +=  style.titleFontFamily ? style.titleFontFamily : conf.chart.style.fontFamily;
+                titleFont +=  style.titleFontFamily ? style.titleFontFamily : chartConfig.style.fontFamily;
             }
         }
 
@@ -445,10 +445,10 @@ Chart = function(refs, layout, response, legendSet) {
     };
 
     getDefaultCategoryAxis = function(store) {
-        var labelFont = 'normal 11px ' + conf.chart.style.fontFamily,
+        var labelFont = 'normal 11px ' + chartConfig.style.fontFamily,
             labelColor = 'black',
             labelRotation = 315,
-            titleFont = 'bold 12px ' + conf.chart.style.fontFamily,
+            titleFont = 'bold 12px ' + chartConfig.style.fontFamily,
             titleColor = 'black',
 
             axis = {
@@ -479,7 +479,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                 labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '11px ';
-                labelFont +=  style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                labelFont +=  style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
             }
 
             // rotation
@@ -496,7 +496,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 titleFont = style.titleFontWeight ? style.titleFontWeight + ' ' : 'bold ';
                 titleFont += style.titleFontSize ? parseFloat(style.titleFontSize) + 'px ' : '12px ';
-                titleFont +=  style.titleFontFamily ? style.titleFontFamily : conf.chart.style.fontFamily;
+                titleFont +=  style.titleFontFamily ? style.titleFontFamily : chartConfig.style.fontFamily;
             }
         }
 
@@ -567,7 +567,7 @@ Chart = function(refs, layout, response, legendSet) {
         else {
             for (var i = 0, id, name, mxl, ids; i < store.rangeFields.length; i++) {
                 id = failSafeColumnIdMap[store.rangeFields[i]];
-                name = xResponse.metaData.names[id];
+                name = response.metaData.names[id];
 
                 if (ls && ls.labelMaxLength) {
                     var mxl = parseInt(ls.labelMaxLength);
@@ -632,7 +632,7 @@ Chart = function(refs, layout, response, legendSet) {
         };
 
         if (layout.showValues) {
-            var labelFont = conf.chart.style.fontFamily,
+            var labelFont = chartConfig.style.fontFamily,
                 labelColor = 'black';
 
             if (isObject(layout.seriesStyle)) {
@@ -647,7 +647,7 @@ Chart = function(refs, layout, response, legendSet) {
                 else {
                     labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                     labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '11px ';
-                    labelFont +=  style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                    labelFont +=  style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
                 }
             }
 
@@ -671,7 +671,7 @@ Chart = function(refs, layout, response, legendSet) {
         var a = [];
 
         for (var i = 0, strokeColor; i < store.trendLineFields.length; i++) {
-            strokeColor = isStacked ? '#000' : conf.chart.theme.dv1[i];
+            strokeColor = isStacked ? '#000' : chartConfig.theme.dv1[i];
 
             a.push({
                 type: 'line',
@@ -690,7 +690,7 @@ Chart = function(refs, layout, response, legendSet) {
                     fill: strokeColor
                 },
                 title: function() {
-                    var title = xResponse.metaData.names[store.trendLineFields[i]],
+                    var title = response.metaData.names[store.trendLineFields[i]],
                         ls = layout.legendStyle;
                     return ls && isNumber(ls.labelMaxLength) ? title.substr(0, ls.labelMaxLength) + '..' : title;
                 }()
@@ -756,7 +756,7 @@ Chart = function(refs, layout, response, legendSet) {
     };
 
     setDefaultTheme = function(store) {
-        var colors = conf.chart.theme.dv1.slice(0, store.rangeFields.length);
+        var colors = chartConfig.theme.dv1.slice(0, store.rangeFields.length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
             constructor: function(config) {
@@ -775,7 +775,7 @@ Chart = function(refs, layout, response, legendSet) {
             numberOfChars = 0,
             width,
             isVertical = false,
-            labelFont = '11px ' + conf.chart.style.fontFamily,
+            labelFont = '11px ' + chartConfig.style.fontFamily,
             labelColor = 'black';
             position = 'top',
             padding = 0,
@@ -819,7 +819,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                 labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '11px ';
-                labelFont += style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                labelFont += style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
             }
         }
 
@@ -853,7 +853,7 @@ Chart = function(refs, layout, response, legendSet) {
             titleFont,
             titleColor;
 
-        titleFont = 'normal ' + fontSize + 'px ' + conf.chart.style.fontFamily;
+        titleFont = 'normal ' + fontSize + 'px ' + chartConfig.style.fontFamily;
         titleColor = 'black';
 
         // legend
@@ -868,7 +868,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 titleFont = style.titleFontWeight ? style.titleFontWeight + ' ' : 'normal ';
                 titleFont += style.titleFontSize ? parseFloat(style.titleFontSize) + 'px ' : (fontSize + 'px ');
-                titleFont +=  style.titleFontFamily ? style.titleFontFamily : conf.chart.style.fontFamily;
+                titleFont +=  style.titleFontFamily ? style.titleFontFamily : chartConfig.style.fontFamily;
             }
         }
 
@@ -910,7 +910,7 @@ Chart = function(refs, layout, response, legendSet) {
 
         if (isArray(ids) && ids.length) {
             for (var i = 0; i < ids.length; i++) {
-                text += xResponse.metaData.names[ids[i]];
+                text += response.metaData.names[ids[i]];
                 text += i < ids.length - 1 ? ', ' : '';
             }
         }
@@ -1165,7 +1165,7 @@ Chart = function(refs, layout, response, legendSet) {
             categoryAxis = getDefaultCategoryAxis(store),
             axes = [numericAxis, categoryAxis],
             series = [],
-            colors = conf.chart.theme.dv1.slice(0, store.rangeFields.length),
+            colors = chartConfig.theme.dv1.slice(0, store.rangeFields.length),
             seriesTitles = getDefaultSeriesTitle(store);
 
         // Series
@@ -1285,7 +1285,7 @@ Chart = function(refs, layout, response, legendSet) {
 
         // label
         if (layout.showValues) {
-            var labelFont = conf.chart.style.fontFamily,
+            var labelFont = chartConfig.style.fontFamily,
                 labelColor;
 
             if (isObject(layout.seriesStyle)) {
@@ -1300,7 +1300,7 @@ Chart = function(refs, layout, response, legendSet) {
                 else {
                     labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                     labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '11px ';
-                    labelFont +=  style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                    labelFont +=  style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
                 }
             }
 
@@ -1347,7 +1347,7 @@ Chart = function(refs, layout, response, legendSet) {
         }];
 
         // theme
-        colors = conf.chart.theme.dv1.slice(0, xResponse.nameHeaderMap[layout.rowDimensionNames[0]].ids.length);
+        colors = chartConfig.theme.dv1.slice(0, response.getHeaderByName(layout.rowDimensionNames[0]).ids.length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
             constructor: function(config) {
@@ -1428,7 +1428,7 @@ Chart = function(refs, layout, response, legendSet) {
             else {
                 labelFont = style.labelFontWeight ? style.labelFontWeight + ' ' : 'normal ';
                 labelFont += style.labelFontSize ? parseFloat(style.labelFontSize) + 'px ' : '9px ';
-                labelFont +=  style.labelFontFamily ? style.labelFontFamily : conf.chart.style.fontFamily;
+                labelFont +=  style.labelFontFamily ? style.labelFontFamily : chartConfig.style.fontFamily;
             }
         }
 
@@ -1511,7 +1511,7 @@ Chart = function(refs, layout, response, legendSet) {
             chart.items.push(Ext.create('Ext.draw.Sprite', {
                 type: 'text',
                 text: store.getRange()[0].data[failSafeColumnIds[0]],
-                font: 'normal 26px ' + conf.chart.style.fontFamily,
+                font: 'normal 26px ' + chartConfig.style.fontFamily,
                 fill: '#111',
                 height: 40,
                 y:  60
