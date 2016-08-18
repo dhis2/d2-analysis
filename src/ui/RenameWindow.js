@@ -1,6 +1,6 @@
 import isArray from 'd2-utilizr/lib/isArray';
 
-import {Layout} from '../api/Layout.js';
+//import {Layout} from '../api/Layout.js';
 
 export var RenameWindow;
 
@@ -12,6 +12,7 @@ RenameWindow = function(c, layout, fn, listeners) {
         instanceManager = c.instanceManager,
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig,
+        api = c.api,
 
         path = appManager.getPath(),
         apiResource = instanceManager.apiResource;
@@ -55,7 +56,7 @@ RenameWindow = function(c, layout, fn, listeners) {
                     url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
 
                 $.getJSON(encodeURI(url), function(r) {
-                    layout = new Layout(r);
+                    layout = new api.Layout(r);
                     layout.name = name;
 
                     put();

@@ -2,21 +2,20 @@ import isString from 'd2-utilizr/lib/isString';
 import isObject from 'd2-utilizr/lib/isObject';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
-import clone from 'd2-utilizr/lib/clone';
 
 export var InstanceManager;
 
-InstanceManager = function(c) {
+InstanceManager = function(refs) {
     var t = this;
 
-    c = isObject(c) ? c : {};
+    t.refs = isObject(refs) ? refs : {};
 
-    t.api = c.api;
-    t.appManager = c.appManager;
-    t.uiManager = c.uiManager;
-    t.i18nManager = c.i18nManager;
-    t.tableManager = c.tableManager;
-    t.sessionStorageManager = c.sessionStorageManager;
+    t.api = refs.api;
+    t.appManager = refs.appManager;
+    t.uiManager = refs.uiManager;
+    t.i18nManager = refs.i18nManager;
+    t.tableManager = refs.tableManager;
+    t.sessionStorageManager = refs.sessionStorageManager;
 
     // state
     var _state = {
@@ -108,7 +107,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
 
     layoutConfig = layoutConfig || t.uiManager.getUiState();
 
-    return new t.api.Layout(layoutConfig);
+    return new t.api.Layout(t.refs, layoutConfig);
 };
 
 InstanceManager.prototype.getById = function(id, fn) {
@@ -131,7 +130,7 @@ InstanceManager.prototype.getById = function(id, fn) {
         baseUrl: appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
         type: 'json',
         success: function(r) {
-            var layout = new t.api.Layout(r);
+            var layout = new t.api.Layout(t.refs, r);
 
             if (layout) {
                 fn(layout, true);

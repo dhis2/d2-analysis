@@ -17,7 +17,7 @@ import clone from 'd2-utilizr/lib/clone';
 import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
-console.log("uuid", uuid);
+
 Chart = function(layout, response, legendSet) {
     var t = this,
         klass = Chart,

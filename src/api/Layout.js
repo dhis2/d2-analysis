@@ -21,9 +21,10 @@ import {DateManager} from '../manager/DateManager.js';
 
 export var Layout;
 
-Layout = function(c, applyConfig, forceApplyConfig) {
+Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var t = this;
-    t.klass = Layout;
+
+    refs = isObject(refs) ? refs : {};
 
     c = isObject(c) ? c : {};
     $.extend(c, applyConfig);
@@ -42,38 +43,34 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     t.rows = (Axis(c.rows)).val();
     t.filters = (Axis(c.filters)).val(true);
 
-    t.showColTotals = isBoolean(c.colTotals) ? c.colTotals : (isBoolean(c.showColTotals) ? c.showColTotals : true);
-    t.showRowTotals = isBoolean(c.rowTotals) ? c.rowTotals : (isBoolean(c.showRowTotals) ? c.showRowTotals : true);
-    t.showColSubTotals = isBoolean(c.colSubTotals) ? c.colSubTotals : (isBoolean(c.showColSubTotals) ? c.showColSubTotals : true);
-    t.showRowSubTotals = isBoolean(c.rowSubTotals) ? c.rowSubTotals : (isBoolean(c.showRowSubTotals) ? c.showRowSubTotals : true);
-    t.showDimensionLabels = isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : (isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : true);
-    t.hideEmptyRows = isBoolean(c.hideEmptyRows) ? c.hideEmptyRows : false;
-    t.skipRounding = isBoolean(c.skipRounding) ? c.skipRounding : false;
-    t.aggregationType = isString(c.aggregationType) ? c.aggregationType : t.klass.optionConfig.getAggregationType('def').id;
-    t.dataApprovalLevel = isObject(c.dataApprovalLevel) && isString(c.dataApprovalLevel.id) ? c.dataApprovalLevel : null;
-    t.showHierarchy = isBoolean(c.showHierarchy) ? c.showHierarchy : false;
-    t.completedOnly = isBoolean(c.completedOnly) ? c.completedOnly : false;
-    t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : t.klass.optionConfig.getDisplayDensity('normal').id;
-    t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : t.klass.optionConfig.getFontSize('normal').id;
-    t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : t.klass.optionConfig.getDigitGroupSeparator('space').id;
+    //t.showColTotals = isBoolean(c.colTotals) ? c.colTotals : (isBoolean(c.showColTotals) ? c.showColTotals : true);
+    //t.showRowTotals = isBoolean(c.rowTotals) ? c.rowTotals : (isBoolean(c.showRowTotals) ? c.showRowTotals : true);
+    //t.showColSubTotals = isBoolean(c.colSubTotals) ? c.colSubTotals : (isBoolean(c.showColSubTotals) ? c.showColSubTotals : true);
+    //t.showRowSubTotals = isBoolean(c.rowSubTotals) ? c.rowSubTotals : (isBoolean(c.showRowSubTotals) ? c.showRowSubTotals : true);
+    //t.showDimensionLabels = isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : (isBoolean(c.showDimensionLabels) ? c.showDimensionLabels : true);
+    //t.hideEmptyRows = isBoolean(c.hideEmptyRows) ? c.hideEmptyRows : false;
+    //t.skipRounding = isBoolean(c.skipRounding) ? c.skipRounding : false;
+    //t.aggregationType = isString(c.aggregationType) ? c.aggregationType : t.klass.optionConfig.getAggregationType('def').id;
+    //t.dataApprovalLevel = isObject(c.dataApprovalLevel) && isString(c.dataApprovalLevel.id) ? c.dataApprovalLevel : null;
+    //t.showHierarchy = isBoolean(c.showHierarchy) ? c.showHierarchy : false;
+    //t.completedOnly = isBoolean(c.completedOnly) ? c.completedOnly : false;
+    //t.displayDensity = isString(c.displayDensity) && !isEmpty(c.displayDensity) ? c.displayDensity : t.klass.optionConfig.getDisplayDensity('normal').id;
+    //t.fontSize = isString(c.fontSize) && !isEmpty(c.fontSize) ? c.fontSize : t.klass.optionConfig.getFontSize('normal').id;
+    //t.digitGroupSeparator = isString(c.digitGroupSeparator) && !isEmpty(c.digitGroupSeparator) ? c.digitGroupSeparator : t.klass.optionConfig.getDigitGroupSeparator('space').id;
 
-    t.legendSet = (new Record(c.legendSet)).val(true);
+    //t.legendSet = (new Record(c.legendSet)).val(true);
 
-    t.parentGraphMap = isObject(c.parentGraphMap) ? c.parentGraphMap : null;
+    //t.parentGraphMap = isObject(c.parentGraphMap) ? c.parentGraphMap : null;
 
-    if (isObject(c.program)) {
-        t.program = c.program;
-    }
+        //// report table
+    //t.reportingPeriod = isObject(c.reportParams) && isBoolean(c.reportParams.paramReportingPeriod) ? c.reportParams.paramReportingPeriod : (isBoolean(c.reportingPeriod) ? c.reportingPeriod : false);
+    //t.organisationUnit =  isObject(c.reportParams) && isBoolean(c.reportParams.paramOrganisationUnit) ? c.reportParams.paramOrganisationUnit : (isBoolean(c.organisationUnit) ? c.organisationUnit : false);
+    //t.parentOrganisationUnit = isObject(c.reportParams) && isBoolean(c.reportParams.paramParentOrganisationUnit) ? c.reportParams.paramParentOrganisationUnit : (isBoolean(c.parentOrganisationUnit) ? c.parentOrganisationUnit : false);
 
-        // report table
-    t.reportingPeriod = isObject(c.reportParams) && isBoolean(c.reportParams.paramReportingPeriod) ? c.reportParams.paramReportingPeriod : (isBoolean(c.reportingPeriod) ? c.reportingPeriod : false);
-    t.organisationUnit =  isObject(c.reportParams) && isBoolean(c.reportParams.paramOrganisationUnit) ? c.reportParams.paramOrganisationUnit : (isBoolean(c.organisationUnit) ? c.organisationUnit : false);
-    t.parentOrganisationUnit = isObject(c.reportParams) && isBoolean(c.reportParams.paramParentOrganisationUnit) ? c.reportParams.paramParentOrganisationUnit : (isBoolean(c.parentOrganisationUnit) ? c.parentOrganisationUnit : false);
-
-    t.regression = isBoolean(c.regression) ? c.regression : false;
-    t.cumulative = isBoolean(c.cumulative) ? c.cumulative : false;
-    t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
-    t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
+    //t.regression = isBoolean(c.regression) ? c.regression : false;
+    //t.cumulative = isBoolean(c.cumulative) ? c.cumulative : false;
+    //t.sortOrder = isNumber(c.sortOrder) ? c.sortOrder : 0;
+    //t.topLimit = isNumber(c.topLimit) ? c.topLimit : 0;
 
         // sharing
     _access = isObject(c.access) ? c.access : null;
@@ -158,7 +155,11 @@ Layout = function(c, applyConfig, forceApplyConfig) {
     };
 
     t.getRequestPath = function(s, f) {
-        return t.klass.appManager.getPath() + (s || _source) + '.' + (f || _format);
+        return refs.appManager.getPath() + (s || _source) + '.' + (f || _format);
+    };
+
+    t.getRefs = function() {
+        return refs;
     };
 };
 
@@ -172,18 +173,6 @@ Layout.prototype.alert = function(text, noError) {
     if (!noError) {
         alert(text);
     }
-};
-
-Layout.prototype.clone = function() {
-    var t = this;
-
-    var layout = new Layout(t);
-
-    layout.setResponse(t.getResponse());
-    layout.setAccess(t.getAccess());
-    layout.setDataDimensionItems(t.getDataDimensionItems());
-
-    return layout;
 };
 
 Layout.prototype.toRows = function(includeFilter) {
@@ -296,17 +285,20 @@ Layout.prototype.val = function(noError) {
 };
 
 Layout.prototype.toPlugin = function(el) {
-    var appManager = this.klass.appManager,
-        optionConfig = this.klass.optionConfig,
+    var t = this,
+        refs = this.getRefs();
+
+    var appManager = refs.appManager,
+        optionConfig = refs.optionConfig,
         layout;
 
-    if (this.id) {
+    if (t.id) {
         layout = {
-            id: this.id
+            id: t.id
         };
     }
     else {
-        layout = this.clone();
+        layout = t.clone();
 
         // columns, rows, filters
         layout.getAxes(true).forEach(function(item) {
@@ -500,9 +492,10 @@ Layout.prototype.hasRecordIds = function(idParam, includeFilter) {
 };
 
 Layout.prototype.data = function(source, format) {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
 
-    var uiManager = t.klass.uiManager;
+    var uiManager = refs.uiManager;
 
     var metaDataRequest = this.req(source, format);
     var dataRequest = this.req(source, format, true);
@@ -535,11 +528,12 @@ Layout.prototype.data = function(source, format) {
 };
 
 Layout.prototype.post = function(fn, doMask, doUnmask) {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
 
-    var appManager = t.klass.appManager,
-        instanceManager = t.klass.instanceManager,
-        uiManager = t.klass.uiManager;
+    var appManager = refs.appManager,
+        instanceManager = refs.instanceManager,
+        uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
         apiResource = instanceManager.apiResource;
@@ -577,11 +571,12 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
 };
 
 Layout.prototype.put = function(fn, doMask, doUnmask) {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
 
-    var appManager = t.klass.appManager,
-        instanceManager = t.klass.instanceManager,
-        uiManager = t.klass.uiManager;
+    var appManager = refs.appManager,
+        instanceManager = refs.instanceManager,
+        uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
         apiResource = instanceManager.apiResource;
@@ -613,9 +608,10 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
 };
 
 Layout.prototype.del = function(fn, doMask, doUnmask) {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
 
-    var instanceManager = t.klass.instanceManager;
+    var instanceManager = refs.instanceManager;
 
     instanceManager.delById(t.id, fn, doMask, doUnmask);
 };
@@ -623,8 +619,11 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
 // dep 4
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
-    var optionConfig = this.klass.optionConfig,
-        appManager = this.klass.appManager,
+    var t = this,
+        refs = this.getRefs();
+
+    var optionConfig = refs.optionConfig,
+        appManager = refs.appManager,
         request = new Request();
 
     var defAggTypeId = optionConfig.getAggregationType('def').id,

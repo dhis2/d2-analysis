@@ -11,7 +11,6 @@ import clone from 'd2-utilizr/lib/clone';
 import {Record} from '../api/Record.js';
 import {Dimension} from '../api/Dimension.js';
 import {Axis} from '../api/Axis.js';
-import {Layout} from '../api/Layout.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';
@@ -21,17 +20,18 @@ import {EmbedButton} from './EmbedButton.js';
 
 export var Viewport;
 
-Viewport = function(c, cmp) {
-    var uiManager = c.uiManager,
-        appManager = c.appManager,
-        i18nManager = c.i18nManager,
-        sessionStorageManager = c.sessionStorageManager,
-        instanceManager = c.instanceManager,
-        calendarManager = c.calendarManager,
-        dimensionConfig = c.dimensionConfig,
-        periodConfig = c.periodConfig,
-        uiConfig = c.uiConfig,
-        optionConfig = c.optionConfig,
+Viewport = function(refs, cmp) {
+    var uiManager = refs.uiManager,
+        appManager = refs.appManager,
+        i18nManager = refs.i18nManager,
+        sessionStorageManager = refs.sessionStorageManager,
+        instanceManager = refs.instanceManager,
+        calendarManager = refs.calendarManager,
+        dimensionConfig = refs.dimensionConfig,
+        periodConfig = refs.periodConfig,
+        uiConfig = refs.uiConfig,
+        optionConfig = refs.optionConfig,
+        api = refs.api,
 
         path = appManager.getPath(),
         i18n = i18nManager.get(),
@@ -66,8 +66,8 @@ Viewport = function(c, cmp) {
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
 
-    var favoriteButton = uiManager.reg(FavoriteButton(c), 'favoriteButton');
-    var embedButton = uiManager.reg(EmbedButton(c), 'embedButton', 'onCurrent');
+    var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
+    var embedButton = uiManager.reg(EmbedButton(refs), 'embedButton', 'onCurrent');
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -4601,7 +4601,7 @@ Viewport = function(c, cmp) {
                     instanceManager.getById(id);
                 }
                 else if (isString(session) && sessionStorageManager.get(session)) {
-                    layout = new Layout(sessionStorageManager.get(session));
+                    layout = new api.Layout(refs, sessionStorageManager.get(session));
 
                     if (layout) {
                         instanceManager.getReport(layout, false, false, true);
