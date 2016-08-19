@@ -4555,6 +4555,12 @@ Viewport = function(refs, cmp) {
         centerRegion: centerRegion,
         northRegion: northRegion,
         items: arrayClean([westRegion, centerRegion, northRegion]),
+        getViewportWidth: function() {
+            return centerRegion.getWidth();
+        },
+        getViewportHeight: function() {
+            return centerRegion.getHeight();
+        },
         listeners: {
             afterrender: function() {
 
@@ -4623,7 +4629,6 @@ Viewport = function(refs, cmp) {
             }
         }
     });
-    uiManager.reg(viewport, 'viewport');
 
     // add listeners
     (function() {

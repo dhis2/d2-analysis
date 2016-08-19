@@ -18,7 +18,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
 
-Chart = function(refs, layout, response, legendSet) {
+Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
     var t = this,
         klass = Chart;
 
@@ -26,11 +26,13 @@ Chart = function(refs, layout, response, legendSet) {
 
     var appManager = refs.appManager,
         i18nManager = refs.i18nManager,
+        uiManager = refs.uiManager,
         dimensionConfig = refs.dimensionConfig,
         optionConfig = refs.optionConfig,
         chartConfig = refs.chartConfig;
 
-    var i18n = i18nManager.get();
+    var i18n = i18nManager.get(),
+        viewport = uiManager.get('viewport');
 
     // init
     //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
@@ -519,7 +521,7 @@ Chart = function(refs, layout, response, legendSet) {
             //minLength = 5,
             maxLength = support.prototype.array.getMaxLength(titles),
             fallbackLength = 10,
-            maxWidth = app.getCenterRegionWidth(),
+            maxWidth = viewport.getViewportWidth(),
             width,
             validateTitles;
 
@@ -768,7 +770,7 @@ Chart = function(refs, layout, response, legendSet) {
         });
     };
 
-    getDefaultLegend = function(store, chartConfig) {
+    getDefaultLegend = function(store, _chartConfig) {
         var itemLength = appConfig.dashboard ? 24 : 30,
             charLength = appConfig.dashboard ? 4 : 6,
             numberOfItems = 0,
@@ -776,13 +778,13 @@ Chart = function(refs, layout, response, legendSet) {
             width,
             isVertical = false,
             labelFont = '11px ' + chartConfig.style.fontFamily,
-            labelColor = 'black';
+            labelColor = 'black',
             position = 'top',
             padding = 0,
             positions = ['top', 'right', 'bottom', 'left'],
-            series = chartConfig.series,
+            series = _chartConfig.series,
             labelMarkerSize = layout.legendStyle && layout.legendStyle.labelMarkerSize ? layout.legendStyle.labelMarkerSize : null,
-            chartConfig;
+            newChartConfig;
 
         for (var i = 0, title; i < series.length; i++) {
             title = series[i].title;
@@ -799,7 +801,7 @@ Chart = function(refs, layout, response, legendSet) {
 
         width = (numberOfItems * itemLength) + (numberOfChars * charLength);
 
-        if (width > app.getCenterRegionWidth() - 6) {
+        if (width > viewport.getViewportWidth() - 6) {
             position = 'right';
         }
 
@@ -829,7 +831,7 @@ Chart = function(refs, layout, response, legendSet) {
         }
 
         // chart
-        chartConfig = {
+        newChartConfig = {
             position: position,
             isVertical: isVertical,
             boxStroke: '#ffffff',
@@ -842,14 +844,14 @@ Chart = function(refs, layout, response, legendSet) {
         };
 
         if (labelMarkerSize) {
-            chartConfig.labelMarkerSize = labelMarkerSize;
+            newChartConfig.labelMarkerSize = labelMarkerSize;
         }
 
-        return Ext.create('Ext.chart.Legend', chartConfig);
+        return Ext.create('Ext.chart.Legend', newChartConfig);
     };
 
     getTitleStyle = function(text, isSubtitle) {
-        var fontSize = (app.getCenterRegionWidth() / text.length) < 11.6 ? 12 : 17,
+        var fontSize = (viewport.getViewportWidth() / text.length) < 11.6 ? 12 : 17,
             titleFont,
             titleColor;
 
@@ -929,8 +931,8 @@ Chart = function(refs, layout, response, legendSet) {
 
     getDefaultChartSizeHandler = function() {
         return function() {
-            var width = app.getCenterRegionWidth(),
-                height = app.getCenterRegionHeight();
+            var width = viewport.getViewportWidth(),
+                height = viewport.getViewportHeight();
 
             this.animate = false;
             this.setWidth(appConfig.dashboard ? width : width - 15);
@@ -970,8 +972,8 @@ Chart = function(refs, layout, response, legendSet) {
     getDefaultChart = function(config) {
         var chart,
             store = config.store || {},
-            width = app.getCenterRegionWidth(),
-            height = app.getCenterRegionHeight(),
+            width = viewport.getViewportWidth(),
+            height = viewport.getViewportHeight(),
             isLineBased = arrayContains(['LINE', 'AREA'], layout.type),
             defaultConfig = {
                 //animate: true,
@@ -1495,8 +1497,8 @@ Chart = function(refs, layout, response, legendSet) {
         chart = getDefaultChart({
             axes: [axis],
             series: [series],
-            width: app.getCenterRegionWidth(),
-            height: app.getCenterRegionHeight() * 0.6,
+            width: viewport.getViewportWidth(),
+            height: viewport.getViewportHeight() * 0.6,
             store: store,
             insetPadding: appConfig.dashboard ? 50 : 100,
             theme: null,
@@ -1520,8 +1522,8 @@ Chart = function(refs, layout, response, legendSet) {
 
         chart.setChartSize = function() {
             //this.animate = false;
-            this.setWidth(app.getCenterRegionWidth());
-            this.setHeight(app.getCenterRegionHeight() * 0.6);
+            this.setWidth(viewport.getViewportWidth());
+            this.setHeight(viewport.getViewportHeight() * 0.6);
             //this.animate = true;
         };
 
@@ -1532,7 +1534,7 @@ Chart = function(refs, layout, response, legendSet) {
 
                     if (item) {
                         itemWidth = ieIE ? item.el.dom.scrollWidth : item.el.getWidth();
-                        itemX = itemWidth ? (app.getCenterRegionWidth() / 2) - (itemWidth / 2) : itemXFallback;
+                        itemX = itemWidth ? (viewport.getViewportWidth() / 2) - (itemWidth / 2) : itemXFallback;
 
                         item.setAttributes({
                             x: itemX

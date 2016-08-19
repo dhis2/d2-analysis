@@ -75,17 +75,17 @@ UiManager = function(c) {
         return isString(param) ? t.get(param) : param;
     };
 
-    t.update = function(html, elementId) {
-        html = html || t.getIntroHtml();
-
+    t.update = function(content, elementId) {
+        content = content || t.getIntroHtml();
+console.log("elementId", elementId);
         var el = document.getElementById(elementId);
 
         if (elementId && el) {
-            el.innerHTML = html;
+            el.innerHTML = content;
             return;
         }
 
-        t.getUpdateComponent() && t.getUpdateComponent().update(html);
+        t.getUpdateComponent() && t.getUpdateComponent().update(content);
     };
 
     // state
