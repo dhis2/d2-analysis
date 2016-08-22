@@ -77,7 +77,7 @@ UiManager = function(c) {
 
     t.update = function(content, elementId) {
         content = content || t.getIntroHtml();
-console.log("elementId", elementId);
+
         var el = document.getElementById(elementId);
 
         if (elementId && el) {
@@ -86,6 +86,14 @@ console.log("elementId", elementId);
         }
 
         t.getUpdateComponent() && t.getUpdateComponent().update(content);
+    };
+
+    t.add = function(content, container) {
+        var cmp = container || t.getUpdateComponent();
+
+        cmp.update();
+        cmp.removeAll();
+        cmp.add(content);
     };
 
     // state

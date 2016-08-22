@@ -252,13 +252,6 @@ OptionConfig = function() {
         i18nManager = manager;
         initialize();
     };
-
-    // dep 1
-
-    t.getDigitGroupSeparatorValueById = function(id) {
-        var separator = t.getDigitGroupSeparatorIdMap()[id];
-        return separator ? separator.value : '';
-    };
 };
 
 OptionConfig.prototype.applyTo = function(modules) {
@@ -269,3 +262,27 @@ OptionConfig.prototype.applyTo = function(modules) {
     });
 };
 
+OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
+    var t = this;
+
+    var separator = t.getDigitGroupSeparatorIdMap()[id];
+    return separator ? separator.value : '';
+};
+
+// dep 1
+
+OptionConfig.prototype.prettyPrint = function(number, separator) {
+    var t = this;
+
+    var spaceId = t.getDigitGroupSeparator('space').id,
+        noneId = t.getDigitGroupSeparator('none').id,
+        noneValue = t.getDigitGroupSeparator('none').value;
+
+    separator = separator || spaceId;
+
+    if (separator === noneId) {
+        return number;
+    }
+
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue);
+};

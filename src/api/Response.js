@@ -189,6 +189,17 @@ Response.prototype.getHeaderIndexOrder = function(dimensionNames) {
     return headerIndexOrder;
 };
 
+Response.prototype.getIdsByDimensionNames = function(dimensionName) {
+    var t = this,
+        ids = [];
+
+    dimensionName.forEach(function(name) {
+        ids = ids.concat(t.getIdsByDimensionName(name) || []);
+    });
+
+    return arrayClean(ids);
+};
+
 Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
     return this.getHierarchyNameById(id, isHierarchy) + this.getNameById(id);
 };

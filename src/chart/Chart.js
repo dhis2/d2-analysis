@@ -1,19 +1,20 @@
-import isString from 'd2-utilizr/lib/isString';
-import isNumber from 'd2-utilizr/lib/isNumber';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayMax from 'd2-utilizr/lib/arrayMax';
+import arrayMin from 'd2-utilizr/lib/arrayMin';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
+import arraySort from 'd2-utilizr/lib/arraySort';
+import clone from 'd2-utilizr/lib/clone';
 import isArray from 'd2-utilizr/lib/isArray';
-import isObject from 'd2-utilizr/lib/isObject';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
 import isIE from 'd2-utilizr/lib/isIE';
-import numberToFixed from 'd2-utilizr/lib/numberToFixed';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import numberConstrain from 'd2-utilizr/lib/numberConstrain';
+import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
-import arrayPluck from 'd2-utilizr/lib/arrayPluck';
-import arrayContains from 'd2-utilizr/lib/arrayContains';
-import arrayClean from 'd2-utilizr/lib/arrayClean';
-import arrayMax from 'd2-utilizr/lib/arrayMax';
-import arrayMin from 'd2-utilizr/lib/arrayMin';
-import clone from 'd2-utilizr/lib/clone';
 import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
@@ -37,7 +38,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
     // init
     //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
     var response = layout.getResponse(),
-        columnIds = layout.columns.getRecordIds(),
+        columnIds = response.metaData[layout.columns[0].dimension],
         failSafeColumnIds = [],
         failSafeColumnIdMap = {},
         createFailSafeColumnIds = function() {
@@ -53,22 +54,11 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
         }(),
 
         // row ids
-        //old rowIds = layout.rowDimensionNames[0] ? layout.dimensionNameIdsMap[layout.rowDimensionNames[0]] : [],
-        rowIds = layout.rows.getRecordIds(),
+        rowIds = response.metaData[layout.rows[0].dimension],
 
         // filter ids
-        //old filterIds = function() {
-            //var ids = [];
-
-            //if (layout.filters) {
-                //for (var i = 0; i < layout.filters.length; i++) {
-                    //ids = ids.concat(layout.filters[i].ids || []);
-                //}
-            //}
-
-            //return ids;
-        //}(),
-        filterIds = layout.filters.getRecordIds(),
+        //filterIds = layout.filters.getRecordIds(),
+        filterIds = response.getIdsByDimensionNames(arrayPluck(layout.filters, 'dimension')),
 
         // totals
         dataTotalKey = uuid(),
@@ -110,7 +100,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
 
         idValueMap = response.getIdValueMap(layout),
         generator = {};
-
+console.log("filterIds", filterIds);
     getDefaultStore = function(isStacked) {
         var data = [],
             trendLineFields = [],
@@ -128,7 +118,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             obj[chartConfig.consts.domain] = response.metaData.names[category];
 
             for (var j = 0, id, value; j < columnIds.length; j++) {
-                id = columnIds[j] + rowIds[i];
+                id = columnIds[j] + '-' + rowIds[i];
                 value = idValueMap[id];
                 rowValues.push(value);
 
@@ -158,10 +148,12 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 rec[sortKey] = rec[valueKey] === '0.0' ? null : rec[valueKey];
             }
 
-            support.prototype.array.sort(data, layout.sortOrder === -1 ? 'ASC' : 'DESC', sortKey, (layout.sortOrder === -1));
+            arraySort(data, layout.sortOrder === -1 ? 'ASC' : 'DESC', sortKey, (layout.sortOrder === -1));
 
             // remove sort key
-            support.prototype.array.deleteObjectKey(data, sortKey);
+            data.forEach(function(obj) {
+                delete obj[sortKey];
+            });
         }
 
         // trend lines
@@ -519,7 +511,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             numberOfChars,
             totalItemLength = numberOfItems * itemLength,
             //minLength = 5,
-            maxLength = support.prototype.array.getMaxLength(titles),
+            maxLength = arrayMax(titles, function(max, item) {
+                return item.length > max.length ? -1 : 0;
+            }).length,
             fallbackLength = 10,
             maxWidth = viewport.getViewportWidth(),
             width,
@@ -661,7 +655,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 fill: labelColor,
                 renderer: function(n) {
                     n = n === '0.0' ? '' : n;
-                    return support.prototype.number.prettyPrint(n);
+                    return optionConfig.prettyPrint(n, layout.digitGroupSeparator);
                 }
             };
         }
@@ -751,7 +745,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             renderer: function(si, item) {
                 if (item.value) {
                     var value = item.value[1] === '0.0' ? '-' : item.value[1];
-                    this.update('<div style="font-size:17px; font-weight:bold">' + support.prototype.number.prettyPrint(value) + '</div><div style="font-size:10px">' + si.data[chartConfig.consts.domain] + '</div>');
+                    this.update('<div style="font-size:17px; font-weight:bold">' + optionConfig.prettyPrint(value, layout.digitGroupSeparator) + '</div><div style="font-size:10px">' + si.data[chartConfig.consts.domain] + '</div>');
                 }
             }
         };
@@ -946,7 +940,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             if (this.items) {
                 for (var i = 0, title, titleWidth, titleXFallback, legend, legendCenterX, titleX; i < this.items.length; i++) {
                     title = this.items[i];
-                    titleWidth = ieIE ? title.el.dom.scrollWidth : title.el.getWidth();
+                    titleWidth = isIE ? title.el.dom.scrollWidth : title.el.getWidth();
                     titleXFallback = 10;
                     legend = this.legend;
                     legendCenterX;
@@ -970,6 +964,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
     };
 
     getDefaultChart = function(config) {
+console.log(viewport.getViewportWidth(), viewport.getViewportHeight());
         var chart,
             store = config.store || {},
             width = viewport.getViewportWidth(),
@@ -1314,7 +1309,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 var record = store.getAt(store.findExact(chartConfig.consts.domain, value)),
                     v = record.data[store.rangeFields[0]];
 
-                return support.prototype.number.prettyPrint(v);
+                return optionConfig.prettyPrint(v, layout.digitGroupSeparator);
             };
         }
 
@@ -1338,10 +1333,12 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 trackMouse: true,
                 cls: 'dv-chart-tips',
                 renderer: function(item) {
-                    var value = support.prototype.number.prettyPrint(item.data[store.rangeFields[0]]),
+                    var value = item.data[store.rangeFields[0]],
                         data = item.data[chartConfig.consts.domain];
 
-                    this.update('<div style="text-align:center"><div style="font-size:17px; font-weight:bold">' + value + '</div><div style="font-size:10px">' + data + '</div></div>');
+                    var ppValue = optionConfig.prettyPrint(value, layout.digitGroupSeparator);
+
+                    this.update('<div style="text-align:center"><div style="font-size:17px; font-weight:bold">' + ppValue + '</div><div style="font-size:10px">' + data + '</div></div>');
                 }
             },
             shadowAttributes: false,
@@ -1533,7 +1530,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                     item = this.items[i];
 
                     if (item) {
-                        itemWidth = ieIE ? item.el.dom.scrollWidth : item.el.getWidth();
+                        itemWidth = isIE ? item.el.dom.scrollWidth : item.el.getWidth();
                         itemX = itemWidth ? (viewport.getViewportWidth() / 2) - (itemWidth / 2) : itemXFallback;
 
                         item.setAttributes({
@@ -1547,5 +1544,5 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
         return chart;
     };
 
-    Object.assign(this, generator[layout.type]());
+    return generator[layout.type]();
 };
