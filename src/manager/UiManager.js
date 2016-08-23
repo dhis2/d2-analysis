@@ -39,8 +39,8 @@ UiManager = function(c) {
     };
 
     // components
-    t.reg = function(cmp, name, tags, keep) {
-        if (components.hasOwnProperty(name) && keep) {
+    t.reg = function(cmp, name, tags, doNotOverwrite) {
+        if (components.hasOwnProperty(name) && doNotOverwrite) {
             return;
         }
 
@@ -462,12 +462,20 @@ UiManager.prototype.applyTo = function(modules) {
     });
 };
 
-UiManager.prototype.getWidth = function() {
-    return this.get('viewport').getWidth();
+UiManager.prototype.getWidth = function(cmpName) {
+    var t = this;
+
+    var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
+
+    return cmp.getWidth();
 };
 
-UiManager.prototype.getHeight = function() {
-    return this.get('viewport').getHeight();
+UiManager.prototype.getHeight = function(cmpName) {
+    var t = this;
+
+    var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
+
+    return cmp.getWidth();
 };
 
 UiManager.prototype.getUiState = function() {

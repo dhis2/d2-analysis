@@ -4424,18 +4424,6 @@ Viewport = function(refs, cmp) {
         listeners: {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
-            },
-            resize: function() {
-                var width = this.getWidth();
-
-                if (width < 700 && this.fullSize) {
-                    this.toggleCmp(false);
-                    this.fullSize = false;
-                }
-                else if (width >= 700 && !this.fullSize) {
-                    this.toggleCmp(true);
-                    this.fullSize = true;
-                }
             }
         }
     });
@@ -4555,12 +4543,6 @@ Viewport = function(refs, cmp) {
         centerRegion: centerRegion,
         northRegion: northRegion,
         items: arrayClean([westRegion, centerRegion, northRegion]),
-        getViewportWidth: function() {
-            return centerRegion.getWidth();
-        },
-        getViewportHeight: function() {
-            return centerRegion.getHeight();
-        },
         listeners: {
             afterrender: function() {
 
@@ -4574,7 +4556,7 @@ Viewport = function(refs, cmp) {
                 });
 
                 // left gui
-                var viewportHeight = uiManager.get('centerRegion').getHeight(),
+                var viewportHeight = uiManager.getHeight(),
                     numberOfTabs = appManager.dimensions.length + 3,
                     tabHeight = 28,
                     minPeriodHeight = 380;

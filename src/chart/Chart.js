@@ -100,7 +100,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
 
         idValueMap = response.getIdValueMap(layout),
         generator = {};
-console.log("filterIds", filterIds);
+
     getDefaultStore = function(isStacked) {
         var data = [],
             trendLineFields = [],
@@ -515,7 +515,7 @@ console.log("filterIds", filterIds);
                 return item.length > max.length ? -1 : 0;
             }).length,
             fallbackLength = 10,
-            maxWidth = viewport.getViewportWidth(),
+            maxWidth = uiManager.getWidth(),
             width,
             validateTitles;
 
@@ -795,7 +795,7 @@ console.log("filterIds", filterIds);
 
         width = (numberOfItems * itemLength) + (numberOfChars * charLength);
 
-        if (width > viewport.getViewportWidth() - 6) {
+        if (width > uiManager.getWidth() - 6) {
             position = 'right';
         }
 
@@ -845,7 +845,7 @@ console.log("filterIds", filterIds);
     };
 
     getTitleStyle = function(text, isSubtitle) {
-        var fontSize = (viewport.getViewportWidth() / text.length) < 11.6 ? 12 : 17,
+        var fontSize = (uiManager.getWidth() / text.length) < 11.6 ? 12 : 17,
             titleFont,
             titleColor;
 
@@ -925,8 +925,8 @@ console.log("filterIds", filterIds);
 
     getDefaultChartSizeHandler = function() {
         return function() {
-            var width = viewport.getViewportWidth(),
-                height = viewport.getViewportHeight();
+            var width = uiManager.getWidth(),
+                height = uiManager.getHeight();
 
             this.animate = false;
             this.setWidth(appConfig.dashboard ? width : width - 15);
@@ -964,11 +964,10 @@ console.log("filterIds", filterIds);
     };
 
     getDefaultChart = function(config) {
-console.log(viewport.getViewportWidth(), viewport.getViewportHeight());
         var chart,
             store = config.store || {},
-            width = viewport.getViewportWidth(),
-            height = viewport.getViewportHeight(),
+            width = uiManager.getWidth(),
+            height = uiManager.getHeight(),
             isLineBased = arrayContains(['LINE', 'AREA'], layout.type),
             defaultConfig = {
                 //animate: true,
@@ -1494,8 +1493,8 @@ console.log(viewport.getViewportWidth(), viewport.getViewportHeight());
         chart = getDefaultChart({
             axes: [axis],
             series: [series],
-            width: viewport.getViewportWidth(),
-            height: viewport.getViewportHeight() * 0.6,
+            width: uiManager.getWidth(),
+            height: uiManager.getHeight() * 0.6,
             store: store,
             insetPadding: appConfig.dashboard ? 50 : 100,
             theme: null,
@@ -1519,8 +1518,8 @@ console.log(viewport.getViewportWidth(), viewport.getViewportHeight());
 
         chart.setChartSize = function() {
             //this.animate = false;
-            this.setWidth(viewport.getViewportWidth());
-            this.setHeight(viewport.getViewportHeight() * 0.6);
+            this.setWidth(uiManager.getWidth());
+            this.setHeight(uiManager.getHeight() * 0.6);
             //this.animate = true;
         };
 
@@ -1531,7 +1530,7 @@ console.log(viewport.getViewportWidth(), viewport.getViewportHeight());
 
                     if (item) {
                         itemWidth = isIE ? item.el.dom.scrollWidth : item.el.getWidth();
-                        itemX = itemWidth ? (viewport.getViewportWidth() / 2) - (itemWidth / 2) : itemXFallback;
+                        itemX = itemWidth ? (uiManager.getWidth() / 2) - (itemWidth / 2) : itemXFallback;
 
                         item.setAttributes({
                             x: itemX

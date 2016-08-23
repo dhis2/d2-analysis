@@ -477,7 +477,7 @@ FavoriteWindow = function(c, action) {
         bbar: gridBbar,
         listeners: {
             render: function() {
-                var size = Math.floor((uiManager.get('centerRegion').getHeight() - 155) / uiConfig.grid_row_height);
+                var size = Math.floor((uiManager.getHeight() - 155) / uiConfig.grid_row_height);
                 this.store.pageSize = size;
                 this.store.page = 1;
                 this.store.loadStore();
