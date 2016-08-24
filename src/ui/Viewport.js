@@ -4433,6 +4433,11 @@ Viewport = function(refs, cmp) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow');
 
+        //todo fixme charts
+        if (chartTypeToolbar) {
+            chartTypeToolbar.setChartType(layout.type);
+        }
+
         // clear panels
         westRegionPanels.forEach(function(panel) {
             panel.clearDimension(!!layout);
@@ -4483,6 +4488,11 @@ Viewport = function(refs, cmp) {
             dx = dimensionConfig.get('data').dimensionName,
             co = dimensionConfig.get('category').dimensionName,
             nameDimArrayMap = {};
+
+        //todo fixme charts
+        if (chartTypeToolbar) {
+            config.type = chartTypeToolbar.getChartType();
+        }
 
         config.columns = [];
         config.rows = [];
