@@ -655,7 +655,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 fill: labelColor,
                 renderer: function(n) {
                     n = n === '0.0' ? '' : n;
-                    return optionConfig.prettyPrint(n, layout.digitGroupSeparator);
+                    return optionConfig.prettyPrint(n, layout.digitGroupSeparator, true);
                 }
             };
         }
@@ -1305,10 +1305,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             label.font = labelFont;
             label.fill = labelColor;
             label.renderer = function(value) {
-                var record = store.getAt(store.findExact(chartConfig.consts.domain, value)),
-                    v = record.data[store.rangeFields[0]];
+                var val = record.data[store.rangeFields[0]];
 
-                return optionConfig.prettyPrint(v, layout.digitGroupSeparator);
+                return optionConfig.prettyPrint(v, layout.digitGroupSeparator, true);
             };
         }
 

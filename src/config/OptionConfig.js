@@ -1,5 +1,6 @@
 import arrayTo from 'd2-utilizr/lib/arrayTo';
 import arraySort from 'd2-utilizr/lib/arraySort';
+import stringReplaceAll from 'd2-utilizr/lib/stringReplaceAll';
 
 export var OptionConfig;
 
@@ -271,7 +272,7 @@ OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
 
 // dep 1
 
-OptionConfig.prototype.prettyPrint = function(number, separator) {
+OptionConfig.prototype.prettyPrint = function(number, separator, noHtml) {
     var t = this;
 
     var spaceId = t.getDigitGroupSeparator('space').id,
@@ -284,5 +285,11 @@ OptionConfig.prototype.prettyPrint = function(number, separator) {
         return number;
     }
 
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue);
+    var pp = number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue);
+
+    if (noHtml) {
+        pp = stringReplaceAll(pp, "&nbsp;", " ");
+    }
+
+    return pp;
 };
