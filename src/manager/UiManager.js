@@ -27,15 +27,32 @@ UiManager = function(c) {
 
     var introHtml = '';
 
+    var updateFn = function(content, elementId) {
+        content = content || t.getIntroHtml();
+
+        var el = document.getElementById(elementId);
+
+        if (elementId && el) {
+            el.innerHTML = content;
+            return;
+        }
+
+        t.getUpdateComponent() && t.getUpdateComponent().update(content);
+    };
+
     t.i18nManager;
 
-    // managers
+    // setters
     t.setInstanceManager = function(instanceManager) {
         t.instanceManager = instanceManager;
     };
 
     t.setI18nManager = function(i18nManager) {
         t.i18nManager = i18nManager;
+    };
+
+    t.setUpdateFn = function(fn) {
+        updateFn = fn;
     };
 
     // components
@@ -76,24 +93,7 @@ UiManager = function(c) {
     };
 
     t.update = function(content, elementId) {
-        content = content || t.getIntroHtml();
-
-        var el = document.getElementById(elementId);
-
-        if (elementId && el) {
-            el.innerHTML = content;
-            return;
-        }
-
-        t.getUpdateComponent() && t.getUpdateComponent().update(content);
-    };
-
-    t.add = function(content, container) {
-        var cmp = container || t.getUpdateComponent();
-
-        cmp.update();
-        cmp.removeAll();
-        cmp.add(content);
+        updateFn(content, elementId);
     };
 
     // state
@@ -475,7 +475,7 @@ UiManager.prototype.getHeight = function(cmpName) {
 
     var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
 
-    return cmp.getWidth();
+    return cmp.getHeight();
 };
 
 UiManager.prototype.getUiState = function() {
