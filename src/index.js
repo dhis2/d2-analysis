@@ -41,6 +41,7 @@ import { LinkItem } from './ui/LinkItem.js';
 import { AboutWindow } from './ui/AboutWindow.js';
 import { GridHeaders } from './ui/GridHeaders.js';
 import { ChartTypeToolbar } from './ui/ChartTypeToolbar.js';
+import { IntegrationButton } from './ui/IntegrationButton.js';
 
 import { i18nInit } from './init/i18nInit.js';
 import { authViewUnapprovedDataInit } from './init/authViewUnapprovedDataInit.js';
@@ -96,6 +97,8 @@ export {
     LinkItem,
     AboutWindow,
     GridHeaders,
+    ChartTypeToolbar,
+    IntegrationButton,
 
     i18nInit,
     authViewUnapprovedDataInit,
@@ -163,6 +166,7 @@ export const ui = {
     AboutWindow,
     GridHeaders,
     ChartTypeToolbar,
+    IntegrationButton,
 };
 
 export const init = {

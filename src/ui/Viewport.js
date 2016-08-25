@@ -69,6 +69,9 @@ Viewport = function(refs, cmp) {
     var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
     var embedButton = uiManager.reg(EmbedButton(refs), 'embedButton', 'onCurrent');
 
+    var integrationButtons = cmp.integrationButtons;
+
+
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         lastPage: null,
@@ -2952,6 +2955,7 @@ Viewport = function(refs, cmp) {
             }
         }
     });
+    uiManager.reg(treePanel, 'treePanel');
 
     var userOrganisationUnit = Ext.create('Ext.form.field.Checkbox', {
         columnWidth: 0.25,
@@ -4252,173 +4256,7 @@ Viewport = function(refs, cmp) {
                 downloadButton,
                 embedButton,
                 '->',
-                defaultButton,
-                {
-                    text: i18n.chart,
-                    iconCls: 'ns-button-icon-chart',
-                    toggleGroup: 'module',
-                    menu: {},
-                    handler: function(b) {
-                        b.menu = Ext.create('Ext.menu.Menu', {
-                            closeAction: 'destroy',
-                            shadow: false,
-                            showSeparator: false,
-                            items: [
-                                {
-                                    text: i18n.go_to_charts + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    uiManager.redirectCtrl(path + '/dhis-web-visualizer', e);
-                                                }
-                                            });
-                                        }
-                                    }
-                                },
-                                '-',
-                                {
-                                    text: i18n.open_this_table_as_chart + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    disabled: !(instanceManager.isStateCurrent()),
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    var layout = instanceManager.getStateCurrent().toSession();
-                                                    layout.parentGraphMap = treePanel.getParentGraphMap();
-
-                                                    sessionStorageManager.set(layout, 'analytical');
-
-                                                    if (sessionStorageManager.supported) {
-                                                        uiManager.redirectCtrl(path + '/dhis-web-visualizer/index.html?s=analytical', e);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                },
-                                {
-                                    text: i18n.open_last_chart + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    disabled: !sessionStorageManager.get('chart'),
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    uiManager.redirectCtrl(path + '/dhis-web-visualizer/index.html?s=chart', e);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            ],
-                            listeners: {
-                                show: function() {
-                                    uiManager.setAnchorPosition(b.menu, b);
-                                },
-                                hide: function() {
-                                    b.menu.destroy();
-                                    defaultButton.toggle();
-                                },
-                                destroy: function(m) {
-                                    b.menu = null;
-                                }
-                            }
-                        });
-
-                        b.menu.show();
-                    },
-                    listeners: {
-                        render: function() {
-                            centerRegion.cmp.push(this);
-                        }
-                    }
-                },
-                {
-                    text: i18n.map,
-                    iconCls: 'ns-button-icon-map',
-                    toggleGroup: 'module',
-                    menu: {},
-                    handler: function(b) {
-                        b.menu = Ext.create('Ext.menu.Menu', {
-                            closeAction: 'destroy',
-                            shadow: false,
-                            showSeparator: false,
-                            items: [
-                                {
-                                    text: i18n.go_to_maps + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    uiManager.redirectCtrl(path + '/dhis-web-mapping', e);
-                                                }
-                                            });
-                                        }
-                                    }
-                                },
-                                '-',
-                                {
-                                    text: i18n.open_this_table_as_map + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    disabled: !(instanceManager.isStateCurrent()),
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    var layout = instanceManager.getStateCurrent().toSession();
-                                                    layout.parentGraphMap = treePanel.getParentGraphMap();
-
-                                                    sessionStorageManager.set(layout, 'analytical');
-
-                                                    if (sessionStorageManager.supported) {
-                                                        uiManager.redirectCtrl(path + '/dhis-web-mapping/index.html?s=analytical', e);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                },
-                                {
-                                    text: i18n.open_last_map + '&nbsp;&nbsp;',
-                                    cls: 'ns-menu-item-noicon',
-                                    disabled: !sessionStorageManager.get('chart'),
-                                    listeners: {
-                                        render: function(b) {
-                                            this.getEl().dom.addEventListener('click', function(e) {
-                                                if (!b.disabled) {
-                                                    uiManager.redirectCtrl(path + '/dhis-web-mapping/index.html?s=chart', e);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            ],
-                            listeners: {
-                                show: function() {
-                                    uiManager.setAnchorPosition(b.menu, b);
-                                },
-                                hide: function() {
-                                    b.menu.destroy();
-                                    defaultButton.toggle();
-                                },
-                                destroy: function(m) {
-                                    b.menu = null;
-                                }
-                            }
-                        });
-
-                        b.menu.show();
-                    },
-                    listeners: {
-                        render: function() {
-                            centerRegion.cmp.push(this);
-                        }
-                    }
-                }
+                ...integrationButtons
             ]
         },
         listeners: {
