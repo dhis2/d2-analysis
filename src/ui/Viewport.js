@@ -4433,10 +4433,7 @@ Viewport = function(refs, cmp) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow');
 
-        //todo fixme charts
-        if (chartTypeToolbar) {
-            chartTypeToolbar.setChartType(layout.type);
-        }
+        chartTypeToolbar.reset();
 
         // clear panels
         westRegionPanels.forEach(function(panel) {
@@ -4446,6 +4443,9 @@ Viewport = function(refs, cmp) {
         if (layout) {
             var graphMap = layout.parentGraphMap,
                 co = dimensionConfig.get('category');
+
+            // type
+            chartTypeToolbar.setChartType(layout.type);
 
             // panels
             westRegionPanels.forEach(function(panel) {
