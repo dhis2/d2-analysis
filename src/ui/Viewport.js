@@ -4271,7 +4271,9 @@ Viewport = function(refs, cmp) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow');
 
-        chartTypeToolbar.reset();
+        if (chartTypeToolbar) {
+            chartTypeToolbar.reset();
+        }
 
         // clear panels
         westRegionPanels.forEach(function(panel) {
@@ -4283,7 +4285,9 @@ Viewport = function(refs, cmp) {
                 co = dimensionConfig.get('category');
 
             // type
-            chartTypeToolbar.setChartType(layout.type);
+            if (chartTypeToolbar) {
+                chartTypeToolbar.setChartType(layout.type);
+            }
 
             // panels
             westRegionPanels.forEach(function(panel) {

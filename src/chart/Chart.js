@@ -1095,7 +1095,11 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             series.label = {
                 display: 'outside',
                 'text-anchor': 'middle',
-                field: store.rangeFields
+                field: store.rangeFields,
+                renderer: function(n) {
+                    n = n === '0.0' ? '' : n;
+                    return optionConfig.prettyPrint(n, layout.digitGroupSeparator, true);
+                }
             };
         }
 
@@ -1305,7 +1309,8 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             label.font = labelFont;
             label.fill = labelColor;
             label.renderer = function(value) {
-                var val = record.data[store.rangeFields[0]];
+                var record = store.getAt(store.findExact(chartConfig.consts.domain, value)),
+                    v = record.data[store.rangeFields[0]];
 
                 return optionConfig.prettyPrint(v, layout.digitGroupSeparator, true);
             };
@@ -1344,7 +1349,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
         }];
 
         // theme
-        colors = chartConfig.theme.dv1.slice(0, response.getHeaderByName(layout.rowDimensionNames[0]).ids.length);
+        colors = chartConfig.theme.dv1.slice(0, response.getIdsByDimensionName(layout.rows[0].dimension).length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
             constructor: function(config) {
