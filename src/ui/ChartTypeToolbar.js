@@ -28,7 +28,7 @@ ChartTypeToolbar = function(c) {
     var column = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.column,
-        icon: 'src/images/column.png',
+        iconCls: 'ns-button-icon-type-column',
         name: chartConf.client.column,
         tooltipText: i18n.column_chart,
         pressed: true,
@@ -40,7 +40,7 @@ ChartTypeToolbar = function(c) {
     var stackedcolumn = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.stackedcolumn,
-        icon: 'src/images/column-stacked.png',
+        iconCls: 'ns-button-icon-type-columnstacked',
         name: chartConf.client.stackedcolumn,
         tooltipText: i18n.stacked_column_chart,
         listeners: {
@@ -51,7 +51,7 @@ ChartTypeToolbar = function(c) {
     var bar = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.bar,
-        icon: 'src/images/bar.png',
+        iconCls: 'ns-button-icon-type-bar',
         name: chartConf.client.bar,
         tooltipText: i18n.bar_chart,
         listeners: {
@@ -62,7 +62,7 @@ ChartTypeToolbar = function(c) {
     var stackedbar = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.stackedbar,
-        icon: 'src/images/bar-stacked.png',
+        iconCls: 'ns-button-icon-type-barstacked',
         name: chartConf.client.stackedbar,
         tooltipText: i18n.stacked_bar_chart,
         listeners: {
@@ -73,7 +73,7 @@ ChartTypeToolbar = function(c) {
     var line = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.line,
-        icon: 'src/images/line.png',
+        iconCls: 'ns-button-icon-type-line',
         name: chartConf.client.line,
         tooltipText: i18n.line_chart,
         listeners: {
@@ -84,7 +84,7 @@ ChartTypeToolbar = function(c) {
     var area = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.area,
-        icon: 'src/images/area.png',
+        iconCls: 'ns-button-icon-type-area',
         name: chartConf.client.area,
         tooltipText: i18n.area_chart,
         listeners: {
@@ -95,7 +95,7 @@ ChartTypeToolbar = function(c) {
     var pie = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.pie,
-        icon: 'src/images/pie.png',
+        iconCls: 'ns-button-icon-type-pie',
         name: chartConf.client.pie,
         tooltipText: i18n.pie_chart,
         listeners: {
@@ -106,7 +106,7 @@ ChartTypeToolbar = function(c) {
     var radar = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.radar,
-        icon: 'src/images/radar.png',
+        iconCls: 'ns-button-icon-type-radar',
         name: chartConf.client.radar,
         tooltipText: i18n.radar_chart,
         listeners: {
@@ -117,7 +117,7 @@ ChartTypeToolbar = function(c) {
     var gauge = Ext.create('Ext.button.Button', {
         xtype: 'button',
         chartType: chartConf.client.gauge,
-        icon: 'src/images/gauge.png',
+        iconCls: 'ns-button-icon-type-gauge',
         name: chartConf.client.gauge,
         tooltipText: i18n.meter_chart,
         listeners: {
