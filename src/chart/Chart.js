@@ -1403,14 +1403,17 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
                 style: {
                     opacity: 0.5
                 },
-                tips: getDefaultTips(),
+                //tips: getDefaultTips(),
                 title: seriesTitles[i]
             };
 
             if (layout.showValues) {
                 obj.label = {
                     display: 'over',
-                    field: store.rangeFields[i]
+                    field: store.rangeFields[i],
+                    renderer: function(value) {
+                        return optionConfig.prettyPrint(value, layout.digitGroupSeparator, true);
+                    }
                 };
             }
 
