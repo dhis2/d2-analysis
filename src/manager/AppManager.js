@@ -260,6 +260,24 @@ AppManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
+AppManager.prototype.getLegendColorByValue = function(id, value) {
+    var t = this,
+        color;
+
+    var legendSet = t.getLegendSetById(id);
+
+    for (var i = 0, legend; i < legendSet.legends.length; i++) {
+        legend = legendSet.legends[i];
+
+        if (value >= parseFloat(legend.startValue) && value < parseFloat(legend.endValue)) {
+            color = legend.color;
+            break;
+        }
+    }
+
+    return color;
+};
+
 AppManager.prototype.getDisplayPropertyUrl = function() {
     if (this.displayPropertyUrl) {
         return this.displayPropertyUrl;

@@ -19,7 +19,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 export var Chart;
 
-Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
+Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
     var t = this,
         klass = Chart;
 
@@ -1465,7 +1465,8 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             series,
             legend,
             config,
-            chart;
+            chart,
+            legendSet;
 
         // overwrite items
         columnIds = [columnIds[0]];
@@ -1486,8 +1487,8 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
         };
 
         // series, legendset
-        if (legendSet) {
-            valueColor = service.legend.getColorByValue(legendSet, store.getRange()[0].data[failSafeColumnIds[0]]) || valueColor;
+        if (legendSetId) {
+            valueColor = appManager.getLegendColorByValue(legendSetId, store.getRange()[0].data[failSafeColumnIds[0]]) || valueColor;
         }
 
         series = {
