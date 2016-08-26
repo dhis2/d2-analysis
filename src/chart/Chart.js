@@ -1445,9 +1445,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSet = {} }) {
             theme: 'Category2',
             insetPaddingObject: {
                 top: 30,
-                right: appConfig.dashboard ? 2 : 60,
+                right: appConfig.dashboard ? 2 : 100,
                 bottom: 20,
-                left: appConfig.dashboard ? 80 : 7
+                left: appConfig.dashboard ? 80 : 100
             },
             seriesStyle: {
                 labelColor: labelColor,
