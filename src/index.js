@@ -51,6 +51,8 @@ import { legendSetsInit } from './init/legendSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 
+import { SimpleRegression } from './util/SimpleRegression.js';
+
 import { extOverrides } from './override/extOverrides.js';
 import { extChartOverrides } from './override/extChartOverrides.js';
 
@@ -107,6 +109,8 @@ export {
     legendSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+
+    SimpleRegression,
 
     extOverrides,
     extChartOverrides,
@@ -177,6 +181,10 @@ export const init = {
     legendSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+};
+
+export const util = {
+    SimpleRegression
 };
 
 export const override = {

@@ -17,6 +17,8 @@ import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import uuid from 'd2-utilizr/lib/uuid';
 
+import { SimpleRegression } from '../util/SimpleRegression';
+
 export var Chart;
 
 Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
@@ -34,7 +36,6 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
 
     var i18n = i18nManager.get(),
         viewport = uiManager.get('viewport');
-
     // init
     //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
     var response = layout.getResponse(),
