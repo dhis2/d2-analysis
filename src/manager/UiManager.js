@@ -104,7 +104,7 @@ UiManager = function(c) {
             west = t.get('westRegion');
 
         // app, not plugin
-        if (!t.instanceManager.isPlugin) {
+        if (!t.instanceManager.plugin) {
 
             // set url state
             t.setUrlState(favoriteState ? ('?id=' + favoriteState.id) : '.');

@@ -27,7 +27,8 @@ InstanceManager = function(refs) {
     var fn;
 
     // initialized
-    t.isPlugin = false;
+    t.plugin = false;
+    t.dashboard = false;
 
     // uninitialized
     t.apiResource;

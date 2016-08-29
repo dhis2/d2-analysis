@@ -28,6 +28,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
     refs = isObject(refs) ? refs : klass;
 
     var appManager = refs.appManager,
+        instanceManager = refs.instanceManager,
         i18nManager = refs.i18nManager,
         uiManager = refs.uiManager,
         dimensionConfig = refs.dimensionConfig,
@@ -38,7 +39,6 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
         viewport = uiManager.get('viewport');
 
     // init
-    //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
     var response = layout.getResponse(),
         columnIds = response.metaData[layout.columns[0].dimension],
         failSafeColumnIds = [],
@@ -50,7 +50,6 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
                 failSafeColumnIds.push(uuId);
                 failSafeColumnIdMap[uuId] = columnIds[i];
 
-                //old xResponse.metaData.names[uuId] = xResponse.metaData.names[columnIds[i]];
                 response.metaData.names[uuId] = response.metaData.names[columnIds[i]];
             }
         }(),
@@ -59,7 +58,6 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
         rowIds = response.metaData[layout.rows[0].dimension],
 
         // filter ids
-        //filterIds = layout.filters.getRecordIds(),
         filterIds = response.getIdsByDimensionNames(arrayPluck(layout.filters, 'dimension')),
 
         // totals
@@ -194,7 +192,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
                     }
 
                     trendLineFields.push(regressionKey);
-                    response.metaData.names[regressionKey] = i18n.trend + (settings.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
+                    response.metaData.names[regressionKey] = i18n.trend + (instanceManager.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
                 }
             }
         }
@@ -507,8 +505,8 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
     };
 
     getFormatedSeriesTitle = function(titles) {
-        var itemLength = settings.dashboard ? 23 : 30,
-            charLength = settings.dashboard ? 5 : 6,
+        var itemLength = instanceManager.dashboard ? 23 : 30,
+            charLength = instanceManager.dashboard ? 5 : 6,
             numberOfItems = titles.length,
             numberOfChars,
             totalItemLength = numberOfItems * itemLength,
@@ -579,7 +577,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             }
         }
 
-        return settings.dashboard ? getFormatedSeriesTitle(a) : a;
+        return instanceManager.dashboard ? getFormatedSeriesTitle(a) : a;
     };
 
     getPieSeriesTitle = function(store) {
@@ -608,7 +606,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             });
         }
 
-        return settings.dashboard ? getFormatedSeriesTitle(a) : a;
+        return instanceManager.dashboard ? getFormatedSeriesTitle(a) : a;
     };
 
     getDefaultSeries = function(store) {
@@ -744,6 +742,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
         return {
             trackMouse: true,
             cls: 'dv-chart-tips',
+            shadow: !instanceManager.plugin,
             renderer: function(si, item) {
                 if (item.value) {
                     var value = item.value[1] === '0.0' ? '-' : item.value[1];
@@ -767,8 +766,8 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
     };
 
     getDefaultLegend = function(store, _chartConfig) {
-        var itemLength = settings.dashboard ? 24 : 30,
-            charLength = settings.dashboard ? 4 : 6,
+        var itemLength = instanceManager.dashboard ? 24 : 30,
+            charLength = instanceManager.dashboard ? 4 : 6,
             numberOfItems = 0,
             numberOfChars = 0,
             width,
@@ -882,7 +881,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
     };
 
     getFavoriteTitle = function() {
-        return settings.dashboard && layout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
+        return instanceManager.dashboard && layout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
             type: 'text',
             text: layout.name,
             y: 7
@@ -921,8 +920,8 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             type: 'text',
             text: text,
             height: 14,
-            y: settings.dashboard ? 24 : 20
-        }, getTitleStyle((settings.dashboard ? layout.name : text), true)));
+            y: instanceManager.dashboard ? 24 : 20
+        }, getTitleStyle((instanceManager.dashboard ? layout.name : text), true)));
     };
 
     getDefaultChartSizeHandler = function() {
@@ -931,9 +930,9 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
                 height = uiManager.getHeight();
 
             this.animate = false;
-            this.setWidth(settings.dashboard ? width : width - 15);
-            this.setHeight(settings.dashboard ? height : height - 40);
-            this.animate = !settings.dashboard;
+            this.setWidth(instanceManager.dashboard ? width : width - 15);
+            this.setHeight(instanceManager.dashboard ? height : height - 40);
+            this.animate = !instanceManager.dashboard;
         };
     };
 
@@ -977,13 +976,13 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
                 shadow: false,
                 insetPadding: 35,
                 insetPaddingObject: {
-                    top: settings.dashboard ? 20 : 32,
-                    right: settings.dashboard ? (isLineBased ? 5 : 3) : (isLineBased ? 25 : 15),
-                    bottom: settings.dashboard ? 2 : 10,
-                    left: settings.dashboard ? (isLineBased ? 15 : 7) : (isLineBased ? 70 : 50)
+                    top: instanceManager.dashboard ? 20 : 32,
+                    right: instanceManager.dashboard ? (isLineBased ? 5 : 3) : (isLineBased ? 25 : 15),
+                    bottom: instanceManager.dashboard ? 2 : 10,
+                    left: instanceManager.dashboard ? (isLineBased ? 15 : 7) : (isLineBased ? 70 : 50)
                 },
-                width: settings.dashboard ? width : width - 15,
-                height: settings.dashboard ? height : height - 40,
+                width: instanceManager.dashboard ? width : width - 15,
+                height: instanceManager.dashboard ? height : height - 40,
                 theme: 'dv1'
             };
 
@@ -992,15 +991,15 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             defaultConfig.legend = getDefaultLegend(store, c);
 
             if (defaultConfig.legend.position === 'right') {
-                defaultConfig.insetPaddingObject.top = settings.dashboard ? 22 : 40;
-                defaultConfig.insetPaddingObject.right = settings.dashboard ? 5 : 40;
+                defaultConfig.insetPaddingObject.top = instanceManager.dashboard ? 22 : 40;
+                defaultConfig.insetPaddingObject.right = instanceManager.dashboard ? 5 : 40;
             }
         }
 
         // title
         if (layout.hideTitle) {
-            defaultConfig.insetPadding = settings.dashboard ? 1 : 10;
-            defaultConfig.insetPaddingObject.top = settings.dashboard ? 3 : 10;
+            defaultConfig.insetPadding = instanceManager.dashboard ? 1 : 10;
+            defaultConfig.insetPaddingObject.top = instanceManager.dashboard ? 3 : 10;
         }
         else {
             defaultConfig.items = arrayClean([getFavoriteTitle(), getDefaultChartTitle(store)]);
@@ -1183,7 +1182,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
                 },
                 markerConfig: {
                     type: 'circle',
-                    radius: settings.dashboard ? 3 : 4
+                    radius: instanceManager.dashboard ? 3 : 4
                 },
                 tips: getDefaultTips(),
                 title: seriesTitles[i]
@@ -1367,10 +1366,10 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             store: store,
             series: series,
             insetPaddingObject: {
-                top: settings.dashboard ? 25 : 40,
-                right: settings.dashboard ? 2 : 30,
-                bottom: settings.dashboard ? 13: 30,
-                left: settings.dashboard ? 7 : 30
+                top: instanceManager.dashboard ? 25 : 40,
+                right: instanceManager.dashboard ? 2 : 30,
+                bottom: instanceManager.dashboard ? 13: 30,
+                left: instanceManager.dashboard ? 7 : 30
             }
         });
 
@@ -1447,9 +1446,9 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             theme: 'Category2',
             insetPaddingObject: {
                 top: 30,
-                right: settings.dashboard ? 2 : 100,
+                right: instanceManager.dashboard ? 2 : 100,
                 bottom: 20,
-                left: settings.dashboard ? 80 : 100
+                left: instanceManager.dashboard ? 80 : 100
             },
             seriesStyle: {
                 labelColor: labelColor,
@@ -1505,7 +1504,7 @@ Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
             width: uiManager.getWidth(),
             height: uiManager.getHeight() * 0.6,
             store: store,
-            insetPadding: settings.dashboard ? 50 : 100,
+            insetPadding: instanceManager.dashboard ? 50 : 100,
             theme: null,
             //animate: {
                 //easing: 'elasticIn',
