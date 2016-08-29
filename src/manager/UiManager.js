@@ -40,6 +40,8 @@ UiManager = function(c) {
         t.getUpdateComponent() && t.getUpdateComponent().update(content);
     };
 
+    t.preventMask = false;
+
     t.i18nManager;
 
     // setters
@@ -261,7 +263,7 @@ UiManager = function(c) {
     t.mask = function(component, message) {
         component = isObject(component) ? component : t.get(component) || t.getUpdateComponent();
 
-        if (!isObject(component)) {
+        if (!isObject(component) || t.preventMask) {
             //console.log('mask: no component', component, message);
             return;
         }

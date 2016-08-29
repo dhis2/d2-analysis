@@ -21,7 +21,7 @@ import { SimpleRegression } from '../util/SimpleRegression';
 
 export var Chart;
 
-Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
+Chart = function({ refs, settings = {}, layout, response, legendSetId }) {
     var t = this,
         klass = Chart;
 
@@ -36,6 +36,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
 
     var i18n = i18nManager.get(),
         viewport = uiManager.get('viewport');
+
     // init
     //old var columnIds = layout.columnDimensionNames[0] ? layout.dimensionNameIdsMap[layout.columnDimensionNames[0]] : [],
     var response = layout.getResponse(),
@@ -193,7 +194,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
                     }
 
                     trendLineFields.push(regressionKey);
-                    response.metaData.names[regressionKey] = i18n.trend + (appConfig.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
+                    response.metaData.names[regressionKey] = i18n.trend + (settings.dashboard ? '' : ' (' + response.metaData.names[failSafeColumnIds[i]] + ')');
                 }
             }
         }
@@ -506,8 +507,8 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
     };
 
     getFormatedSeriesTitle = function(titles) {
-        var itemLength = appConfig.dashboard ? 23 : 30,
-            charLength = appConfig.dashboard ? 5 : 6,
+        var itemLength = settings.dashboard ? 23 : 30,
+            charLength = settings.dashboard ? 5 : 6,
             numberOfItems = titles.length,
             numberOfChars,
             totalItemLength = numberOfItems * itemLength,
@@ -518,7 +519,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             fallbackLength = 10,
             maxWidth = uiManager.getWidth(),
             width,
-            validateTitles;
+            getValidatedTitles;
 
         getValidatedTitles = function(titles, len) {
             var numberOfItems = titles.length,
@@ -578,7 +579,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             }
         }
 
-        return appConfig.dashboard ? getFormatedSeriesTitle(a) : a;
+        return settings.dashboard ? getFormatedSeriesTitle(a) : a;
     };
 
     getPieSeriesTitle = function(store) {
@@ -607,7 +608,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             });
         }
 
-        return appConfig.dashboard ? getFormatedSeriesTitle(a) : a;
+        return settings.dashboard ? getFormatedSeriesTitle(a) : a;
     };
 
     getDefaultSeries = function(store) {
@@ -756,18 +757,18 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
         var colors = chartConfig.theme.dv1.slice(0, store.rangeFields.length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
-            constructor: function(config) {
+            constructor: function(c) {
                 Ext.chart.theme.Base.prototype.constructor.call(this, Ext.apply({
                     seriesThemes: colors,
                     colors: colors
-                }, config));
+                }, c));
             }
         });
     };
 
     getDefaultLegend = function(store, _chartConfig) {
-        var itemLength = appConfig.dashboard ? 24 : 30,
-            charLength = appConfig.dashboard ? 4 : 6,
+        var itemLength = settings.dashboard ? 24 : 30,
+            charLength = settings.dashboard ? 4 : 6,
             numberOfItems = 0,
             numberOfChars = 0,
             width,
@@ -845,7 +846,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
         return Ext.create('Ext.chart.Legend', newChartConfig);
     };
 
-    getTitleStyle = function(text, isSubtitle) {
+    getTitleStyle = function(text = 1, isSubtitle) {
         var fontSize = (uiManager.getWidth() / text.length) < 11.6 ? 12 : 17,
             titleFont,
             titleColor;
@@ -881,7 +882,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
     };
 
     getFavoriteTitle = function() {
-        return appConfig.dashboard && layout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
+        return settings.dashboard && layout.name ? Ext.create('Ext.draw.Sprite', Ext.apply({
             type: 'text',
             text: layout.name,
             y: 7
@@ -920,8 +921,8 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             type: 'text',
             text: text,
             height: 14,
-            y: appConfig.dashboard ? 24 : 20
-        }, getTitleStyle((appConfig.dashboard ? layout.name : text), true)));
+            y: settings.dashboard ? 24 : 20
+        }, getTitleStyle((settings.dashboard ? layout.name : text), true)));
     };
 
     getDefaultChartSizeHandler = function() {
@@ -930,9 +931,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
                 height = uiManager.getHeight();
 
             this.animate = false;
-            this.setWidth(appConfig.dashboard ? width : width - 15);
-            this.setHeight(appConfig.dashboard ? height : height - 40);
-            this.animate = !appConfig.dashboard;
+            this.setWidth(settings.dashboard ? width : width - 15);
+            this.setHeight(settings.dashboard ? height : height - 40);
+            this.animate = !settings.dashboard;
         };
     };
 
@@ -964,9 +965,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
         };
     };
 
-    getDefaultChart = function(config) {
+    getDefaultChart = function(c) {
         var chart,
-            store = config.store || {},
+            store = c.store || {},
             width = uiManager.getWidth(),
             height = uiManager.getHeight(),
             isLineBased = arrayContains(['LINE', 'AREA'], layout.type),
@@ -976,36 +977,36 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
                 shadow: false,
                 insetPadding: 35,
                 insetPaddingObject: {
-                    top: appConfig.dashboard ? 20 : 32,
-                    right: appConfig.dashboard ? (isLineBased ? 5 : 3) : (isLineBased ? 25 : 15),
-                    bottom: appConfig.dashboard ? 2 : 10,
-                    left: appConfig.dashboard ? (isLineBased ? 15 : 7) : (isLineBased ? 70 : 50)
+                    top: settings.dashboard ? 20 : 32,
+                    right: settings.dashboard ? (isLineBased ? 5 : 3) : (isLineBased ? 25 : 15),
+                    bottom: settings.dashboard ? 2 : 10,
+                    left: settings.dashboard ? (isLineBased ? 15 : 7) : (isLineBased ? 70 : 50)
                 },
-                width: appConfig.dashboard ? width : width - 15,
-                height: appConfig.dashboard ? height : height - 40,
+                width: settings.dashboard ? width : width - 15,
+                height: settings.dashboard ? height : height - 40,
                 theme: 'dv1'
             };
 
         // legend
         if (!layout.hideLegend) {
-            defaultConfig.legend = getDefaultLegend(store, config);
+            defaultConfig.legend = getDefaultLegend(store, c);
 
             if (defaultConfig.legend.position === 'right') {
-                defaultConfig.insetPaddingObject.top = appConfig.dashboard ? 22 : 40;
-                defaultConfig.insetPaddingObject.right = appConfig.dashboard ? 5 : 40;
+                defaultConfig.insetPaddingObject.top = settings.dashboard ? 22 : 40;
+                defaultConfig.insetPaddingObject.right = settings.dashboard ? 5 : 40;
             }
         }
 
         // title
         if (layout.hideTitle) {
-            defaultConfig.insetPadding = appConfig.dashboard ? 1 : 10;
-            defaultConfig.insetPaddingObject.top = appConfig.dashboard ? 3 : 10;
+            defaultConfig.insetPadding = settings.dashboard ? 1 : 10;
+            defaultConfig.insetPaddingObject.top = settings.dashboard ? 3 : 10;
         }
         else {
             defaultConfig.items = arrayClean([getFavoriteTitle(), getDefaultChartTitle(store)]);
         }
 
-        Ext.apply(defaultConfig, config);
+        Ext.apply(defaultConfig, c);
 
         // chart
         chart = Ext.create('Ext.chart.Chart', defaultConfig);
@@ -1182,7 +1183,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
                 },
                 markerConfig: {
                     type: 'circle',
-                    radius: appConfig.dashboard ? 3 : 4
+                    radius: settings.dashboard ? 3 : 4
                 },
                 tips: getDefaultTips(),
                 title: seriesTitles[i]
@@ -1219,11 +1220,11 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
 
         // theme
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
-            constructor: function(config) {
+            constructor: function(c) {
                 Ext.chart.theme.Base.prototype.constructor.call(this, Ext.apply({
                     seriesThemes: colors,
                     colors: colors
-                }, config));
+                }, c));
             }
         });
 
@@ -1353,11 +1354,11 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
         colors = chartConfig.theme.dv1.slice(0, response.getIdsByDimensionName(layout.rows[0].dimension).length);
 
         Ext.chart.theme.dv1 = Ext.extend(Ext.chart.theme.Base, {
-            constructor: function(config) {
+            constructor: function(c) {
                 Ext.chart.theme.Base.prototype.constructor.call(this, Ext.apply({
                     seriesThemes: colors,
                     colors: colors
-                }, config));
+                }, c));
             }
         });
 
@@ -1366,10 +1367,10 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             store: store,
             series: series,
             insetPaddingObject: {
-                top: appConfig.dashboard ? 25 : 40,
-                right: appConfig.dashboard ? 2 : 30,
-                bottom: appConfig.dashboard ? 13: 30,
-                left: appConfig.dashboard ? 7 : 30
+                top: settings.dashboard ? 25 : 40,
+                right: settings.dashboard ? 2 : 30,
+                bottom: settings.dashboard ? 13: 30,
+                left: settings.dashboard ? 7 : 30
             }
         });
 
@@ -1446,9 +1447,9 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             theme: 'Category2',
             insetPaddingObject: {
                 top: 30,
-                right: appConfig.dashboard ? 2 : 100,
+                right: settings.dashboard ? 2 : 100,
                 bottom: 20,
-                left: appConfig.dashboard ? 80 : 100
+                left: settings.dashboard ? 80 : 100
             },
             seriesStyle: {
                 labelColor: labelColor,
@@ -1465,7 +1466,6 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             axis,
             series,
             legend,
-            config,
             chart,
             legendSet;
 
@@ -1505,7 +1505,7 @@ Chart = function({ refs, appConfig = {}, layout, response, legendSetId }) {
             width: uiManager.getWidth(),
             height: uiManager.getHeight() * 0.6,
             store: store,
-            insetPadding: appConfig.dashboard ? 50 : 100,
+            insetPadding: settings.dashboard ? 50 : 100,
             theme: null,
             //animate: {
                 //easing: 'elasticIn',
