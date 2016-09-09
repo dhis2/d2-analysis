@@ -3838,6 +3838,173 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(westRegion, 'westRegion');
+    
+    
+    var interpretationItem = {
+            xtype: 'panel',
+            hideCollapseTool: true,
+
+           
+            items: [
+                {
+                    xtype: 'panel',
+                    bodyStyle: 'border-style:none',
+                    style: 'margin-top:0px',
+                    items: [
+    						{
+                                xtype: 'label',
+                                text: 'Ray Dario',
+                                cls: 'bold userLink'
+                            },
+                            {
+                                xtype: 'label',
+                                text: 'dd/mm/yyyy',
+                                cls: 'grey'
+                            },
+                            {
+                                xtype: 'label',
+                                text: '##',
+                                cls: 'grey'
+                            },
+                            {
+                                xtype: 'label',
+                                text: 'Interpretation description',
+                                cls: 'grey'
+                            }
+                            
+                            
+                    ]
+                }
+            ],
+        
+            
+            listeners: {
+                added: function() {
+                    //accordionPanels.push(this);
+                },
+                expand: function(p) {
+                    p.onExpand();
+                },
+                click: function(){
+                    	console.log('taka');
+                    	console.log(refs);
+                    	console.log(refs.instanceManager.getStateFavorite());
+                },
+                element: 'body'
+                
+                
+            }
+        };
+    
+    var interpretations = {
+            xtype: 'panel',
+            title: '<div class="ns-panel-title-period">Interpretations</div>',
+            hideCollapseTool: true,
+
+            onExpand: function() {
+                var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_period : uiConfig.west_maxheight_accordion_period;
+
+                accordion.setThisHeight(accordionHeight);
+
+                uiManager.msSetHeight(
+                    [fixedPeriodAvailable, fixedPeriodSelected],
+                    this,
+                    uiConfig.west_fill_accordion_period
+                );
+            },
+            items: [
+                {
+                    xtype: 'panel',
+                    bodyStyle: 'border-style:none',
+                    style: 'margin-top:0px',
+                    items: [interpretationItem]
+                }
+            ],
+            listeners: {
+                added: function() {
+                    //accordionPanels.push(this);
+                },
+                expand: function(p) {
+                    p.onExpand();
+                }
+            }
+        };
+  
+    
+    
+    var details = {
+            xtype: 'panel',
+            title: '<div class="ns-panel-title-period">Details</div>',
+            hideCollapseTool: true,
+
+            onExpand: function() {
+                var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_period : uiConfig.west_maxheight_accordion_period;
+
+                accordion.setThisHeight(accordionHeight);
+
+                uiManager.msSetHeight(
+                    [fixedPeriodAvailable, fixedPeriodSelected],
+                    this,
+                    uiConfig.west_fill_accordion_period
+                );
+            },
+            
+            items: [
+                {
+                    xtype: 'panel',
+                    bodyStyle: 'border-style:none',
+                    style: 'margin-top:0px',
+                    items: [
+						{
+                                xtype: 'label',
+                                text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum <a href="#">[change]</a>',
+                                cls: 'ns-label-period-heading'
+                            },    
+						{
+				            xtype: 'displayfield',
+				            fieldLabel: 'Owner',
+				            value: 'Adrian Quintana'
+				        },
+						{
+				            xtype: 'displayfield',
+				            fieldLabel: 'Created',
+				            value: 'dd/mm/yyyy'
+				        },
+						{
+				            xtype: 'displayfield',
+				            fieldLabel: 'Last Updated',
+				            value: 'dd/mm/yyyy'
+				        },
+						{
+				            xtype: 'displayfield',
+				            fieldLabel: 'Sharing <a href="#">[change]</a>',
+				            value: 'Public XXXX, N Groups'
+				        }
+                    ]
+                }
+            ],
+            listeners: {
+                added: function() {
+                    //accordionPanels.push(this);
+                },
+                expand: function(p) {
+                    p.onExpand();
+                }
+            }
+        };
+    
+    
+    var eastRegion = Ext.create('Ext.panel.Panel', {
+        region: 'east',
+        preventHeader: true,
+        collapsible: true,
+        collapseMode: 'mini',
+        border: false,
+        width: uiConfig.west_width + uiManager.getScrollbarSize().width,
+        items: [details,interpretations]
+
+    });
+    uiManager.reg(eastRegion, 'eastRegion');
 
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
@@ -4392,9 +4559,10 @@ Viewport = function(refs, cmp) {
         getUiState: getUiState,
         setUiState: setUiState,
         westRegion: westRegion,
+        eastRegion: eastRegion,
         centerRegion: centerRegion,
         northRegion: northRegion,
-        items: arrayClean([westRegion, centerRegion, northRegion]),
+        items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
         listeners: {
             afterrender: function() {
 
