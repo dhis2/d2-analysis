@@ -80,6 +80,31 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
     }
+    
+    	//description
+    
+    	//interpretations
+    if (arrayFrom(c.interpretations).length) {
+    	t.interpretations = isArray(c.interpretations) ? c.interpretations : null;
+    }
+    
+    	//lastUpdated
+    if (DateManager.getYYYYMMDD(c.lastUpdated, true)) {
+    	t.lastUpdated = DateManager.getYYYYMMDD(c.lastUpdated, true);
+    }
+    
+    	//created
+    if (DateManager.getYYYYMMDD(c.created, true)) {
+    	t.created = DateManager.getYYYYMMDD(c.created, true);
+    }
+    
+    	//favorite user
+    if (isObject(c.user)){
+    	t.user = c.user;
+    }
+    
+    	//Access?
+    
 
         // reduce layout //todo: move to specific app
     if (isBoolean(c.reduceLayout)) {

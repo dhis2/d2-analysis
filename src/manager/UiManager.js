@@ -101,7 +101,8 @@ UiManager = function(c) {
     // state
     t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
         var north = t.get('northRegion'),
-            west = t.get('westRegion');
+            west = t.get('westRegion'),
+            east = t.get('eastRegion');
 
         // app, not plugin
         if (!t.instanceManager.plugin) {
@@ -127,6 +128,12 @@ UiManager = function(c) {
             // west
             if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
                 west.setState(currentState);
+            }
+            
+            // east
+            if (east){
+            	console.log(currentState);
+            	east.setState(currentState);
             }
         }
 
