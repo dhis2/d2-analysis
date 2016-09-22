@@ -9,7 +9,8 @@ EastRegion = function(c){
 	var t = this,
 		uiManager = c.uiManager,
 		uiConfig = c.uiConfig,
-		instanceManager = c.instanceManager;
+		instanceManager = c.instanceManager,
+		appManager = c.appManager;
 	
 	
 	
@@ -24,6 +25,7 @@ EastRegion = function(c){
 	                xtype: 'panel',
 	                bodyStyle: 'border-style:none',
 	                layout: 'column',
+	                style: 'margin-bottom: 5px;',
 	                
 	                items: [
 							{
@@ -64,34 +66,145 @@ EastRegion = function(c){
 								],
 								columnWidth: 0.80
 							}
-	                ],
-	    	        
-	    	        listeners: {
-	    	            added: function() {
-	    	                //accordionPanels.push(this);
-	    	            },
-	    	            expand: function(p) {
-	    	                p.onExpand();
-	    	            },
-	    	            click: function(){
-	    	                	console.log('taka');
-	    	            },
-	    	            element: 'body'
-	    	            
-	    	            
-	    	        }
+	                ]
 	            });
 	    	}
+			
+			commentsPanel.push({
+                xtype: 'panel',
+                bodyStyle: 'border-style:none',
+                layout: 'column',
+                style: 'margin-bottom: 5px;',
+                
+                items: [
+						{
+							xtype: 'panel',
+							bodyStyle: 'border-style:none',
+							items: [
+							        //AQP: Do they have an avatar in ext?
+									{
+									    xtype: 'label',
+									    style: 'height: 30px;width: 30px;border-radius:50%;display:inline-block;background-color:#bdbdbd;text-align:center;line-height:30px;font-size:14px;color:black;font-weight:bold;',
+									    text: appManager.userAccount.firstName[0] + appManager.userAccount.surname.split(' ')[appManager.userAccount.surname.split(' ').length -1][0]
+									}
+							],
+							columnWidth: 0.20
+							
+						},
+						{
+							xtype: 'panel',
+							bodyStyle: 'border-style:none',
+							style: 'width:100%',
+							bodyStyle: 'width:100%',
+							items: [
+							        {
+										xtype: 'textarea',
+										emptyText: 'Write a comment',
+										submitEmptyText: false,
+										anchor: '100%',
+										enableKeyEvents: true,
+										listeners: {
+											keypress: function (f,e) {    
+							                     if (e.getKey() == e.ENTER && !e.shiftKey) {
+							                    	 commentInterpretation(f);
+							                    }
+							                }
+			    	        	        }
+							        } 
+							],
+							columnWidth: 0.80
+						}
+                ]
+            });
 			
 			return commentsPanel;
 		};
 		
+		var isLiked = function(interpretation){
+			var userId = appManager.userAccount.id
+			for (var i = 0; i < interpretation.likedBy.length; i++){
+        		if (interpretation.likedBy[i].id == userId){
+        			return true;
+        		}
+        	}
+			return false
+		};
+		
+		var getLikeText = function(interpretation){
+			var likeText = isLiked(interpretation)?"Unlike":"Like";
+			return likeText;
+        };
+        
+
+        
+        var likeInterpretation = function(){
+        	var that = this;
+			if (isLiked(interpretation)){
+				Ext.Ajax.request({
+	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
+	                method: 'DELETE',
+	                success: function() {
+	                	console.log('kakadelete');
+	                	interpretation.likes--;
+	                	for (var i = 0; i < interpretation.likedBy.length; i++){
+	                		if (interpretation.likedBy[i].id == appManager.userAccount.id){
+	                			interpretation.likedBy.pop(i)
+	                			break;
+	                		}
+	                	}
+	                	
+	                	that.setText('Like')
+	                }
+	            });
+			}
+			else{
+	        	Ext.Ajax.request({
+	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
+	                method: 'POST',
+	                success: function() {
+	                	console.log('kakasuccess');
+	                	interpretation.likes++;
+	                	interpretation.likedBy.push({id: appManager.userAccount.id,displayName: appManager.userAccount.displayName});
+	                	that.setText('Like')
+	                	//AQP: We need to update the number of likes
+	                }
+	            });
+			}
+        };
+        
+        var commentInterpretation = function(f){
+        	if (f.getValue().trim() != ''){
+        		Ext.Ajax.request({
+	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/comments'),
+	                method: 'POST',
+	                params: f.getValue(),
+	                headers: {'Content-Type': 'text/plain'},
+	                success: function() {
+	                	console.log('comment post');
+	                	f.reset();
+	                	//AQP: We need to update the comments
+	                }
+	            });
+        		
+        	}
+        };
+        
+        var getTooltipLike = function(){
+        	var toolTipLike = "";
+        	for (var i = 0; i < interpretation.likedBy.length; i++){
+        		toolTipLike += interpretation.likedBy[i].displayName + "</br>";
+        	}
+        	return toolTipLike;
+        };
+        
+        var getNumberLikes = function(){
+        	
+        };
 		
 		var interpretationItem = {
 	                    xtype: 'panel',
 	                    bodyStyle: 'border-style:none',
 	                    style: 'padding:10px',
-	                    getCommentsPanel: getCommentsPanel,
 	                    instanceManager: instanceManager,
 	                    interpretation: interpretation,
 	                    displayingComments: false,
@@ -100,6 +213,18 @@ EastRegion = function(c){
 	                    	if (!this.displayingComments){
     	                		this.getComponent('comments').show();
     	                	}
+	                    	
+	                    	
+	                    	
+	                    	//AQP Probably better to have an event triggered and a listener
+	                    	// Hide share interpretation and display back to today
+	                    	this.up("[xtype='panel']").down('#shareInterpretation').hide();
+	                    	this.up("[xtype='panel']").down('#backToToday').show();
+	                    	
+	                    	this.down('#likePanelUnselected').hide();
+	                    	this.down('#likePanelSelected').show();
+	                    	
+	                    	
 	                    	
 	                    	//We should check if it is a relative period	                    	
 //	                    	var currentLayout = this.instanceManager.getLayout();
@@ -159,7 +284,6 @@ EastRegion = function(c){
 										{
 			                                xtype: 'label',
 			                                text: interpretation.text,
-			                                cls: 'grey'
 			                            }
 								    ]
 								},
@@ -167,12 +291,73 @@ EastRegion = function(c){
 								    xtype: 'panel',
 								    bodyStyle: 'border-style:none',
 								    style: 'margin-bottom: 5px;',
+								    itemId: 'likePanelUnselected',
 								    items: [
 										{
 			                                xtype: 'label',
-			                                text: interpretation.likes + " people like this." + interpretation.comments.length + " people commented.",
-			                                cls: 'grey'
+			                                text: interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.",
 			                            }
+								    ]
+								},
+								{
+								    xtype: 'panel',
+								    bodyStyle: 'border-style:none',
+								    style: 'margin-bottom: 5px;',
+								    itemId: 'likePanelSelected',
+								    hidden: true,
+				                    
+				                    
+								    items: [
+										{
+										    xtype: 'panel',
+										    bodyStyle: 'border-style:none',
+										    style: 'margin-bottom: 5px;',
+										    
+										    items: [
+												{
+										            xtype: 'label',
+										            text: interpretation.likes + " people like this."
+										        }
+										    ]
+										},
+										{
+										    xtype: 'panel',
+										    bodyStyle: 'border-style:none',
+										    style: 'margin-bottom: 5px;',
+										    items: [
+												{
+										            xtype: 'label',
+										            text: getLikeText(interpretation),
+										            style: 'margin-right: 5px;',
+
+								                    
+										            listeners: {
+						    	        	        	'render': function(label) {
+						    	        	        	       label.getEl().on('click', likeInterpretation, this);
+						    	        	        	       
+						    	        	        	       if (interpretation.likedBy.length > 0){
+						    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
+							    	        	        	           target: label.getEl(),
+							    	        	        	           html: getTooltipLike(),
+							    	        	        	           bodyStyle: 'background-color: white;' 
+							    	        	        	         });   
+						    	        	        	    	   
+						    	        	        	       }
+						    	        	        	    }
+						    	        	        }
+										        },
+										        {
+										            xtype: 'label',
+										            text: '|',
+										            style: 'margin-right: 5px;'
+										        },
+										        {
+										            xtype: 'label',
+										            text: 'Comment',
+										            style: 'margin-right: 5px;',
+										        }
+										    ]
+										}
 								    ]
 								},
 	                            {
@@ -368,34 +553,34 @@ EastRegion = function(c){
 		                items: []
 		            }
 	            	
-	            	if (this.displayingInterpretation){
-	            		shareBackPanel.items.push({
-                            xtype: 'label',
-                            html: 'Back to today',
-    			            cls: 'ns-label-period-heading',
-    			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
-    			            
-    			            listeners: {
-    	        	        	'render': function(label) {
-    	        	        	       label.getEl().on('click', function(){}, label);
-    	        	        	    }
-    	        	        }
-                        });
-	            	}
-	            	else{
-	            		shareBackPanel.items.push({
-                            xtype: 'label',
-                            html: 'Share interpretation',
-    			            cls: 'ns-label-period-heading',
-    			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
-    	        	        
-    	        	        listeners: {
-    	        	        	'render': function(label) {
-    	        	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
-    	        	        	    }
-    	        	        }
-                        });
-	            	}
+            		shareBackPanel.items.push({
+                        xtype: 'label',
+                        itemId: 'backToToday',
+                        html: 'Back to today',
+			            cls: 'ns-label-period-heading',
+			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
+			            hidden: !this.displayingInterpretation,
+			            
+			            listeners: {
+	        	        	'render': function(label) {
+	        	        	       label.getEl().on('click', function(){}, label);
+	        	        	    }
+	        	        }
+                    });
+            		shareBackPanel.items.push({
+                        xtype: 'label',
+                        itemId: 'shareInterpretation',
+                        html: 'Share interpretation',
+			            cls: 'ns-label-period-heading',
+			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
+			            hidden: this.displayingInterpretation,
+			            
+	        	        listeners: {
+	        	        	'render': function(label) {
+	        	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
+	        	        	    }
+	        	        }
+                    });
 	            	
 	            	this.add(shareBackPanel);
 	            	
