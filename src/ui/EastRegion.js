@@ -1,18 +1,17 @@
 import {DateManager} from '../manager/DateManager.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
+import {SharingWindow} from './SharingWindow.js';
+import {RenameWindow} from './RenameWindow.js';
 
 export var EastRegion;
 
 EastRegion = function(c){
-	
 	
 	var t = this,
 		uiManager = c.uiManager,
 		uiConfig = c.uiConfig,
 		instanceManager = c.instanceManager,
 		appManager = c.appManager;
-	
-	
 	
 	var getInterpretationItemPanel = function(interpretation) {
 		
@@ -99,6 +98,7 @@ EastRegion = function(c){
 							items: [
 							        {
 										xtype: 'textarea',
+										itemId: 'commentArea',
 										emptyText: 'Write a comment',
 										submitEmptyText: false,
 										anchor: '100%',
@@ -165,11 +165,12 @@ EastRegion = function(c){
 	                	console.log('kakasuccess');
 	                	interpretation.likes++;
 	                	interpretation.likedBy.push({id: appManager.userAccount.id,displayName: appManager.userAccount.displayName});
-	                	that.setText('Like')
+	                	that.setText('Unlike')
 	                	//AQP: We need to update the number of likes
 	                }
 	            });
 			}
+			this.up('#interpretationItem').doLayout();
         };
         
         var commentInterpretation = function(f){
@@ -207,6 +208,7 @@ EastRegion = function(c){
 	                    style: 'padding:10px',
 	                    instanceManager: instanceManager,
 	                    interpretation: interpretation,
+	                    itemId: 'interpretationItem',
 	                    displayingComments: false,
 	                    
 	                    displayComment: function(){
@@ -227,7 +229,7 @@ EastRegion = function(c){
 	                    	
 	                    	
 	                    	//We should check if it is a relative period	                    	
-//	                    	var currentLayout = this.instanceManager.getLayout();
+	                    	var currentLayout = this.instanceManager.getLayout();
 //	                    	currentLayout.relativePeriodDate = this.interpretation.created;
 //	                    	
 //	                    	this.instanceManager.getReport(currentLayout, true);
@@ -328,8 +330,7 @@ EastRegion = function(c){
 												{
 										            xtype: 'label',
 										            text: getLikeText(interpretation),
-										            style: 'margin-right: 5px;',
-
+										            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
 								                    
 										            listeners: {
 						    	        	        	'render': function(label) {
@@ -339,7 +340,7 @@ EastRegion = function(c){
 						    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
 							    	        	        	           target: label.getEl(),
 							    	        	        	           html: getTooltipLike(),
-							    	        	        	           bodyStyle: 'background-color: white;' 
+							    	        	        	           bodyStyle: 'background-color: white;border' 
 							    	        	        	         });   
 						    	        	        	    	   
 						    	        	        	       }
@@ -354,7 +355,16 @@ EastRegion = function(c){
 										        {
 										            xtype: 'label',
 										            text: 'Comment',
-										            style: 'margin-right: 5px;',
+										            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+								                    
+										            listeners: {
+						    	        	        	'render': function(label) {
+						    	        	        	       label.getEl().on('click', function(){
+						    	        	        	    	   this.up('#interpretationItem').down('#commentArea').focus();
+						    	        	        	    	   }, this);
+
+						    	        	        	    }
+						    	        	        }
 										        }
 										    ]
 										}
@@ -389,45 +399,86 @@ EastRegion = function(c){
                 itemId: 'favouriteDetailsPanel',
                 hidden: true,
                 
-                formatDescription: function(description){
-                	var formattedDescription = '';
-                	if (description.length > 60){
-                		formattedDescription = description.substring(0, 60) + 
-                		"<span id='extraDescription' style='display:hide'>" + description.substring(60) + "</span>" +
-                		"<span id='moreLink'>[<a href='javascript:document.getElementById(\"extraDescription\").style.display=\"block\";document.getElementById(\"lessLink\").style.display=\"block\";document.getElementById(\"moreLink\").style.display=\"none\";'>more</a>]</span>" + 
-                		"<span id='lessLink' style='display:none'>[<a href='javascript:document.getElementById('extraDescription').style.display='none';document.getElementById('lessLink').style.display='none';document.getElementById('moreLink').style.display='block';'>less</a>]</span>";
-                	}
-                	else{
-                		formattedDescription = description;
+                getDescriptionItems: function(description){
+                	var descriptionItems = [];
+                	
+                	var isLongDescription = (description.length > 200);
+                	var currentDescription= (isLongDescription)?description.substring(0,200):description;
+                	
+                	//AQP: Refactor a little bit this code
+                	var descriptionLabel = {
+                        xtype: 'label',
+                        itemId: 'descriptionLabel',
+                        html: currentDescription,
+                        longDescription: description,
+                        shortDescription: description.substring(0, 200),
+                        cls: 'ns-label-period-heading'
+                    };
+                	descriptionItems.push(descriptionLabel);
+                	
+                	if (isLongDescription){
+	                	descriptionItems.push({
+	                        xtype: 'label',
+	                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+	                        moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+	                        lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
+	                        cls: 'ns-label-period-heading',
+	                        isShortDescriptionDisplayed: true,
+	                        descriptionLabel, descriptionLabel,
+	                        style: 'margin: 0px 3px;',
+	                        listeners: {
+		        	        	'render': function(label) {
+		        	        		label.getEl().on('click', function(){
+		        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.longDescription,false); this.setText(this.lessText,false)}
+		        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.shortDescription,false); this.setText(this.moreText,false)}
+		        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
+		        	        			this.up('#descriptionPanel').doLayout();
+		        	        			}, label);
+	        	        	    }
+		        	        }
+	                    });
                 	}
                 	
-                	formattedDescription += ' <a href="#">[change]</a>';
-                	return formattedDescription;
+                	descriptionItems.push({
+                        xtype: 'label',
+                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+                        cls: 'ns-label-period-heading',
+                        style: 'margin: 0px 3px;',
+                        listeners: {
+	        	        	'render': function(label) {
+	        	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
+        	        	    }
+	        	        }
+                    });
                 	
+                	return descriptionItems;
                 },
                 
                 updateFavorites: function(layout){
                 	
                 	// AQP: This should be replaced by layout.description when api is ready
                 	var description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
-                	this.getComponent('description').setText(this.formatDescription(description), false);
+                	this.getComponent('descriptionPanel').add(this.getDescriptionItems(description));
                 	
                 
             		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
                 	
                 	this.getComponent('created').setValue(layout.created);
                 	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
+                	
+                	
+                	//AQP: This should be replaced with the right api
                 	//this.getComponent('numberViews').setValue(layout.numberViews);
                 	
                 },
                 
                 items: [
 					{
-                        xtype: 'label',
-                        itemId: 'description',
-                        html: '',
-                        cls: 'ns-label-period-heading'
-                    },    
+					    xtype: 'panel',
+					    itemId: 'descriptionPanel',
+					    bodyStyle: 'border-style:none',
+					    items:[]
+					},
 					{
 			            xtype: 'displayfield',
 			            fieldLabel: 'Owner',
@@ -459,9 +510,14 @@ EastRegion = function(c){
 					{
 			            xtype: 'displayfield',
 			            itemId: 'sharing',
-			            fieldLabel: 'Sharing <a href="#">[change]</a>',
+			            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
 			            value: 'Public XXXX, N Groups',
-			            cls: 'ns-label-period-heading'
+			            cls: 'ns-label-period-heading',
+	        	        listeners: {
+	        	        	'render': function(label) {
+	        	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
+        	        	    }
+	        	        }
 			        }
                 ]
             };
@@ -558,7 +614,7 @@ EastRegion = function(c){
                         itemId: 'backToToday',
                         html: 'Back to today',
 			            cls: 'ns-label-period-heading',
-			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
+			            style: 'cursor:pointer;color:blue;',
 			            hidden: !this.displayingInterpretation,
 			            
 			            listeners: {
@@ -572,7 +628,7 @@ EastRegion = function(c){
                         itemId: 'shareInterpretation',
                         html: 'Share interpretation',
 			            cls: 'ns-label-period-heading',
-			            style: 'cursor:pointer;color:blue;text-decoration:underline;',
+			            style: 'cursor:pointer;color:blue;',
 			            hidden: this.displayingInterpretation,
 			            
 	        	        listeners: {
@@ -602,9 +658,6 @@ EastRegion = function(c){
 	            }
 	        };
 	  
-	    
-	    
-	    
 	
 	return Ext.create('Ext.panel.Panel', {
 	    region: 'east',
@@ -636,16 +689,9 @@ EastRegion = function(c){
 	    		this.getComponent('interpretations').add(defaultInterpretationItem);
 	    	}
 	    	
-	    	//this.getComponent('interpretations').doLayout();
 	    }
 	
 	});
-
-
-
-
-
-
     
     
 }; 
