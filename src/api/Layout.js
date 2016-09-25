@@ -326,7 +326,6 @@ Layout.prototype.toPlugin = function(el) {
             'reportingPeriod',
             'organisationUnit',
             'parentOrganisationUnit',
-            'regression',
             'cumulative',
             'sortOrder',
             'topLimit'
