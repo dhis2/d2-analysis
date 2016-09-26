@@ -61,6 +61,16 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.name = c.name;
     }
 
+        // title
+    if (isString(c.title)) {
+        t.title = c.title;
+    }
+
+        // description
+    if (isString(c.description)) {
+        t.description = c.description;
+    }
+
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
         t.sorting = new Sorting(c.sorting);
