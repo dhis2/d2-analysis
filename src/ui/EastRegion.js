@@ -31,7 +31,6 @@ EastRegion = function(c){
 								xtype: 'panel',
 								bodyStyle: 'border-style:none',
 								items: [
-								        //AQP: Do they have an avatar in ext?
 										{
 										    xtype: 'label',
 										    style: 'height: 30px;width: 30px;border-radius:50%;display:inline-block;background-color:#bdbdbd;text-align:center;line-height:30px;font-size:14px;color:black;font-weight:bold;',
@@ -80,7 +79,6 @@ EastRegion = function(c){
 							xtype: 'panel',
 							bodyStyle: 'border-style:none',
 							items: [
-							        //AQP: Do they have an avatar in ext?
 									{
 									    xtype: 'label',
 									    style: 'height: 30px;width: 30px;border-radius:50%;display:inline-block;background-color:#bdbdbd;text-align:center;line-height:30px;font-size:14px;color:black;font-weight:bold;',
@@ -88,20 +86,21 @@ EastRegion = function(c){
 									}
 							],
 							columnWidth: 0.20
-							
 						},
 						{
 							xtype: 'panel',
 							bodyStyle: 'border-style:none',
-							style: 'width:100%',
-							bodyStyle: 'width:100%',
+							autoWidth: true,
+							layout   : 'fit',
+							flex     : 1,
 							items: [
 							        {
 										xtype: 'textarea',
 										itemId: 'commentArea',
 										emptyText: 'Write a comment',
 										submitEmptyText: false,
-										anchor: '100%',
+						                flex: 1,
+						                border: 0,
 										enableKeyEvents: true,
 										listeners: {
 											keypress: function (f,e) {    
@@ -135,8 +134,6 @@ EastRegion = function(c){
 			return likeText;
         };
         
-
-        
         var likeInterpretation = function(){
         	var that = this;
 			if (isLiked(interpretation)){
@@ -144,7 +141,6 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'DELETE',
 	                success: function() {
-	                	console.log('kakadelete');
 	                	interpretation.likes--;
 	                	for (var i = 0; i < interpretation.likedBy.length; i++){
 	                		if (interpretation.likedBy[i].id == appManager.userAccount.id){
@@ -152,8 +148,7 @@ EastRegion = function(c){
 	                			break;
 	                		}
 	                	}
-	                	
-	                	that.setText('Like')
+	                	that.up('#interpretationItem').updateInterpretationItemItems(interpretation);
 	                }
 	            });
 			}
@@ -162,15 +157,13 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'POST',
 	                success: function() {
-	                	console.log('kakasuccess');
 	                	interpretation.likes++;
-	                	interpretation.likedBy.push({id: appManager.userAccount.id,displayName: appManager.userAccount.displayName});
-	                	that.setText('Unlike')
-	                	//AQP: We need to update the number of likes
+	                	interpretation.likedBy.push({id: appManager.userAccount.id, displayName: appManager.userAccount.firstName + ' ' + appManager.userAccount.surname});
+	                	
+	                	that.up('#interpretationItem').updateInterpretationItemItems(interpretation);
 	                }
 	            });
 			}
-			this.up('#interpretationItem').doLayout();
         };
         
         var commentInterpretation = function(f){
@@ -180,13 +173,25 @@ EastRegion = function(c){
 	                method: 'POST',
 	                params: f.getValue(),
 	                headers: {'Content-Type': 'text/plain'},
-	                success: function() {
+	                success: function(obj, _success, r) {
 	                	console.log('comment post');
+	                	console.log(obj)
+	                	console.log(_success)
+	                    console.log(r)
+	                	
+	                    //AQP: We need to update this properly
+	                	var currentComment = {}
+	                	currentComment['user'] = {}
+	                	currentComment['user']['displayName'] = appManager.userAccount.firstName + ' ' + appManager.userAccount.surname
+	                	currentComment['lastUpdated'] = new Date();
+	                	currentComment['text'] = f.getValue();
+	                	interpretation.comments.push(currentComment)
+	                	
 	                	f.reset();
-	                	//AQP: We need to update the comments
+	                	
+	                	f.up('#interpretationItem').updateInterpretationItemItems(interpretation);
 	                }
 	            });
-        		
         	}
         };
         
@@ -198,333 +203,355 @@ EastRegion = function(c){
         	return toolTipLike;
         };
         
-        var getNumberLikes = function(){
-        	
-        };
-		
+        var getInterpretationItemItems = function(interpretation, displayingComments){
+
+			var interpretationItemItems = [
+					{
+				    xtype: 'panel',
+				    bodyStyle: 'border-style:none',
+				    style: 'margin-bottom: 5px;',
+				    items: [
+						{
+						    xtype: 'label',
+						    text: interpretation.user.displayName,
+						    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
+						},
+						{
+						    xtype: 'label',
+						    text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
+						}
+				    ]
+				},
+				{
+				    xtype: 'panel',
+				    bodyStyle: 'border-style:none',
+				    style: 'margin-bottom: 5px;',
+				    items: [
+						{
+                            xtype: 'label',
+                            text: interpretation.text,
+                        }
+				    ]
+				},
+				{
+				    xtype: 'panel',
+				    bodyStyle: 'border-style:none',
+				    style: 'margin-bottom: 5px;',
+				    itemId: 'likePanelUnselected',
+				    hidden: displayingComments,
+				    items: [
+						{
+                            xtype: 'label',
+                            text: interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.",
+                        }
+				    ]
+				},
+				{
+				    xtype: 'panel',
+				    bodyStyle: 'border-style:none',
+				    style: 'margin-bottom: 5px;',
+				    itemId: 'likePanelSelected',
+				    hidden: !displayingComments,
+                    
+				    items: [
+						{
+						    xtype: 'panel',
+						    bodyStyle: 'border-style:none',
+						    style: 'margin-bottom: 5px;',
+						    
+						    items: [
+								{
+						            xtype: 'label',
+						            text: interpretation.likes + " people like this.",
+						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+				                    
+						            listeners: {
+		    	        	        	'render': function(label) {
+		    	        	        	       
+		    	        	        	       if (interpretation.likedBy.length > 0){
+		    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
+			    	        	        	           target: label.getEl(),
+			    	        	        	           html: getTooltipLike(),
+			    	        	        	           bodyStyle: 'background-color: white;border' 
+			    	        	        	         });   
+		    	        	        	    	   
+		    	        	        	       }
+		    	        	        	    }
+		    	        	        }
+						        }
+						    ]
+						},
+						{
+						    xtype: 'panel',
+						    bodyStyle: 'border-style:none',
+						    style: 'margin-bottom: 5px;',
+						    items: [
+								{
+						            xtype: 'label',
+						            text: getLikeText(interpretation),
+						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+				                    
+						            listeners: {
+		    	        	        	'render': function(label) {
+		    	        	        	       label.getEl().on('click', likeInterpretation, this);
+		    	        	        	       
+		    	        	        	       if (interpretation.likedBy.length > 0){
+		    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
+			    	        	        	           target: label.getEl(),
+			    	        	        	           html: getTooltipLike(),
+			    	        	        	           bodyStyle: 'background-color: white;border' 
+			    	        	        	         });   
+		    	        	        	    	   
+		    	        	        	       }
+		    	        	        	    }
+		    	        	        }
+						        },
+						        {
+						            xtype: 'label',
+						            text: '|',
+						            style: 'margin-right: 5px;'
+						        },
+						        {
+						            xtype: 'label',
+						            text: 'Comment',
+						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+				                    
+						            listeners: {
+		    	        	        	'render': function(label) {
+		    	        	        	       label.getEl().on('click', function(){
+		    	        	        	    	   this.up('#interpretationItem').down('#commentArea').focus();
+		    	        	        	    	   }, this);
+
+		    	        	        	    }
+		    	        	        }
+						        }
+						    ]
+						}
+				    ]
+				},
+                {
+                	xtype: 'panel',
+                	hidden: !displayingComments,
+                	bodyStyle: 'border-style:none',
+                	itemId: 'comments',
+                	items: [
+                	        getCommentsPanel(interpretation.comments)
+                	]
+                	
+                }
+			]	
+				
+			return interpretationItemItems;
+        }
+        
 		var interpretationItem = {
-	                    xtype: 'panel',
-	                    bodyStyle: 'border-style:none',
-	                    style: 'padding:10px',
-	                    instanceManager: instanceManager,
-	                    interpretation: interpretation,
-	                    itemId: 'interpretationItem',
-	                    displayingComments: false,
-	                    
-	                    displayComment: function(){
-	                    	if (!this.displayingComments){
-    	                		this.getComponent('comments').show();
-    	                	}
-	                    	
-	                    	
-	                    	
-	                    	//AQP Probably better to have an event triggered and a listener
-	                    	// Hide share interpretation and display back to today
-	                    	this.up("[xtype='panel']").down('#shareInterpretation').hide();
-	                    	this.up("[xtype='panel']").down('#backToToday').show();
-	                    	
-	                    	this.down('#likePanelUnselected').hide();
-	                    	this.down('#likePanelSelected').show();
-	                    	
-	                    	
-	                    	
-	                    	//We should check if it is a relative period	                    	
-	                    	var currentLayout = this.instanceManager.getLayout();
-//	                    	currentLayout.relativePeriodDate = this.interpretation.created;
-//	                    	
-//	                    	this.instanceManager.getReport(currentLayout, true);
-	                    	
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'padding:10px',
+            instanceManager: instanceManager,
+            interpretation: interpretation,
+            itemId: 'interpretationItem',
+            displayingComments: false,
+            
+            updateInterpretationItemItems: function(interpretation){
+            	this.removeAll(true);
+            	this.add(getInterpretationItemItems(interpretation, this.displayingComments));
+            },
+            
+            expandComments: function(){
+            	if (!this.displayingComments){
+            		this.displayingComments = true;
+            		this.toggleComments();
+            	}
+            },
+            
+            expandComments: function(){
+            	this.displayingComments = true;
+        		this.getComponent('comments').show();
+        		
+        		//AQP Probably better to have an event triggered and a listener
+            	// Hide share interpretation and display back to today
+            	this.up("[xtype='panel']").down('#shareInterpretation').hide();
+            	this.up("[xtype='panel']").down('#backToToday').show();
+            	
+            	this.down('#likePanelUnselected').hide();
+            	this.down('#likePanelSelected').show();
+            	
+            	//We should check if it is a relative period	                    	
+            	var currentLayout = this.instanceManager.getLayout();
+//                	var stateCurrentLayout = this.instanceManager.getStateCurrent();
+            	
+//    	                    	this.instanceManager.getFn()(currentLayout);
+//    	                    	this.instanceManager.getReport(currentLayout, true, false, true);
+            	
 
-	                    	// we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
-	                    	
-//	                    	DHIS.getTable({
-//	                    		url: base,
-//	                    		el: "table2",
-//	                    		columns: [
-//	                    		{dimension: "de", items: [{id: "YtbsuPPo010"}, {id: "l6byfWFUGaP"}]}
-//	                    		],
-//	                    		rows: [
-//	                    		{dimension: "pe", items: [{id: "LAST_12_MONTHS"}]}
-//	                    		],
-//	                    		filters: [
-//	                    		{dimension: "ou", items: [{id: "USER_ORGUNIT"}]}
-//	                    		],
-//	                    		// All following options are optional
-//	                    		showTotals: false,
-//	                    		showSubTotals: false,
-//	                    		hideEmptyRows: true,
-//	                    		showHierarchy: true,
-//	                    		displayDensity: "comfortable",
-//	                    		fontSize: "large",
-//	                    		digitGroupSeparator: "comma",
-//	                    		legendSet: {id: "BtxOoQuLyg1"}
-//	                    		});
-	                    },
-	                    
-	                    items: [
-								{
-								    xtype: 'panel',
-								    bodyStyle: 'border-style:none',
-								    style: 'margin-bottom: 5px;',
-								    items: [
-										{
-										    xtype: 'label',
-										    text: interpretation.user.displayName,
-										    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
-										},
-										{
-										    xtype: 'label',
-										    text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
-										}
-								    ]
-								},
-								{
-								    xtype: 'panel',
-								    bodyStyle: 'border-style:none',
-								    style: 'margin-bottom: 5px;',
-								    items: [
-										{
-			                                xtype: 'label',
-			                                text: interpretation.text,
-			                            }
-								    ]
-								},
-								{
-								    xtype: 'panel',
-								    bodyStyle: 'border-style:none',
-								    style: 'margin-bottom: 5px;',
-								    itemId: 'likePanelUnselected',
-								    items: [
-										{
-			                                xtype: 'label',
-			                                text: interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.",
-			                            }
-								    ]
-								},
-								{
-								    xtype: 'panel',
-								    bodyStyle: 'border-style:none',
-								    style: 'margin-bottom: 5px;',
-								    itemId: 'likePanelSelected',
-								    hidden: true,
-				                    
-				                    
-								    items: [
-										{
-										    xtype: 'panel',
-										    bodyStyle: 'border-style:none',
-										    style: 'margin-bottom: 5px;',
-										    
-										    items: [
-												{
-										            xtype: 'label',
-										            text: interpretation.likes + " people like this."
-										        }
-										    ]
-										},
-										{
-										    xtype: 'panel',
-										    bodyStyle: 'border-style:none',
-										    style: 'margin-bottom: 5px;',
-										    items: [
-												{
-										            xtype: 'label',
-										            text: getLikeText(interpretation),
-										            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
-								                    
-										            listeners: {
-						    	        	        	'render': function(label) {
-						    	        	        	       label.getEl().on('click', likeInterpretation, this);
-						    	        	        	       
-						    	        	        	       if (interpretation.likedBy.length > 0){
-						    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
-							    	        	        	           target: label.getEl(),
-							    	        	        	           html: getTooltipLike(),
-							    	        	        	           bodyStyle: 'background-color: white;border' 
-							    	        	        	         });   
-						    	        	        	    	   
-						    	        	        	       }
-						    	        	        	    }
-						    	        	        }
-										        },
-										        {
-										            xtype: 'label',
-										            text: '|',
-										            style: 'margin-right: 5px;'
-										        },
-										        {
-										            xtype: 'label',
-										            text: 'Comment',
-										            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
-								                    
-										            listeners: {
-						    	        	        	'render': function(label) {
-						    	        	        	       label.getEl().on('click', function(){
-						    	        	        	    	   this.up('#interpretationItem').down('#commentArea').focus();
-						    	        	        	    	   }, this);
-
-						    	        	        	    }
-						    	        	        }
-										        }
-										    ]
-										}
-								    ]
-								},
-	                            {
-	                            	xtype: 'panel',
-	                            	hidden: true,
-	                            	bodyStyle: 'border-style:none',
-	                            	itemId: 'comments',
-	                            	items: [
-	                            	        getCommentsPanel(interpretation.comments)
-	                            	]
-	                            	
-	                            }
-	                    ],
-	        	        
-	        	        listeners: {
-	        	        	'render': function(panel) {
-	        	        	       panel.body.on('click', this.displayComment, this);
-	        	        	    }, scope:interpretationItem
-	        	            
-	        	        }
-	                };
+            	// we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
+            	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
+            	tablePayload['url'] = appManager.getPath();
+            	tablePayload['relativePeriodDate'] = this.interpretation.created;
+            	console.log(tablePayload)
+            	DHIS.getTable(tablePayload);
+            	
+            	var north = uiManager.get('northRegion');
+            	north.cmp.title.setTitle(north.cmp.title.titleText + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
+            },
+                        
+            items: getInterpretationItemItems(interpretation, this.displayingComments),
+	        
+	        listeners: {
+	        	'render': function(panel) {
+	        	       panel.body.on('click', this.expandComments, this);
+	        	    }, scope:interpretationItem
+	            
+	        }
+        };
 		return interpretationItem;
 	}
 	
-		var favouriteDetailsPanel ={
-                xtype: 'panel',
-                bodyStyle: 'border-style:none',
-                style: 'padding:10px',
-                itemId: 'favouriteDetailsPanel',
-                hidden: true,
-                
-                getDescriptionItems: function(description){
-                	var descriptionItems = [];
-                	
-                	var isLongDescription = (description.length > 200);
-                	var currentDescription= (isLongDescription)?description.substring(0,200):description;
-                	
-                	//AQP: Refactor a little bit this code
-                	var descriptionLabel = {
-                        xtype: 'label',
-                        itemId: 'descriptionLabel',
-                        html: currentDescription,
-                        longDescription: description,
-                        shortDescription: description.substring(0, 200),
-                        cls: 'ns-label-period-heading'
-                    };
-                	descriptionItems.push(descriptionLabel);
-                	
-                	if (isLongDescription){
-	                	descriptionItems.push({
-	                        xtype: 'label',
-	                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-	                        moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-	                        lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
-	                        cls: 'ns-label-period-heading',
-	                        isShortDescriptionDisplayed: true,
-	                        descriptionLabel, descriptionLabel,
-	                        style: 'margin: 0px 3px;',
-	                        listeners: {
-		        	        	'render': function(label) {
-		        	        		label.getEl().on('click', function(){
-		        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.longDescription,false); this.setText(this.lessText,false)}
-		        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.shortDescription,false); this.setText(this.moreText,false)}
-		        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
-		        	        			this.up('#descriptionPanel').doLayout();
-		        	        			}, label);
-	        	        	    }
-		        	        }
-	                    });
-                	}
-                	
+	var favouriteDetailsPanel ={
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'padding:10px',
+            itemId: 'favouriteDetailsPanel',
+            
+            getDescriptionItems: function(description){
+            	var descriptionItems = [];
+            	
+            	var isLongDescription = (description.length > 200);
+            	var currentDescription= (isLongDescription)?description.substring(0,200):description;
+            	
+            	//AQP: Refactor a little bit this code
+            	var descriptionLabel = {
+                    xtype: 'label',
+                    itemId: 'descriptionLabel',
+                    html: currentDescription,
+                    longDescription: description,
+                    shortDescription: description.substring(0, 200),
+                    cls: 'ns-label-period-heading'
+                };
+            	descriptionItems.push(descriptionLabel);
+            	
+            	if (isLongDescription){
                 	descriptionItems.push({
                         xtype: 'label',
-                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+                        moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+                        lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
                         cls: 'ns-label-period-heading',
+                        isShortDescriptionDisplayed: true,
+                        descriptionLabel, descriptionLabel,
                         style: 'margin: 0px 3px;',
                         listeners: {
 	        	        	'render': function(label) {
-	        	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
+	        	        		label.getEl().on('click', function(){
+	        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.longDescription,false); this.setText(this.lessText,false)}
+	        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.shortDescription,false); this.setText(this.moreText,false)}
+	        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
+	        	        			this.up('#descriptionPanel').doLayout();
+	        	        			}, label);
         	        	    }
 	        	        }
                     });
-                	
-                	return descriptionItems;
-                },
-                
-                updateFavorites: function(layout){
-                	
-                	// AQP: This should be replaced by layout.description when api is ready
-                	var description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
-                	this.getComponent('descriptionPanel').add(this.getDescriptionItems(description));
-                	
-                
-            		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
-                	
-                	this.getComponent('created').setValue(layout.created);
-                	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
-                	
-                	
-                	//AQP: This should be replaced with the right api
-                	//this.getComponent('numberViews').setValue(layout.numberViews);
-                	
-                },
-                
-                items: [
-					{
-					    xtype: 'panel',
-					    itemId: 'descriptionPanel',
-					    bodyStyle: 'border-style:none',
-					    items:[]
-					},
-					{
-			            xtype: 'displayfield',
-			            fieldLabel: 'Owner',
-			            itemId: 'owner',
-			            value: '',
-			            cls: 'ns-label-period-heading'
-			        },
-					{
-			            xtype: 'displayfield',
-			            itemId: 'created',
-			            fieldLabel: 'Created',
-			            value: '',
-			            cls: 'ns-label-period-heading'
-			        },
-					{
-			            xtype: 'displayfield',
-			            itemId: 'lastUpdated',
-			            fieldLabel: 'Last Updated',
-			            value: '',
-			            cls: 'ns-label-period-heading'
-			        },
-			        {
-			            xtype: 'displayfield',
-			            itemId: 'numberViews',
-			            fieldLabel: 'Number of views',
-			            value: '###',
-			            cls: 'ns-label-period-heading'
-			        },
-					{
-			            xtype: 'displayfield',
-			            itemId: 'sharing',
-			            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-			            value: 'Public XXXX, N Groups',
-			            cls: 'ns-label-period-heading',
-	        	        listeners: {
-	        	        	'render': function(label) {
-	        	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
-        	        	    }
-	        	        }
-			        }
-                ]
-            };
+            	}
+            	
+            	descriptionItems.push({
+                    xtype: 'label',
+                    html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+                    cls: 'ns-label-period-heading',
+                    style: 'margin: 0px 3px;',
+                    listeners: {
+        	        	'render': function(label) {
+        	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
+    	        	    }
+        	        }
+                });
+            	
+            	return descriptionItems;
+            },
+            
+            updateFavorites: function(layout){
+            	// AQP: This should be replaced by layout.description when api is ready
+            	var description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
+            	this.getComponent('descriptionPanel').add(this.getDescriptionItems(description));
+            	
+            
+        		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
+            	
+            	this.getComponent('created').setValue(layout.created);
+            	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
+            	
+            	this.getNumberOfViews(layout.id)
+            	
+            },
+            
+            getNumberOfViews: function(favoritesId){
+            	Ext.Ajax.request({
+	                url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'), 
+	                method: 'GET',
+	                scope: this,
+	                success: function(r) {
+	                	this.getComponent('numberViews').setValue(Ext.decode(r.responseText).views);
+	                }
+	            });
+            },
+            
+            items: [
+				{
+				    xtype: 'panel',
+				    itemId: 'descriptionPanel',
+				    bodyStyle: 'border-style:none',
+				    items:[]
+				},
+				{
+		            xtype: 'displayfield',
+		            fieldLabel: 'Owner',
+		            itemId: 'owner',
+		            value: '',
+		            style: 'white-space: nowrap;',
+		            cls: 'ns-label-period-heading'
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'created',
+		            fieldLabel: 'Created',
+		            value: '',
+		            style: 'white-space: nowrap;',
+		            cls: 'ns-label-period-heading'
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'lastUpdated',
+		            fieldLabel: 'Last Updated',
+		            value: '',
+		            style: 'white-space: nowrap;',
+		            cls: 'ns-label-period-heading'
+		        },
+		        {
+		            xtype: 'displayfield',
+		            itemId: 'numberViews',
+		            fieldLabel: 'Number of views',
+		            value: "Retrieving number of views...",
+		            style: 'white-space: nowrap;',
+		            cls: 'ns-label-period-heading'
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'sharing',
+		            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+		            value: 'Public XXXX, N Groups',
+		            style: 'white-space: nowrap;',
+		            cls: 'ns-label-period-heading',
+        	        listeners: {
+        	        	'render': function(label) {
+        	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
+    	        	    }
+        	        }
+		        }
+            ]
+        };
 	
 	var noFavouriteDetailsPanel = {
             xtype: 'label',
-            itemId: 'noFavouriteDetailsPanel',
             text: 'No current favorite',
             cls: 'ns-label-period-heading'
         };
@@ -532,154 +559,93 @@ EastRegion = function(c){
 	var details = {
             xtype: 'panel',
             title: '<div class="ns-panel-title-details">Details</div>',
-            hideCollapseTool: true,
             itemId: 'details',
-           
             items: [
-                {
-                    xtype: 'panel',
-                    bodyStyle: 'border-style:none',
-                    style: 'margin-top:0px',
-                    items: [
-                            noFavouriteDetailsPanel, favouriteDetailsPanel
-                            
-                    ]
-                }
-            ],
-            listeners: {
-                added: function() {
-                    //accordionPanels.push(this);
-                },
-                expand: function(p) {
-                    p.onExpand();
-                }
-            }
+                   noFavouriteDetailsPanel
+            ]
         };
 	
 	var defaultInterpretationItem = {
-	        xtype: 'panel',
-	        hideCollapseTool: true,
-	       
-	        items: [
-	            {
-	                xtype: 'panel',
-	                bodyStyle: 'border-style:none',
-	                items: [
-							{
 	                            xtype: 'label',
 	                            text: 'No interpretations',
-	                            cls: 'bold userLink'
-	                        }
-	                ]
-	            }
-	        ]
-	    };
+	                            cls: 'ns-label-period-heading'
+	                        };
 
-	    var interpretations = {
-	            xtype: 'panel',
-	            title: '<div class="ns-panel-title-interpretation">Interpretations</div>',
-	            hideCollapseTool: true,
-	            itemId: 'interpretations',
+    var interpretations = {
+        xtype: 'panel',
+        title: '<div class="ns-panel-title-interpretation">Interpretations</div>',
+        hideCollapseTool: true,
+        itemId: 'interpretations',
+        
+        displayingInterpretation: false,
+        
+        getInterpretationItemPanel: getInterpretationItemPanel,
+        	            
+        renderInterpretations: function(interpretations){
+        	var shareBackPanel = {
+                xtype: 'panel',
+                bodyStyle: 'border-style:none',
+                style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+                items: []
+            }
+        	
+    		shareBackPanel.items.push({
+                xtype: 'label',
+                itemId: 'backToToday',
+                html: '<< Back to today',
+	            cls: 'ns-label-period-heading',
+	            style: 'cursor:pointer;color:blue;',
+	            hidden: !this.displayingInterpretation,
 	            
-	            displayingInterpretation: false,
-
-	            onExpand: function() {
-	                var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_period : uiConfig.west_maxheight_accordion_period;
-
-	                accordion.setThisHeight(accordionHeight);
-
-	                uiManager.msSetHeight(
-	                    [fixedPeriodAvailable, fixedPeriodSelected],
-	                    this,
-	                    uiConfig.west_fill_accordion_period
-	                );
-	            },
-	            
-	            getInterpretationItemPanel: getInterpretationItemPanel,
-	            
-	            shareInterpretation: function(){
-	            	InterpretationWindow(c).show();
-	            },
-	            
-	            renderInterpretations: function(interpretations){
-	            	var shareBackPanel = {
-		                xtype: 'panel',
-		                bodyStyle: 'border-style:none',
-		                style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
-		                items: []
-		            }
-	            	
-            		shareBackPanel.items.push({
-                        xtype: 'label',
-                        itemId: 'backToToday',
-                        html: 'Back to today',
-			            cls: 'ns-label-period-heading',
-			            style: 'cursor:pointer;color:blue;',
-			            hidden: !this.displayingInterpretation,
-			            
-			            listeners: {
-	        	        	'render': function(label) {
-	        	        	       label.getEl().on('click', function(){}, label);
-	        	        	    }
-	        	        }
-                    });
-            		shareBackPanel.items.push({
-                        xtype: 'label',
-                        itemId: 'shareInterpretation',
-                        html: 'Share interpretation',
-			            cls: 'ns-label-period-heading',
-			            style: 'cursor:pointer;color:blue;',
-			            hidden: this.displayingInterpretation,
-			            
-	        	        listeners: {
-	        	        	'render': function(label) {
-	        	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
-	        	        	    }
-	        	        }
-                    });
-	            	
-	            	this.add(shareBackPanel);
-	            	
-	            	for (var i=0; i < interpretations.length; i++){
-	            		this.add(this.getInterpretationItemPanel(interpretations[i]));
-	            	}
-	            },
-	            
-	            items: [
-	                    defaultInterpretationItem
-	            ],
 	            listeners: {
-	                added: function() {
-	                    //accordionPanels.push(this);
-	                },
-	                expand: function(p) {
-	                    p.onExpand();
-	                }
-	            }
-	        };
+    	        	'render': function(label) {
+    	        	       label.getEl().on('click', function(){instanceManager.getById(instanceManager.getStateCurrent().id);}, label);
+    	        	    }
+    	        }
+            });
+    		shareBackPanel.items.push({
+                xtype: 'label',
+                itemId: 'shareInterpretation',
+                html: 'Share interpretation',
+	            cls: 'ns-label-period-heading',
+	            style: 'cursor:pointer;color:blue;',
+	            hidden: this.displayingInterpretation,
+	            
+    	        listeners: {
+    	        	'render': function(label) {
+    	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
+    	        	    }
+    	        }
+            });
+        	
+        	this.add(shareBackPanel);
+        	
+        	for (var i=0; i < interpretations.length; i++){
+        		this.add(this.getInterpretationItemPanel(interpretations[i]));
+        	}
+        },
+        
+        items: [
+                defaultInterpretationItem
+        ]
+    };
 	  
 	
 	return Ext.create('Ext.panel.Panel', {
 	    region: 'east',
-	    preventHeader: true,
-	    collapsible: true,
-	    collapseMode: 'mini',
 	    border: false,
 	    width: uiConfig.west_width + uiManager.getScrollbarSize().width,
 	    items: [details,interpretations],
 	    setState: function(layout) {
-	    	
 	    	this.getComponent('interpretations').removeAll(true);
-	    	//AQP: Is this the right way?
+	    	this.getComponent('details').removeAll(true);
+
 	    	if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()){
-	    		this.down('#noFavouriteDetailsPanel').hide();
-	    		this.down('#favouriteDetailsPanel').updateFavorites(layout);
-	    		this.down('#favouriteDetailsPanel').show();
-	    		
+	    		this.getComponent('details').add(favouriteDetailsPanel);
+	    		this.getComponent('details').getComponent('favouriteDetailsPanel').updateFavorites(layout);
 	    	}
 	    	else{
-	    		this.down('#noFavouriteDetailsPanel').show();
-	    		this.down('#favouriteDetailsPanel').hide();
+	    		this.getComponent('details').add(noFavouriteDetailsPanel);
 	    	}
 	    	
 	    	if (layout.interpretations != undefined && layout.interpretations.length > 0){
