@@ -148,7 +148,7 @@ EastRegion = function(c){
 	                			break;
 	                		}
 	                	}
-	                	that.up('#interpretationItem').updateInterpretationItemItems(interpretation);
+	                	that.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
 	                }
 	            });
 			}
@@ -160,7 +160,7 @@ EastRegion = function(c){
 	                	interpretation.likes++;
 	                	interpretation.likedBy.push({id: appManager.userAccount.id, displayName: appManager.userAccount.firstName + ' ' + appManager.userAccount.surname});
 	                	
-	                	that.up('#interpretationItem').updateInterpretationItemItems(interpretation);
+	                	that.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
 	                }
 	            });
 			}
@@ -189,7 +189,7 @@ EastRegion = function(c){
 	                	
 	                	f.reset();
 	                	
-	                	f.up('#interpretationItem').updateInterpretationItemItems(interpretation);
+	                	f.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
 	                }
 	            });
         	}
@@ -318,11 +318,8 @@ EastRegion = function(c){
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
-		    	        	        	       label.getEl().on('click', function(){
-		    	        	        	    	   this.up('#interpretationItem').down('#commentArea').focus();
-		    	        	        	    	   }, this);
-
-		    	        	        	    }
+		    	        	        	       label.getEl().on('click', function(){this.up('#interpretationItem' + interpretation.id).down('#commentArea').focus();}, this);
+	    	        	        	    }
 		    	        	        }
 						        }
 						    ]
@@ -334,13 +331,9 @@ EastRegion = function(c){
                 	hidden: !displayingComments,
                 	bodyStyle: 'border-style:none',
                 	itemId: 'comments',
-                	items: [
-                	        getCommentsPanel(interpretation.comments)
-                	]
-                	
+                	items: [getCommentsPanel(interpretation.comments)]
                 }
 			]	
-				
 			return interpretationItemItems;
         }
         
@@ -350,59 +343,49 @@ EastRegion = function(c){
             style: 'padding:10px',
             instanceManager: instanceManager,
             interpretation: interpretation,
-            itemId: 'interpretationItem',
             displayingComments: false,
+            itemId: 'interpretationItem' + interpretation.id,
             
             updateInterpretationItemItems: function(interpretation){
-            	this.removeAll(true);
-            	this.add(getInterpretationItemItems(interpretation, this.displayingComments));
-            },
-            
-            expandComments: function(){
-            	if (!this.displayingComments){
-            		this.displayingComments = true;
-            		this.toggleComments();
+            	if (interpretation != undefined){
+            		this.interpretation = interpretation;
             	}
+            	this.removeAll(true);
+            	this.add(getInterpretationItemItems(this.interpretation, this.displayingComments));
             },
             
             expandComments: function(){
-            	this.displayingComments = true;
-        		this.getComponent('comments').show();
-        		
-        		//AQP Probably better to have an event triggered and a listener
-            	// Hide share interpretation and display back to today
-            	this.up("[xtype='panel']").down('#shareInterpretation').hide();
-            	this.up("[xtype='panel']").down('#backToToday').show();
-            	
-            	this.down('#likePanelUnselected').hide();
-            	this.down('#likePanelSelected').show();
-            	
-            	//We should check if it is a relative period	                    	
-            	var currentLayout = this.instanceManager.getLayout();
-//                	var stateCurrentLayout = this.instanceManager.getStateCurrent();
-            	
-//    	                    	this.instanceManager.getFn()(currentLayout);
-//    	                    	this.instanceManager.getReport(currentLayout, true, false, true);
-            	
+            	if(!this.displayingComments){
+            		for (var i = 0; i < this.up("#interpretations").items.items.length; i++){
+            			if (this.up("#interpretations").items.items[i].interpretation != undefined){
+            				this.up("#interpretations").items.items[i].displayingComments = (this.up("#interpretations").items.items[i].id == this.id);
+            				this.up("#interpretations").items.items[i].updateInterpretationItemItems();	
+            			}
+            		}
+            		
+            		//AQP: This can be improved so we rerender the whole thing
+            		// Swope top panel
+                	this.up("[xtype='panel']").down('#shareInterpretation').hide();
+                	this.up("[xtype='panel']").down('#backToToday').show();
+                	
+                	//Generate reporttable for this interpretation
+                	//We should check if it is a relative period	                    	
+                	var currentLayout = this.instanceManager.getLayout();
 
-            	// we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
-            	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
-            	tablePayload['url'] = appManager.getPath();
-            	tablePayload['relativePeriodDate'] = this.interpretation.created;
-            	console.log(tablePayload)
-            	DHIS.getTable(tablePayload);
-            	
-            	var north = uiManager.get('northRegion');
-            	north.cmp.title.setTitle(north.cmp.title.titleText + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
+                	// we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
+                	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
+                	tablePayload['url'] = appManager.getPath();
+                	tablePayload['relativePeriodDate'] = this.interpretation.created;
+                	DHIS.getTable(tablePayload);
+                	
+                	uiManager.get('northRegion').cmp.title.setTitle(currentLayout.name + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
+            	}
             },
                         
             items: getInterpretationItemItems(interpretation, this.displayingComments),
 	        
 	        listeners: {
-	        	'render': function(panel) {
-	        	       panel.body.on('click', this.expandComments, this);
-	        	    }, scope:interpretationItem
-	            
+	        	'render': function(panel) {panel.body.on('click', this.expandComments, this);}, scope:interpretationItem
 	        }
         };
 		return interpretationItem;
@@ -473,15 +456,38 @@ EastRegion = function(c){
             	// AQP: This should be replaced by layout.description when api is ready
             	var description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
             	this.getComponent('descriptionPanel').add(this.getDescriptionItems(description));
-            	
-            
         		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
-            	
             	this.getComponent('created').setValue(layout.created);
             	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
             	
-            	this.getNumberOfViews(layout.id)
+            	this.getNumberOfViews(layout.id);
+            	this.getComponent('sharing').setValue(this.getSharingText(layout));
+            },
+            
+            getSharingText: function(layout){
+            	var sharingText = 'Public: ';
+            	if (layout.publicAccess == "r-------"){
+            		sharingText += 'Read';
+            	}
+            	else if (layout.publicAccess == "rw------"){
+            		sharingText += 'Read/Write';
+            	}
+            	else{
+            		sharingText += 'None';
+            	}
             	
+            	sharingText += ' + ';
+            	if (layout.userGroupAccesses.length > 2){
+            		sharingText += layout.userGroupAccesses.length + ' groups';
+            	}
+            	else{
+            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
+            			if (i > 0){sharingText += ', '}
+            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
+            		}
+            	}
+            	return sharingText;
+            	//AQP: Create a tooltip
             },
             
             getNumberOfViews: function(favoritesId){
@@ -538,7 +544,7 @@ EastRegion = function(c){
 		            xtype: 'displayfield',
 		            itemId: 'sharing',
 		            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-		            value: 'Public XXXX, N Groups',
+		            value: '',
 		            style: 'white-space: nowrap;',
 		            cls: 'ns-label-period-heading',
         	        listeners: {
@@ -576,7 +582,7 @@ EastRegion = function(c){
         title: '<div class="ns-panel-title-interpretation">Interpretations</div>',
         hideCollapseTool: true,
         itemId: 'interpretations',
-        
+        //AQP: We are not using this variable properly
         displayingInterpretation: false,
         
         getInterpretationItemPanel: getInterpretationItemPanel,
@@ -656,10 +662,7 @@ EastRegion = function(c){
 	    	}
 	    	
 	    }
-	
 	});
-    
-    
 }; 
     
     

@@ -103,8 +103,15 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     	t.user = c.user;
     }
     
-    	//Access?
+    	//public access
+    if (isString(c.publicAccess)) {
+        t.publicAccess = c.publicAccess;
+    }
     
+    	//user group accesses
+    if (arrayFrom(c.userGroupAccesses).length) {
+        t.userGroupAccesses = c.userGroupAccesses;
+    }
 
         // reduce layout //todo: move to specific app
     if (isBoolean(c.reduceLayout)) {

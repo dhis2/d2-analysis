@@ -4238,7 +4238,6 @@ Viewport = function(refs, cmp) {
                     },
                     handler: function(b) {
                         westRegion.toggleCollapse();
-
                         this.setIconState();
                     }
                 },
@@ -4274,7 +4273,6 @@ Viewport = function(refs, cmp) {
                     },
                     handler: function(b) {
                         eastRegion.toggleCollapse();
-
                         this.setIconState();
                     }
                 }
