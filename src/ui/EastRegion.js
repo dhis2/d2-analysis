@@ -367,18 +367,24 @@ EastRegion = function(c){
             		// Swope top panel
                 	this.up("[xtype='panel']").down('#shareInterpretation').hide();
                 	this.up("[xtype='panel']").down('#backToToday').show();
-                	
-                	//Generate reporttable for this interpretation
-                	//We should check if it is a relative period	                    	
-                	var currentLayout = this.instanceManager.getLayout();
 
-                	// we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
-                	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
-                	tablePayload['url'] = appManager.getPath();
-                	tablePayload['relativePeriodDate'] = this.interpretation.created;
-                	DHIS.getTable(tablePayload);
+                	var currentLayout = this.instanceManager.getLayout();
+                	if (this.interpretation.type == 'CHART'){
+                    	var tablePayload = currentLayout.toPlugin($('svg').parent().prop("id"));
+                    	tablePayload['url'] = appManager.getPath();
+                    	tablePayload['relativePeriodDate'] = this.interpretation.created;
+                    	DHIS.getChart(tablePayload);
+                	}
+                	else if (this.interpretation.type == 'REPORT_TABLE'){
+                		//Generate reporttable for this interpretation
+                    	//AQP: we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
+                    	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
+                    	tablePayload['url'] = appManager.getPath();
+                    	tablePayload['relativePeriodDate'] = this.interpretation.created;
+                    	DHIS.getTable(tablePayload);
+                	}
                 	
-                	uiManager.get('northRegion').cmp.title.setTitle(currentLayout.name + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
+                	uiManager.get('northRegion').cmp.title.setTitle(uiManager.get('northRegion').cmp.title.titleText + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
             	}
             },
                         
@@ -476,15 +482,17 @@ EastRegion = function(c){
             		sharingText += 'None';
             	}
             	
-            	sharingText += ' + ';
-            	if (layout.userGroupAccesses.length > 2){
-            		sharingText += layout.userGroupAccesses.length + ' groups';
-            	}
-            	else{
-            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
-            			if (i > 0){sharingText += ', '}
-            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
-            		}
+            	if (layout.userGroupAccesses != undefined){ 
+	            	sharingText += ' + ';
+	            	if (layout.userGroupAccesses.length > 2){
+	            		sharingText += layout.userGroupAccesses.length + ' groups';
+	            	}
+	            	else{
+	            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
+	            			if (i > 0){sharingText += ', '}
+	            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
+	            		}
+	            	}
             	}
             	return sharingText;
             	//AQP: Create a tooltip
@@ -635,7 +643,6 @@ EastRegion = function(c){
                 defaultInterpretationItem
         ]
     };
-	  
 	
 	return Ext.create('Ext.panel.Panel', {
 	    region: 'east',
@@ -660,7 +667,6 @@ EastRegion = function(c){
 	    	else{
 	    		this.getComponent('interpretations').add(defaultInterpretationItem);
 	    	}
-	    	
 	    }
 	});
 }; 
