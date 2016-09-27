@@ -12,7 +12,6 @@ FavoriteWindow = function(c, action) {
         uiConfig = c.uiConfig,
 
         path = appManager.getPath(),
-
         apiResource = instanceManager.apiResource;
 
     var getDirection,
@@ -29,6 +28,10 @@ FavoriteWindow = function(c, action) {
         textfieldKeyUpHandlers,
         searchTextfield,
         saveasTextField,
+        titleTextField,
+        descriptionTextField,
+        toggleButton,
+        descriptionPanel,
         saveButtonHandler,
         saveButton,
         prevButton,
@@ -36,6 +39,7 @@ FavoriteWindow = function(c, action) {
         info,
         gridHeaders,
         renderers,
+        gridBbarSeparator,
         gridBbar,
         grid,
         titles,
@@ -45,6 +49,10 @@ FavoriteWindow = function(c, action) {
         windowWidth = 700,
         borderWidth = 14,
         windowCmpWidth = windowWidth - borderWidth,
+        toggleBtnWidth = 29,
+        toggleBtnMarginTop = 48,
+        toggleBtnMarginRight = 7,
+        toggleBtnMarginLeft = 10,
 
         lastUpdatedColWidth = 120,
         buttonColWidth = 60,
@@ -52,8 +60,8 @@ FavoriteWindow = function(c, action) {
 
         nameColWidth = windowCmpWidth - lastUpdatedColWidth - buttonColWidth - paddingColWidth - 2,
 
-        storeFields = 'id,name,lastUpdated,access',
-        urlFields = 'id,displayName|rename(name),lastUpdated,access',
+        storeFields = 'id,name,lastUpdated,access,title,description',
+        urlFields = 'id,displayName|rename(name),lastUpdated,access,title,description',
         sortField = 'name',
         sortDirection = 'asc',
 
@@ -64,7 +72,19 @@ FavoriteWindow = function(c, action) {
             'background: none',
             'font-size: 11px',
             'line-height: 13px'
-        ];
+        ],
+
+        textFieldLabelStyle = [
+            'font-size: 11px',
+            'font-weight: bold',
+            'color: #111',
+            'padding-left: 5px',
+            'padding-top: 4px',
+            'margin-bottom: 1px'
+        ],
+
+        cmpToToggle = [],
+        layout = instanceManager.getStateCurrent() || {};
 
     getDirection = function(keepDir) {
         return sortDirection = keepDir ? sortDirection : (sortDirection === 'asc' ? 'desc' : 'asc');
@@ -165,6 +185,104 @@ FavoriteWindow = function(c, action) {
         }
     };
 
+    saveasTextField = Ext.create('Ext.form.field.Text', {
+        width: windowCmpWidth,
+        height: 45,
+        style: 'margin-top: 2px; margin-bottom: 0',
+        fieldStyle: textfieldStyle.join(';'),
+        fieldLabel: i18n.name,
+        labelAlign: 'top',
+        labelStyle: textFieldLabelStyle.join(';'),
+        labelSeparator: '',
+        emptyText: 'Unnamed',
+        enableKeyEvents: true,
+        currentValue: '',
+        value: layout.name,
+        listeners: {
+            keyup: function(cmp, e) {
+                textfieldKeyUpHandlers['saveas'](cmp, e);
+            }
+        }
+    });
+
+    titleTextField = Ext.create('Ext.form.field.Text', {
+        width: windowCmpWidth,
+        height: 45,
+        style: 'margin-bottom: 0',
+        fieldStyle: textfieldStyle.join(';'),
+        fieldLabel: i18n.title,
+        labelAlign: 'top',
+        labelStyle: textFieldLabelStyle.join(';'),
+        labelSeparator: '',
+        emptyText: 'No title',
+        enableKeyEvents: true,
+        currentValue: '',
+        value: layout.title,
+        listeners: {
+            keyup: function(cmp, e) {
+                textfieldKeyUpHandlers['saveas'](cmp, e);
+            }
+        }
+    });
+
+    descriptionTextField = Ext.create('Ext.form.field.TextArea', {
+        width: windowCmpWidth - toggleBtnWidth - toggleBtnMarginLeft - toggleBtnMarginRight,
+        height: 77,
+        grow: true,
+        style: 'margin-bottom: 0',
+        fieldStyle: textfieldStyle.concat([
+            'padding-top: 5px'
+        ]).join(';'),
+        fieldLabel: i18n.description,
+        labelAlign: 'top',
+        labelStyle: textFieldLabelStyle.join(';'),
+        labelSeparator: '',
+        emptyText: 'No description',
+        enableKeyEvents: true,
+        value: layout.description
+    });
+
+    toggleButton = Ext.create('Ext.button.Button', {
+        iconCls: 'ns-button-icon-arrowdown',
+        width: toggleBtnWidth,
+        style: 'margin:' + toggleBtnMarginTop + 'px ' + toggleBtnMarginRight + 'px ' + ' 0 ' + toggleBtnMarginLeft + 'px',
+        nextAction: 'hide',
+        iconClsMap: {
+            hide: 'ns-button-icon-arrowdown',
+            show: 'ns-button-icon-arrowup'
+        },
+        toggle: function() {
+            var action = this.nextAction;
+            var iconCls = this.iconClsMap[action];
+
+            cmpToToggle.forEach(function(cmp) {
+                cmp[action]();
+            });
+
+            this.setIconCls(iconCls);
+
+            this.nextAction = this.nextAction === 'hide' ? 'show' : 'hide';
+        },
+        handler: function() {
+            this.toggle();
+        }
+    });
+
+    descriptionPanel = Ext.create('Ext.container.Container', {
+        width: windowCmpWidth,
+        layout: 'column',
+        items: [
+            descriptionTextField,
+            toggleButton
+            //{
+                //xtype: 'container',
+                //height: '100%',
+                //style: 'vertical-align: bottom',
+                //items: toggleButton
+            //}
+        ]
+    });
+
     searchTextfield = Ext.create('Ext.form.field.Text', {
         width: windowCmpWidth,
         height: 27,
@@ -184,28 +302,13 @@ FavoriteWindow = function(c, action) {
             }
         }
     });
-
-    saveasTextField = Ext.create('Ext.form.field.Text', {
-        width: windowCmpWidth,
-        height: 29,
-        style: 'margin-bottom: 1px',
-        fieldStyle: textfieldStyle.concat([
-            'border-bottom-color: #ddd'
-        ]).join(';'),
-        emptyText: 'Untitled',
-        enableKeyEvents: true,
-        currentValue: '',
-        value: instanceManager.getStateFavoriteName() || '',
-        listeners: {
-            keyup: function(cmp, e) {
-                textfieldKeyUpHandlers['saveas'](cmp, e);
-            }
-        }
-    });
+    cmpToToggle.push(searchTextfield);
 
     saveButtonHandler = function() {
         var currentLayout = instanceManager.getStateCurrent(),
-            name = saveasTextField.getValue();
+            name = saveasTextField.getValue(),
+            title = titleTextField.getValue(),
+            description = descriptionTextField.getValue();
 
         var record = favoriteStore.get('name', name);
 
@@ -219,6 +322,8 @@ FavoriteWindow = function(c, action) {
         };
 
         currentLayout.name = name;
+        currentLayout.title = title;
+        currentLayout.description = description;
 
         if (record) {
             uiManager.confirmReplace(i18n.save_favorite, function() {
@@ -248,6 +353,7 @@ FavoriteWindow = function(c, action) {
             store.loadStore(url);
         }
     });
+    cmpToToggle.push(prevButton);
 
     nextButton = Ext.create('Ext.button.Button', {
         text: i18n.next,
@@ -259,12 +365,14 @@ FavoriteWindow = function(c, action) {
             store.loadStore(url);
         }
     });
+    cmpToToggle.push(nextButton);
 
     info = Ext.create('Ext.form.Label', {
         cls: 'ns-label-info',
         width: 300,
         height: 22
     });
+    cmpToToggle.push(info);
 
     gridHeaders = GridHeaders({
         width: windowCmpWidth,
@@ -302,6 +410,7 @@ FavoriteWindow = function(c, action) {
             }
         ]
     });
+    cmpToToggle.push(gridHeaders);
 
     renderers = {
         open: function(value, metaData, record) {
@@ -341,6 +450,8 @@ FavoriteWindow = function(c, action) {
                     element = element.parent('td');
                     element.handler = function() {
                         saveasTextField.setValue(record.data.name);
+                        titleTextField.setValue(record.data.title);
+                        descriptionTextField.setValue(record.data.description);
                     };
                     element.dom.setAttribute('onclick', 'Ext.get(this).handler();');
                 }
@@ -352,17 +463,19 @@ FavoriteWindow = function(c, action) {
         }
     };
 
+    gridBbarSeparator = Ext.create('Ext.toolbar.Separator', {
+        height: 20,
+        style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
+    });
+    cmpToToggle.push(gridBbarSeparator);
+
     gridBbar = function() {
         var items = [];
 
         items.push(info, '->', prevButton, nextButton);
 
         if (action === 'saveas') {
-            items.push(' ', {
-                xtype: 'tbseparator',
-                height: 20,
-                style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
-            }, ' ');
+            items.push(' ', gridBbarSeparator, ' ');
 
             items.push(saveButton);
         }
@@ -474,10 +587,9 @@ FavoriteWindow = function(c, action) {
             }
         ],
         store: favoriteStore,
-        bbar: gridBbar,
         listeners: {
             render: function() {
-                var size = Math.floor((uiManager.getHeight() - 155) / uiConfig.grid_row_height);
+                var size = Math.floor((uiManager.getHeight() - (330)) / uiConfig.grid_row_height);
                 this.store.pageSize = size;
                 this.store.page = 1;
                 this.store.loadStore();
@@ -550,6 +662,7 @@ FavoriteWindow = function(c, action) {
             }
         }
     });
+    cmpToToggle.push(grid);
 
     titles = {
         open: i18n.open_favorite,
@@ -560,7 +673,7 @@ FavoriteWindow = function(c, action) {
         var items = [];
 
         if (action === 'saveas') {
-            items.push(saveasTextField);
+            items.push(saveasTextField, titleTextField, descriptionPanel);
         }
 
         items.push(searchTextfield, gridHeaders, grid);
@@ -576,6 +689,7 @@ FavoriteWindow = function(c, action) {
         width: windowWidth,
         destroyOnBlur: true,
         items: windowItems,
+        bbar: gridBbar,
         listeners: {
             show: function(w) {
                 var favoriteButton = uiManager.get('favoriteButton') || {};
@@ -589,6 +703,10 @@ FavoriteWindow = function(c, action) {
                 }
 
                 (action === 'open' ? searchTextfield : saveasTextField).focus(false, 500);
+
+                if (action === 'saveas') {
+                    toggleButton.toggle();
+                }
             },
             destroy: function(w) {
                 uiManager.unreg('favoriteWindow');
