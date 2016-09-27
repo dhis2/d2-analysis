@@ -2,7 +2,7 @@ import fs from './FavoriteStyle';
 
 export default function({ layout, i18n }) {
 
-    const saveasTextField = Ext.create('Ext.form.field.Text', {
+    const nameTextField = Ext.create('Ext.form.field.Text', {
         width: fs.windowCmpWidth,
         height: 45,
         style: 'margin-top: 2px; margin-bottom: 0',
@@ -70,7 +70,7 @@ export default function({ layout, i18n }) {
     });
 
     return {
-        saveasTextField,
+        nameTextField,
         titleTextField,
         descriptionTextField
     };

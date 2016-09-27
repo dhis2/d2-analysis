@@ -57,7 +57,7 @@ FavoriteWindow = function(c, action) {
         cmpToToggle = [],
         layout = instanceManager.getStateCurrent() || {};
 
-    var { saveasTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
+    var { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
 
     getDirection = function(keepDir) {
         return sortDirection = keepDir ? sortDirection : (sortDirection === 'asc' ? 'desc' : 'asc');
@@ -220,7 +220,7 @@ FavoriteWindow = function(c, action) {
 
     saveButtonHandler = function() {
         var currentLayout = instanceManager.getStateCurrent(),
-            name = saveasTextField.getValue(),
+            name = nameTextField.getValue(),
             title = titleTextField.getValue(),
             description = descriptionTextField.getValue();
 
@@ -358,7 +358,7 @@ FavoriteWindow = function(c, action) {
                 if (element) {
                     element = element.parent('td');
                     element.handler = function() {
-                        saveasTextField.setValue(record.data.name);
+                        nameTextField.setValue(record.data.name);
                         titleTextField.setValue(record.data.title);
                         descriptionTextField.setValue(record.data.description);
                     };
@@ -582,7 +582,7 @@ FavoriteWindow = function(c, action) {
         var items = [];
 
         if (action === 'saveas') {
-            items.push(saveasTextField, titleTextField, descriptionTextField);
+            items.push(nameTextField, titleTextField, descriptionTextField);
         }
 
         items.push(showFavoritesLinkCt, searchTextfield, gridHeaders, grid);
@@ -611,7 +611,7 @@ FavoriteWindow = function(c, action) {
                     }
                 }
 
-                (action === 'open' ? searchTextfield : saveasTextField).focus(false, 500);
+                (action === 'open' ? searchTextfield : nameTextField).focus(false, 500);
 
                 if (action === 'saveas') {
                     showFavoritesLink.toggle();
@@ -623,7 +623,7 @@ FavoriteWindow = function(c, action) {
         }
     });
 
-    saveasTextField.setEventKeyUpHandler(saveButtonHandler);
+    nameTextField.setEventKeyUpHandler(saveButtonHandler);
     titleTextField.setEventKeyUpHandler(saveButtonHandler);
 
     return favoriteWindow;
