@@ -49,7 +49,7 @@ FavoriteWindow = function(c, action) {
         windowWidth = 700,
         borderWidth = 14,
         windowCmpWidth = windowWidth - borderWidth,
-        toggleBtnWidth = 29,
+        toggleBtnWidth = 22,
         toggleBtnMarginTop = 48,
         toggleBtnMarginRight = 7,
         toggleBtnMarginLeft = 10,
@@ -80,7 +80,7 @@ FavoriteWindow = function(c, action) {
             'color: #111',
             'padding-left: 5px',
             'padding-top: 4px',
-            'margin-bottom: 1px'
+            'margin-bottom: 0'
         ],
 
         cmpToToggle = [],
