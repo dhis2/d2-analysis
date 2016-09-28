@@ -17,7 +17,7 @@ InterpretationWindow = function(c, sharing) {
         cls: 'ns-textarea',
         height: 130,
         width: 407,
-        fieldStyle: 'padding-left: 3px; padding-top: 3px',
+        fieldStyle: 'padding-left:3px; padding-top:3px; line-height:14px !important',
         emptyText: i18n.write_your_interpretation + '..',
         enableKeyEvents: true,
         listeners: {
