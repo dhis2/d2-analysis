@@ -582,10 +582,10 @@ FavoriteWindow = function(c, action) {
         var items = [];
 
         if (action === 'saveas') {
-            items.push(nameTextField, titleTextField, descriptionTextField);
+            items.push(nameTextField, titleTextField, descriptionTextField, showFavoritesLinkCt);
         }
 
-        items.push(showFavoritesLinkCt, searchTextfield, gridHeaders, grid);
+        items.push(searchTextfield, gridHeaders, grid);
 
         return items;
     }();
