@@ -17,6 +17,7 @@ import {PluginItem} from './PluginItem.js';
 import {LinkItem} from './LinkItem.js';
 import {FavoriteButton} from './FavoriteButton.js';
 import {EmbedButton} from './EmbedButton.js';
+import {EastRegion} from './EastRegion.js';
 
 export var Viewport;
 
@@ -63,6 +64,8 @@ Viewport = function(refs, cmp) {
     cmp = cmp || {};
 
     var northRegion = cmp.northRegion;
+    
+    var eastRegion = cmp.eastRegion;
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
 
@@ -3838,7 +3841,7 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(westRegion, 'westRegion');
-
+    
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
         handler: function() {
@@ -4234,7 +4237,6 @@ Viewport = function(refs, cmp) {
                     },
                     handler: function(b) {
                         westRegion.toggleCollapse();
-
                         this.setIconState();
                     }
                 },
@@ -4256,7 +4258,23 @@ Viewport = function(refs, cmp) {
                 downloadButton,
                 embedButton,
                 '->',
-                ...integrationButtons
+                ...integrationButtons,
+                {
+                    text: ' ',
+                    width: 26,
+                    padding: '3',
+                    iconCls: 'ns-button-icon-arrowrighttriple',
+                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
+                    iconClsRight: 'ns-button-icon-arrowrighttriple',
+                    iconState: 0,
+                    setIconState: function() {
+                        this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
+                    },
+                    handler: function(b) {
+                        eastRegion.toggleCollapse();
+                        this.setIconState();
+                    }
+                }
             ]
         },
         listeners: {
@@ -4392,9 +4410,10 @@ Viewport = function(refs, cmp) {
         getUiState: getUiState,
         setUiState: setUiState,
         westRegion: westRegion,
+        eastRegion: eastRegion,
         centerRegion: centerRegion,
         northRegion: northRegion,
-        items: arrayClean([westRegion, centerRegion, northRegion]),
+        items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
         listeners: {
             afterrender: function() {
 
