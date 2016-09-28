@@ -123,7 +123,9 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-interpretation',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            InterpretationWindow(c).show();
+                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
+                                InterpretationWindow(c, r).show();
+                            });
                         }
                     });
                     uiManager.reg(interpretationItem, 'interpretationItem');

@@ -2,7 +2,7 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var SharingWindow;
 
-SharingWindow = function(c, sharing) {
+SharingWindow = function(c, sharing, configOnly) {
     var t = this;
 
     var appManager = c.appManager,
@@ -24,6 +24,8 @@ SharingWindow = function(c, sharing) {
         userGroupRowContainer,
         externalAccess,
         publicGroup,
+
+        items,
         window;
 
     UserGroupRow = function(obj, isPublicAccess, disallowPublicAccess) {
@@ -221,34 +223,46 @@ SharingWindow = function(c, sharing) {
         }
     }
 
-    window = Ext.create('Ext.window.Window', {
+    items = [
+        {
+            html: sharing.object.name,
+            bodyStyle: 'border:0 none; font-weight:bold; color:#333',
+            style: 'margin-bottom:7px'
+        },
+        {
+            xtype: 'container',
+            layout: 'column',
+            bodyStyle: 'border:0 none',
+            items: [
+                userGroupField,
+                userGroupButton
+            ]
+        },
+        {
+            html: i18n.created_by + ' ' + sharing.object.user.name,
+            bodyStyle: 'border:0 none; color:#777',
+            style: 'margin-top:2px;margin-bottom:7px'
+        },
+        userGroupRowContainer
+    ];
+
+    return configOnly ? {
+        UserGroupRow,
+        getBody,
+        userGroupStore,
+        userGroupField,
+        userGroupButton,
+        userGroupRowContainer,
+        externalAccess,
+        publicGroup,
+        items
+    } : Ext.create('Ext.window.Window', {
         title: i18n.sharing_settings,
         bodyStyle: 'padding:5px 5px 3px; background-color:#fff',
         resizable: false,
         modal: true,
         destroyOnBlur: true,
-        items: [
-            {
-                html: sharing.object.name,
-                bodyStyle: 'border:0 none; font-weight:bold; color:#333',
-                style: 'margin-bottom:7px'
-            },
-            {
-                xtype: 'container',
-                layout: 'column',
-                bodyStyle: 'border:0 none',
-                items: [
-                    userGroupField,
-                    userGroupButton
-                ]
-            },
-            {
-                html: i18n.created_by + ' ' + sharing.object.user.name,
-                bodyStyle: 'border:0 none; color:#777',
-                style: 'margin-top:2px;margin-bottom:7px'
-            },
-            userGroupRowContainer
-        ],
+        items: items,
         bbar: [
             '->',
             {
@@ -295,6 +309,4 @@ SharingWindow = function(c, sharing) {
             }
         }
     });
-
-    return window;
 };

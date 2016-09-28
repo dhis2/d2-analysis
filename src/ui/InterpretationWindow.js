@@ -1,6 +1,8 @@
+import { SharingWindow } from './SharingWindow';
+
 export var InterpretationWindow;
 
-InterpretationWindow = function(c) {
+InterpretationWindow = function(c, sharing) {
     var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
@@ -14,6 +16,7 @@ InterpretationWindow = function(c) {
     var textArea = Ext.create('Ext.form.field.TextArea', {
         cls: 'ns-textarea',
         height: 130,
+        width: 407,
         fieldStyle: 'padding-left: 3px; padding-top: 3px',
         emptyText: i18n.write_your_interpretation + '..',
         enableKeyEvents: true,
@@ -22,6 +25,34 @@ InterpretationWindow = function(c) {
                 shareButton.xable();
             }
         }
+    });
+
+    //var getBody = function() {
+        //var body = {
+            //object: {
+                //id: sharing.object.id,
+                //name: sharing.object.name,
+                //publicAccess: publicGroup.down('combobox').getValue(),
+                //externalAccess: externalAccess ? externalAccess.getValue() : false
+            //}
+        //};
+
+        //if (userGroupRowContainer.items.items.length > 1) {
+            //body.object.userGroupAccesses = [];
+            //for (var i = 1, item; i < userGroupRowContainer.items.items.length; i++) {
+                //item = userGroupRowContainer.items.items[i];
+                //body.object.userGroupAccesses.push(item.getAccess());
+            //}
+        //}
+
+        //return body;
+    //};
+
+    var sharingCmp = new SharingWindow(c, sharing, true);
+
+    var sharingCt = Ext.create('Ext.container.Container', {
+        style: 'padding-top:10px',
+        items: sharingCmp.items
     });
 
     var shareButton = Ext.create('Ext.button.Button', {
@@ -42,6 +73,17 @@ InterpretationWindow = function(c) {
                         window.hide();
                     }
                 });
+
+                Ext.Ajax.request({
+                    url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    params: Ext.encode(sharingCmp.getBody())
+                });
+
+                window.destroy();
             }
         }
     });
@@ -49,13 +91,13 @@ InterpretationWindow = function(c) {
     var window = Ext.create('Ext.window.Window', {
         title: i18n.write_interpretation,
         layout: 'fit',
-        width: 550,
-        bodyStyle: 'padding:1px; background-color:#fff',
+        bodyStyle: 'padding:4px; background-color:#fff',
         resizable: false,
         destroyOnBlur: true,
         modal: true,
         items: [
-            textArea
+            textArea,
+            sharingCt
         ],
         bbar: {
             cls: 'ns-toolbar-bbar',
