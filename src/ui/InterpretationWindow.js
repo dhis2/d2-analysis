@@ -17,7 +17,7 @@ InterpretationWindow = function(c, sharing) {
         cls: 'ns-textarea',
         height: 130,
         width: 407,
-        fieldStyle: 'padding-left:3px; padding-top:3px; line-height:14px !important',
+        fieldStyle: 'padding-left:3px; padding-top:3px; line-height:14px !important;',
         emptyText: i18n.write_your_interpretation + '..',
         enableKeyEvents: true,
         listeners: {
@@ -26,27 +26,6 @@ InterpretationWindow = function(c, sharing) {
             }
         }
     });
-
-    //var getBody = function() {
-        //var body = {
-            //object: {
-                //id: sharing.object.id,
-                //name: sharing.object.name,
-                //publicAccess: publicGroup.down('combobox').getValue(),
-                //externalAccess: externalAccess ? externalAccess.getValue() : false
-            //}
-        //};
-
-        //if (userGroupRowContainer.items.items.length > 1) {
-            //body.object.userGroupAccesses = [];
-            //for (var i = 1, item; i < userGroupRowContainer.items.items.length; i++) {
-                //item = userGroupRowContainer.items.items[i];
-                //body.object.userGroupAccesses.push(item.getAccess());
-            //}
-        //}
-
-        //return body;
-    //};
 
     var sharingCmp = new SharingWindow(c, sharing, true);
 
