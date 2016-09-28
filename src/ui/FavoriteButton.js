@@ -98,16 +98,6 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'renameItem');
                     
-                    var translateItem = Ext.create('Ext.menu.Item', {
-                        text: getTitle(i18n.translate),
-                        iconCls: 'ns-menu-item-favorite-translate',
-                        disabled: !instanceManager.isStateFavorite(),
-                        handler: function() {
-                            TranslateWindow(c, instanceManager.getStateFavorite()).show();
-                        }
-                    });
-                    uiManager.reg(saveAsItem, 'translateItem');
-
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
@@ -173,7 +163,6 @@ FavoriteButton = function(c) {
                         //discardItem,
                         //'-',
                         renameItem,
-                        translateItem,
                         '-',
                         shareItem,
                         interpretationItem,

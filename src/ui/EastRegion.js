@@ -11,10 +11,206 @@ EastRegion = function(c){
 		uiManager = c.uiManager,
 		uiConfig = c.uiConfig,
 		instanceManager = c.instanceManager,
-		appManager = c.appManager;
+		appManager = c.appManager,
+		i18nManager = c.i18nManager,
+		i18n = i18nManager.get();
 	
-	var getInterpretationItemPanel = function(interpretation) {
+	/*
+	 * FAVORITE DETAILS PANEL
+	 */ 
+	    
+	// Favorite Details Panel content when favorite loaded    
+	var favoriteDetailsPanel ={
+        xtype: 'panel',
+        bodyStyle: 'border-style:none',
+        style: 'padding:10px',
+        itemId: 'favoriteDetailsPanel',
+        descriptionMaxNumberCharacter: 200,
+        
+        // Create Description Panel from description field
+        getDescriptionPanel: function(description){
+        	var descriptionItems = [];
+        	if (description == undefined){description = 'No description';}
+        	var isLongDescription = (description.length > this.descriptionMaxNumberCharacter);
+        	
+        	// Description label
+        	descriptionItems.push({
+                xtype: 'label',
+                itemId: 'descriptionLabel',
+                html: (isLongDescription)?description.substring(0,descriptionMaxNumberCharacter):description,
+                cls: 'ns-label-period-heading'
+            });
+        	
+        	// Longer than 200 characters -> Create More/Less link
+        	if (isLongDescription){
+        		var longDescription = description;
+                var shortDescription = description.substring(0, descriptionMaxNumberCharacter);
+        		
+            	descriptionItems.push({
+                    xtype: 'label',
+                    html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+                    moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
+                    lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
+                    cls: 'ns-label-period-heading',
+                    isShortDescriptionDisplayed: true,
+                    style: 'margin: 0px 3px;',
+                    listeners: {
+        	        	'render': function(label) {
+        	        		label.getEl().on('click', function(){
+        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription,false); this.setText(this.lessText,false)}
+        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription,false); this.setText(this.moreText,false)}
+        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
+        	        			this.up('#descriptionPanel').doLayout();
+        	        			}, label);
+    	        	    }
+        	        }
+                });
+        	}
+        	
+        	// Change Link
+        	descriptionItems.push({
+                xtype: 'label',
+                html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+                cls: 'ns-label-period-heading',
+                style: 'margin: 0px 3px;',
+                listeners: {
+    	        	'render': function(label) {
+    	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
+	        	    }
+    	        }
+            });
+        	
+        	return descriptionItems;
+        },
+        
+        // Create Sharing setting text from publicAccess and userGroupAccesses field
+        getSharingText: function(layout){
+        	// Public permissions
+        	var sharingText = 'Public: ';
+        	if (layout.publicAccess == "r-------"){
+        		sharingText += 'Read';
+        	}
+        	else if (layout.publicAccess == "rw------"){
+        		sharingText += 'Read/Write';
+        	}
+        	else{
+        		sharingText += 'None';
+        	}
+        	
+        	// User Group Accesses permissions
+        	// TODO: Create a tooltip
+        	if (layout.userGroupAccesses != undefined){ 
+            	sharingText += ' + ';
+            	if (layout.userGroupAccesses.length > 2){
+            		sharingText += layout.userGroupAccesses.length + ' groups';
+            	}
+            	else{
+            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
+            			if (i > 0){sharingText += ', '}
+            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
+            		}
+            	}
+        	}
+        	return sharingText;
+        },
+        
+        // Get Number of Views from analytics api and update label
+        getNumberOfViews: function(favoritesId){
+        	Ext.Ajax.request({
+                url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'), 
+                method: 'GET',
+                scope: this,
+                success: function(r) {
+                	this.getComponent('numberViews').setValue(Ext.decode(r.responseText).views);
+                }
+            });
+        },
+        
+        // Update Panel on new favorite load or change
+        updateFavoriteDetailsPanel: function(layout){
+        	this.getComponent('descriptionPanel').add(this.getDescriptionPanel(layout.displayDescription));
+    		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
+        	this.getComponent('created').setValue(layout.created);
+        	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
+        	this.getNumberOfViews(layout.id);
+        	this.getComponent('sharing').setValue(this.getSharingText(layout));
+        },
+        
+        items: [
+			{
+			    xtype: 'panel',
+			    itemId: 'descriptionPanel',
+			    bodyStyle: 'border-style:none;',
+			    style: 'margin-bottom:5px;',
+			    items:[]
+			},
+			{
+	            xtype: 'displayfield',
+	            fieldLabel: 'Owner',
+	            itemId: 'owner',
+	            value: '',
+	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
+	        },
+			{
+	            xtype: 'displayfield',
+	            itemId: 'created',
+	            fieldLabel: 'Created',
+	            value: '',
+	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
+	        },
+			{
+	            xtype: 'displayfield',
+	            itemId: 'lastUpdated',
+	            fieldLabel: 'Last Updated',
+	            value: '',
+	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
+	        },
+	        {
+	            xtype: 'displayfield',
+	            itemId: 'numberViews',
+	            fieldLabel: 'Number of views',
+	            value: "Retrieving number of views...",
+	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
+	        },
+			{
+	            xtype: 'displayfield',
+	            itemId: 'sharing',
+	            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
+	            value: '',
+	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
+    	        listeners: {
+    	        	'render': function(label) {
+    	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
+	        	    }
+    	        }
+	        }
+        ]
+    };
+	
+	// Favorite Details Panel content when no favorite is loaded
+	var noFavoriteDetailsPanel = {
+            xtype: 'label',
+            text: 'No current favorite',
+            cls: 'ns-label-period-heading'
+        };
+	
+	// Main Details Panel Container
+	var detailsPanel = {
+        xtype: 'panel',
+        title: '<div class="ns-panel-title-details">Details</div>',
+        itemId: 'detailsPanel',
+        // By default no favorite details panel is displayed
+        items: [noFavoriteDetailsPanel]
+    };
+	
+	/*
+	 * INTERPRETATIONS PANEL
+	 */ 
+	
+	// Create interpretation panel depending on interpretation
+	var getInterpretationPanel = function(interpretation) {
 		
+		// Create inner comments panel depending on comments
 		var getCommentsPanel = function (comments){
 			var commentsPanel = [];
 			for (var i=0; i < comments.length; i++){
@@ -25,7 +221,6 @@ EastRegion = function(c){
 	                bodyStyle: 'border-style:none',
 	                layout: 'column',
 	                style: 'margin-bottom: 5px;',
-	                
 	                items: [
 							{
 								xtype: 'panel',
@@ -38,7 +233,6 @@ EastRegion = function(c){
 										}
 								],
 								columnWidth: 0.20
-								
 							},
 							{
 								xtype: 'panel',
@@ -47,15 +241,17 @@ EastRegion = function(c){
 								        {
 											xtype: 'panel',
 											bodyStyle: 'border-style:none',
-											items: [{
-											    xtype: 'label',
-											    text: comment.user.displayName,
-											    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
-											},
-											{
-											    xtype: 'label',
-											    text: comment.text,
-											}]
+											items: [
+											        {
+													    xtype: 'label',
+													    text: comment.user.displayName,
+													    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
+													},
+													{
+													    xtype: 'label',
+													    text: comment.text,
+													}
+											]
 								        },
 										{
 										    xtype: 'label',
@@ -115,10 +311,11 @@ EastRegion = function(c){
 						}
                 ]
             });
-			
 			return commentsPanel;
 		};
 		
+		// User has liked this interpretation -> true
+		// Otherwise -> false
 		var isLiked = function(interpretation){
 			var userId = appManager.userAccount.id
 			for (var i = 0; i < interpretation.likedBy.length; i++){
@@ -126,21 +323,18 @@ EastRegion = function(c){
         			return true;
         		}
         	}
-			return false
+			return false;
 		};
-		
-		var getLikeText = function(interpretation){
-			var likeText = isLiked(interpretation)?"Unlike":"Like";
-			return likeText;
-        };
         
-        var likeInterpretation = function(){
+		// Call Like or Unlike interpretation, update data model and update/reload panel
+        var likeUnlikeInterpretation = function(){
         	var that = this;
 			if (isLiked(interpretation)){
 				Ext.Ajax.request({
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'DELETE',
 	                success: function() {
+	                	// Updating date model
 	                	interpretation.likes--;
 	                	for (var i = 0; i < interpretation.likedBy.length; i++){
 	                		if (interpretation.likedBy[i].id == appManager.userAccount.id){
@@ -148,7 +342,9 @@ EastRegion = function(c){
 	                			break;
 	                		}
 	                	}
-	                	that.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
+	                	
+	                	// Refreshing interpretation panel
+	                	that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
 	                }
 	            });
 			}
@@ -157,15 +353,18 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'POST',
 	                success: function() {
+	                	// Updating date model
 	                	interpretation.likes++;
 	                	interpretation.likedBy.push({id: appManager.userAccount.id, displayName: appManager.userAccount.firstName + ' ' + appManager.userAccount.surname});
 	                	
-	                	that.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
+	                	// Refreshing interpretation panel
+	                	that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
 	                }
 	            });
 			}
         };
         
+        // Call comment interpretation, update data model and update/reload panel
         var commentInterpretation = function(f){
         	if (f.getValue().trim() != ''){
         		Ext.Ajax.request({
@@ -174,12 +373,7 @@ EastRegion = function(c){
 	                params: f.getValue(),
 	                headers: {'Content-Type': 'text/plain'},
 	                success: function(obj, _success, r) {
-	                	console.log('comment post');
-	                	console.log(obj)
-	                	console.log(_success)
-	                    console.log(r)
-	                	
-	                    //AQP: We need to update this properly
+	                	// Updating data model
 	                	var currentComment = {}
 	                	currentComment['user'] = {}
 	                	currentComment['user']['displayName'] = appManager.userAccount.firstName + ' ' + appManager.userAccount.surname
@@ -187,14 +381,17 @@ EastRegion = function(c){
 	                	currentComment['text'] = f.getValue();
 	                	interpretation.comments.push(currentComment)
 	                	
+	                	// Clear up comment textarea
 	                	f.reset();
 	                	
-	                	f.up('#interpretationItem' + interpretation.id).updateInterpretationItemItems(interpretation);
+	                	// Refreshing interpretation panel
+	                	f.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
 	                }
 	            });
         	}
         };
         
+        // Create tooltip for Like link
         var getTooltipLike = function(){
         	var toolTipLike = "";
         	for (var i = 0; i < interpretation.likedBy.length; i++){
@@ -203,9 +400,10 @@ EastRegion = function(c){
         	return toolTipLike;
         };
         
-        var getInterpretationItemItems = function(interpretation, displayingComments){
+        // Get inner items for interpretation panel. 
+        var getInterpretationPanelItems = function(interpretation, displayingComments){
 
-			var interpretationItemItems = [
+			var interpretationPanelItems = [
 					{
 				    xtype: 'panel',
 				    bodyStyle: 'border-style:none',
@@ -288,12 +486,12 @@ EastRegion = function(c){
 						    items: [
 								{
 						            xtype: 'label',
-						            text: getLikeText(interpretation),
+						            text: isLiked(interpretation)?"Unlike":"Like",
 						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
-		    	        	        	       label.getEl().on('click', likeInterpretation, this);
+		    	        	        	       label.getEl().on('click', likeUnlikeInterpretation, this);
 		    	        	        	       
 		    	        	        	       if (interpretation.likedBy.length > 0){
 		    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
@@ -318,7 +516,7 @@ EastRegion = function(c){
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
-		    	        	        	       label.getEl().on('click', function(){this.up('#interpretationItem' + interpretation.id).down('#commentArea').focus();}, this);
+		    	        	        	       label.getEl().on('click', function(){this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();}, this);
 	    	        	        	    }
 		    	        	        }
 						        }
@@ -334,338 +532,154 @@ EastRegion = function(c){
                 	items: [getCommentsPanel(interpretation.comments)]
                 }
 			]	
-			return interpretationItemItems;
+			return interpretationPanelItems;
         }
         
-		var interpretationItem = {
+        // Interpretation panel per single interpretation
+		var interpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
             style: 'padding:10px',
             instanceManager: instanceManager,
             interpretation: interpretation,
             displayingComments: false,
-            itemId: 'interpretationItem' + interpretation.id,
+            itemId: 'interpretationPanel' + interpretation.id,
             
-            updateInterpretationItemItems: function(interpretation){
+            // Update inner interpretation panel items depending on interpretation. If none is provided, previously store one will be used
+            updateInterpretationPanelItems: function(interpretation){
             	if (interpretation != undefined){
             		this.interpretation = interpretation;
             	}
             	this.removeAll(true);
-            	this.add(getInterpretationItemItems(this.interpretation, this.displayingComments));
+            	this.add(getInterpretationPanelItems(this.interpretation, this.displayingComments));
             },
             
+            // Expand comments on click
             expandComments: function(){
             	if(!this.displayingComments){
-            		for (var i = 0; i < this.up("#interpretations").items.items.length; i++){
-            			if (this.up("#interpretations").items.items[i].interpretation != undefined){
-            				this.up("#interpretations").items.items[i].displayingComments = (this.up("#interpretations").items.items[i].id == this.id);
-            				this.up("#interpretations").items.items[i].updateInterpretationItemItems();	
+            		for (var i = 0; i < this.up("#interpretationsPanel").items.items.length; i++){
+            			if (this.up("#interpretationsPanel").items.items[i].interpretation != undefined){
+            				this.up("#interpretationsPanel").items.items[i].displayingComments = (this.up("#interpretationsPanel").items.items[i].id == this.id);
+            				this.up("#interpretationsPanel").items.items[i].updateInterpretationPanelItems();	
             			}
             		}
             		
-            		//AQP: This can be improved so we rerender the whole thing
-            		// Swope top panel
+            		// Swop top panel
                 	this.up("[xtype='panel']").down('#shareInterpretation').hide();
                 	this.up("[xtype='panel']").down('#backToToday').show();
 
-                	var currentLayout = this.instanceManager.getLayout();
-                	if (this.interpretation.type == 'CHART'){
-                    	var tablePayload = currentLayout.toPlugin($('svg').parent().prop("id"));
-                    	tablePayload['url'] = appManager.getPath();
-                    	tablePayload['relativePeriodDate'] = this.interpretation.created;
-                    	DHIS.getChart(tablePayload);
-                	}
-                	else if (this.interpretation.type == 'REPORT_TABLE'){
-                		//Generate reporttable for this interpretation
-                    	//AQP: we should the org unit when user org unit, sub unit or/and sub-x2 unit is selected
-                    	var tablePayload = currentLayout.toPlugin($('.pivot').parent().prop("id"));
-                    	tablePayload['url'] = appManager.getPath();
-                    	tablePayload['relativePeriodDate'] = this.interpretation.created;
-                    	DHIS.getTable(tablePayload);
-                	}
-                	
+                	// Update canvas with favorite as it was by the time the interpretation was created
+            		instanceManager.updateInterpretationFunction(interpretation);
                 	uiManager.get('northRegion').cmp.title.setTitle(uiManager.get('northRegion').cmp.title.titleText + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
             	}
             },
                         
-            items: getInterpretationItemItems(interpretation, this.displayingComments),
+            items: getInterpretationPanelItems(interpretation, this.displayingComments),
 	        
 	        listeners: {
-	        	'render': function(panel) {panel.body.on('click', this.expandComments, this);}, scope:interpretationItem
+	        	'render': function(panel) {panel.body.on('click', this.expandComments, this);}, scope:interpretationPanel
 	        }
         };
-		return interpretationItem;
+		return interpretationPanel;
 	}
 	
-	var favouriteDetailsPanel ={
-            xtype: 'panel',
-            bodyStyle: 'border-style:none',
-            style: 'padding:10px',
-            itemId: 'favouriteDetailsPanel',
-            
-            getDescriptionItems: function(description){
-            	var descriptionItems = [];
-            	
-            	var isLongDescription = (description.length > 200);
-            	var currentDescription= (isLongDescription)?description.substring(0,200):description;
-            	
-            	//AQP: Refactor a little bit this code
-            	var descriptionLabel = {
-                    xtype: 'label',
-                    itemId: 'descriptionLabel',
-                    html: currentDescription,
-                    longDescription: description,
-                    shortDescription: description.substring(0, 200),
-                    cls: 'ns-label-period-heading'
-                };
-            	descriptionItems.push(descriptionLabel);
-            	
-            	if (isLongDescription){
-                	descriptionItems.push({
-                        xtype: 'label',
-                        html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-                        moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-                        lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
-                        cls: 'ns-label-period-heading',
-                        isShortDescriptionDisplayed: true,
-                        descriptionLabel, descriptionLabel,
-                        style: 'margin: 0px 3px;',
-                        listeners: {
-	        	        	'render': function(label) {
-	        	        		label.getEl().on('click', function(){
-	        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.longDescription,false); this.setText(this.lessText,false)}
-	        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(this.descriptionLabel.shortDescription,false); this.setText(this.moreText,false)}
-	        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
-	        	        			this.up('#descriptionPanel').doLayout();
-	        	        			}, label);
-        	        	    }
-	        	        }
-                    });
-            	}
-            	
-            	descriptionItems.push({
-                    xtype: 'label',
-                    html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-                    cls: 'ns-label-period-heading',
-                    style: 'margin: 0px 3px;',
-                    listeners: {
-        	        	'render': function(label) {
-        	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
-    	        	    }
-        	        }
-                });
-            	
-            	return descriptionItems;
-            },
-            
-            updateFavorites: function(layout){
-            	// AQP: This should be replaced by layout.description when api is ready
-            	var description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum';
-            	this.getComponent('descriptionPanel').add(this.getDescriptionItems(description));
-        		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
-            	this.getComponent('created').setValue(layout.created);
-            	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
-            	
-            	this.getNumberOfViews(layout.id);
-            	this.getComponent('sharing').setValue(this.getSharingText(layout));
-            },
-            
-            getSharingText: function(layout){
-            	var sharingText = 'Public: ';
-            	if (layout.publicAccess == "r-------"){
-            		sharingText += 'Read';
-            	}
-            	else if (layout.publicAccess == "rw------"){
-            		sharingText += 'Read/Write';
-            	}
-            	else{
-            		sharingText += 'None';
-            	}
-            	
-            	if (layout.userGroupAccesses != undefined){ 
-	            	sharingText += ' + ';
-	            	if (layout.userGroupAccesses.length > 2){
-	            		sharingText += layout.userGroupAccesses.length + ' groups';
-	            	}
-	            	else{
-	            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
-	            			if (i > 0){sharingText += ', '}
-	            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
-	            		}
-	            	}
-            	}
-            	return sharingText;
-            	//AQP: Create a tooltip
-            },
-            
-            getNumberOfViews: function(favoritesId){
-            	Ext.Ajax.request({
-	                url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'), 
-	                method: 'GET',
-	                scope: this,
-	                success: function(r) {
-	                	this.getComponent('numberViews').setValue(Ext.decode(r.responseText).views);
-	                }
-	            });
-            },
-            
-            items: [
-				{
-				    xtype: 'panel',
-				    itemId: 'descriptionPanel',
-				    bodyStyle: 'border-style:none',
-				    items:[]
-				},
-				{
-		            xtype: 'displayfield',
-		            fieldLabel: 'Owner',
-		            itemId: 'owner',
-		            value: '',
-		            style: 'white-space: nowrap;',
-		            cls: 'ns-label-period-heading'
-		        },
-				{
-		            xtype: 'displayfield',
-		            itemId: 'created',
-		            fieldLabel: 'Created',
-		            value: '',
-		            style: 'white-space: nowrap;',
-		            cls: 'ns-label-period-heading'
-		        },
-				{
-		            xtype: 'displayfield',
-		            itemId: 'lastUpdated',
-		            fieldLabel: 'Last Updated',
-		            value: '',
-		            style: 'white-space: nowrap;',
-		            cls: 'ns-label-period-heading'
-		        },
-		        {
-		            xtype: 'displayfield',
-		            itemId: 'numberViews',
-		            fieldLabel: 'Number of views',
-		            value: "Retrieving number of views...",
-		            style: 'white-space: nowrap;',
-		            cls: 'ns-label-period-heading'
-		        },
-				{
-		            xtype: 'displayfield',
-		            itemId: 'sharing',
-		            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-		            value: '',
-		            style: 'white-space: nowrap;',
-		            cls: 'ns-label-period-heading',
-        	        listeners: {
-        	        	'render': function(label) {
-        	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
-    	        	    }
-        	        }
-		        }
-            ]
-        };
+	// Interpretations Panel when no favorite is loaded
+	var noInterpretationsPanel = {
+        xtype: 'label',
+        text: 'No interpretations',
+        cls: 'ns-label-period-heading'
+    };
 	
-	var noFavouriteDetailsPanel = {
-            xtype: 'label',
-            text: 'No current favorite',
-            cls: 'ns-label-period-heading'
-        };
-	
-	var details = {
-            xtype: 'panel',
-            title: '<div class="ns-panel-title-details">Details</div>',
-            itemId: 'details',
-            items: [
-                   noFavouriteDetailsPanel
-            ]
-        };
-	
-	var defaultInterpretationItem = {
-	                            xtype: 'label',
-	                            text: 'No interpretations',
-	                            cls: 'ns-label-period-heading'
-	                        };
-
-    var interpretations = {
+	// Main Interpretations Panel Container
+    var interpretationsPanel = {
         xtype: 'panel',
         title: '<div class="ns-panel-title-interpretation">Interpretations</div>',
-        hideCollapseTool: true,
-        itemId: 'interpretations',
-        //AQP: We are not using this variable properly
+        itemId: 'interpretationsPanel',
         displayingInterpretation: false,
         
-        getInterpretationItemPanel: getInterpretationItemPanel,
+        getInterpretationPanel: getInterpretationPanel,
         	            
-        renderInterpretations: function(interpretations){
-        	var shareBackPanel = {
+        addAndUpdateInterpretationsPanel: function(interpretations){
+        	
+        	// Add Share/Back to Today Panel.
+        	// If displayingInterpretation on canvas -> Back to Today
+        	// Otherwise -> Share Interpretation
+        	this.add({
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
-                items: []
-            }
-        	
-    		shareBackPanel.items.push({
-                xtype: 'label',
-                itemId: 'backToToday',
-                html: '<< Back to today',
-	            cls: 'ns-label-period-heading',
-	            style: 'cursor:pointer;color:blue;',
-	            hidden: !this.displayingInterpretation,
-	            
-	            listeners: {
-    	        	'render': function(label) {
-    	        	       label.getEl().on('click', function(){instanceManager.getById(instanceManager.getStateCurrent().id);}, label);
-    	        	    }
-    	        }
+                items: [
+					{
+					    xtype: 'label',
+					    itemId: 'backToToday',
+					    html: '<< Back to today',
+					    cls: 'ns-label-period-heading',
+					    style: 'cursor:pointer;color:blue;',
+					    hidden: !this.displayingInterpretation,
+					    
+					    listeners: {
+					    	'render': function(label) {
+					    	       label.getEl().on('click', function(){instanceManager.getById(instanceManager.getStateCurrent().id);}, label);
+					    	    }
+					    }
+					},
+					{
+		                xtype: 'label',
+		                itemId: 'shareInterpretation',
+		                html: 'Share interpretation',
+			            cls: 'ns-label-period-heading',
+			            style: 'cursor:pointer;color:blue;',
+			            hidden: this.displayingInterpretation,
+			            
+		    	        listeners: {
+		    	        	'render': function(label) {
+		    	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
+		    	        	    }
+		    	        }
+		            }
+                ]
             });
-    		shareBackPanel.items.push({
-                xtype: 'label',
-                itemId: 'shareInterpretation',
-                html: 'Share interpretation',
-	            cls: 'ns-label-period-heading',
-	            style: 'cursor:pointer;color:blue;',
-	            hidden: this.displayingInterpretation,
-	            
-    	        listeners: {
-    	        	'render': function(label) {
-    	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
-    	        	    }
-    	        }
-            });
         	
-        	this.add(shareBackPanel);
-        	
+        	// Add an interpretation panel per interpretation
         	for (var i=0; i < interpretations.length; i++){
-        		this.add(this.getInterpretationItemPanel(interpretations[i]));
+        		this.add(this.getInterpretationPanel(interpretations[i]));
         	}
         },
         
-        items: [
-                defaultInterpretationItem
-        ]
+        // By default no interpretations panel is displayed
+        items: [noInterpretationsPanel]
     };
 	
+	/*
+	 * RIGHT PANEL CONTAINER
+	 */ 
 	return Ext.create('Ext.panel.Panel', {
 	    region: 'east',
 	    border: false,
 	    width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-	    items: [details,interpretations],
+	    items: [detailsPanel, interpretationsPanel],
 	    setState: function(layout) {
-	    	this.getComponent('interpretations').removeAll(true);
-	    	this.getComponent('details').removeAll(true);
+	    	// Remove any previous panel
+	    	this.getComponent('interpretationsPanel').removeAll(true);
+	    	this.getComponent('detailsPanel').removeAll(true);
 
+	    	// Favorite loaded ->  Add favorite detail panel and update
+	    	// Otherwise -> Display No Favorite Panel
 	    	if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()){
-	    		this.getComponent('details').add(favouriteDetailsPanel);
-	    		this.getComponent('details').getComponent('favouriteDetailsPanel').updateFavorites(layout);
+	    		this.getComponent('detailsPanel').add(favoriteDetailsPanel);
+	    		this.getComponent('detailsPanel').getComponent('favoriteDetailsPanel').updateFavoriteDetailsPanel(layout);
 	    	}
 	    	else{
-	    		this.getComponent('details').add(noFavouriteDetailsPanel);
+	    		this.getComponent('detailsPanel').add(noFavoriteDetailsPanel);
 	    	}
 	    	
+	    	// Favorite loaded with interpretations ->  Add interpretation panel and update
+	    	// Otherwise -> Display No Interpretation Panel
 	    	if (layout.interpretations != undefined && layout.interpretations.length > 0){
-	    		this.getComponent('interpretations').renderInterpretations(layout.interpretations);
+	    		this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations);
 	    	}
 	    	else{
-	    		this.getComponent('interpretations').add(defaultInterpretationItem);
+	    		this.getComponent('interpretationsPanel').add(noInterpretationsPanel);
 	    	}
 	    }
 	});

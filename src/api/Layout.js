@@ -92,6 +92,9 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     }
     
     	//description
+    if (isString(c.displayDescription)) {
+        t.displayDescription = c.displayDescription;
+    }
     
     	//interpretations
     if (arrayFrom(c.interpretations).length) {

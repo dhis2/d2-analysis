@@ -42,6 +42,7 @@ AppManager = function() {
         'access',
         'userGroupAccesses',
         'publicAccess',
+        'displayDescription',
         'user[displayName]',
         '!href',
         '!rewindRelativePeriods',
