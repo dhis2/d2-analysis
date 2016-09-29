@@ -33,7 +33,7 @@ AppManager = function() {
 
     t.defaultAnalysisFields = [
         '*',
-        'interpretations[*,user[displayName],likedBy[id,displayName],comments[lastUpdated,text,user[displayName]]]',
+        'interpretations[*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]]',
         'program[id,displayName|rename(name)]',
         'programStage[id,displayName|rename(name)]',
         'columns[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
