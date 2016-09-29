@@ -15,192 +15,207 @@ EastRegion = function(c){
 		i18nManager = c.i18nManager,
 		i18n = i18nManager.get();
 	
+	var descriptionMaxNumberCharacter = 200;
+	
 	/*
 	 * FAVORITE DETAILS PANEL
 	 */ 
 	    
-	// Favorite Details Panel content when favorite loaded    
-	var favoriteDetailsPanel ={
-        xtype: 'panel',
-        bodyStyle: 'border-style:none',
-        style: 'padding:10px',
-        itemId: 'favoriteDetailsPanel',
-        descriptionMaxNumberCharacter: 200,
-        
-        // Create Description Panel from description field
-        getDescriptionPanel: function(description){
-        	var descriptionItems = [];
-        	if (description == undefined){description = 'No description';}
-        	var isLongDescription = (description.length > this.descriptionMaxNumberCharacter);
-        	
-        	// Description label
-        	descriptionItems.push({
-                xtype: 'label',
-                itemId: 'descriptionLabel',
-                html: (isLongDescription)?description.substring(0,descriptionMaxNumberCharacter):description,
-                cls: 'ns-label-period-heading'
-            });
-        	
-        	// Longer than 200 characters -> Create More/Less link
-        	if (isLongDescription){
-        		var longDescription = description;
-                var shortDescription = description.substring(0, descriptionMaxNumberCharacter);
-        		
-            	descriptionItems.push({
-                    xtype: 'label',
-                    html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-                    moreText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">more</span>]',
-                    lessText: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">less</span>]',
-                    cls: 'ns-label-period-heading',
-                    isShortDescriptionDisplayed: true,
-                    style: 'margin: 0px 3px;',
-                    listeners: {
-        	        	'render': function(label) {
-        	        		label.getEl().on('click', function(){
-        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription,false); this.setText(this.lessText,false)}
-        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription,false); this.setText(this.moreText,false)}
-        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
-        	        			this.up('#descriptionPanel').doLayout();
-        	        			}, label);
-    	        	    }
-        	        }
-                });
-        	}
-        	
-        	// Change Link
-        	descriptionItems.push({
-                xtype: 'label',
-                html: '[<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-                cls: 'ns-label-period-heading',
-                style: 'margin: 0px 3px;',
-                listeners: {
-    	        	'render': function(label) {
-    	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
-	        	    }
-    	        }
-            });
-        	
-        	return descriptionItems;
-        },
-        
-        // Create Sharing setting text from publicAccess and userGroupAccesses field
-        getSharingText: function(layout){
-        	// Public permissions
-        	var sharingText = 'Public: ';
-        	if (layout.publicAccess == "r-------"){
-        		sharingText += 'Read';
-        	}
-        	else if (layout.publicAccess == "rw------"){
-        		sharingText += 'Read/Write';
-        	}
-        	else{
-        		sharingText += 'None';
-        	}
-        	
-        	// User Group Accesses permissions
-        	// TODO: Create a tooltip
-        	if (layout.userGroupAccesses != undefined){ 
-            	sharingText += ' + ';
-            	if (layout.userGroupAccesses.length > 2){
-            		sharingText += layout.userGroupAccesses.length + ' groups';
-            	}
-            	else{
-            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
-            			if (i > 0){sharingText += ', '}
-            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
-            		}
-            	}
-        	}
-        	return sharingText;
-        },
-        
-        // Get Number of Views from analytics api and update label
-        getNumberOfViews: function(favoritesId){
-        	Ext.Ajax.request({
-                url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'), 
-                method: 'GET',
-                scope: this,
-                success: function(r) {
-                	this.getComponent('numberViews').setValue(Ext.decode(r.responseText).views);
-                }
-            });
-        },
-        
-        // Update Panel on new favorite load or change
-        updateFavoriteDetailsPanel: function(layout){
-        	this.getComponent('descriptionPanel').add(this.getDescriptionPanel(layout.displayDescription));
-    		this.getComponent('owner').setValue((layout.user != undefined)?layout.user.displayName:'');	
-        	this.getComponent('created').setValue(layout.created);
-        	this.getComponent('lastUpdated').setValue(layout.lastUpdated);
-        	this.getNumberOfViews(layout.id);
-        	this.getComponent('sharing').setValue(this.getSharingText(layout));
-        },
-        
-        items: [
-			{
-			    xtype: 'panel',
-			    itemId: 'descriptionPanel',
-			    bodyStyle: 'border-style:none;',
-			    style: 'margin-bottom:5px;',
-			    items:[]
-			},
-			{
-	            xtype: 'displayfield',
-	            fieldLabel: 'Owner',
-	            itemId: 'owner',
-	            value: '',
-	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
-	        },
-			{
-	            xtype: 'displayfield',
-	            itemId: 'created',
-	            fieldLabel: 'Created',
-	            value: '',
-	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
-	        },
-			{
-	            xtype: 'displayfield',
-	            itemId: 'lastUpdated',
-	            fieldLabel: 'Last Updated',
-	            value: '',
-	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
-	        },
-	        {
-	            xtype: 'displayfield',
-	            itemId: 'numberViews',
-	            fieldLabel: 'Number of views',
-	            value: "Retrieving number of views...",
-	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
-	        },
-			{
-	            xtype: 'displayfield',
-	            itemId: 'sharing',
-	            fieldLabel: 'Sharing [<span style="cursor:pointer;color:blue;text-decoration:underline;">change</span>]',
-	            value: '',
-	            style: 'white-space: nowrap;font-weight:bold;line-height:18px;',
-    	        listeners: {
-    	        	'render': function(label) {
-    	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
-	        	    }
-    	        }
+	var getDetailsPanelItems = function(layout){
+		// Favorite loaded ->  Add favorite detail panel and update
+		// Otherwise -> Display No Favorite Panel
+		var detailsPanelItems;
+		if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()){
+
+			 // Create Description Panel from description field
+	        var getDescriptionPanel = function(description){
+	        	var descriptionItems = [];
+	        	if (description == undefined){description = 'No description';}
+	        	var isLongDescription = (description.length > descriptionMaxNumberCharacter);
+	        	
+	        	// Description label
+	        	descriptionItems.push({
+	                xtype: 'label',
+	                itemId: 'descriptionLabel',
+	                html: (isLongDescription)?description.substring(0,descriptionMaxNumberCharacter):description,
+	                cls: 'interpretationActions'
+	            });
+	        	
+	        	// Longer than 200 characters -> Create More/Less link
+	        	if (isLongDescription){
+	        		var longDescription = description;
+	                var shortDescription = description.substring(0, descriptionMaxNumberCharacter);
+	        		
+	            	descriptionItems.push({
+	                    xtype: 'label',
+	                    html: '[<span class="link">more</span>]',
+	                    moreText: '[<span class="link">more</span>]',
+	                    lessText: '[<span class="link">less</span>]',
+	                    cls: 'interpretationActions',
+	                    isShortDescriptionDisplayed: true,
+	                    style: 'margin: 0px 3px;',
+	                    listeners: {
+	        	        	'render': function(label) {
+	        	        		label.getEl().on('click', function(){
+	        	        			if (this.isShortDescriptionDisplayed){this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription,false); this.setText(this.lessText,false)}
+	        	        			else{this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription,false); this.setText(this.moreText,false)}
+	        	        			this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
+	        	        			this.up('#descriptionPanel').doLayout();
+	        	        			}, label);
+	    	        	    }
+	        	        }
+	                });
+	        	}
+	        	
+	        	// Change Link
+	        	descriptionItems.push({
+	                xtype: 'label',
+	                html: '[<span style="cursor:pointer;color:#3162C5;">change</span>]',
+	                cls: 'interpretationActions',
+	                style: 'margin: 0px 3px;',
+	                listeners: {
+	    	        	'render': function(label) {
+	    	        		label.getEl().on('click', function(){RenameWindow(c, instanceManager.getStateFavorite()).show();}, label);
+		        	    }
+	    	        }
+	            });
+	        	
+	        	return descriptionItems;
+	        };
+	        
+	        // Create Sharing setting text from publicAccess and userGroupAccesses field
+	        var getSharingText = function(layout){
+	        	// Public permissions
+	        	var sharingText = 'Public: ';
+	        	if (layout.publicAccess == "r-------"){
+	        		sharingText += 'Read';
+	        	}
+	        	else if (layout.publicAccess == "rw------"){
+	        		sharingText += 'Read/Write';
+	        	}
+	        	else{
+	        		sharingText += 'None';
+	        	}
+	        	
+	        	// User Group Accesses permissions
+	        	// TODO: Create a tooltip
+	        	if (layout.userGroupAccesses != undefined){ 
+	            	sharingText += ' + ';
+	            	if (layout.userGroupAccesses.length > 2){
+	            		sharingText += layout.userGroupAccesses.length + ' groups';
+	            	}
+	            	else{
+	            		for (var i = 0; i < layout.userGroupAccesses.length; i++){
+	            			if (i > 0){sharingText += ', '}
+	            			sharingText += 'Group ' + layout.userGroupAccesses[i].displayName ;
+	            		}
+	            	}
+	        	}
+	        	return sharingText;
+	        };
+	        
+	        // Get Number of Views from analytics api and update label
+	        var setNumberOfViews = function(label, favoritesId){
+	        	Ext.Ajax.request({
+	                url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'), 
+	                method: 'GET',
+	                scope: this,
+	                success: function(r) {
+	                	label.setValue(Ext.decode(r.responseText).views);
+	                }
+	            });
+	        	return "Retrieving number of views...";
 	        }
-        ]
-    };
-	
-	// Favorite Details Panel content when no favorite is loaded
-	var noFavoriteDetailsPanel = {
-            xtype: 'label',
-            text: 'No current favorite',
-            cls: 'ns-label-period-heading'
-        };
+			
+			// Favorite Details Panel content when favorite loaded    
+	        detailsPanelItems = [
+				{
+				    xtype: 'panel',
+				    itemId: 'descriptionPanel',
+				    bodyStyle: 'border-style:none;',
+				    style: 'margin-bottom:5px;',
+				    items:[getDescriptionPanel(layout.displayDescription)]
+				},
+				{
+		            xtype: 'displayfield',
+		            fieldLabel: 'Owner',
+		            itemId: 'owner',
+		            value: (layout.user != undefined)?layout.user.displayName:'',
+		            cls: 'interpretationDetailsField'
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'created',
+		            fieldLabel: 'Created',
+		            value: layout.created,
+		            cls: 'interpretationDetailsField'
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'lastUpdated',
+		            fieldLabel: 'Last Updated',
+		            value: layout.lastUpdated,
+		            cls: 'interpretationDetailsField',
+		        },
+		        {
+		            xtype: 'displayfield',
+		            itemId: 'numberViews',
+		            fieldLabel: 'Number of views',
+		            value: "Retrieving number of views...",
+		            cls: 'interpretationDetailsField',
+		            listeners: {
+	    	        	'render': function(label) {
+	    	        		setNumberOfViews(label, layout.id);
+		        	    }
+	    	        }
+		        },
+				{
+		            xtype: 'displayfield',
+		            itemId: 'sharing',
+		            fieldLabel: 'Sharing [<span style="cursor:pointer;color:#3162C5;">change</span>]',
+		            value: getSharingText(layout),
+		            cls: 'interpretationDetailsField',
+	    	        listeners: {
+	    	        	'render': function(label) {
+	    	        		label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {SharingWindow(c, r).show();});}, label);
+		        	    }
+	    	        }
+		        }
+	        ];
+		}
+		else{
+			// Favorite Details Panel content when no favorite is loaded
+			detailsPanelItems = [{
+	            xtype: 'label',
+	            text: 'No current favorite',
+	            cls: 'interpretationActions'
+	        }];
+		}
+		
+		return {
+	        xtype: 'panel',
+	        bodyStyle: 'border-style:none',
+	        style: 'padding:10px',
+	        itemId: 'noFavoriteDetailsPanel',
+	        items: [detailsPanelItems]
+		};
+	}
 	
 	// Main Details Panel Container
 	var detailsPanel = {
         xtype: 'panel',
         title: '<div class="ns-panel-title-details">Details</div>',
         itemId: 'detailsPanel',
+        
+        addAndUpdateFavoritePanel: function(layout){
+    		// Remove any previous panel
+    		this.removeAll(true);
+
+    		this.add(getDetailsPanelItems(layout));
+    	},
+    	
         // By default no favorite details panel is displayed
-        items: [noFavoriteDetailsPanel]
+        items: getDetailsPanelItems()
     };
 	
 	/*
@@ -218,9 +233,9 @@ EastRegion = function(c){
 				
 				commentsPanel.push({
 	                xtype: 'panel',
-	                bodyStyle: 'border-style:none',
+	                bodyStyle: 'border-style:none;',
+	                cls: 'comment greyBackground',
 	                layout: 'column',
-	                style: 'margin-bottom: 5px;',
 	                items: [
 							{
 								xtype: 'panel',
@@ -228,7 +243,7 @@ EastRegion = function(c){
 								items: [
 										{
 										    xtype: 'label',
-										    style: 'height: 30px;width: 30px;border-radius:50%;display:inline-block;background-color:#bdbdbd;text-align:center;line-height:30px;font-size:14px;color:black;font-weight:bold;',
+										    cls: 'avatar',
 										    text: comment.user.displayName.split(' ')[0][0] + comment.user.displayName.split(' ')[comment.user.displayName.split(' ').length -1][0]
 										}
 								],
@@ -244,8 +259,9 @@ EastRegion = function(c){
 											items: [
 											        {
 													    xtype: 'label',
-													    text: comment.user.displayName,
-													    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
+													    html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
+													    cls: 'link bold',
+													    style: 'margin-right:10px;' 
 													},
 													{
 													    xtype: 'label',
@@ -277,7 +293,7 @@ EastRegion = function(c){
 							items: [
 									{
 									    xtype: 'label',
-									    style: 'height: 30px;width: 30px;border-radius:50%;display:inline-block;background-color:#bdbdbd;text-align:center;line-height:30px;font-size:14px;color:black;font-weight:bold;',
+									    cls: 'avatar',
 									    text: appManager.userAccount.firstName[0] + appManager.userAccount.surname.split(' ')[appManager.userAccount.surname.split(' ').length -1][0]
 									}
 							],
@@ -411,8 +427,8 @@ EastRegion = function(c){
 				    items: [
 						{
 						    xtype: 'label',
-						    text: interpretation.user.displayName,
-						    style: 'margin-right: 10px; font-weight: bold; color: blue;' 
+						    html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id + '\">' + interpretation.user.displayName + '<a>',
+						    style: 'margin-right:10px;font-weight:bold;color:#3162C5;' 
 						},
 						{
 						    xtype: 'label',
@@ -423,7 +439,7 @@ EastRegion = function(c){
 				{
 				    xtype: 'panel',
 				    bodyStyle: 'border-style:none',
-				    style: 'margin-bottom: 5px;',
+				    style: 'margin-bottom: 10px;',
 				    items: [
 						{
                             xtype: 'label',
@@ -434,13 +450,13 @@ EastRegion = function(c){
 				{
 				    xtype: 'panel',
 				    bodyStyle: 'border-style:none',
-				    style: 'margin-bottom: 5px;',
+				    cls: 'likeContainer',
 				    itemId: 'likePanelUnselected',
 				    hidden: displayingComments,
 				    items: [
 						{
                             xtype: 'label',
-                            text: interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.",
+                            html: "<div class='thumbs_up greyBackground'>" + interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.</div>",
                         }
 				    ]
 				},
@@ -456,38 +472,11 @@ EastRegion = function(c){
 						    xtype: 'panel',
 						    bodyStyle: 'border-style:none',
 						    style: 'margin-bottom: 5px;',
-						    
-						    items: [
-								{
-						            xtype: 'label',
-						            text: interpretation.likes + " people like this.",
-						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
-				                    
-						            listeners: {
-		    	        	        	'render': function(label) {
-		    	        	        	       
-		    	        	        	       if (interpretation.likedBy.length > 0){
-		    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
-			    	        	        	           target: label.getEl(),
-			    	        	        	           html: getTooltipLike(),
-			    	        	        	           bodyStyle: 'background-color: white;border' 
-			    	        	        	         });   
-		    	        	        	    	   
-		    	        	        	       }
-		    	        	        	    }
-		    	        	        }
-						        }
-						    ]
-						},
-						{
-						    xtype: 'panel',
-						    bodyStyle: 'border-style:none',
-						    style: 'margin-bottom: 5px;',
 						    items: [
 								{
 						            xtype: 'label',
 						            text: isLiked(interpretation)?"Unlike":"Like",
-						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+						            style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
@@ -512,12 +501,36 @@ EastRegion = function(c){
 						        {
 						            xtype: 'label',
 						            text: 'Comment',
-						            style: 'margin-right: 5px;cursor:pointer;color:blue;font-weight: bold;',
+						            style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
 		    	        	        	       label.getEl().on('click', function(){this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();}, this);
 	    	        	        	    }
+		    	        	        }
+						        }
+						    ]
+						},
+						{
+						    xtype: 'panel',
+						    bodyStyle: 'border-style:none',
+						    cls: 'likeContainer',
+						    items: [
+								{
+						            xtype: 'label',
+						            html: "<div class='thumbs_up greyBackground'><span style='cursor:pointer;color:#3162C5;font-weight: bold;'>" + interpretation.likes + " people</span> like this</div>",
+						            listeners: {
+		    	        	        	'render': function(label) {
+		    	        	        	       
+		    	        	        	       if (interpretation.likedBy.length > 0){
+		    	        	        	    	   Ext.create('Ext.tip.ToolTip', {
+			    	        	        	           target: label.getEl(),
+			    	        	        	           html: getTooltipLike(),
+			    	        	        	           bodyStyle: 'background-color: white;border' 
+			    	        	        	         });   
+		    	        	        	    	   
+		    	        	        	       }
+		    	        	        	    }
 		    	        	        }
 						        }
 						    ]
@@ -538,8 +551,9 @@ EastRegion = function(c){
         // Interpretation panel per single interpretation
 		var interpretationPanel = {
             xtype: 'panel',
-            bodyStyle: 'border-style:none',
-            style: 'padding:10px',
+            bodyStyle: 'border-style:none;',
+            style: 'padding:10px;',
+            cls: 'clickable',
             instanceManager: instanceManager,
             interpretation: interpretation,
             displayingComments: false,
@@ -552,6 +566,14 @@ EastRegion = function(c){
             	}
             	this.removeAll(true);
             	this.add(getInterpretationPanelItems(this.interpretation, this.displayingComments));
+            	
+            	// Remove pointer effect. This is not clickable any more
+            	if (this.displayingComments){
+            		this.removeCls('clickable');
+            	}
+            	else{
+            		this.addCls('clickable');
+            	}
             },
             
             // Expand comments on click
@@ -577,17 +599,91 @@ EastRegion = function(c){
             items: getInterpretationPanelItems(interpretation, this.displayingComments),
 	        
 	        listeners: {
-	        	'render': function(panel) {panel.body.on('click', this.expandComments, this);}, scope:interpretationPanel
+	        	'render': function(panel) {panel.body.on('click', this.expandComments, this, {single: true});}, scope:interpretationPanel
 	        }
         };
 		return interpretationPanel;
 	}
 	
-	// Interpretations Panel when no favorite is loaded
-	var noInterpretationsPanel = {
-        xtype: 'label',
-        text: 'No interpretations',
-        cls: 'ns-label-period-heading'
+	
+	var getTopInterpretationsPanel = function (interpretations, displayingInterpretation){
+    	var topInterpretationPanelItems = [];
+    	
+    	var shareInterpretationPanel = {
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            hidden: displayingInterpretation,
+            itemId: 'shareInterpretation',
+            items: [{
+                xtype: 'label',
+                html: 'Share interpretation',
+                cls: 'interpretationActions',
+                style: 'cursor:pointer;color:#3162C5;',
+    	        listeners: { 
+    	        	'render': function(label) {
+    	        	       label.getEl().on('click', function(){instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {InterpretationWindow(c, r).show();});}, label);
+    	        	    }
+    	        }
+            }]
+        };
+    	
+    	var noInterpretationsPanel = {
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            items: [{
+    	        xtype: 'label',
+    	        text: 'No interpretations',
+    	        cls: 'interpretationActions'
+    	    }]
+        };
+    	
+    	var backToTodayPanel = {
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            hidden: !displayingInterpretation,
+            itemId: 'backToToday',
+            items: [{
+			    xtype: 'label',
+			    html: '<< Back to today',
+			    cls: 'interpretationActions link',
+			    listeners: {
+			    	'render': function(label) {
+			    	       label.getEl().on('click', function(){instanceManager.getById(instanceManager.getStateCurrent().id);}, label);
+			    	    }
+			    }
+			}]
+        };
+    	
+    	if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()){
+	    	// Interpretations Panel when no favorite is loaded
+			topInterpretationPanelItems.push(shareInterpretationPanel);
+	    	
+	    	if (interpretations == undefined){
+	    		// Interpretations Panel when no favorite is loaded
+	    		topInterpretationPanelItems.push(noInterpretationsPanel);
+	    	}
+	    	else{
+	    		topInterpretationPanelItems.push(backToTodayPanel);
+	    	}
+    	}
+    	else{
+    		topInterpretationPanelItems.push(noInterpretationsPanel);
+    	}
+    	
+    	// Add Share/Back to Today Panel.
+    	// If displayingInterpretation on canvas -> Back to Today
+    	// Otherwise -> Share Interpretation
+    	var topInterpretationPanel = {
+            xtype: 'panel',
+            bodyStyle: 'border-style:none',
+            style: 'border-width:0px 0px 1px;border-style:solid;',
+            items: topInterpretationPanelItems
+        };
+        
+        return topInterpretationPanel;
     };
 	
 	// Main Interpretations Panel Container
@@ -598,56 +694,25 @@ EastRegion = function(c){
         displayingInterpretation: false,
         
         getInterpretationPanel: getInterpretationPanel,
-        	            
+        getTopInterpretationsPanel: getTopInterpretationsPanel,
+        
         addAndUpdateInterpretationsPanel: function(interpretations){
+	    	// Remove any previous panel
+        	this.removeAll(true);
         	
-        	// Add Share/Back to Today Panel.
-        	// If displayingInterpretation on canvas -> Back to Today
-        	// Otherwise -> Share Interpretation
-        	this.add({
-                xtype: 'panel',
-                bodyStyle: 'border-style:none',
-                style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
-                items: [
-					{
-					    xtype: 'label',
-					    itemId: 'backToToday',
-					    html: '<< Back to today',
-					    cls: 'ns-label-period-heading',
-					    style: 'cursor:pointer;color:blue;',
-					    hidden: !this.displayingInterpretation,
-					    
-					    listeners: {
-					    	'render': function(label) {
-					    	       label.getEl().on('click', function(){instanceManager.getById(instanceManager.getStateCurrent().id);}, label);
-					    	    }
-					    }
-					},
-					{
-		                xtype: 'label',
-		                itemId: 'shareInterpretation',
-		                html: 'Share interpretation',
-			            cls: 'ns-label-period-heading',
-			            style: 'cursor:pointer;color:blue;',
-			            hidden: this.displayingInterpretation,
-			            
-		    	        listeners: {
-		    	        	'render': function(label) {
-		    	        	       label.getEl().on('click', function(){InterpretationWindow(c).show();}, label);
-		    	        	    }
-		    	        }
-		            }
-                ]
-            });
+        	//Get top interpretations panel depending on interpretations and if we are displaying an interpretation
+        	this.add(this.getTopInterpretationsPanel(interpretations));
         	
         	// Add an interpretation panel per interpretation
-        	for (var i=0; i < interpretations.length; i++){
-        		this.add(this.getInterpretationPanel(interpretations[i]));
-        	}
+	    	if (interpretations != undefined && interpretations.length > 0){
+	        	for (var i=0; i < interpretations.length; i++){
+	        		this.add(this.getInterpretationPanel(interpretations[i]));
+	        	}
+	    	}
         },
         
         // By default no interpretations panel is displayed
-        items: [noInterpretationsPanel]
+        items: getTopInterpretationsPanel()
     };
 	
 	/*
@@ -658,29 +723,13 @@ EastRegion = function(c){
 	    border: false,
 	    width: uiConfig.west_width + uiManager.getScrollbarSize().width,
 	    items: [detailsPanel, interpretationsPanel],
+	    cls: 'eastPanel',
 	    setState: function(layout) {
-	    	// Remove any previous panel
-	    	this.getComponent('interpretationsPanel').removeAll(true);
-	    	this.getComponent('detailsPanel').removeAll(true);
 
-	    	// Favorite loaded ->  Add favorite detail panel and update
-	    	// Otherwise -> Display No Favorite Panel
-	    	if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()){
-	    		this.getComponent('detailsPanel').add(favoriteDetailsPanel);
-	    		this.getComponent('detailsPanel').getComponent('favoriteDetailsPanel').updateFavoriteDetailsPanel(layout);
-	    	}
-	    	else{
-	    		this.getComponent('detailsPanel').add(noFavoriteDetailsPanel);
-	    	}
+	    	this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 	    	
 	    	// Favorite loaded with interpretations ->  Add interpretation panel and update
-	    	// Otherwise -> Display No Interpretation Panel
-	    	if (layout.interpretations != undefined && layout.interpretations.length > 0){
-	    		this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations);
-	    	}
-	    	else{
-	    		this.getComponent('interpretationsPanel').add(noInterpretationsPanel);
-	    	}
+    		this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations);
 	    }
 	});
 }; 
