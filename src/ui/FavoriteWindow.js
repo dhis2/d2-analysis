@@ -40,8 +40,8 @@ FavoriteWindow = function(c, action) {
         info,
         gridHeaders,
         renderers,
-        gridBbarSeparator,
-        gridBbar,
+        windowBbarSeparator,
+        windowBbar,
         grid,
         titles,
         windowItems,
@@ -215,7 +215,9 @@ FavoriteWindow = function(c, action) {
 
     saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
-        handler: saveButtonHandler
+        handler: function() {
+            saveButtonHandler();
+        }
     });
 
     saveButtonHandler = function() {
@@ -372,21 +374,19 @@ FavoriteWindow = function(c, action) {
         }
     };
 
-    gridBbarSeparator = Ext.create('Ext.toolbar.Separator', {
+    windowBbarSeparator = Ext.create('Ext.toolbar.Separator', {
         height: 20,
         style: 'border-color:transparent; border-right-color:#d1d1d1; margin-right:4px',
     });
-    cmpToToggle.push(gridBbarSeparator);
+    cmpToToggle.push(windowBbarSeparator);
 
-    gridBbar = function() {
+    windowBbar = function() {
         var items = [];
 
         items.push(info, '->', prevButton, nextButton);
 
         if (action === 'saveas') {
-            items.push(' ', gridBbarSeparator, ' ');
-
-            items.push(saveButton);
+            items.push(' ', windowBbarSeparator, ' ', saveButton);
         }
 
         return items;
@@ -598,7 +598,7 @@ FavoriteWindow = function(c, action) {
         width: fs.windowWidth,
         destroyOnBlur: true,
         items: windowItems,
-        bbar: gridBbar,
+        bbar: windowBbar,
         listeners: {
             show: function(w) {
                 var favoriteButton = uiManager.get('favoriteButton') || {};
