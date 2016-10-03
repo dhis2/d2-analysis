@@ -598,7 +598,7 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
 
 // dep 4
 
-Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
+Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
     var t = this,
         refs = this.getRefs();
 
@@ -617,7 +617,9 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout) {
     // filters
     if (this.filters) {
         this.filters.forEach(function(dimension) {
-            request.add(dimension.url(isSorted, null, true));
+            var isFilter = !(isFilterAsDimension && dimension.isRequired());
+
+            request.add(dimension.url(isSorted, null, isFilter));
         });
     }
 

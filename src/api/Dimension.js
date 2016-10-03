@@ -7,6 +7,8 @@ import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
 import {Record} from './Record.js';
 
+var REQUIRED_DIMENSIONS = ['dx', 'pe', 'ou'];
+
 export var Dimension;
 
 Dimension = function(config) {
@@ -74,6 +76,10 @@ Dimension.prototype.getRecords = function(sortProperty, response, isPure) {
 
 Dimension.prototype.removeItems = function() {
     this.items = [];
+};
+
+Dimension.prototype.isRequired = function() {
+    return arrayContains(REQUIRED_DIMENSIONS, this.dimension);
 };
 
 // dep 1

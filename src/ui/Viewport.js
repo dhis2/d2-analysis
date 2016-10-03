@@ -3962,8 +3962,8 @@ Viewport = function(refs, cmp) {
                     var csvReq = layout.req(null, 'csv');
                     var jrxmlReq = layout.req(null, 'jrxml');
                     var sqlReq = layout.req('/api/analytics/debug/sql', 'sql');
-                    var dataValueSetJsonReq = layout.req('/api/analytics/dataValueSet', 'json');
-                    var dataValueSetXmlReq = layout.req('/api/analytics/dataValueSet', 'xml');
+                    var dataValueSetJsonReq = layout.req('/api/analytics/dataValueSet', 'json', null, null, true);
+                    var dataValueSetXmlReq = layout.req('/api/analytics/dataValueSet', 'xml', null, null, true);
 
                     var items = [
                         {
@@ -4138,18 +4138,18 @@ Viewport = function(refs, cmp) {
                             ]
                         },
                         {
-                            text: 'Advanced',
+                            text: i18n.advanced,
                             iconCls: 'ns-menu-item-advanced',
                             menu: [
                                 {
-                                    text: 'Data value set JSON',
+                                    text: i18n.data_value_set + ' JSON',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         openPlainDataSource(dataValueSetJsonReq, null, true);
                                     }
-                                }
+                                },
                                 {
-                                    text: 'Data value set XML',
+                                    text: i18n.data_value_set + ' XML',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         openPlainDataSource(dataValueSetXmlReq, null, true);
@@ -4163,7 +4163,7 @@ Viewport = function(refs, cmp) {
                                     }
                                 },
                                 {
-                                    text: 'Raw data SQL',
+                                    text: i18n.raw_data + ' SQL',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         openPlainDataSource(sqlReq, null, true);

@@ -47,22 +47,33 @@ InterpretationWindow = function(c, sharing) {
                     method: 'POST',
                     params: textArea.getValue(),
                     headers: {'Content-Type': 'text/html'},
-                    success: function() {
+                    success: function(obj) {
+                        var interpretationId = (obj.getResponseHeader('location') || '').split('/').pop(),
+                            sharingId = sharing.object.id,
+                            sharingBody = sharingCmp.getBody();
+
+                        Ext.Ajax.request({
+                            url: encodeURI(path + '/api/sharing?type=interpretation&id=' + interpretationId),
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            params: Ext.encode(sharingBody)
+                        });
+
+                        Ext.Ajax.request({
+                            url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharingId),
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            params: Ext.encode(sharingBody)
+                        });
+
                         textArea.reset();
-                        window.hide();
+                        window.destroy();
                     }
                 });
-
-                Ext.Ajax.request({
-                    url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    params: Ext.encode(sharingCmp.getBody())
-                });
-
-                window.destroy();
             }
         }
     });
