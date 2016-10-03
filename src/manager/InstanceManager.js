@@ -2,6 +2,7 @@ import isString from 'd2-utilizr/lib/isString';
 import isObject from 'd2-utilizr/lib/isObject';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
+import {DateManager} from '../manager/DateManager.js';
 
 export var InstanceManager;
 
@@ -111,7 +112,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     return new t.api.Layout(t.refs, layoutConfig);
 };
 
-InstanceManager.prototype.getById = function(id, fn) {
+InstanceManager.prototype.getById = function(id, fn, interpretationId) {
     if (!isString(id)) {
         console.log('Invalid id', id);
         return;
@@ -134,7 +135,35 @@ InstanceManager.prototype.getById = function(id, fn) {
             var layout = new t.api.Layout(t.refs, r);
 
             if (layout) {
-                fn(layout, true);
+                if (interpretationId){
+                    
+                    // Refreshing interpretation panel
+                    Ext.Ajax.request({
+                        url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretationId+ '.json?fields=id,created'),
+                        method: 'GET',
+                        scope: this,
+                        success: function(r) {
+                            // Refreshing interpretation panel
+                            var interpretation = JSON.parse(r.responseText)
+                            layout.setResponse(null); // clear the current data cache so it goes to the server with the new relativePeriodDate
+                            layout.relativePeriodDate = interpretation.created; // set this date on the layout object, not in extraOptions
+                            layout.interpretationId = interpretation.id;
+                            
+                            var actualName = layout.name;
+                            if (layout.name.indexOf('<span') != -1){
+                                actualName = layout.name.substring(0, layout.name.indexOf(' <span'))
+                            }
+                            layout.name = actualName + ' <span id="relativePeriodDateTitle">[' + DateManager.getYYYYMMDD(interpretation.created, true) + ']</span>'; // just append to the name here
+
+                            fn(layout, true);
+                        }
+                    });
+
+                    
+                }
+                else{
+                    fn(layout, true);
+                }
             }
         },
         error: function(r) {

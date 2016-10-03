@@ -2,6 +2,7 @@ import {DateManager} from '../manager/DateManager.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {RenameWindow} from './RenameWindow.js';
+import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var EastRegion;
 
@@ -70,7 +71,7 @@ EastRegion = function(c){
 	        	// Change Link
 	        	descriptionItems.push({
 	                xtype: 'label',
-	                html: '[<span style="cursor:pointer;color:#3162C5;">change</span>]',
+	                html: '[<span class="link">change</span>]',
 	                cls: 'interpretationActions',
 	                style: 'margin: 0px 3px;',
 	                listeners: {
@@ -223,69 +224,24 @@ EastRegion = function(c){
 	 */ 
 	
 	// Create interpretation panel depending on interpretation
-	var getInterpretationPanel = function(interpretation) {
+	var getInterpretationPanel = function(interpretation, displayingComments) {
 		
+		var numberOfCommentsToDisplay = 3;
+
 		// Create inner comments panel depending on comments
 		var getCommentsPanel = function (comments){
+
 			var commentsPanel = [];
-			for (var i=0; i < comments.length; i++){
-				var comment = comments[i];
-				
-				commentsPanel.push({
-	                xtype: 'panel',
-	                bodyStyle: 'border-style:none;',
-	                cls: 'comment greyBackground',
-	                layout: 'column',
-	                items: [
-							{
-								xtype: 'panel',
-								bodyStyle: 'border-style:none',
-								items: [
-										{
-										    xtype: 'label',
-										    cls: 'avatar',
-										    text: comment.user.displayName.split(' ')[0][0] + comment.user.displayName.split(' ')[comment.user.displayName.split(' ').length -1][0]
-										}
-								],
-								columnWidth: 0.20
-							},
-							{
-								xtype: 'panel',
-								bodyStyle: 'border-style:none',
-								items: [
-								        {
-											xtype: 'panel',
-											bodyStyle: 'border-style:none',
-											items: [
-											        {
-													    xtype: 'label',
-													    html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
-													    cls: 'link bold',
-													    style: 'margin-right:10px;' 
-													},
-													{
-													    xtype: 'label',
-													    text: comment.text,
-													}
-											]
-								        },
-										{
-										    xtype: 'label',
-										    text: DateManager.getTimeDifference(comment.lastUpdated),
-										} 
-								],
-								columnWidth: 0.80
-							}
-	                ]
-	            });
-	    	}
-			
+
+			// Textarea to comment
 			commentsPanel.push({
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 layout: 'column',
+				itemId: 'commentPanel',
+				hidden: true,
                 style: 'margin-bottom: 5px;',
-                
+                cls: 'comment greyBackground',
                 items: [
 						{
 							xtype: 'panel',
@@ -321,12 +277,107 @@ EastRegion = function(c){
 							                    }
 							                }
 			    	        	        }
-							        } 
+							        },
+									{
+										xtype: 'label',
+										text: 'Post comment',
+										cls: 'link',
+										listeners: {
+											'render': function(label) {
+												label.getEl().on('click', function(){
+													commentInterpretation(this.up("[xtype='panel']").down('#commentArea'))
+												}, label);
+											}
+										}
+									}  
 							],
 							columnWidth: 0.80
 						}
                 ]
             });
+
+			// Comments
+			// Sorting by last updated
+			arraySort(comments, 'DESC', 'lastUpdated');
+			for (var i=0; i < comments.length; i++){
+				var comment = comments[i];
+				
+				commentsPanel.push({
+	                xtype: 'panel',
+	                bodyStyle: 'border-style:none;',
+	                cls: 'comment greyBackground',
+	                layout: 'column',
+					hidden: (i>numberOfCommentsToDisplay-1),
+	                items: [
+							{
+								xtype: 'panel',
+								bodyStyle: 'border-style:none',
+								items: [
+										{
+										    xtype: 'label',
+										    cls: 'avatar',
+										    text: comment.user.displayName.split(' ')[0][0] + comment.user.displayName.split(' ')[comment.user.displayName.split(' ').length -1][0]
+										}
+								],
+								columnWidth: 0.20
+							},
+							{
+								xtype: 'panel',
+								bodyStyle: 'border-style:none',
+								items: [
+								        {
+											xtype: 'panel',
+											style: 'margin-bottom:5px',
+											bodyStyle: 'border-style:none',
+											items: [
+											        {
+													    xtype: 'label',
+													    html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
+													    cls: 'link bold',
+													    style: 'margin-right:10px;' 
+													},
+													{
+													    xtype: 'label',
+													    text: comment.text,
+													}
+											]
+								        },
+										{
+										    xtype: 'label',
+										    text: DateManager.getTimeDifference(comment.lastUpdated)
+										} 
+								],
+								columnWidth: 0.80
+							}
+	                ]
+	            });
+	    	}
+
+			// Show more comments
+			if (comments.length > 3 && comments.length > numberOfCommentsToDisplay){
+				commentsPanel.push({
+					xtype: 'panel',
+					bodyStyle: 'border-style:none',
+					style: 'margin-bottom: 5px;',
+					cls: 'comment greyBackground',
+					items: [
+							{
+								xtype: 'label',
+								text: '[' + (comments.length - numberOfCommentsToDisplay) + ' more comments]',
+								cls: 'link',
+								listeners: {
+									'render': function(label) {
+										label.getEl().on('click', function(){
+											numberOfCommentsToDisplay +=3;
+											this.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems();
+										}, label);
+									}
+								}
+							}
+					]
+				});
+			}
+			
 			return commentsPanel;
 		};
 		
@@ -350,17 +401,17 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'DELETE',
 	                success: function() {
-	                	// Updating date model
-	                	interpretation.likes--;
-	                	for (var i = 0; i < interpretation.likedBy.length; i++){
-	                		if (interpretation.likedBy[i].id == appManager.userAccount.id){
-	                			interpretation.likedBy.pop(i)
-	                			break;
-	                		}
-	                	}
-	                	
-	                	// Refreshing interpretation panel
-	                	that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+
+						Ext.Ajax.request({
+							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'), 
+							method: 'GET',
+							scope: this,
+							success: function(r) {
+								// Refreshing interpretation panel
+								interpretation = JSON.parse(r.responseText)
+	                			that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+							}
+						});
 	                }
 	            });
 			}
@@ -369,12 +420,16 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'POST',
 	                success: function() {
-	                	// Updating date model
-	                	interpretation.likes++;
-	                	interpretation.likedBy.push({id: appManager.userAccount.id, displayName: appManager.userAccount.firstName + ' ' + appManager.userAccount.surname});
-	                	
-	                	// Refreshing interpretation panel
-	                	that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+						Ext.Ajax.request({
+							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
+							method: 'GET',
+							scope: this,
+							success: function(r) {
+								// Refreshing interpretation panel
+	                			interpretation = JSON.parse(r.responseText)
+	                			that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+							}
+						});
 	                }
 	            });
 			}
@@ -388,20 +443,21 @@ EastRegion = function(c){
 	                method: 'POST',
 	                params: f.getValue(),
 	                headers: {'Content-Type': 'text/plain'},
-	                success: function(obj, _success, r) {
-	                	// Updating data model
-	                	var currentComment = {}
-	                	currentComment['user'] = {}
-	                	currentComment['user']['displayName'] = appManager.userAccount.firstName + ' ' + appManager.userAccount.surname
-	                	currentComment['lastUpdated'] = new Date();
-	                	currentComment['text'] = f.getValue();
-	                	interpretation.comments.push(currentComment)
-	                	
+	                success: function() {
 	                	// Clear up comment textarea
 	                	f.reset();
 	                	
 	                	// Refreshing interpretation panel
-	                	f.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+						Ext.Ajax.request({
+							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
+							method: 'GET',
+							scope: this,
+							success: function(r) {
+								// Refreshing interpretation panel
+	                			interpretation = JSON.parse(r.responseText)
+	                			f.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
+							}
+						});
 	                }
 	            });
         	}
@@ -505,7 +561,10 @@ EastRegion = function(c){
 				                    
 						            listeners: {
 		    	        	        	'render': function(label) {
-		    	        	        	       label.getEl().on('click', function(){this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();}, this);
+		    	        	        	       label.getEl().on('click', function(){
+												   this.up('#interpretationPanel' + interpretation.id).down('#commentPanel').show();
+												   this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();
+												}, this);
 	    	        	        	    }
 		    	        	        }
 						        }
@@ -556,7 +615,7 @@ EastRegion = function(c){
             cls: 'clickable',
             instanceManager: instanceManager,
             interpretation: interpretation,
-            displayingComments: false,
+            displayingComments: displayingComments,
             itemId: 'interpretationPanel' + interpretation.id,
             
             // Update inner interpretation panel items depending on interpretation. If none is provided, previously store one will be used
@@ -582,6 +641,7 @@ EastRegion = function(c){
             		for (var i = 0; i < this.up("#interpretationsPanel").items.items.length; i++){
             			if (this.up("#interpretationsPanel").items.items[i].interpretation != undefined){
             				this.up("#interpretationsPanel").items.items[i].displayingComments = (this.up("#interpretationsPanel").items.items[i].id == this.id);
+							//this.up("#interpretationsPanel").items.items[i].numberOfCommentsToDisplay = 3;
             				this.up("#interpretationsPanel").items.items[i].updateInterpretationPanelItems();	
             			}
             		}
@@ -592,14 +652,13 @@ EastRegion = function(c){
 
                 	// Update canvas with favorite as it was by the time the interpretation was created
             		instanceManager.updateInterpretationFunction(interpretation);
-                	uiManager.get('northRegion').cmp.title.setTitle(uiManager.get('northRegion').cmp.title.titleText + ' [' + DateManager.getYYYYMMDD(this.interpretation.created, true) + ']')
             	}
             },
                         
-            items: getInterpretationPanelItems(interpretation, this.displayingComments),
+            items: getInterpretationPanelItems(interpretation, displayingComments),
 	        
 	        listeners: {
-	        	'render': function(panel) {panel.body.on('click', this.expandComments, this, {single: true});}, scope:interpretationPanel
+	        	'render': function(panel) {panel.body.on('click', this.expandComments, this);}, scope:interpretationPanel
 	        }
         };
 		return interpretationPanel;
@@ -696,17 +755,17 @@ EastRegion = function(c){
         getInterpretationPanel: getInterpretationPanel,
         getTopInterpretationsPanel: getTopInterpretationsPanel,
         
-        addAndUpdateInterpretationsPanel: function(interpretations){
+        addAndUpdateInterpretationsPanel: function(interpretations, interpretationId){
 	    	// Remove any previous panel
         	this.removeAll(true);
         	
         	//Get top interpretations panel depending on interpretations and if we are displaying an interpretation
-        	this.add(this.getTopInterpretationsPanel(interpretations));
+        	this.add(this.getTopInterpretationsPanel(interpretations, interpretationId != undefined));
         	
         	// Add an interpretation panel per interpretation
 	    	if (interpretations != undefined && interpretations.length > 0){
 	        	for (var i=0; i < interpretations.length; i++){
-	        		this.add(this.getInterpretationPanel(interpretations[i]));
+	        		this.add(this.getInterpretationPanel(interpretations[i], (interpretations[i].id == interpretationId)));
 	        	}
 	    	}
         },
@@ -729,7 +788,7 @@ EastRegion = function(c){
 	    	this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 	    	
 	    	// Favorite loaded with interpretations ->  Add interpretation panel and update
-    		this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations);
+    		this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations, layout.interpretationId);
 	    }
 	});
 }; 

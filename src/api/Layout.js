@@ -56,6 +56,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.id = c.id;
     }
 
+        // interpretationId
+    if (isString(c.interpretationId)) {
+        t.interpretationId = c.interpretationId;
+    }
+
         // name
     if (isString(c.name)) {
         t.name = c.name;

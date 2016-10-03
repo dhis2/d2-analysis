@@ -108,7 +108,9 @@ UiManager = function(c) {
         if (!t.instanceManager.plugin) {
 
             // set url state
-            t.setUrlState(favoriteState ? ('?id=' + favoriteState.id) : '.');
+            var urlState = favoriteState ? ('?id=' + favoriteState.id) : '.';
+            urlState += favoriteState.interpretationId ? ('&interpretationid=' + favoriteState.interpretationId) : '';
+            t.setUrlState(urlState);
 
             // toolbar
             if (north) {
