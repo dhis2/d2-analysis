@@ -32,7 +32,7 @@ EastRegion = function(c) {
             var getDescriptionPanel = function(description) {
                 var descriptionItems = [];
                 if (description == undefined) {
-                    description = 'No description';
+                    description = i18n.no_description;
                 }
                 var isLongDescription = (description.length > descriptionMaxNumberCharacter);
 
@@ -51,9 +51,9 @@ EastRegion = function(c) {
 
                     descriptionItems.push({
                         xtype: 'label',
-                        html: '[<span class="link">more</span>]',
-                        moreText: '[<span class="link">more</span>]',
-                        lessText: '[<span class="link">less</span>]',
+                        html: '[<span class="link">' + i18n.more + '</span>]',
+                        moreText: '[<span class="link">' + i18n.more + '</span>]',
+                        lessText: '[<span class="link">' + i18n.less + '</span>]',
                         cls: 'interpretationActions',
                         isShortDescriptionDisplayed: true,
                         style: 'margin: 0px 3px;',
@@ -78,7 +78,7 @@ EastRegion = function(c) {
                 // Change Link
                 descriptionItems.push({
                     xtype: 'label',
-                    html: '[<span class="link">change</span>]',
+                    html: '[<span class="link">' + i18n.change + '</span>]',
                     cls: 'interpretationActions',
                     style: 'margin: 0px 3px;',
                     listeners: {
@@ -96,13 +96,13 @@ EastRegion = function(c) {
             // Create Sharing setting text from publicAccess and userGroupAccesses field
             var getSharingText = function(layout) {
                 // Public permissions
-                var sharingText = 'Public: ';
+                var sharingText = i18n.public + ': ';
                 if (layout.publicAccess == "r-------") {
-                    sharingText += 'Read';
+                    sharingText += i18n.read;
                 } else if (layout.publicAccess == "rw------") {
-                    sharingText += 'Read/Write';
+                    sharingText += i18n.read_write;
                 } else {
-                    sharingText += 'None';
+                    sharingText += i18n.none;
                 }
 
                 // User Group Accesses permissions
@@ -110,13 +110,13 @@ EastRegion = function(c) {
                 if (layout.userGroupAccesses != undefined) {
                     sharingText += ' + ';
                     if (layout.userGroupAccesses.length > 2) {
-                        sharingText += layout.userGroupAccesses.length + ' groups';
+                        sharingText += layout.userGroupAccesses.length + ' ' + i18n.groups;
                     } else {
                         for (var i = 0; i < layout.userGroupAccesses.length; i++) {
                             if (i > 0) {
                                 sharingText += ', '
                             }
-                            sharingText += 'Group ' + layout.userGroupAccesses[i].displayName;
+                            sharingText += i18n.group + ' ' + layout.userGroupAccesses[i].displayName;
                         }
                     }
                 }
@@ -145,27 +145,27 @@ EastRegion = function(c) {
                 items: [getDescriptionPanel(layout.displayDescription)]
             }, {
                 xtype: 'displayfield',
-                fieldLabel: 'Owner',
+                fieldLabel: i18n.owner,
                 itemId: 'owner',
                 value: (layout.user != undefined) ? layout.user.displayName : '',
                 cls: 'interpretationDetailsField'
             }, {
                 xtype: 'displayfield',
                 itemId: 'created',
-                fieldLabel: 'Created',
+                fieldLabel: i18n.created,
                 value: layout.created,
                 cls: 'interpretationDetailsField'
             }, {
                 xtype: 'displayfield',
                 itemId: 'lastUpdated',
-                fieldLabel: 'Last Updated',
+                fieldLabel: i18n.last_updated,
                 value: layout.lastUpdated,
                 cls: 'interpretationDetailsField',
             }, {
                 xtype: 'displayfield',
                 itemId: 'numberViews',
-                fieldLabel: 'Number of views',
-                value: "Retrieving number of views...",
+                fieldLabel: i18n.number_of_views,
+                value: i18n.retrieving_number_of_views,
                 cls: 'interpretationDetailsField',
                 listeners: {
                     'render': function(label) {
@@ -175,7 +175,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'displayfield',
                 itemId: 'sharing',
-                fieldLabel: 'Sharing [<span style="cursor:pointer;color:#3162C5;">change</span>]',
+                fieldLabel: i18n.sharing + ' [<span style="cursor:pointer;color:#3162C5;">' + i18n.change + '</span>]',
                 value: getSharingText(layout),
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -192,7 +192,7 @@ EastRegion = function(c) {
             // Favorite Details Panel content when no favorite is loaded
             detailsPanelItems = [{
                 xtype: 'label',
-                text: 'No current favorite',
+                text: i18n.no_current_favorite,
                 cls: 'interpretationActions'
             }];
         }
@@ -209,7 +209,7 @@ EastRegion = function(c) {
     // Main Details Panel Container
     var detailsPanel = {
         xtype: 'panel',
-        title: '<div class="ns-panel-title-details">Details</div>',
+        title: '<div class="ns-panel-title-details">' + i18n.details + '</div>',
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
@@ -265,7 +265,7 @@ EastRegion = function(c) {
                         xtype: 'textarea',
                         itemId: 'commentArea',
                         cls: 'commentArea',
-                        emptyText: 'Write a comment',
+                        emptyText: i18n.write_your_interpretation,
                         submitEmptyText: false,
                         flex: 1,
                         border: 0,
@@ -279,7 +279,7 @@ EastRegion = function(c) {
                         }
                     }, {
                         xtype: 'label',
-                        text: 'Post comment',
+                        text: i18n.post_comment,
                         cls: 'link',
                         listeners: {
                             'render': function(label) {
@@ -348,7 +348,7 @@ EastRegion = function(c) {
                     cls: 'comment greyBackground',
                     items: [{
                         xtype: 'label',
-                        text: '[' + (comments.length - numberOfCommentsToDisplay) + ' more comments]',
+                        text: '[' + (comments.length - numberOfCommentsToDisplay) + ' ' + i18n.more_comments + ']',
                         cls: 'link',
                         listeners: {
                             'render': function(label) {
@@ -473,7 +473,7 @@ EastRegion = function(c) {
                 hidden: displayingComments,
                 items: [{
                     xtype: 'label',
-                    html: "<div class='thumbs_up greyBackground'>" + interpretation.likes + " people like this. " + interpretation.comments.length + " people commented.</div>",
+                    html: "<div class='thumbs_up greyBackground'>" + interpretation.likes + " " + i18n.people_like_this + ". " + interpretation.comments.length + " " + i18n.people_commented + "</div>",
                 }]
             }, {
                 xtype: 'panel',
@@ -488,7 +488,7 @@ EastRegion = function(c) {
                     style: 'margin-bottom: 5px;',
                     items: [{
                         xtype: 'label',
-                        text: isLiked(interpretation) ? "Unlike" : "Like",
+                        text: isLiked(interpretation) ? i18n.unlike : i18n.like,
                         style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
 
                         listeners: {
@@ -511,7 +511,7 @@ EastRegion = function(c) {
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
-                        text: 'Comment',
+                        text: i18n.comment,
                         style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
 
                         listeners: {
@@ -529,7 +529,7 @@ EastRegion = function(c) {
                     cls: 'likeContainer',
                     items: [{
                         xtype: 'label',
-                        html: "<div class='thumbs_up greyBackground'><span style='cursor:pointer;color:#3162C5;font-weight: bold;'>" + interpretation.likes + " people</span> like this</div>",
+                        html: "<div class='thumbs_up greyBackground'><span style='cursor:pointer;color:#3162C5;font-weight: bold;'>" + interpretation.likes + " " + i18n.people + "</span> " + i18n.like_this + "</div>",
                         listeners: {
                             'render': function(label) {
 
@@ -626,7 +626,7 @@ EastRegion = function(c) {
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
-                html: 'Share interpretation',
+                html: i18n.share + ' ' + i18n.interpretation,
                 cls: 'interpretationActions',
                 style: 'cursor:pointer;color:#3162C5;',
                 listeners: {
@@ -647,7 +647,7 @@ EastRegion = function(c) {
             style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
             items: [{
                 xtype: 'label',
-                text: 'No interpretations',
+                text: i18n.no_interpretations,
                 cls: 'interpretationActions'
             }]
         };
@@ -660,7 +660,7 @@ EastRegion = function(c) {
             itemId: 'backToToday',
             items: [{
                 xtype: 'label',
-                html: '<< Back to today',
+                html: '<< ' + i18n.back_to_today,
                 cls: 'interpretationActions link',
                 listeners: {
                     'render': function(label) {
@@ -702,7 +702,7 @@ EastRegion = function(c) {
     // Main Interpretations Panel Container
     var interpretationsPanel = {
         xtype: 'panel',
-        title: '<div class="ns-panel-title-interpretation">Interpretations</div>',
+        title: '<div class="ns-panel-title-interpretation">' + i18n.interpretations + '</div>',
         itemId: 'interpretationsPanel',
         displayingInterpretation: false,
 
