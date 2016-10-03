@@ -3962,6 +3962,8 @@ Viewport = function(refs, cmp) {
                     var csvReq = layout.req(null, 'csv');
                     var jrxmlReq = layout.req(null, 'jrxml');
                     var sqlReq = layout.req('/api/analytics/debug/sql', 'sql');
+                    var dataValueSetJsonReq = layout.req('/api/analytics/dataValueSet', 'json');
+                    var dataValueSetXmlReq = layout.req('/api/analytics/dataValueSet', 'xml');
 
                     var items = [
                         {
@@ -4139,6 +4141,20 @@ Viewport = function(refs, cmp) {
                             text: 'Advanced',
                             iconCls: 'ns-menu-item-advanced',
                             menu: [
+                                {
+                                    text: 'Data value set JSON',
+                                    iconCls: 'ns-menu-item-datasource',
+                                    handler: function() {
+                                        openPlainDataSource(dataValueSetJsonReq, null, true);
+                                    }
+                                }
+                                {
+                                    text: 'Data value set XML',
+                                    iconCls: 'ns-menu-item-datasource',
+                                    handler: function() {
+                                        openPlainDataSource(dataValueSetXmlReq, null, true);
+                                    }
+                                },
                                 {
                                     text: 'JRXML',
                                     iconCls: 'ns-menu-item-datasource',
