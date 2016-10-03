@@ -265,6 +265,7 @@ EastRegion = function(c){
 							        {
 										xtype: 'textarea',
 										itemId: 'commentArea',
+										cls: 'commentArea',
 										emptyText: 'Write a comment',
 										submitEmptyText: false,
 						                flex: 1,
@@ -392,6 +393,19 @@ EastRegion = function(c){
         	}
 			return false;
 		};
+
+		var refreshInterpretationDataModel = function(interpretationPanel){
+			Ext.Ajax.request({
+				url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'), 
+				method: 'GET',
+				scope: this,
+				success: function(r) {
+					// Refreshing interpretation panel
+					interpretation = JSON.parse(r.responseText)
+					interpretationPanel.updateInterpretationPanelItems(interpretation);
+				}
+			});
+		}
         
 		// Call Like or Unlike interpretation, update data model and update/reload panel
         var likeUnlikeInterpretation = function(){
@@ -401,17 +415,7 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'DELETE',
 	                success: function() {
-
-						Ext.Ajax.request({
-							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'), 
-							method: 'GET',
-							scope: this,
-							success: function(r) {
-								// Refreshing interpretation panel
-								interpretation = JSON.parse(r.responseText)
-	                			that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
-							}
-						});
+						refreshInterpretationDataModel(that.up('#interpretationPanel' + interpretation.id));
 	                }
 	            });
 			}
@@ -420,16 +424,7 @@ EastRegion = function(c){
 	                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
 	                method: 'POST',
 	                success: function() {
-						Ext.Ajax.request({
-							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
-							method: 'GET',
-							scope: this,
-							success: function(r) {
-								// Refreshing interpretation panel
-	                			interpretation = JSON.parse(r.responseText)
-	                			that.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
-							}
-						});
+						refreshInterpretationDataModel(that.up('#interpretationPanel' + interpretation.id));
 	                }
 	            });
 			}
@@ -448,16 +443,7 @@ EastRegion = function(c){
 	                	f.reset();
 	                	
 	                	// Refreshing interpretation panel
-						Ext.Ajax.request({
-							url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
-							method: 'GET',
-							scope: this,
-							success: function(r) {
-								// Refreshing interpretation panel
-	                			interpretation = JSON.parse(r.responseText)
-	                			f.up('#interpretationPanel' + interpretation.id).updateInterpretationPanelItems(interpretation);
-							}
-						});
+						refreshInterpretationDataModel(f.up('#interpretationPanel' + interpretation.id));
 	                }
 	            });
         	}
