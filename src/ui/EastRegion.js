@@ -28,6 +28,10 @@ EastRegion = function(c) {
         var detailsPanelItems;
         if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
 
+            var getLink = function(text) {
+                return '<span class="bold">[</span><span class="link">' + text + '</span><span class="bold">]</span>';
+            };
+
             // Create Description Panel from description field
             var getDescriptionPanel = function(description) {
                 var descriptionItems = [];
@@ -51,9 +55,9 @@ EastRegion = function(c) {
 
                     descriptionItems.push({
                         xtype: 'label',
-                        html: '[<span class="link">' + i18n.more + '</span>]',
-                        moreText: '[<span class="link">' + i18n.more + '</span>]',
-                        lessText: '[<span class="link">' + i18n.less + '</span>]',
+                        html: getLink(i18n.more),
+                        moreText: i18n.more,
+                        lessText: i18n.less,
                         cls: 'interpretationActions',
                         isShortDescriptionDisplayed: true,
                         style: 'margin: 0px 3px;',
@@ -62,10 +66,10 @@ EastRegion = function(c) {
                                 label.getEl().on('click', function() {
                                     if (this.isShortDescriptionDisplayed) {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription, false);
-                                        this.setText(this.lessText, false)
+                                        this.setText(getLink(this.lessText), false)
                                     } else {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription, false);
-                                        this.setText(this.moreText, false)
+                                        this.setText(getLink(this.moreText), false)
                                     }
                                     this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
                                     this.up('#descriptionPanel').doLayout();
@@ -78,7 +82,7 @@ EastRegion = function(c) {
                 // Change Link
                 descriptionItems.push({
                     xtype: 'label',
-                    html: '[<span class="link">' + i18n.change + '</span>]',
+                    html: getLink(i18n.change),
                     cls: 'interpretationActions',
                     style: 'margin: 0px 3px;',
                     listeners: {
@@ -136,7 +140,7 @@ EastRegion = function(c) {
                 return "Retrieving number of views...";
             }
 
-            // Favorite Details Panel content when favorite loaded    
+            // Favorite Details Panel content when favorite loaded
             detailsPanelItems = [{
                 xtype: 'panel',
                 itemId: 'descriptionPanel',
@@ -146,6 +150,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'displayfield',
                 fieldLabel: i18n.owner,
+                labelStyle: 'padding-top: 1px',
                 itemId: 'owner',
                 value: (layout.user != undefined) ? layout.user.displayName : '',
                 cls: 'interpretationDetailsField'
@@ -153,18 +158,21 @@ EastRegion = function(c) {
                 xtype: 'displayfield',
                 itemId: 'created',
                 fieldLabel: i18n.created,
+                labelStyle: 'padding-top: 1px',
                 value: layout.created,
                 cls: 'interpretationDetailsField'
             }, {
                 xtype: 'displayfield',
                 itemId: 'lastUpdated',
                 fieldLabel: i18n.last_updated,
+                labelStyle: 'padding-top: 1px',
                 value: layout.lastUpdated,
                 cls: 'interpretationDetailsField',
             }, {
                 xtype: 'displayfield',
                 itemId: 'numberViews',
                 fieldLabel: i18n.number_of_views,
+                labelStyle: 'padding-top: 1px',
                 value: i18n.retrieving_number_of_views,
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -175,7 +183,8 @@ EastRegion = function(c) {
             }, {
                 xtype: 'displayfield',
                 itemId: 'sharing',
-                fieldLabel: i18n.sharing + ' [<span style="cursor:pointer;color:#3162C5;">' + i18n.change + '</span>]',
+                fieldLabel: i18n.sharing + ' ' + getLink(i18n.change),
+                labelStyle: 'padding-top: 1px',
                 value: getSharingText(layout),
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -200,11 +209,14 @@ EastRegion = function(c) {
         return {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px',
+            style: 'padding:6px',
             itemId: 'noFavoriteDetailsPanel',
+            defaults: {
+                style: 'margin-bottom:1px'
+            },
             items: [detailsPanelItems]
         };
-    }
+    };
 
     // Main Details Panel Container
     var detailsPanel = {
@@ -442,7 +454,7 @@ EastRegion = function(c) {
             return toolTipLike;
         };
 
-        // Get inner items for interpretation panel. 
+        // Get inner items for interpretation panel.
         var getInterpretationPanelItems = function(interpretation, displayingComments) {
 
             var interpretationPanelItems = [{
@@ -612,8 +624,7 @@ EastRegion = function(c) {
             }
         };
         return interpretationPanel;
-    }
-
+    };
 
     var getTopInterpretationsPanel = function(interpretations, displayingInterpretation) {
         var topInterpretationPanelItems = [];
@@ -737,7 +748,7 @@ EastRegion = function(c) {
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
-        setState: function(layout)  {
+        setState: function(layout) {
 
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
