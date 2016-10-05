@@ -214,7 +214,7 @@ EastRegion = function(c) {
             style: 'padding:6px',
             itemId: 'noFavoriteDetailsPanel',
             defaults: {
-                style: 'margin-bottom:1px'
+                style: 'margin-bottom: 1px;'
             },
             items: [detailsPanelItems]
         };
@@ -223,7 +223,7 @@ EastRegion = function(c) {
     // Main Details Panel Container
     var detailsPanel = {
         xtype: 'panel',
-        cls: 'ns-panel-title-details',
+        cls: 'ns-panel-title-east-default first',
         title: i18n.details,
         itemId: 'detailsPanel',
 
@@ -259,7 +259,7 @@ EastRegion = function(c) {
                 layout: 'column',
                 itemId: 'commentPanel',
                 hidden: true,
-                style: 'margin-bottom: 5px;',
+                style: 'margin-bottom: 1px;',
                 cls: 'comment greyBackground',
                 items: [{
                     xtype: 'panel',
@@ -269,7 +269,7 @@ EastRegion = function(c) {
                         cls: 'avatar',
                         text: appManager.userAccount.firstName[0] + appManager.userAccount.surname.split(' ')[appManager.userAccount.surname.split(' ').length - 1][0]
                     }],
-                    columnWidth: 0.20
+                    columnWidth: 0.1
                 }, {
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
@@ -304,7 +304,7 @@ EastRegion = function(c) {
                             }
                         }
                     }],
-                    columnWidth: 0.80
+                    columnWidth: 0.9
                 }]
             });
 
@@ -334,7 +334,7 @@ EastRegion = function(c) {
                         bodyStyle: 'border-style:none',
                         items: [{
                             xtype: 'panel',
-                            style: 'margin-bottom:5px',
+                            style: 'margin-bottom: 3px;',
                             bodyStyle: 'border-style:none',
                             items: [{
                                 xtype: 'label',
@@ -343,6 +343,7 @@ EastRegion = function(c) {
                                 style: 'margin-right:10px;'
                             }, {
                                 xtype: 'label',
+
                                 text: comment.text,
                             }]
                         }, {
@@ -359,7 +360,7 @@ EastRegion = function(c) {
                 commentsPanel.push({
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
-                    style: 'margin-bottom: 5px;',
+                    style: 'margin-bottom: 1px;',
                     cls: 'comment greyBackground',
                     items: [{
                         xtype: 'label',
@@ -463,7 +464,7 @@ EastRegion = function(c) {
             var interpretationPanelItems = [{
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 5px;',
+                style: 'margin-bottom: 1px;',
                 items: [{
                     xtype: 'label',
                     html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id + '\">' + interpretation.user.displayName + '<a>',
@@ -493,7 +494,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 5px;',
+                style: 'margin-bottom: 1px;',
                 itemId: 'likePanelSelected',
                 hidden: !displayingComments,
 
@@ -574,7 +575,7 @@ EastRegion = function(c) {
         var interpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none;',
-            style: 'padding:10px;',
+            style: 'padding:6px;',
             cls: 'clickable',
             instanceManager: instanceManager,
             interpretation: interpretation,
@@ -635,7 +636,7 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            style: 'padding:10px; border-width:0; border-style:solid;',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
@@ -669,7 +670,7 @@ EastRegion = function(c) {
         var backToTodayPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            style: 'padding:10px; border-width:0',
             hidden: !displayingInterpretation,
             itemId: 'backToToday',
             items: [{
@@ -716,7 +717,8 @@ EastRegion = function(c) {
     // Main Interpretations Panel Container
     var interpretationsPanel = {
         xtype: 'panel',
-        title: '<div class="ns-panel-title-interpretation">' + i18n.interpretations + '</div>',
+        cls: 'ns-panel-title-east-default',
+        title: i18n.interpretations,
         itemId: 'interpretationsPanel',
         displayingInterpretation: false,
 
