@@ -30,6 +30,7 @@ import { ChartConfig } from './config/ChartConfig.js';
 
 import { Viewport } from './ui/Viewport.js';
 import { NorthRegion } from './ui/NorthRegion.js';
+import { EastRegion } from './ui/EastRegion.js';
 import { FavoriteWindow } from './ui/FavoriteWindow.js';
 import { FavoriteButton } from './ui/FavoriteButton.js';
 import { InterpretationWindow } from './ui/InterpretationWindow.js';
@@ -87,6 +88,7 @@ export {
 
     Viewport,
     NorthRegion,
+    EastRegion,
     FavoriteWindow,
     FavoriteButton,
     InterpretationWindow,
@@ -153,6 +155,7 @@ export const config = {
 export const ui = {
     Viewport,
     NorthRegion,
+    EastRegion,
     FavoriteWindow,
     FavoriteButton,
     InterpretationWindow,

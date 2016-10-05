@@ -56,6 +56,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.id = c.id;
     }
 
+        // interpretationId
+    if (isString(c.interpretationId)) {
+        t.interpretationId = c.interpretationId;
+    }
+
         // name
     if (isString(c.name)) {
         t.name = c.name;
@@ -89,6 +94,41 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         // relative period date
     if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
+    }
+    
+    	//description
+    if (isString(c.displayDescription)) {
+        t.displayDescription = c.displayDescription;
+    }
+    
+    	//interpretations
+    if (arrayFrom(c.interpretations).length) {
+    	t.interpretations = isArray(c.interpretations) ? c.interpretations : null;
+    }
+    
+    	//lastUpdated
+    if (DateManager.getYYYYMMDD(c.lastUpdated, true)) {
+    	t.lastUpdated = DateManager.getYYYYMMDD(c.lastUpdated, true);
+    }
+    
+    	//created
+    if (DateManager.getYYYYMMDD(c.created, true)) {
+    	t.created = DateManager.getYYYYMMDD(c.created, true);
+    }
+    
+    	//favorite user
+    if (isObject(c.user)){
+    	t.user = c.user;
+    }
+    
+    	//public access
+    if (isString(c.publicAccess)) {
+        t.publicAccess = c.publicAccess;
+    }
+    
+    	//user group accesses
+    if (arrayFrom(c.userGroupAccesses).length) {
+        t.userGroupAccesses = c.userGroupAccesses;
     }
 
         // reduce layout //todo: move to specific app
