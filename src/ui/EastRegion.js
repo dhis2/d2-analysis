@@ -328,7 +328,7 @@ EastRegion = function(c) {
                             cls: 'avatar',
                             text: comment.user.displayName.split(' ')[0][0] + comment.user.displayName.split(' ')[comment.user.displayName.split(' ').length - 1][0]
                         }],
-                        columnWidth: 0.20
+                        columnWidth: 0.11
                     }, {
                         xtype: 'panel',
                         bodyStyle: 'border-style:none',
@@ -340,17 +340,17 @@ EastRegion = function(c) {
                                 xtype: 'label',
                                 html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
                                 cls: 'link bold',
-                                style: 'margin-right:10px;'
+                                style: 'margin-right: 7px;'
                             }, {
                                 xtype: 'label',
-
                                 text: comment.text,
                             }]
                         }, {
                             xtype: 'label',
-                            text: DateManager.getTimeDifference(comment.lastUpdated)
+                            style: 'color: #666',
+                            text: DateManager.getTimeDifference(comment.lastUpdated) + ' ' + i18n.ago
                         }],
-                        columnWidth: 0.80
+                        columnWidth: 0.89
                     }]
                 });
             }
