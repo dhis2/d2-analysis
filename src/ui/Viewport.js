@@ -4457,7 +4457,7 @@ Viewport = function(refs, cmp) {
                     instanceManager.getById(id);
                 }
                 else if (isString(session) && sessionStorageManager.get(session)) {
-                    layout = new api.Layout(refs, sessionStorageManager.get(session));
+                    layout = new api.Layout(refs, sessionStorageManager.get(session)).val();
 
                     if (layout) {
                         instanceManager.getReport(layout, false, false, true);

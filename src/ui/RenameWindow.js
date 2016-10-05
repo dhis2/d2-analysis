@@ -5,15 +5,15 @@ import fs from './FavoriteStyle';
 
 export var RenameWindow;
 
-RenameWindow = function(c, layout, fn, listeners) {
+RenameWindow = function(refs, layout, fn, listeners) {
     var t = this,
 
-        appManager = c.appManager,
-        uiManager = c.uiManager,
-        instanceManager = c.instanceManager,
-        i18n = c.i18nManager.get(),
-        uiConfig = c.uiConfig,
-        api = c.api,
+        appManager = refs.appManager,
+        uiManager = refs.uiManager,
+        instanceManager = refs.instanceManager,
+        i18n = refs.i18nManager.get(),
+        uiConfig = refs.uiConfig,
+        api = refs.api,
 
         path = appManager.getPath(),
         apiResource = instanceManager.apiResource;
@@ -49,7 +49,7 @@ RenameWindow = function(c, layout, fn, listeners) {
                     url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
 
                 $.getJSON(encodeURI(url), function(r) {
-                    layout = new api.Layout(r);
+                    layout = new api.Layout(refs, r).val();
                     layout.name = name;
                     layout.title = title;
                     layout.description = description;

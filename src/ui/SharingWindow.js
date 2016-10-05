@@ -246,67 +246,74 @@ SharingWindow = function(c, sharing, configOnly) {
         userGroupRowContainer
     ];
 
-    return configOnly ? {
-        UserGroupRow,
-        getBody,
-        userGroupStore,
-        userGroupField,
-        userGroupButton,
-        userGroupRowContainer,
-        externalAccess,
-        publicGroup,
-        items
-    } : Ext.create('Ext.window.Window', {
-        title: i18n.sharing_settings,
-        bodyStyle: 'padding:5px 5px 3px; background-color:#fff',
-        resizable: false,
-        modal: true,
-        destroyOnBlur: true,
-        items: items,
-        bbar: [
-            '->',
-            {
-                text: i18n.save,
-                handler: function() {
-                    Ext.Ajax.request({
-                        url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        params: Ext.encode(getBody())
-                    });
+    if (configOnly) {
+        return {
+            UserGroupRow,
+            getBody,
+            userGroupStore,
+            userGroupField,
+            userGroupButton,
+            userGroupRowContainer,
+            externalAccess,
+            publicGroup,
+            items
+        };
+    }
+    else {
+        var window = Ext.create('Ext.window.Window', {
+            title: i18n.sharing_settings,
+            bodyStyle: 'padding:5px 5px 3px; background-color:#fff',
+            resizable: false,
+            modal: true,
+            destroyOnBlur: true,
+            items: items,
+            bbar: [
+                '->',
+                {
+                    text: i18n.save,
+                    handler: function() {
+                        Ext.Ajax.request({
+                            url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            params: Ext.encode(getBody())
+                        });
 
-                    window.destroy();
+                        window.destroy();
+                    }
+                }
+            ],
+            listeners: {
+                show: function(w) {
+                    if (favoriteWindow) {
+
+                        // position
+                        var x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0],
+                            y = w.getPosition()[1] / 3;
+
+                        w.setPosition(x, y);
+
+                        // blur
+                        favoriteWindow.destroyOnBlur = false;
+                    }
+                    else {
+                        uiManager.setAnchorPosition(w, 'favoriteButton');
+                    }
+
+                    if (!w.hasDestroyOnBlurHandler) {
+                        uiManager.addDestroyOnBlurHandler(w);
+                    }
+                },
+                destroy: function() {
+                    if (favoriteWindow) {
+                        favoriteWindow.destroyOnBlur = true;
+                    }
                 }
             }
-        ],
-        listeners: {
-            show: function(w) {
-                if (favoriteWindow) {
+        });
 
-                    // position
-                    var x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0],
-                        y = w.getPosition()[1] / 3;
-
-                    w.setPosition(x, y);
-
-                    // blur
-                    favoriteWindow.destroyOnBlur = false;
-                }
-                else {
-                    uiManager.setAnchorPosition(w, 'favoriteButton');
-                }
-
-                if (!w.hasDestroyOnBlurHandler) {
-                    uiManager.addDestroyOnBlurHandler(w);
-                }
-            },
-            destroy: function() {
-                if (favoriteWindow) {
-                    favoriteWindow.destroyOnBlur = true;
-                }
-            }
-        }
-    });
+        return window;
+    }
 };

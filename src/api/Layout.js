@@ -251,7 +251,7 @@ Layout.prototype.removeDimensionItems = function(includeFilter) {
 };
 
 Layout.prototype.val = function(noError) {
-
+console.log("this.columns", this.columns);
     if (!(this.columns || this.rows)) {
         this.alert(I18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'), noError); //todo alert
         return null;
