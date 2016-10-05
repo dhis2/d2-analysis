@@ -101,13 +101,16 @@ UiManager = function(c) {
     // state
     t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
         var north = t.get('northRegion'),
-            west = t.get('westRegion');
+            west = t.get('westRegion'),
+            east = t.get('eastRegion');
 
         // app, not plugin
         if (!t.instanceManager.plugin) {
 
             // set url state
-            t.setUrlState(favoriteState ? ('?id=' + favoriteState.id) : '.');
+            var urlState = favoriteState ? ('?id=' + favoriteState.id) : '.';
+            urlState += favoriteState.interpretationId ? ('&interpretationid=' + favoriteState.interpretationId) : '';
+            t.setUrlState(urlState);
 
             // toolbar
             if (north) {
@@ -127,6 +130,11 @@ UiManager = function(c) {
             // west
             if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
                 west.setState(currentState);
+            }
+            
+            // east
+            if (east){
+            	east.setState(currentState);
             }
         }
 

@@ -97,7 +97,7 @@ FavoriteButton = function(c) {
                         }
                     });
                     uiManager.reg(saveAsItem, 'renameItem');
-
+                    
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
