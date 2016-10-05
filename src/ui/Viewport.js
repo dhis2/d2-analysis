@@ -4454,10 +4454,16 @@ Viewport = function(refs, cmp) {
                 // look for url params
                 var id = appManager.getUrlParam('id'),
                     session = appManager.getUrlParam('s'),
+                    interpretationId = appManager.getUrlParam('interpretationid'),
                     layout;
 
                 if (id) {
-                    instanceManager.getById(id);
+                    if (interpretationId){
+                        instanceManager.getById(id, undefined, interpretationId);
+                    }
+                    else{
+                        instanceManager.getById(id);
+                    }
                 }
                 else if (isString(session) && sessionStorageManager.get(session)) {
                     layout = new api.Layout(refs, sessionStorageManager.get(session));
