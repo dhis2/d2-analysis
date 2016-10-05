@@ -29,8 +29,12 @@ EastRegion = function(c) {
         if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
 
             var getLink = function(text) {
-                return '<span class="bold">[</span><span class="link">' + text + '</span><span class="bold">]</span>';
+                return '<span class="bold">[</span> <span class="link">' + text + '</span> <span class="bold">]</span>';
             };
+
+            var moreText = i18n.show_more;
+            var lessText = i18n.show_less;
+            var editText = i18n.edit;
 
             // Create Description Panel from description field
             var getDescriptionPanel = function(description) {
@@ -38,26 +42,24 @@ EastRegion = function(c) {
                 if (description == undefined) {
                     description = i18n.no_description;
                 }
-                var isLongDescription = (description.length > descriptionMaxNumberCharacter);
+                var isTooLongDescription = (description.length > descriptionMaxNumberCharacter);
+                var shortDescription = description.substring(0, descriptionMaxNumberCharacter) + ' ... ';
 
                 // Description label
                 descriptionItems.push({
                     xtype: 'label',
                     itemId: 'descriptionLabel',
-                    html: (isLongDescription) ? description.substring(0, descriptionMaxNumberCharacter) : description,
+                    html: isTooLongDescription ? shortDescription : description,
                     cls: 'interpretationActions'
                 });
 
                 // Longer than 200 characters -> Create More/Less link
-                if (isLongDescription) {
+                if (isTooLongDescription) {
                     var longDescription = description;
-                    var shortDescription = description.substring(0, descriptionMaxNumberCharacter);
 
                     descriptionItems.push({
                         xtype: 'label',
-                        html: getLink(i18n.more),
-                        moreText: i18n.more,
-                        lessText: i18n.less,
+                        html: getLink(moreText),
                         cls: 'interpretationActions',
                         isShortDescriptionDisplayed: true,
                         style: 'margin: 0px 3px;',
@@ -66,10 +68,10 @@ EastRegion = function(c) {
                                 label.getEl().on('click', function() {
                                     if (this.isShortDescriptionDisplayed) {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription, false);
-                                        this.setText(getLink(this.lessText), false)
+                                        this.setText(getLink(lessText), false)
                                     } else {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription, false);
-                                        this.setText(getLink(this.moreText), false)
+                                        this.setText(getLink(moreText), false)
                                     }
                                     this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
                                     this.up('#descriptionPanel').doLayout();
@@ -82,7 +84,7 @@ EastRegion = function(c) {
                 // Change Link
                 descriptionItems.push({
                     xtype: 'label',
-                    html: getLink(i18n.change),
+                    html: getLink(editText),
                     cls: 'interpretationActions',
                     style: 'margin: 0px 3px;',
                     listeners: {
@@ -183,9 +185,9 @@ EastRegion = function(c) {
             }, {
                 xtype: 'displayfield',
                 itemId: 'sharing',
-                fieldLabel: i18n.sharing + ' ' + getLink(i18n.change),
+                fieldLabel: i18n.sharing,
                 labelStyle: 'padding-top: 1px',
-                value: getSharingText(layout),
+                value: getSharingText(layout) + '<span style="padding-left:10px">' + getLink(editText) + '</span>',
                 cls: 'interpretationDetailsField',
                 listeners: {
                     'render': function(label) {
@@ -221,7 +223,8 @@ EastRegion = function(c) {
     // Main Details Panel Container
     var detailsPanel = {
         xtype: 'panel',
-        title: '<div class="ns-panel-title-details">' + i18n.details + '</div>',
+        cls: 'ns-panel-title-details',
+        title: i18n.details,
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {

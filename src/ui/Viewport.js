@@ -64,7 +64,7 @@ Viewport = function(refs, cmp) {
     cmp = cmp || {};
 
     var northRegion = cmp.northRegion;
-    
+
     var eastRegion = cmp.eastRegion;
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
@@ -3841,7 +3841,7 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(westRegion, 'westRegion');
-    
+
     var updateButton = Ext.create('Ext.button.Split', {
         text: '<b>' + i18n.update + '</b>&nbsp;',
         handler: function() {
