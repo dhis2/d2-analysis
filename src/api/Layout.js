@@ -358,7 +358,14 @@ Layout.prototype.toPlugin = function(el) {
             'parentOrganisationUnit',
             'cumulative',
             'sortOrder',
-            'topLimit'
+            'topLimit',
+            'displayDescription',
+            'interpretations',
+            'lastUpdated',
+            'created',
+            'user',
+            'publicAccess',
+            'userGroupAccesses'
         ];
 
         deleteIfTruthy.forEach(function(item) {
@@ -447,6 +454,14 @@ Layout.prototype.toPost = function() {
 
     delete this.id;
     delete this.el;
+
+    delete t.displayDescription;
+    delete t.interpretations;
+    delete t.lastUpdated;
+    delete t.created;
+    delete t.user;
+    delete t.publicAccess;
+    delete t.userGroupAccesses;
 };
 
 Layout.prototype.toSession = function() {
