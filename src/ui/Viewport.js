@@ -4348,6 +4348,7 @@ Viewport = function(refs, cmp) {
             }
         }
         else {
+            treePanel.reset();
             layoutWindow.reset();
             optionsWindow.reset();
         }

@@ -686,7 +686,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border-width:0;',
+            style: 'padding:6px; border-width:0;',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
