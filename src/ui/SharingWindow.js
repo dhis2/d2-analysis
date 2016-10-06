@@ -11,8 +11,7 @@ SharingWindow = function(c, sharing, configOnly) {
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig;
 
-    var path = appManager.getPath(),
-        favoriteWindow = uiManager.get('favoriteWindow');
+    var path = appManager.getPath();
 
     var UserGroupRow,
 
@@ -287,7 +286,9 @@ SharingWindow = function(c, sharing, configOnly) {
             ],
             listeners: {
                 show: function(w) {
-                    if (favoriteWindow) {
+                    var favoriteWindow = uiManager.get('favoriteWindow');
+
+                    if (favoriteWindow && favoriteWindow.rendered) {
 
                         // position
                         var x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0],
@@ -307,6 +308,8 @@ SharingWindow = function(c, sharing, configOnly) {
                     }
                 },
                 destroy: function() {
+                    var favoriteWindow = uiManager.get('favoriteWindow');
+
                     if (favoriteWindow) {
                         favoriteWindow.destroyOnBlur = true;
                     }
