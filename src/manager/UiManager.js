@@ -124,9 +124,12 @@ UiManager = function(c) {
         if (!t.instanceManager.plugin) {
 
             // set url state
-            var urlState = favoriteState ? ('?id=' + favoriteState.id) : '.';
-            urlState += favoriteState.interpretationId ? ('&interpretationId=' + favoriteState.interpretationId) : '';
-            t.setUrlState(urlState);
+            if (favoriteState) {
+                t.setUrlState(('?id=' + favoriteState.id) + (favoriteState.interpretationId ? '&interpretationId=' + favoriteState.interpretationId : ''));
+            }
+            else {
+                t.setUrlState('.');
+            }
 
             // toolbar
             if (north) {

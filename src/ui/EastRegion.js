@@ -238,6 +238,10 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
+            if (!layout) {
+                return;
+            }
+
             // Remove any previous panel
             this.removeAll(true);
 
@@ -748,7 +752,14 @@ EastRegion = function(c) {
         getInterpretationPanel: getInterpretationPanel,
         getTopInterpretationsPanel: getTopInterpretationsPanel,
 
-        addAndUpdateInterpretationsPanel: function(interpretations, interpretationId) {
+        addAndUpdateInterpretationsPanel: function(layout) {
+            if (!layout) {
+                return;
+            }
+
+            var interpretations = layout.interpretations;
+            var interpretationId = layout.interpretationId;
+
             // Remove any previous panel
             this.removeAll(true);
 
@@ -781,7 +792,7 @@ EastRegion = function(c) {
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
             // Favorite loaded with interpretations ->  Add interpretation panel and update
-            this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout.interpretations, layout.interpretationId);
+            this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         }
     });
 };
