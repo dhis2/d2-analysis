@@ -157,6 +157,7 @@ EastRegion = function(c) {
                 xtype: 'displayfield',
                 fieldLabel: i18n.owner,
                 labelStyle: 'padding-top: 1px',
+                style: 'margin-bottom:3px',
                 itemId: 'owner',
                 value: (layout.user != undefined) ? layout.user.displayName : '',
                 cls: 'interpretationDetailsField'
@@ -165,6 +166,7 @@ EastRegion = function(c) {
                 itemId: 'created',
                 fieldLabel: i18n.created,
                 labelStyle: 'padding-top: 1px',
+                style: 'margin-bottom:3px',
                 value: layout.created,
                 cls: 'interpretationDetailsField'
             }, {
@@ -172,6 +174,7 @@ EastRegion = function(c) {
                 itemId: 'lastUpdated',
                 fieldLabel: i18n.last_updated,
                 labelStyle: 'padding-top: 1px',
+                style: 'margin-bottom:3px',
                 value: layout.lastUpdated,
                 cls: 'interpretationDetailsField',
             }, {
@@ -179,6 +182,7 @@ EastRegion = function(c) {
                 itemId: 'numberViews',
                 fieldLabel: i18n.number_of_views,
                 labelStyle: 'padding-top: 1px',
+                style: 'margin-bottom:3px',
                 value: i18n.retrieving_number_of_views,
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -191,6 +195,7 @@ EastRegion = function(c) {
                 itemId: 'sharing',
                 fieldLabel: i18n.sharing,
                 labelStyle: 'padding-top: 1px',
+                style: 'margin-bottom:3px',
                 value: getSharingText(layout) + '<span style="padding-left:10px">' + getLink(editText, false, true) + '</span>',
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -208,14 +213,15 @@ EastRegion = function(c) {
             detailsPanelItems = [{
                 xtype: 'label',
                 text: i18n.no_current_favorite,
-                cls: 'interpretationActions'
+                cls: 'interpretationActions',
+                style: 'padding:4px 1px;'
             }];
         }
 
         return {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:6px',
+            style: 'padding:6px;',
             itemId: 'noFavoriteDetailsPanel',
             defaults: {
                 style: 'margin-top: 1px;'
@@ -654,7 +660,7 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border-width:0; border-style:solid; border-bottom-width:1px',
+            style: 'padding:10px 7px; border-width:0 0 1px 0; border-style:solid;',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
@@ -664,7 +670,7 @@ EastRegion = function(c) {
                 listeners: {
                     'render': function(label) {
                         label.getEl().on('click', function() {
-                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r)  {
+                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
                                 InterpretationWindow(c, r).show();
                             });
                         }, label);
@@ -676,7 +682,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:6px; border-width:1px 0; border-style:solid; border-top-width: 0; border-bottom-width: 0;',
+            style: 'padding:10px 7px; border-width:0;',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
@@ -687,7 +693,7 @@ EastRegion = function(c) {
         var backToTodayPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px; border-width:0',
+            style: 'padding:10px 7px; border:1px solid #dadada; border-width:0 0 1px 0;',
             hidden: !displayingInterpretation,
             itemId: 'backToToday',
             items: [{
