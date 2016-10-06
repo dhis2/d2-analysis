@@ -1,4 +1,5 @@
 import {AboutWindow} from './AboutWindow';
+import {DateManager} from '../manager/DateManager.js';
 
 export var NorthRegion;
 
@@ -72,12 +73,18 @@ NorthRegion = function(c, cmpConfig) {
 
             cmp.title = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'title untitled user-select',
-                //html: '&nbsp;',
                 titleText: '',
                 text: defaultTitleText,
+                updateTitle: function() {
+                    this.update(this.titleText ? this.titleText : defaultTitleText);
+                },
                 setTitle: function(name) {
                     this.titleText = name || '';
-                    this.update(this.titleText ? this.titleText : defaultTitleText);
+                    this.updateTitle();
+                },
+                appendTitle: function(text) {
+                    this.titleText += text ? ('<span class="appendix">[' + DateManager.getYYYYMMDD(text, true) + ']</span>') : '';
+                    this.updateTitle();
                 },
                 setSaved: function() {
                     this.getEl().removeCls('unsaved');
@@ -102,6 +109,8 @@ NorthRegion = function(c, cmpConfig) {
                         else {
                             this.setUnsaved();
                         }
+
+                        this.appendTitle(layout.relativePeriodDate);
                     }
                     else {
                         this.setTitle();

@@ -1,14 +1,23 @@
+import isString from 'd2-utilizr/lib/isString';
+
 export var DateManager;
 
 DateManager = function() {
     this.klass = DateManager;
 };
 
+DateManager.toDate = function(dateString) {
+    return isString(dateString) ? (new Date(dateString)) : dateString;
+};
+
 DateManager.isValid = function(param) {
-	return (Object.prototype.toString.call(param) === '[object Date]' && param.toString() !== 'Invalid Date')
+    param = this.toDate(param);
+    return (Object.prototype.toString.call(param) === '[object Date]' && param.toString() !== 'Invalid Date')
 }
 
 DateManager.getYYYYMMDD = function(param, skipValidation) {
+    param = this.toDate(param);
+
     if (!skipValidation && !DateManager.isValid(param)) {
         return null;
     }
@@ -23,12 +32,13 @@ DateManager.getYYYYMMDD = function(param, skipValidation) {
     return date.getFullYear() + '-' + month + '-' + day;
 };
 
-DateManager.getTimeDifference = function(date){
-	var seconds = Math.floor((new Date() - new Date(date)) / 1000);
-	// Dirty hack to avoid having negative time due to difference between client zone and server zone
-	while (seconds < 0) {
-		seconds += 3600;
-	}
+DateManager.getTimeDifference = function(date) {
+    var seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+    // Dirty hack to avoid having negative time due to difference between client zone and server zone
+    while (seconds < 0) {
+        seconds += 3600;
+    }
     var interval = Math.floor(seconds / 31536000);
 
     if (interval > 1) {
@@ -51,4 +61,4 @@ DateManager.getTimeDifference = function(date){
         return interval + " minutes";
     }
     return Math.floor(seconds) + " seconds";
-}
+};

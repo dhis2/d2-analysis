@@ -4470,14 +4470,18 @@ Viewport = function(refs, cmp) {
                 // look for url params
                 var id = appManager.getUrlParam('id'),
                     session = appManager.getUrlParam('s'),
-                    interpretationId = appManager.getUrlParam('interpretationid'),
+                    interpretationId = appManager.getUrlParam('interpretationId'),
                     layout;
 
                 if (id) {
-                    if (interpretationId){
-                        instanceManager.getById(id, undefined, interpretationId);
+                    if (interpretationId) {
+                        instanceManager.getById(id, function() {
+                            instanceManager.getInterpretationById(interpretationId, function(interpretation) {
+                                uiManager.updateInterpretation(interpretation);
+                            });
+                        });
                     }
-                    else{
+                    else {
                         instanceManager.getById(id);
                     }
                 }

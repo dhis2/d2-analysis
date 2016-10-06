@@ -638,7 +638,7 @@ EastRegion = function(c) {
                     this.up("[xtype='panel']").down('#backToToday').show();
 
                     // Update canvas with favorite as it was by the time the interpretation was created
-                    instanceManager.updateInterpretationFunction(interpretation);
+                    uiManager.updateInterpretation(interpretation);
                 }
             },
 

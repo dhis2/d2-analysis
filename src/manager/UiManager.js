@@ -40,6 +40,14 @@ UiManager = function(c) {
         t.getUpdateComponent() && t.getUpdateComponent().update(content);
     };
 
+    var updateInterpretationFn = function(interpretation) {
+        var layout = t.instanceManager.getStateCurrent();
+
+        layout.applyInterpretation(interpretation);
+
+        t.instanceManager.getReport(layout, true);
+    };
+
     t.preventMask = false;
 
     t.i18nManager;
@@ -55,6 +63,10 @@ UiManager = function(c) {
 
     t.setUpdateFn = function(fn) {
         updateFn = fn;
+    };
+
+    t.setUpdateInterpretationFn = function(fn) {
+        updateInterpretationFn = fn;
     };
 
     // components
@@ -98,6 +110,10 @@ UiManager = function(c) {
         updateFn(content, elementId);
     };
 
+    t.updateInterpretation = function(interpretation) {
+        updateInterpretationFn(interpretation);
+    };
+
     // state
     t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
         var north = t.get('northRegion'),
@@ -109,7 +125,7 @@ UiManager = function(c) {
 
             // set url state
             var urlState = favoriteState ? ('?id=' + favoriteState.id) : '.';
-            urlState += favoriteState.interpretationId ? ('&interpretationid=' + favoriteState.interpretationId) : '';
+            urlState += favoriteState.interpretationId ? ('&interpretationId=' + favoriteState.interpretationId) : '';
             t.setUrlState(urlState);
 
             // toolbar
@@ -131,10 +147,10 @@ UiManager = function(c) {
             if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
                 west.setState(currentState);
             }
-            
+
             // east
             if (east){
-            	east.setState(currentState);
+                east.setState(currentState);
             }
         }
 
