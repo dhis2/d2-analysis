@@ -18,6 +18,10 @@ EastRegion = function(c) {
 
     var descriptionMaxNumberCharacter = 200;
 
+    var getLink = function(text) {
+        return '<span class="bold">[</span> <span class="eastPanelLink">' + text + '</span> <span class="bold">]</span>';
+    };
+
     /*
      * FAVORITE DETAILS PANEL
      */
@@ -27,10 +31,6 @@ EastRegion = function(c) {
         // Otherwise -> Display No Favorite Panel
         var detailsPanelItems;
         if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
-
-            var getLink = function(text) {
-                return '<span class="bold">[</span> <span class="link">' + text + '</span> <span class="bold">]</span>';
-            };
 
             var moreText = i18n.show_more;
             var lessText = i18n.show_less;
@@ -62,9 +62,9 @@ EastRegion = function(c) {
                         html: getLink(moreText),
                         cls: 'interpretationActions',
                         isShortDescriptionDisplayed: true,
-                        style: 'margin: 0px 3px;',
+                        style: 'margin: 1px 3px 0;',
                         listeners: {
-                            'render': function(label) {
+                            render: function(label) {
                                 label.getEl().on('click', function() {
                                     if (this.isShortDescriptionDisplayed) {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription, false);
@@ -76,6 +76,8 @@ EastRegion = function(c) {
                                     this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
                                     this.up('#descriptionPanel').doLayout();
                                 }, label);
+
+                                //linkRender(label.getEl());
                             }
                         }
                     });
@@ -86,7 +88,7 @@ EastRegion = function(c) {
                     xtype: 'label',
                     html: getLink(editText),
                     cls: 'interpretationActions',
-                    style: 'margin: 0px 3px;',
+                    style: 'margin: 1px 3px 0;',
                     listeners: {
                         'render': function(label) {
                             label.getEl().on('click', function() {
@@ -464,11 +466,23 @@ EastRegion = function(c) {
             var interpretationPanelItems = [{
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 1px;',
+                style: 'margin-bottom: 3px;',
                 items: [{
                     xtype: 'label',
-                    html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id + '\">' + interpretation.user.displayName + '<a>',
-                    style: 'margin-right:10px;font-weight:bold;color:#3162C5;'
+                    //html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id + '\">' + interpretation.user.displayName + '<a>',
+                    html: interpretation.user.displayName,
+                    style: 'margin-right:10px; font-weight:bold; color:#3162C5;',
+                    listeners: {
+                        render: function() {
+                            var element = this.getEl();
+
+                            element.on('click', function() {
+                                window.location.href = appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
+                            });
+
+                            //linkRender(element);
+                        }
+                    }
                 }, {
                     xtype: 'label',
                     text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
