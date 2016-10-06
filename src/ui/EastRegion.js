@@ -70,10 +70,10 @@ EastRegion = function(c) {
                                 label.getEl().on('click', function() {
                                     if (this.isShortDescriptionDisplayed) {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(longDescription, false);
-                                        this.setText(getLink(lessText), false, true)
+                                        this.setText(getLink(lessText, false, true));
                                     } else {
                                         this.up('#descriptionPanel').down('#descriptionLabel').setText(shortDescription, false);
-                                        this.setText(getLink(moreText), false, true)
+                                        this.setText(getLink(moreText, false, true));
                                     }
                                     this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
                                     this.up('#descriptionPanel').doLayout();
