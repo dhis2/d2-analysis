@@ -654,14 +654,13 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border-width:0; border-style:solid;',
+            style: 'padding:10px 7px; border-width:0; border-style:solid; border-bottom-width:1px',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
-                html: i18n.share + ' ' + i18n.interpretation,
+                html: getLink(i18n.share + ' ' + i18n.interpretation),
                 cls: 'interpretationActions',
-                style: 'cursor:pointer;color:#3162C5;',
                 listeners: {
                     'render': function(label) {
                         label.getEl().on('click', function() {
@@ -677,7 +676,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px;border-width:1px 0;border-style:solid;',
+            style: 'padding:6px; border-width:1px 0; border-style:solid; border-top-width: 0; border-bottom-width: 0;',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
@@ -725,7 +724,7 @@ EastRegion = function(c) {
         var topInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'border-width:0px 0px 1px;border-style:solid;',
+            style: 'border-width:0',
             items: topInterpretationPanelItems
         };
 
