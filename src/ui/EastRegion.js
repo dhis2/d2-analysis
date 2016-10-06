@@ -78,8 +78,6 @@ EastRegion = function(c) {
                                     this.isShortDescriptionDisplayed = !this.isShortDescriptionDisplayed;
                                     this.up('#descriptionPanel').doLayout();
                                 }, label);
-
-                                //linkRender(label.getEl());
                             }
                         }
                     });
