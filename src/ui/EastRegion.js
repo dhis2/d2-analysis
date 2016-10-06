@@ -18,8 +18,10 @@ EastRegion = function(c) {
 
     var descriptionMaxNumberCharacter = 200;
 
-    var getLink = function(text) {
-        return '<span class="bold">[</span> <span class="eastPanelLink">' + text + '</span> <span class="bold">]</span>';
+    var getLink = function(text, linkOnly) {
+        return (!linkOnly ? '<span class="bold">[</span> ' : '') +
+            '<span class="eastPanelLink">' + text + '</span>' +
+            (!linkOnly ? ' <span class="bold">]</span>' : '');
     };
 
     /*
@@ -216,7 +218,7 @@ EastRegion = function(c) {
             style: 'padding:6px',
             itemId: 'noFavoriteDetailsPanel',
             defaults: {
-                style: 'margin-bottom: 1px;'
+                style: 'margin-top: 1px;'
             },
             items: [detailsPanelItems]
         };
@@ -261,7 +263,7 @@ EastRegion = function(c) {
                 layout: 'column',
                 itemId: 'commentPanel',
                 hidden: true,
-                style: 'margin-bottom: 1px;',
+                style: 'margin-top: 1px;',
                 cls: 'comment greyBackground',
                 items: [{
                     xtype: 'panel',
@@ -271,7 +273,7 @@ EastRegion = function(c) {
                         cls: 'avatar',
                         text: appManager.userAccount.firstName[0] + appManager.userAccount.surname.split(' ')[appManager.userAccount.surname.split(' ').length - 1][0]
                     }],
-                    columnWidth: 0.1
+                    columnWidth: 0.11
                 }, {
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
@@ -296,7 +298,7 @@ EastRegion = function(c) {
                         }
                     }, {
                         xtype: 'label',
-                        text: i18n.post_comment,
+                        html: getLink(i18n.post_comment, true),
                         cls: 'link',
                         listeners: {
                             'render': function(label) {
@@ -306,7 +308,7 @@ EastRegion = function(c) {
                             }
                         }
                     }],
-                    columnWidth: 0.9
+                    columnWidth: 0.89
                 }]
             });
 
@@ -340,9 +342,17 @@ EastRegion = function(c) {
                             bodyStyle: 'border-style:none',
                             items: [{
                                 xtype: 'label',
-                                html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
+                                //html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id + '\">' + comment.user.displayName + '<a>',
+                                html: getLink(comment.user.displayName, true),
                                 cls: 'link bold',
-                                style: 'margin-right: 7px;'
+                                style: 'margin-right: 7px;',
+                                listeners: {
+                                    render: function() {
+                                        this.getEl().on('click', function() {
+                                            window.location.href = appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id;
+                                        });
+                                    }
+                                }
                             }, {
                                 xtype: 'label',
                                 text: comment.text,
@@ -362,7 +372,7 @@ EastRegion = function(c) {
                 commentsPanel.push({
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
-                    style: 'margin-bottom: 1px;',
+                    style: 'margin-top: 1px;',
                     cls: 'comment greyBackground',
                     items: [{
                         xtype: 'label',
@@ -469,9 +479,8 @@ EastRegion = function(c) {
                 style: 'margin-bottom: 3px;',
                 items: [{
                     xtype: 'label',
-                    //html: '<a href=\"' + appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id + '\">' + interpretation.user.displayName + '<a>',
-                    html: interpretation.user.displayName,
-                    style: 'margin-right:10px; font-weight:bold; color:#3162C5;',
+                    html: getLink(interpretation.user.displayName, true),
+                    style: 'margin-right:10px;',
                     listeners: {
                         render: function() {
                             var element = this.getEl();
@@ -479,8 +488,6 @@ EastRegion = function(c) {
                             element.on('click', function() {
                                 window.location.href = appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
                             });
-
-                            //linkRender(element);
                         }
                     }
                 }, {
@@ -490,7 +497,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 10px;',
+                style: 'margin-bottom: 7px;',
                 items: [{
                     xtype: 'label',
                     text: interpretation.text,
@@ -508,7 +515,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 1px;',
+                style: 'margin-top: 1px;',
                 itemId: 'likePanelSelected',
                 hidden: !displayingComments,
 
@@ -518,8 +525,8 @@ EastRegion = function(c) {
                     style: 'margin-bottom: 5px;',
                     items: [{
                         xtype: 'label',
-                        text: isLiked(interpretation) ? i18n.unlike : i18n.like,
-                        style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
+                        html: isLiked(interpretation) ? getLink(i18n.unlike, true) : getLink(i18n.like, true),
+                        style: 'margin-right: 5px;',
 
                         listeners: {
                             'render': function(label) {
@@ -531,7 +538,6 @@ EastRegion = function(c) {
                                         html: getTooltipLike(),
                                         bodyStyle: 'background-color: white;border'
                                     });
-
                                 }
                             }
                         }
@@ -541,7 +547,7 @@ EastRegion = function(c) {
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
-                        text: i18n.comment,
+                        html: getLink(i18n.comment, true),
                         style: 'margin-right: 5px;cursor:pointer;color:#3162C5;font-weight: bold;',
 
                         listeners: {
@@ -673,7 +679,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px;border-width:0px 0px 1px;border-style:solid;',
+            style: 'padding:10px;border-width:1px 0;border-style:solid;',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
@@ -689,7 +695,7 @@ EastRegion = function(c) {
             itemId: 'backToToday',
             items: [{
                 xtype: 'label',
-                html: '<< ' + i18n.back_to_today,
+                html: getLink('<< ' + i18n.back_to_today, true),
                 cls: 'interpretationActions link',
                 listeners: {
                     'render': function(label) {
