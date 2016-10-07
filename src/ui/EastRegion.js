@@ -515,7 +515,7 @@ EastRegion = function(c) {
                 hidden: displayingComments,
                 items: [{
                     xtype: 'label',
-                    html: "<div class='thumbs_up greyBackground'>" + interpretation.likes + " " + i18n.people_like_this + ". " + interpretation.comments.length + " " + i18n.people_commented + "</div>",
+                    html: '<div class="thumbs_up greyBackground">' + interpretation.likes + ' ' + i18n.people_like_this + '<span style="padding:0 5px">·</span>' + interpretation.comments.length + ' ' + i18n.people_commented + '</div>',
                 }]
             }, {
                 xtype: 'panel',
@@ -536,14 +536,6 @@ EastRegion = function(c) {
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', likeUnlikeInterpretation, this);
-
-                                if (interpretation.likedBy.length > 0) {
-                                    Ext.create('Ext.tip.ToolTip', {
-                                        target: label.getEl(),
-                                        html: getTooltipLike(),
-                                        bodyStyle: 'background-color: white;border'
-                                    });
-                                }
                             }
                         }
                     }, {
