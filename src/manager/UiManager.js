@@ -40,8 +40,8 @@ UiManager = function(c) {
         t.getUpdateComponent() && t.getUpdateComponent().update(content);
     };
 
-    var updateInterpretationFn = function(interpretation) {
-        var layout = t.instanceManager.getStateCurrent();
+    var updateInterpretationFn = function(interpretation, layout) {
+        var layout = layout || t.instanceManager.getStateCurrent();
 
         if (layout) {
             layout.applyInterpretation(interpretation);
