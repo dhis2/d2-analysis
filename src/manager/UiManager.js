@@ -154,7 +154,7 @@ UiManager = function(c) {
             }
 
             // east
-            if (east){
+            if (east) {
                 east.setState(currentState);
             }
         }

@@ -240,10 +240,6 @@ EastRegion = function(c) {
             // Remove any previous panel
             this.removeAll(true);
 
-            if (!layout) {
-                return;
-            }
-
             this.add(getDetailsPanelItems(layout));
         },
 
@@ -664,7 +660,7 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 6px; border-width:0 0 1px 0; border-style:solid;',
+            style: 'padding:6px; border-width:0 0 1px 0; border-style:solid;',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
@@ -697,7 +693,7 @@ EastRegion = function(c) {
         var backToTodayPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 6px; border:1px solid #dadada; border-width:0 0 1px 0;',
+            style: 'padding:6px; border:1px solid #dadada; border-width:0 0 1px 0;',
             hidden: !displayingInterpretation,
             itemId: 'backToToday',
             items: [{
@@ -753,13 +749,10 @@ EastRegion = function(c) {
         getTopInterpretationsPanel: getTopInterpretationsPanel,
 
         addAndUpdateInterpretationsPanel: function(layout) {
+            layout = layout || {};
 
             // Remove any previous panel
             this.removeAll(true);
-
-            if (!layout) {
-                return;
-            }
 
             var interpretations = layout.interpretations;
             var interpretationId = layout.interpretationId;
