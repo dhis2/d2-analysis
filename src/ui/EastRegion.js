@@ -236,12 +236,13 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
-            if (!layout) {
-                return;
-            }
 
             // Remove any previous panel
             this.removeAll(true);
+
+            if (!layout) {
+                return;
+            }
 
             this.add(getDetailsPanelItems(layout));
         },
@@ -487,7 +488,7 @@ EastRegion = function(c) {
                 items: [{
                     xtype: 'label',
                     html: getLink(interpretation.user.displayName, true),
-                    style: 'margin-right:10px;',
+                    style: 'margin-right:7px;',
                     listeners: {
                         render: function() {
                             var element = this.getEl();
@@ -499,6 +500,7 @@ EastRegion = function(c) {
                     }
                 }, {
                     xtype: 'label',
+                    style: 'color:#666',
                     text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
                 }]
             }, {
@@ -662,12 +664,12 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border-width:0 0 1px 0; border-style:solid;',
+            style: 'padding:10px 6px; border-width:0 0 1px 0; border-style:solid;',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
-                html: getLink(i18n.share + ' ' + i18n.interpretation),
+                html: getLink(i18n.write_interpretation),
                 cls: 'interpretationActions',
                 listeners: {
                     'render': function(label) {
@@ -695,7 +697,7 @@ EastRegion = function(c) {
         var backToTodayPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border:1px solid #dadada; border-width:0 0 1px 0;',
+            style: 'padding:10px 6px; border:1px solid #dadada; border-width:0 0 1px 0;',
             hidden: !displayingInterpretation,
             itemId: 'backToToday',
             items: [{
@@ -751,15 +753,16 @@ EastRegion = function(c) {
         getTopInterpretationsPanel: getTopInterpretationsPanel,
 
         addAndUpdateInterpretationsPanel: function(layout) {
+
+            // Remove any previous panel
+            this.removeAll(true);
+
             if (!layout) {
                 return;
             }
 
             var interpretations = layout.interpretations;
             var interpretationId = layout.interpretationId;
-
-            // Remove any previous panel
-            this.removeAll(true);
 
             //Get top interpretations panel depending on interpretations and if we are displaying an interpretation
             this.add(this.getTopInterpretationsPanel(interpretations, interpretationId != undefined));

@@ -1,15 +1,19 @@
-import isString from 'd2-utilizr/lib/isString';
+import isArray from 'd2-utilizr/lib/isArray';
+import isFunction from 'd2-utilizr/lib/isFunction';
 import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import stringReplaceAll from 'd2-utilizr/lib/stringReplaceAll';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
-import arrayTo from 'd2-utilizr/lib/arrayTo';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arraySort from 'd2-utilizr/lib/arraySort';
+import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var AppManager;
 
-AppManager = function() {
+AppManager = function(refs) {
     var t = this;
+
+    t.refs = isObject(refs) ? refs : {};
 
     // constants
     t.defaultUiLocale = 'en';
@@ -209,6 +213,40 @@ AppManager.prototype.getLegendSetById = function(id) {
     });
 
     return t.legendSetMap[id];
+};
+
+AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
+    if (!(isString(id) && isFunction(fn))) {
+        return;
+    }
+
+    var t = this;
+
+    var legendSetId;
+
+    new t.refs.api.Request({
+        type: 'json',
+        baseUrl: t.getPath() + '/api/indicators.json',
+        params: [
+            'filter=id:eq:' + id,
+            'fields=legendSet[id]',
+            'paging=false'
+        ],
+        success: function(json) {
+            if (isArray(json.indicators) && json.indicators.length) {
+                if (isObject(json.indicators[0].legendSet)) {
+                    var legendSet = json.indicators[0].legendSet;
+
+                    if (isObject(legendSet)) {
+                        legendSetId = legendSet.id;
+                    }
+                }
+            }
+        },
+        complete: function() {
+            fn(legendSetId);
+        }
+    }).run();
 };
 
 AppManager.prototype.addDimensions = function(param) {

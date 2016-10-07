@@ -43,9 +43,11 @@ UiManager = function(c) {
     var updateInterpretationFn = function(interpretation) {
         var layout = t.instanceManager.getStateCurrent();
 
-        layout.applyInterpretation(interpretation);
+        if (layout) {
+            layout.applyInterpretation(interpretation);
 
-        t.instanceManager.getReport(layout, true);
+            t.instanceManager.getReport(layout, true);
+        }
     };
 
     t.preventMask = false;
