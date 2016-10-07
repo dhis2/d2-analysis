@@ -591,7 +591,7 @@ EastRegion = function(c) {
         var interpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none;',
-            style: 'padding:6px;',
+            style: 'padding:6px; border-bottom:1px solid #d0d0d0;',
             cls: 'clickable',
             instanceManager: instanceManager,
             interpretation: interpretation,
@@ -674,7 +674,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:6px; border-width:0;',
+            style: 'padding:6px; border-width:0; border-bottom:1px solid #d0d0d0',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
@@ -733,6 +733,7 @@ EastRegion = function(c) {
     var interpretationsPanel = {
         xtype: 'panel',
         cls: 'ns-panel-title-east-default',
+        bodyStyle: 'border-bottom-width: 0',
         title: i18n.interpretations,
         itemId: 'interpretationsPanel',
         displayingInterpretation: false,
