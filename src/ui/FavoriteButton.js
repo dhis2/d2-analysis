@@ -3,6 +3,7 @@ import {RenameWindow} from './RenameWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {LinkWindow} from './LinkWindow.js';
+import {TranslateWindow} from './TranslateWindow.js';
 
 export var FavoriteButton;
 
@@ -98,6 +99,16 @@ FavoriteButton = function(c) {
                     });
                     uiManager.reg(saveAsItem, 'renameItem');
                     
+                    var translateItem = Ext.create('Ext.menu.Item', {		
+                        text: getTitle(i18n.translate),		
+                        iconCls: 'ns-menu-item-favorite-translate',		
+                        disabled: !instanceManager.isStateFavorite(),		
+                        handler: function() {		
+                            TranslateWindow(c, instanceManager.getStateFavorite()).show();		
+                        }		
+                    });		
+                    uiManager.reg(saveAsItem, 'translateItem');
+
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
@@ -165,6 +176,7 @@ FavoriteButton = function(c) {
                         //discardItem,
                         //'-',
                         renameItem,
+                        translateItem,
                         '-',
                         shareItem,
                         interpretationItem,
