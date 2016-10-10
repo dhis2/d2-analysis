@@ -20,25 +20,57 @@ TranslateWindow = function(refs, layout, fn, listeners) {
 
     listeners = listeners || {};
 
-    //const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
-    var states = Ext.create('Ext.data.Store', {
-        fields: ['abbr', 'name'],
-        data : [
-            {"abbr":"AL", "name":"Alabama"},
-            {"abbr":"AK", "name":"Alaska"},
-            {"abbr":"AZ", "name":"Arizona"}
-            //...
-        ]
+    const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
+
+    nameTextField["hidden"] = true;
+    titleTextField["hidden"] = true;
+    descriptionTextField["hidden"] = true;
+
+    var translations = {};
+
+    var onEventLocaleSelect = function(localeId){
+         console.log(localeId);
+        if (localeId in translations) {
+
+        }
+        else{
+            nameTextField.setValue("");
+            titleTextField.setValue("");
+            descriptionTextField.setValue("");
+        }
+
+        nameTextField.show();
+        titleTextField.show();
+        descriptionTextField.show();
+
+    };
+
+    var localeStore = Ext.create('Ext.data.Store', {
+        fields: ['locale', 'name'],
+        proxy: {
+            type: 'ajax',
+            url: encodeURI(path + '/api/locales/db.json?paging=false'),
+            reader: {
+                type: 'json'
+            },
+            pageParam: false,
+            startParam: false,
+            limitParam: false
+        }
     });
 
-
     var localeComboBox = Ext.create('Ext.form.ComboBox', {
-        fieldLabel: 'Choose State',
-        store: states,
+        fieldLabel: 'Select a locale to enter translations for ',
+        store: localeStore,
         queryMode: 'local',
         displayField: 'name',
-        valueField: 'abbr',
-        renderTo: Ext.getBody()
+        valueField: 'locale',
+        emptyText: i18n.select_locale,
+        listeners: {
+            select: function(locale) {
+                onEventLocaleSelect(locale.getValue());
+            }
+        }
     });
 
     var saveButton = Ext.create('Ext.button.Button', {
@@ -46,36 +78,36 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         handler: function() {
             var name = nameTextField.getValue(),
                 title = titleTextField.getValue(),
-                description = descriptionTextField.getValue(),
-                put = function() {
-                    layout.clone().put(function() {
-                        if (fn) {
-                            fn();
-                        }
-                        instanceManager.setStateIf(layout, true);
-                        window.destroy();
-                    }, true, true);
-                };
+                description = descriptionTextField.getValue();
 
-            if (layout.put) {
-                layout.name = name;
-                layout.title = title;
-                layout.description = description;
-                put();
-            }
-            else {
-                var fields = appManager.getAnalysisFields(),
-                    url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
+            var newTranslations = [];
 
-                $.getJSON(encodeURI(url), function(r) {
-                    layout = new api.Layout(refs, r).val();
-                    layout.name = name;
-                    layout.title = title;
-                    layout.description = description;
+            var translation = {
+                property: 'NAME',
+                locale: localeComboBox.getValue(),
+                value: name
+            };
 
-                    put();
-                });
-            }
+            newTranslations.push(translation);
+
+            var payloadTranslations = {"translations": newTranslations}
+
+            $.ajax({
+                url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '/translations/'),
+                type: 'PUT',
+                data: JSON.stringify(payloadTranslations),
+                dataType: 'json',
+                headers: appManager.defaultRequestHeaders,
+                success: function(obj, success, r) {
+                    console.log('taka')
+                },
+                error: function(obj, success, r) {
+                    console.log(obj)
+                    console.log(success)
+                    console.log(r)
+                }
+            });
+           
         }
     });
 
@@ -92,7 +124,10 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         resizable: false,
         modal: true,
         items: [
-            localeComboBox
+            localeComboBox,
+            nameTextField,
+            titleTextField,
+            descriptionTextField
         ],
         destroyOnBlur: true,
         bbar: [
@@ -102,6 +137,18 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         ],
         listeners: {
             show: function(w) {
+                localeStore.load();
+
+                //TODO: Can we get translations from the endpoint? 
+                Ext.Ajax.request({
+                    url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '.json?fields=translations&paging=false'),
+                    disableCaching: false,
+                    success: function(r) {
+                       translations = Ext.decode(r.responseText).translations
+                    }
+                });
+
+
                 var favoriteButton = uiManager.get('favoriteButton') || {};
 
                 if (favoriteButton.rendered) {
@@ -112,7 +159,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                     }
                 }
 
-                nameTextField.focus(false, 500);
+                //nameTextField.focus(false, 500);
 
                 if (listeners.show) {
                     listeners.show();
