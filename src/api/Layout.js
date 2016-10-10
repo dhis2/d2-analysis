@@ -455,13 +455,13 @@ Layout.prototype.toPost = function() {
     delete this.id;
     delete this.el;
 
-    delete t.displayDescription;
-    delete t.interpretations;
-    delete t.lastUpdated;
-    delete t.created;
-    delete t.user;
-    delete t.publicAccess;
-    delete t.userGroupAccesses;
+    delete this.displayDescription;
+    delete this.interpretations;
+    delete this.lastUpdated;
+    delete this.created;
+    delete this.user;
+    delete this.publicAccess;
+    delete this.userGroupAccesses;
 };
 
 Layout.prototype.toSession = function() {
