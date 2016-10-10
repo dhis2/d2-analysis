@@ -770,6 +770,10 @@ EastRegion = function(c) {
      */
     return Ext.create('Ext.panel.Panel', {
         region: 'east',
+        preventHeader: true,
+        collapsible: true,
+        collapseMode: 'mini',
+        collapsed: true,
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: [detailsPanel, interpretationsPanel],
@@ -780,6 +784,11 @@ EastRegion = function(c) {
 
             // Favorite loaded with interpretations ->  Add interpretation panel and update
             this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
+        },
+        listeners: {
+            expand: function() {
+                this.doLayout();
+            }
         }
     });
 };

@@ -4280,10 +4280,10 @@ Viewport = function(refs, cmp) {
                     text: ' ',
                     width: 26,
                     padding: '3',
-                    iconCls: 'ns-button-icon-arrowrighttriple',
+                    iconCls: 'ns-button-icon-arrowlefttriple',
                     iconClsLeft: 'ns-button-icon-arrowlefttriple',
                     iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 0,
+                    iconState: 1,
                     setIconState: function() {
                         this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
                     },
