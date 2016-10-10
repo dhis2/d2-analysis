@@ -580,10 +580,9 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
-        apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
-    var url = path + '/api/' + apiResource;
+    var url = path + '/api/' + apiEndpoint;
 
     t.toPost();
 
@@ -624,7 +623,6 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
         uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
-        apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
     var url = path + '/api/' + apiEndpoint + '/' + t.id;
