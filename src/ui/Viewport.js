@@ -4476,9 +4476,9 @@ Viewport = function(refs, cmp) {
 
                 if (id) {
                     if (interpretationId) {
-                        instanceManager.getById(id, function() {
+                        instanceManager.getById(id, function(layout) {
                             instanceManager.getInterpretationById(interpretationId, function(interpretation) {
-                                uiManager.updateInterpretation(interpretation);
+                                uiManager.updateInterpretation(interpretation, layout);
                             });
                         });
                     }

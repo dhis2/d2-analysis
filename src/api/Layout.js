@@ -531,6 +531,10 @@ Layout.prototype.hasRecordIds = function(idParam, includeFilter) {
     return has;
 };
 
+Layout.prototype.getFirstDxId = function() {
+    return this.getDimension('dx').getRecordIds()[0];
+};
+
 Layout.prototype.data = function(source, format) {
     var t = this,
         refs = this.getRefs();

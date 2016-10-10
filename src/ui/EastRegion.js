@@ -236,9 +236,6 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
-            if (!layout) {
-                return;
-            }
 
             // Remove any previous panel
             this.removeAll(true);
@@ -487,7 +484,7 @@ EastRegion = function(c) {
                 items: [{
                     xtype: 'label',
                     html: getLink(interpretation.user.displayName, true),
-                    style: 'margin-right:10px;',
+                    style: 'margin-right:7px;',
                     listeners: {
                         render: function() {
                             var element = this.getEl();
@@ -499,6 +496,7 @@ EastRegion = function(c) {
                     }
                 }, {
                     xtype: 'label',
+                    style: 'color:#666',
                     text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
                 }]
             }, {
@@ -517,7 +515,7 @@ EastRegion = function(c) {
                 hidden: displayingComments,
                 items: [{
                     xtype: 'label',
-                    html: "<div class='thumbs_up greyBackground'>" + interpretation.likes + " " + i18n.people_like_this + ". " + interpretation.comments.length + " " + i18n.people_commented + "</div>",
+                    html: '<div class="thumbs_up greyBackground">' + interpretation.likes + ' ' + i18n.people_like_this + '<span style="padding:0 5px">·</span>' + interpretation.comments.length + ' ' + i18n.people_commented + '</div>',
                 }]
             }, {
                 xtype: 'panel',
@@ -538,14 +536,6 @@ EastRegion = function(c) {
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', likeUnlikeInterpretation, this);
-
-                                if (interpretation.likedBy.length > 0) {
-                                    Ext.create('Ext.tip.ToolTip', {
-                                        target: label.getEl(),
-                                        html: getTooltipLike(),
-                                        bodyStyle: 'background-color: white;border'
-                                    });
-                                }
                             }
                         }
                     }, {
@@ -601,7 +591,7 @@ EastRegion = function(c) {
         var interpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none;',
-            style: 'padding:6px;',
+            style: 'padding:6px; border-bottom:1px solid #d0d0d0;',
             cls: 'clickable',
             instanceManager: instanceManager,
             interpretation: interpretation,
@@ -662,12 +652,12 @@ EastRegion = function(c) {
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border-width:0 0 1px 0; border-style:solid;',
+            style: 'padding:6px; border-width:0 0 1px 0; border-style:solid;',
             hidden: displayingInterpretation,
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
-                html: getLink(i18n.share + ' ' + i18n.interpretation),
+                html: getLink(i18n.write_interpretation),
                 cls: 'interpretationActions',
                 listeners: {
                     'render': function(label) {
@@ -684,7 +674,7 @@ EastRegion = function(c) {
         var noInterpretationsPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:6px; border-width:0;',
+            style: 'padding:6px; border-width:0; border-bottom:1px solid #d0d0d0',
             items: [{
                 xtype: 'label',
                 text: i18n.no_interpretations,
@@ -695,7 +685,7 @@ EastRegion = function(c) {
         var backToTodayPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
-            style: 'padding:10px 7px; border:1px solid #dadada; border-width:0 0 1px 0;',
+            style: 'padding:6px; border:1px solid #dadada; border-width:0 0 1px 0;',
             hidden: !displayingInterpretation,
             itemId: 'backToToday',
             items: [{
@@ -743,6 +733,7 @@ EastRegion = function(c) {
     var interpretationsPanel = {
         xtype: 'panel',
         cls: 'ns-panel-title-east-default',
+        bodyStyle: 'border-bottom-width: 0',
         title: i18n.interpretations,
         itemId: 'interpretationsPanel',
         displayingInterpretation: false,
@@ -751,15 +742,13 @@ EastRegion = function(c) {
         getTopInterpretationsPanel: getTopInterpretationsPanel,
 
         addAndUpdateInterpretationsPanel: function(layout) {
-            if (!layout) {
-                return;
-            }
-
-            var interpretations = layout.interpretations;
-            var interpretationId = layout.interpretationId;
+            layout = layout || {};
 
             // Remove any previous panel
             this.removeAll(true);
+
+            var interpretations = layout.interpretations;
+            var interpretationId = layout.interpretationId;
 
             //Get top interpretations panel depending on interpretations and if we are displaying an interpretation
             this.add(this.getTopInterpretationsPanel(interpretations, interpretationId != undefined));

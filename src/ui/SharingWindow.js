@@ -87,7 +87,10 @@ SharingWindow = function(c, sharing, configOnly) {
                         render: function(cmp) {
                             cmp.getEl().on('click', function(e) {
                                 cmp.up('panel').destroy();
-                                window.doLayout();
+
+                                if (window) {
+                                    window.doLayout();
+                                }
                             });
                         }
                     }
@@ -259,7 +262,7 @@ SharingWindow = function(c, sharing, configOnly) {
         };
     }
     else {
-        var window = Ext.create('Ext.window.Window', {
+        window = Ext.create('Ext.window.Window', {
             title: i18n.sharing_settings,
             bodyStyle: 'padding:5px 5px 3px; background-color:#fff',
             resizable: false,
