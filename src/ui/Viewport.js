@@ -37,6 +37,7 @@ Viewport = function(refs, cmp) {
         path = appManager.getPath(),
         i18n = i18nManager.get(),
         apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint,
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 

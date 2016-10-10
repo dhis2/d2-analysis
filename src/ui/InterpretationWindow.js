@@ -9,7 +9,8 @@ InterpretationWindow = function(c, sharing) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     var resourceName = apiResource.substring(0, apiResource.length - 1);
 

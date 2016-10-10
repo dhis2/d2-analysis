@@ -34,6 +34,7 @@ InstanceManager = function(refs) {
 
     // uninitialized
     t.apiResource;
+    t.apiEndpoint;
     t.dataStatisticsEventType;
 
     // getter/setter
@@ -114,12 +115,14 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
 };
 
 InstanceManager.prototype.getById = function(id, fn) {
+    var t = this;
+
+    id = isString(id) ? id : t.getStateFavoriteId() || null;
+
     if (!isString(id)) {
-        console.log('Invalid id', id);
+        console.log('Instance manager, getById, invalid id', id);
         return;
     }
-
-    var t = this;
 
     var appManager = t.appManager;
     var uiManager = t.uiManager;
@@ -130,7 +133,7 @@ InstanceManager.prototype.getById = function(id, fn) {
     };
 
     var request = new t.api.Request({
-        baseUrl: appManager.getPath() + '/api/' + t.apiResource + '/' + id + '.json',
+        baseUrl: appManager.getPath() + '/api/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {
             var layout = new t.api.Layout(t.refs, r);
@@ -170,7 +173,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     var i18n = t.i18nManager.get();
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/' + t.apiResource + '/' + id,
+        baseUrl: t.appManager.getPath() + '/api/' + t.apiEndpoint + '/' + id,
         method: 'DELETE',
         beforeRun: function() {
             if (doMask) {
@@ -197,8 +200,6 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
-    var type = t.apiResource.substring(0, t.apiResource.length - 1);
-
     var request = new t.api.Request({
         baseUrl: t.appManager.getPath() + '/api/sharing',
         type: 'json',
@@ -211,7 +212,7 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
     });
 
     request.add({
-        type: type,
+        type: t.apiResource,
         id: id
     });
 

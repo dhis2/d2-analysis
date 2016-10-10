@@ -7,7 +7,8 @@ LinkWindow = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     var window = Ext.create('Ext.window.Window', {
         title: i18n.favorite_link,
@@ -19,7 +20,7 @@ LinkWindow = function(c) {
         html: function() {
             var layout = instanceManager.getStateFavorite(),
                 appUrl = path + '/dhis-web-pivot/index.html?id=' + layout.id,
-                apiUrl = path + '/api/' + apiResource + '/' + layout.id + '/data.html+css',
+                apiUrl = path + '/api/' + apiEndpoint + '/' + layout.id + '/data.html+css',
                 hStyle = 'padding-bottom:10px; font-weight:bold; color:#444',
                 html = '';
 

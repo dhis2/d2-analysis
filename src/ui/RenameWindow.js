@@ -16,7 +16,8 @@ RenameWindow = function(refs, layout, fn, listeners) {
         api = refs.api,
 
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     listeners = listeners || {};
 
@@ -46,7 +47,7 @@ RenameWindow = function(refs, layout, fn, listeners) {
             }
             else {
                 var fields = appManager.getAnalysisFields(),
-                    url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
+                    url = path + '/api/' + apiEndpoint + '/' + layout.id + '.json?fields=' + fields;
 
                 $.getJSON(encodeURI(url), function(r) {
                     layout = new api.Layout(refs, r).val();

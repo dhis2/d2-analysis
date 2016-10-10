@@ -66,10 +66,11 @@ FavoriteButton = function(c) {
 
                             layout.id = favorite.id;
                             layout.name = favorite.name;
+                            layout.title = favorite.title;
+                            layout.description = favorite.description;
 
                             layout.clone().put(function() {
-                                instanceManager.setState(layout, true);
-                                uiManager.unmask();
+                                instanceManager.getById();
                             }, true, true);
                         }
                     });
@@ -97,7 +98,7 @@ FavoriteButton = function(c) {
                         }
                     });
                     uiManager.reg(saveAsItem, 'renameItem');
-                    
+
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
