@@ -196,6 +196,20 @@ Layout.prototype.alert = function(text, noError) {
     }
 };
 
+Layout.prototype.apply = function(obj, keys) {
+    if (!isObject(obj)) {
+        return;
+    }
+
+    var t = this;
+
+    keys = isArray(keys) ? keys : ['name', 'title', 'description'];
+
+    keys.forEach(function(key) {
+        t[key] = obj[key];
+    });
+};
+
 Layout.prototype.toRows = function(includeFilter) {
     this.rows = arrayClean(this.rows.concat(this.columns.empty(), includeFilter ? this.filters.empty() : []));
 };

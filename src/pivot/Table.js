@@ -934,7 +934,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     };
 
     getHtml = function() {
-        var cls = 'pivot',
+        var cls = 'pivot user-select',
             table;
 
         cls += layout.displayDensity && layout.displayDensity !== optionConfig.getDisplayDensity('normal').id ? ' displaydensity-' + layout.displayDensity : '';

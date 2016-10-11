@@ -40,9 +40,12 @@ RenameWindow = function(refs, layout, fn, listeners) {
                 };
 
             if (layout.put) {
-                layout.name = name;
-                layout.title = title;
-                layout.description = description;
+                layout.apply({
+                    name: name,
+                    title: title,
+                    description: description
+                });
+
                 put();
             }
             else {
@@ -51,9 +54,12 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
                 $.getJSON(encodeURI(url), function(r) {
                     layout = new api.Layout(refs, r).val();
-                    layout.name = name;
-                    layout.title = title;
-                    layout.description = description;
+
+                    layout.apply({
+                        name: name,
+                        title: title,
+                        description: description
+                    });
 
                     put();
                 });

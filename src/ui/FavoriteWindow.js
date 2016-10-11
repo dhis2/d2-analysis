@@ -238,9 +238,11 @@ FavoriteWindow = function(c, action) {
             instanceManager.getById(currentLayout.id);
         };
 
-        currentLayout.name = name;
-        currentLayout.title = title;
-        currentLayout.description = description;
+        currentLayout.apply({
+            name: name,
+            title: title,
+            description: description
+        });
 
         if (record) {
             uiManager.confirmReplace(i18n.save_favorite, function() {

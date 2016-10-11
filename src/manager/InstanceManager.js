@@ -109,7 +109,17 @@ InstanceManager = function(refs) {
 InstanceManager.prototype.getLayout = function(layoutConfig) {
     var t = this;
 
-    layoutConfig = layoutConfig || t.uiManager.getUiState();
+    if (!layoutConfig) {
+        layoutConfig = t.uiManager.getUiState();
+
+        var fav = t.getStateFavorite();
+
+        if (fav) {
+            layoutConfig.name = fav.name;
+            layoutConfig.title = fav.title;
+            layoutConfig.description = fav.description;
+        }
+    }
 
     return new t.api.Layout(t.refs, layoutConfig);
 };
