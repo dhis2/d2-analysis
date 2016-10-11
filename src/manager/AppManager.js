@@ -131,6 +131,19 @@ AppManager = function(refs) {
         }
         return unescape(output);
     };
+
+    // event handler array
+    t.getEventHandlerArray = function() {
+        var a = [];
+
+        a.run = function(params) {
+            a.forEach(function(fn) {
+                fn(params.cmp, params.width, params.height, params.eOpts);
+            });
+        };
+
+        return a;
+    };
 };
 
 AppManager.prototype.getPath = function() {
