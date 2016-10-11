@@ -12,8 +12,6 @@ InterpretationWindow = function(c, sharing) {
         apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
-    var resourceName = apiResource.substring(0, apiResource.length - 1);
-
     var textArea = Ext.create('Ext.form.field.TextArea', {
         cls: 'ns-textarea',
         height: 130,
@@ -44,7 +42,7 @@ InterpretationWindow = function(c, sharing) {
         handler: function() {
             if (textArea.getValue()) {
                 Ext.Ajax.request({
-                    url: encodeURI(path + '/api/interpretations/' + resourceName + '/' + instanceManager.getStateFavoriteId()),
+                    url: encodeURI(path + '/api/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
                     method: 'POST',
                     params: textArea.getValue(),
                     headers: {'Content-Type': 'text/html'},

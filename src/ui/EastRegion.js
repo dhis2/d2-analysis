@@ -141,7 +141,7 @@ EastRegion = function(c) {
                         label.setValue(Ext.decode(r.responseText).views);
                     }
                 });
-                return "Retrieving number of views...";
+                return i18n.loading + '..';
             }
 
             // Favorite Details Panel content when favorite loaded
@@ -178,10 +178,10 @@ EastRegion = function(c) {
             }, {
                 xtype: 'displayfield',
                 itemId: 'numberViews',
-                fieldLabel: i18n.number_of_views,
+                fieldLabel: i18n.views,
                 labelStyle: 'padding-top:0',
                 style: 'margin-bottom:3px',
-                value: i18n.retrieving_number_of_views,
+                value: i18n.loading + '..',
                 cls: 'interpretationDetailsField',
                 listeners: {
                     'render': function(label) {
@@ -690,7 +690,7 @@ EastRegion = function(c) {
             itemId: 'backToToday',
             items: [{
                 xtype: 'label',
-                html: getLink('<< ' + i18n.back_to_today),
+                html: getLink('<< ' + i18n.clear_interpretation),
                 cls: 'interpretationActions link',
                 listeners: {
                     'render': function(label) {

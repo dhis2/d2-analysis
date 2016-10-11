@@ -34,7 +34,7 @@ RenameWindow = function(refs, layout, fn, listeners) {
                         if (fn) {
                             fn();
                         }
-                        instanceManager.setStateIf(layout, true);
+                        instanceManager.getById();
                         window.destroy();
                     }, true, true);
                 };
