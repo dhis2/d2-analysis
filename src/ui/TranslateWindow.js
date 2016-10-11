@@ -20,6 +20,8 @@ TranslateWindow = function(refs, layout, fn, listeners) {
 
     listeners = listeners || {};
 
+    // var fieldsToTranslate = ['name', 'shortName', 'description'];
+
     const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
 
     nameTextField["hidden"] = true;
@@ -30,13 +32,23 @@ TranslateWindow = function(refs, layout, fn, listeners) {
 
     var onEventLocaleSelect = function(localeId){
          console.log(localeId);
-        if (localeId in translations) {
 
-        }
-        else{
-            nameTextField.setValue("");
-            titleTextField.setValue("");
-            descriptionTextField.setValue("");
+        nameTextField.setValue("");
+        titleTextField.setValue("");
+        descriptionTextField.setValue("");
+
+        for (var i =0; i < translations.length; i++){
+            if (translations[i].locale == localeId){
+                if (translations[i].property == 'NAME'){
+                    nameTextField.setValue(translations[i].value);
+                }
+                else if (translations[i].property == 'SHORT_NAME'){
+                    titleTextField.setValue(translations[i].value);
+                }
+                else if (translations[i].property == 'DESCRIPTION'){
+                    descriptionTextField.setValue(translations[i].value);
+                }
+            }
         }
 
         nameTextField.show();
@@ -60,7 +72,14 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     });
 
     var localeComboBox = Ext.create('Ext.form.ComboBox', {
+        width: fs.windowCmpWidth,
+        height: 45,
+        style: 'margin-top: 2px; margin-bottom: 0',
+        fieldStyle: fs.textfieldStyle.join(';'),
         fieldLabel: 'Select a locale to enter translations for ',
+        labelAlign: 'top',
+        labelStyle: fs.textFieldLabelStyle.join(';'),
+        labelSeparator: '',
         store: localeStore,
         queryMode: 'local',
         displayField: 'name',
@@ -76,21 +95,63 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     var saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
         handler: function() {
+            
             var name = nameTextField.getValue(),
                 title = titleTextField.getValue(),
                 description = descriptionTextField.getValue();
 
-            var newTranslations = [];
+            var isNameTranslated = false;
+            var isTitleTranslated = false;
+            var isDescriptionTranslated = false; 
+            for (var i =0; i < translations.length; i++){
+                if (translations[i].locale == localeComboBox.getValue()){
+                    if (translations[i].property == 'NAME'){
+                        translations[i].value = name;
+                        isNameTranslated = true;
+                    }
+                    else if (translations[i].property == 'SHORT_NAME'){
+                        translations[i].value = title;
+                        isTitleTranslated = true;
+                    }
+                    else if (translations[i].property == 'DESCRIPTION'){
+                        translations[i].value = description;
+                        isDescriptionTranslated = true;
+                    }
+                    
+                }
+            }
 
-            var translation = {
-                property: 'NAME',
-                locale: localeComboBox.getValue(),
-                value: name
-            };
+            var newTranslations = [].concat(translations);
 
-            newTranslations.push(translation);
-
+            if (!isNameTranslated){
+                var translation = {
+                    property: 'NAME',
+                    locale: localeComboBox.getValue(),
+                    value: name
+                };
+                newTranslations.push(translation);
+            }
+            else if (!isTitleTranslated){
+                var translation = {
+                    property: 'SHORT_NAME',
+                    locale: localeComboBox.getValue(),
+                    value: title
+                };
+                newTranslations.push(translation);
+            }
+            else if (!isDescriptionTranslated){
+                var translation = {
+                    property: 'DESCRIPTION',
+                    locale: localeComboBox.getValue(),
+                    value: description
+                };
+                newTranslations.push(translation);
+            }
+           
             var payloadTranslations = {"translations": newTranslations}
+
+            console.log('Object to push')
+            console.log(payloadTranslations)
 
             $.ajax({
                 url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '/translations/'),
@@ -99,7 +160,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                 dataType: 'json',
                 headers: appManager.defaultRequestHeaders,
                 success: function(obj, success, r) {
-                    console.log('taka')
+                    window.destroy();
                 },
                 error: function(obj, success, r) {
                     console.log(obj)
@@ -141,10 +202,12 @@ TranslateWindow = function(refs, layout, fn, listeners) {
 
                 //TODO: Can we get translations from the endpoint? 
                 Ext.Ajax.request({
-                    url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '.json?fields=translations&paging=false'),
+                    url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '/translations.json?paging=false'),
                     disableCaching: false,
                     success: function(r) {
                        translations = Ext.decode(r.responseText).translations
+                       console.log("currentTranslations");
+                       console.log(translations);
                     }
                 });
 
@@ -159,7 +222,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                     }
                 }
 
-                //nameTextField.focus(false, 500);
+                localeComboBox.focus(false, 500);
 
                 if (listeners.show) {
                     listeners.show();
