@@ -7,7 +7,8 @@ EmbedWindow = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     var textArea = Ext.create('Ext.form.field.TextArea', {
         width: 700,

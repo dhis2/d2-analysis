@@ -37,6 +37,7 @@ Viewport = function(refs, cmp) {
         path = appManager.getPath(),
         i18n = i18nManager.get(),
         apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint,
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
@@ -4226,14 +4227,16 @@ Viewport = function(refs, cmp) {
         fullSize: true,
         cmp: [defaultButton],
         toggleCmp: function(show) {
-            for (var i = 0; i < this.cmp.length; i++) {
-                if (show) {
-                    this.cmp[i].show();
+            integrationButtons.forEach(function(cmp) {
+                if (cmp && cmp.show && cmp.hide) {
+                    if (show) {
+                        cmp.show();
+                    }
+                    else {
+                        cmp.hide();
+                    }
                 }
-                else {
-                    this.cmp[i].hide();
-                }
-            }
+            });
         },
         tbar: {
             defaults: {
@@ -4279,10 +4282,10 @@ Viewport = function(refs, cmp) {
                     text: ' ',
                     width: 26,
                     padding: '3',
-                    iconCls: 'ns-button-icon-arrowrighttriple',
+                    iconCls: 'ns-button-icon-arrowlefttriple',
                     iconClsLeft: 'ns-button-icon-arrowlefttriple',
                     iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 0,
+                    iconState: 1,
                     setIconState: function() {
                         this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
                     },
@@ -4434,12 +4437,33 @@ Viewport = function(refs, cmp) {
         listeners: {
             afterrender: function() {
 
-                // resize event handler
+                // west resize
                 westRegion.on('resize', function() {
                     var panel = accordion.getExpandedPanel();
 
                     if (panel) {
                         panel.onExpand();
+                    }
+                });
+
+                // update cmp resize
+                uiManager.getUpdateComponent().on('resize', function(cmp, width, height, eOpts) {
+                    uiManager.resize({
+                        cmp: cmp,
+                        width: width,
+                        height: height,
+                        eOpts: eOpts
+                    });
+                });
+
+                uiManager.onResize(function(cmp, width) {
+                    if (width < 700 && cmp.fullSize) {
+                        cmp.toggleCmp();
+                        cmp.fullSize = false;
+                    }
+                    else if (width >= 700 && !cmp.fullSize) {
+                        cmp.toggleCmp(true);
+                        cmp.fullSize = true;
                     }
                 });
 

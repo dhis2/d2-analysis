@@ -16,7 +16,8 @@ RenameWindow = function(refs, layout, fn, listeners) {
         api = refs.api,
 
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     listeners = listeners || {};
 
@@ -33,26 +34,32 @@ RenameWindow = function(refs, layout, fn, listeners) {
                         if (fn) {
                             fn();
                         }
-                        instanceManager.setStateIf(layout, true);
+                        instanceManager.getById();
                         window.destroy();
                     }, true, true);
                 };
 
             if (layout.put) {
-                layout.name = name;
-                layout.title = title;
-                layout.description = description;
+                layout.apply({
+                    name: name,
+                    title: title,
+                    description: description
+                });
+
                 put();
             }
             else {
                 var fields = appManager.getAnalysisFields(),
-                    url = path + '/api/' + apiResource + '/' + layout.id + '.json?fields=' + fields;
+                    url = path + '/api/' + apiEndpoint + '/' + layout.id + '.json?fields=' + fields;
 
                 $.getJSON(encodeURI(url), function(r) {
                     layout = new api.Layout(refs, r).val();
-                    layout.name = name;
-                    layout.title = title;
-                    layout.description = description;
+
+                    layout.apply({
+                        name: name,
+                        title: title,
+                        description: description
+                    });
 
                     put();
                 });

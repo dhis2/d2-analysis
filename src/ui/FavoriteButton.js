@@ -67,10 +67,11 @@ FavoriteButton = function(c) {
 
                             layout.id = favorite.id;
                             layout.name = favorite.name;
+                            layout.title = favorite.title;
+                            layout.description = favorite.description;
 
                             layout.clone().put(function() {
-                                instanceManager.setState(layout, true);
-                                uiManager.unmask();
+                                instanceManager.getById();
                             }, true, true);
                         }
                     });

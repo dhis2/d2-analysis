@@ -9,9 +9,8 @@ InterpretationWindow = function(c, sharing) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
-
-    var resourceName = apiResource.substring(0, apiResource.length - 1);
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     var textArea = Ext.create('Ext.form.field.TextArea', {
         cls: 'ns-textarea',
@@ -43,7 +42,7 @@ InterpretationWindow = function(c, sharing) {
         handler: function() {
             if (textArea.getValue()) {
                 Ext.Ajax.request({
-                    url: encodeURI(path + '/api/interpretations/' + resourceName + '/' + instanceManager.getStateFavoriteId()),
+                    url: encodeURI(path + '/api/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
                     method: 'POST',
                     params: textArea.getValue(),
                     headers: {'Content-Type': 'text/html'},

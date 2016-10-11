@@ -36,7 +36,7 @@ export default function({ layout, i18n }) {
         labelAlign: 'top',
         labelStyle: fs.textFieldLabelStyle.join(';'),
         labelSeparator: '',
-        emptyText: 'No title',
+        emptyText: 'No title (optional)',
         enableKeyEvents: true,
         currentValue: '',
         value: layout.title,
@@ -63,7 +63,7 @@ export default function({ layout, i18n }) {
         labelAlign: 'top',
         labelStyle: fs.textFieldLabelStyle.join(';'),
         labelSeparator: '',
-        emptyText: 'No description',
+        emptyText: 'No description (optional)',
         enableKeyEvents: true,
         value: layout.description
     });

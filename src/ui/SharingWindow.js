@@ -275,12 +275,15 @@ SharingWindow = function(c, sharing, configOnly) {
                     text: i18n.save,
                     handler: function() {
                         Ext.Ajax.request({
-                            url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharing.object.id),
+                            url: encodeURI(path + '/api/sharing?type=' + instanceManager.apiResource + '&id=' + sharing.object.id),
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            params: Ext.encode(getBody())
+                            params: Ext.encode(getBody()),
+                            success: function() {
+                                instanceManager.getById();
+                            }
                         });
 
                         window.destroy();

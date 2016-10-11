@@ -74,29 +74,30 @@ NorthRegion = function(c, cmpConfig) {
             cmp.title = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'title untitled user-select',
                 titleText: '',
+                appendixText: '',
                 text: defaultTitleText,
                 updateTitle: function() {
-                    this.update(this.titleText ? this.titleText : defaultTitleText);
+                    this.update(this.titleText ? this.titleText + this.appendixText : defaultTitleText);
                 },
                 setTitle: function(name) {
                     this.titleText = name || '';
-                    this.updateTitle();
+                    //this.updateTitle();
                 },
-                appendTitle: function(text) {
-                    this.titleText += text ? ('<span class="appendix">[' + DateManager.getYYYYMMDD(text, true) + ']</span>') : '';
-                    this.updateTitle();
+                setTitleAppendix: function(text) {
+                    this.appendixText = text ? ('<span class="appendix">[' + DateManager.getYYYYMMDD(text, true) + ']</span>') : '';
+                    //this.updateTitle();
                 },
-                setSaved: function() {
+                setStateSaved: function() {
                     this.getEl().removeCls('unsaved');
                     this.getEl().removeCls('untitled');
                 },
-                setUnsaved: function() {
+                setStateUnsaved: function() {
                     if (this.titleText) {
                         this.getEl().removeCls('untitled');
                         this.getEl().addCls('unsaved');
                     }
                 },
-                setNew: function() {
+                setStateNew: function() {
                     this.getEl().removeCls('unsaved');
                     this.getEl().addCls('untitled');
                 },
@@ -104,18 +105,21 @@ NorthRegion = function(c, cmpConfig) {
                     if (layout) {
                         if (isFavorite && layout.name) {
                             this.setTitle(layout.name);
-                            this.setSaved();
+                            this.setTitleAppendix(layout.relativePeriodDate);
+                            this.setStateSaved();
                         }
                         else {
-                            this.setUnsaved();
+                            this.setTitleAppendix();
+                            this.setStateUnsaved();
                         }
-
-                        this.appendTitle(layout.relativePeriodDate);
                     }
                     else {
                         this.setTitle();
-                        this.setNew();
+                        this.setTitleAppendix();
+                        this.setStateNew();
                     }
+
+                    this.updateTitle();
                 }
             });
 

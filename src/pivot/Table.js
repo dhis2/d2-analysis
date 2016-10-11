@@ -16,13 +16,15 @@ import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 
 export var Table;
 
-Table = function(layout, response, colAxis, rowAxis) {
+Table = function(layout, response, colAxis, rowAxis, options) {
     var t = this,
         klass = Table,
 
         appManager = klass.appManager,
         dimensionConfig = klass.dimensionConfig,
         optionConfig = klass.optionConfig;
+
+    options = options || {};
 
     // init
     var getRoundedHtmlValue,
@@ -42,7 +44,9 @@ Table = function(layout, response, colAxis, rowAxis) {
         getColTotalHtmlArray,
         getGrandTotalHtmlArray,
         getTotalHtmlArray,
+        getTopBarSpan,
         getFilterHtmlArray,
+        getTitle,
         getHtml,
         getUniqueFactor = function(xAxis) {
             var unique;
@@ -876,25 +880,25 @@ Table = function(layout, response, colAxis, rowAxis) {
         return a;
     };
 
+    getTopBarSpan = function(span) {
+        var rowDims = rowAxis.dims || 0;
+
+        if (!layout.showDimensionLabels) {
+            if (!colAxis.type && rowAxis.type) {
+                return rowDims + 1;
+            }
+            else if (colAxis.type && rowAxis.type) {
+                return span + (rowDims > 1 ? rowDims - 1 : rowDims);
+            }
+        }
+
+        return span;
+    };
+
     getFilterHtmlArray = function(span) {
         if (!layout.filters) {
             return;
         }
-
-        var rowDims = rowAxis.dims || 0;
-
-        var getSpan = function() {
-            if (!layout.showDimensionLabels) {
-                if (!colAxis.type && rowAxis.type) {
-                    return rowDims + 1;
-                }
-                else if (colAxis.type && rowAxis.type) {
-                    return span + (rowDims > 1 ? rowDims - 1 : rowDims);
-                }
-            }
-
-            return span;
-        };
 
         var text = layout.filters.getRecordNames(false, layout.getResponse(), true);
         var row = [];
@@ -902,16 +906,35 @@ Table = function(layout, response, colAxis, rowAxis) {
         row.push(getTdHtml({
             type: 'filter',
             cls: 'pivot-filter cursor-default',
-            colSpan: getSpan(),
-            htmlValue: text,
-            title: text
+            colSpan: getTopBarSpan(span),
+            title: text,
+            htmlValue: text
+        }));
+
+        return [row];
+    };
+
+    getTitle = function(span) {
+        if (!layout.title) {
+            return;
+        }
+
+        var text = layout.title;
+        var row = [];
+
+        row.push(getTdHtml({
+            type: 'filter',
+            cls: 'pivot-filter cursor-default',
+            colSpan: getTopBarSpan(span),
+            title: text,
+            htmlValue: text
         }));
 
         return [row];
     };
 
     getHtml = function() {
-        var cls = 'pivot',
+        var cls = 'pivot user-select',
             table;
 
         cls += layout.displayDensity && layout.displayDensity !== optionConfig.getDisplayDensity('normal').id ? ' displaydensity-' + layout.displayDensity : '';
@@ -930,8 +953,15 @@ Table = function(layout, response, colAxis, rowAxis) {
     (function() {
         var colAxisHtmlArray = getColAxisHtmlArray();
         var filterRowColSpan = (colAxisHtmlArray[0] || []).length;
+        var rowDims = rowAxis.dims || 0;
 
-        htmlArray = arrayClean([].concat(getFilterHtmlArray(filterRowColSpan) || [], colAxisHtmlArray || [], getRowHtmlArray() || [], getTotalHtmlArray() || []));
+        htmlArray = arrayClean([].concat(
+            options.skipTitle ? [] : getTitle(filterRowColSpan) || [],
+            getFilterHtmlArray(filterRowColSpan) || [],
+            colAxisHtmlArray || [],
+            getRowHtmlArray() || [],
+            getTotalHtmlArray() || []
+        ));
     }());
 
     // constructor

@@ -196,6 +196,20 @@ Layout.prototype.alert = function(text, noError) {
     }
 };
 
+Layout.prototype.apply = function(obj, keys) {
+    if (!isObject(obj)) {
+        return;
+    }
+
+    var t = this;
+
+    keys = isArray(keys) ? keys : ['name', 'title', 'description'];
+
+    keys.forEach(function(key) {
+        t[key] = obj[key];
+    });
+};
+
 Layout.prototype.toRows = function(includeFilter) {
     this.rows = arrayClean(this.rows.concat(this.columns.empty(), includeFilter ? this.filters.empty() : []));
 };
@@ -302,7 +316,7 @@ Layout.prototype.val = function(noError) {
         return null;
     }
 
-    if (!this.hasDimension(DimConf.get('period').dimensionName)) {
+    if (!this.hasDimension(refs.dimensionConfig.get('period').dimensionName)) {
         this.alert(I18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'), noError); //todo alert
         return null;
     }
@@ -455,13 +469,13 @@ Layout.prototype.toPost = function() {
     delete this.id;
     delete this.el;
 
-    delete t.displayDescription;
-    delete t.interpretations;
-    delete t.lastUpdated;
-    delete t.created;
-    delete t.user;
-    delete t.publicAccess;
-    delete t.userGroupAccesses;
+    delete this.displayDescription;
+    delete this.interpretations;
+    delete this.lastUpdated;
+    delete this.created;
+    delete this.user;
+    delete this.publicAccess;
+    delete this.userGroupAccesses;
 };
 
 Layout.prototype.toSession = function() {
@@ -580,9 +594,9 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiEndpoint = instanceManager.apiEndpoint;
 
-    var url = path + '/api/' + apiResource;
+    var url = path + '/api/' + apiEndpoint;
 
     t.toPost();
 
@@ -623,9 +637,9 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
         uiManager = refs.uiManager;
 
     var path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiEndpoint = instanceManager.apiEndpoint;
 
-    var url = path + '/api/' + apiResource + '/' + t.id;
+    var url = path + '/api/' + apiEndpoint + '/' + t.id;
 
     t.toPost();
 

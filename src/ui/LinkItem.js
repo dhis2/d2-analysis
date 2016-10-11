@@ -8,7 +8,8 @@ LinkItem = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiResource = instanceManager.apiResource,
+        apiEndpoint = instanceManager.apiEndpoint;
 
     return Ext.create('Ext.menu.Item', {
         text: i18n.favorite_link + '&nbsp;&nbsp;',
@@ -20,7 +21,7 @@ LinkItem = function(c) {
         handler: function() {
             var layout = instanceManager.getStateFavorite(),
                 appUrl = path + '/dhis-web-pivot/index.html?id=' + layout.id,
-                apiUrl = path + '/api/' + apiResource + '/' + layout.id + '/data.html',
+                apiUrl = path + '/api/' + apiEndpoint + '/' + layout.id + '/data.html',
                 html = '',
                 window;
 

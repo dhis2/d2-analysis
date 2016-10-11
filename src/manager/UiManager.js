@@ -12,6 +12,7 @@ UiManager = function(c) {
 
     c = isObject(c) ? c : {};
 
+    t.appManager = c.appManager;
     t.instanceManager = c.instanceManager;
 
     var components = {};
@@ -49,6 +50,8 @@ UiManager = function(c) {
             t.instanceManager.getReport(layout, true);
         }
     };
+
+    var resizeHandlers = t.appManager.getEventHandlerArray();
 
     t.preventMask = false;
 
@@ -482,6 +485,15 @@ UiManager = function(c) {
             'letter-spacing:-0.1px">' +
             text +
             '</div>' : '';
+    };
+
+    // resize
+    t.onResize = function(fn) {
+        resizeHandlers.push(fn);
+    };
+
+    t.resize = function(params) {
+        resizeHandlers.run(params);
     };
 };
 
