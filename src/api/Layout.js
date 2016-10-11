@@ -316,7 +316,7 @@ Layout.prototype.val = function(noError) {
         return null;
     }
 
-    if (!this.hasDimension(DimConf.get('period').dimensionName)) {
+    if (!this.hasDimension(refs.dimensionConfig.get('period').dimensionName)) {
         this.alert(I18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'), noError); //todo alert
         return null;
     }
