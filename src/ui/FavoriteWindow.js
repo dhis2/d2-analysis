@@ -427,7 +427,8 @@ FavoriteWindow = function(c, action) {
                                 y = event.target.y - 34,
                                 layoutObj = {
                                     id: record.data.id,
-                                    name: record.data.name
+                                    name: record.data.name,
+                                    description: record.data.description
                                 },
                                 listeners = {},
                                 fn;
