@@ -58,7 +58,7 @@ FavoriteWindow = function(c, action) {
         cmpToToggle = [],
         layout = instanceManager.getStateCurrent() || {};
 
-    var { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
+    var { nameTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
 
     getDirection = function(keepDir) {
         return sortDirection = keepDir ? sortDirection : (sortDirection === 'asc' ? 'desc' : 'asc');
@@ -224,7 +224,6 @@ FavoriteWindow = function(c, action) {
     saveButtonHandler = function() {
         var currentLayout = instanceManager.getStateCurrent(),
             name = nameTextField.getValue(),
-            title = titleTextField.getValue(),
             description = descriptionTextField.getValue();
 
         var record = favoriteStore.get('name', name);
@@ -235,12 +234,15 @@ FavoriteWindow = function(c, action) {
 
         var fn = function(id, success, r) {
             currentLayout.id = id || currentLayout.id;
-            instanceManager.getById(currentLayout.id);
+            instanceManager.getById(currentLayout.id, function(layout, isFavorite) {
+                instanceManager.getReport(layout, isFavorite, false, false, function() {
+                    uiManager.unmask();
+                });
+            });
         };
 
         currentLayout.apply({
             name: name,
-            title: title,
             description: description
         });
 
@@ -364,7 +366,6 @@ FavoriteWindow = function(c, action) {
                     element = element.parent('td');
                     element.handler = function() {
                         nameTextField.setValue(record.data.name);
-                        titleTextField.setValue(record.data.title);
                         descriptionTextField.setValue(record.data.description);
                     };
                     element.dom.setAttribute('onclick', 'Ext.get(this).handler();');
@@ -430,7 +431,8 @@ FavoriteWindow = function(c, action) {
                                 y = event.target.y - 34,
                                 layoutObj = {
                                     id: record.data.id,
-                                    name: record.data.name
+                                    name: record.data.name,
+                                    description: record.data.description
                                 },
                                 listeners = {},
                                 fn;
@@ -585,7 +587,7 @@ FavoriteWindow = function(c, action) {
         var items = [];
 
         if (action === 'saveas') {
-            items.push(nameTextField, titleTextField, descriptionTextField, showFavoritesLinkCt);
+            items.push(nameTextField, descriptionTextField, showFavoritesLinkCt);
         }
 
         items.push(searchTextfield, gridHeaders, grid);
@@ -627,7 +629,6 @@ FavoriteWindow = function(c, action) {
     });
 
     nameTextField.setEventKeyUpHandler(saveButtonHandler);
-    titleTextField.setEventKeyUpHandler(saveButtonHandler);
 
     return favoriteWindow;
 };

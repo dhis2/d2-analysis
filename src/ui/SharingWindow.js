@@ -282,7 +282,11 @@ SharingWindow = function(c, sharing, configOnly) {
                             },
                             params: Ext.encode(getBody()),
                             success: function() {
-                                instanceManager.getById();
+                                instanceManager.getById(null, function(layout, isFavorite) {
+                                    instanceManager.getReport(layout, isFavorite, false, false, function() {
+                                        uiManager.unmask();
+                                    });
+                                });
                             }
                         });
 

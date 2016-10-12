@@ -21,20 +21,23 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
     listeners = listeners || {};
 
-    const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
+    const { nameTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
 
     var renameButton = Ext.create('Ext.button.Button', {
         text: i18n.update,
         handler: function() {
             var name = nameTextField.getValue(),
-                title = titleTextField.getValue(),
                 description = descriptionTextField.getValue(),
                 put = function() {
                     layout.clone().put(function() {
                         if (fn) {
                             fn();
                         }
-                        instanceManager.getById();
+                        instanceManager.getById(null, function(layout, isFavorite) {
+                            instanceManager.getReport(layout, isFavorite, false, false, function() {
+                                uiManager.unmask();
+                            });
+                        });
                         window.destroy();
                     }, true, true);
                 };
@@ -42,7 +45,6 @@ RenameWindow = function(refs, layout, fn, listeners) {
             if (layout.put) {
                 layout.apply({
                     name: name,
-                    title: title,
                     description: description
                 });
 
@@ -57,7 +59,6 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
                     layout.apply({
                         name: name,
-                        title: title,
                         description: description
                     });
 
@@ -81,7 +82,6 @@ RenameWindow = function(refs, layout, fn, listeners) {
         modal: true,
         items: [
             nameTextField,
-            titleTextField,
             descriptionTextField
         ],
         destroyOnBlur: true,

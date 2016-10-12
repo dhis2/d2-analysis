@@ -57,17 +57,27 @@ InterpretationWindow = function(c, sharing) {
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            params: Ext.encode(sharingBody)
+                            params: Ext.encode(sharingBody),
+                            callback: function() {
+                                Ext.Ajax.request({
+                                    url: encodeURI(path + '/api/sharing?type=' + apiResource + '&id=' + sharingId),
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    params: Ext.encode(sharingBody),
+                                    callback: function() {
+                                        instanceManager.getById(null, function(layout, isFavorite) {
+                                            instanceManager.getReport(layout, isFavorite, false, false, function() {
+                                                uiManager.unmask();
+                                            });
+                                        });
+                                    }
+                                });
+                            }
                         });
 
-                        Ext.Ajax.request({
-                            url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharingId),
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            params: Ext.encode(sharingBody)
-                        });
+
 
                         textArea.reset();
                         window.destroy();

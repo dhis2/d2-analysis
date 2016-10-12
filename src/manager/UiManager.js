@@ -120,7 +120,7 @@ UiManager = function(refs) {
     };
 
     // state
-    t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState, skipStateCenter) {
         var north = t.get('northRegion'),
             west = t.get('westRegion'),
             east = t.get('eastRegion');
@@ -152,7 +152,7 @@ UiManager = function(refs) {
             });
 
             // west
-            if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
+            if (forceUiState || (west && !skipStateWest && (!currentState || isFavorite))) {
                 west.setState(currentState);
             }
 
@@ -162,7 +162,7 @@ UiManager = function(refs) {
             }
         }
 
-        // center
+        // set init text
         if (!currentState) {
             t.update();
         }
@@ -448,19 +448,19 @@ UiManager = function(refs) {
     t.confirmUnsaved = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
     };
 
     t.confirmReplace = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
     };
 
     t.confirmDelete = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
     // redirect

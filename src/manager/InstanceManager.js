@@ -74,7 +74,7 @@ InstanceManager = function(refs) {
         return _state.current ? _state.current.clone() : _state.current;
     };
 
-    t.setState = function(curr, isFavorite, skipSelect, forceUiState) {
+    t.setState = function(curr, isFavorite, skipStateWest, forceUiState) {
         _state.current = curr ? curr : null;
 
         if (!_state.current || isFavorite) {
@@ -88,7 +88,7 @@ InstanceManager = function(refs) {
         var current = _state.current ? _state.current.clone() : null;
         var favorite = _state.favorite ? _state.favorite.clone() : null;
 
-        t.uiManager.setState(current, favorite, isFavorite, skipSelect, forceUiState);
+        t.uiManager.setState(current, favorite, isFavorite, skipStateWest, forceUiState);
     };
 
     t.setStateIf = function(curr, isFavorite) {
@@ -107,21 +107,19 @@ InstanceManager = function(refs) {
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
-    var t = this;
+    var t = this,
+        favorite = t.getStateFavorite(),
+        layout;
 
-    if (!layoutConfig) {
-        layoutConfig = t.uiManager.getUiState();
+    layoutConfig = layoutConfig || t.uiManager.getUiState();
 
-        var fav = t.getStateFavorite();
+    layout = new t.api.Layout(t.refs, layoutConfig);
 
-        if (fav) {
-            layoutConfig.name = fav.name;
-            layoutConfig.title = fav.title;
-            layoutConfig.description = fav.description;
-        }
+    if (layout) {
+        layout.apply(favorite);
     }
 
-    return new t.api.Layout(t.refs, layoutConfig);
+    return layout;
 };
 
 InstanceManager.prototype.getById = function(id, fn) {
@@ -301,15 +299,15 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState) {
+InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState, fn) {
     var t = this;
 
-    var fn = function() {
+    var _fn = function() {
         if (!skipState) {
             t.setState(layout, isFavorite, false, forceUiState);
         }
 
-        t.getFn()(layout);
+        (fn || t.getFn())(layout);
     };
 
     // layout
@@ -328,7 +326,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
 
     // fn
     if (response) {
-       fn();
+       _fn();
     }
     else {
         var reqMap = layout.data();
@@ -339,7 +337,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
 
                 layout.setResponse(new t.api.Response(res));
 
-                fn();
+                _fn();
             });
         });
     }
