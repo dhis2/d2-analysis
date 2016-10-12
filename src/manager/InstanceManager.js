@@ -107,21 +107,19 @@ InstanceManager = function(refs) {
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
-    var t = this;
+    var t = this,
+        favorite = t.getStateFavorite(),
+        layout;
 
-    if (!layoutConfig) {
-        layoutConfig = t.uiManager.getUiState();
+    layoutConfig = layoutConfig || t.uiManager.getUiState();
 
-        var fav = t.getStateFavorite();
+    layout = new t.api.Layout(t.refs, layoutConfig);
 
-        if (fav) {
-            layoutConfig.name = fav.name;
-            layoutConfig.title = fav.title;
-            layoutConfig.description = fav.description;
-        }
+    if (layout) {
+        layout.apply(favorite);
     }
 
-    return new t.api.Layout(t.refs, layoutConfig);
+    return layout;
 };
 
 InstanceManager.prototype.getById = function(id, fn) {

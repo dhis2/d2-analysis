@@ -64,10 +64,7 @@ FavoriteButton = function(c) {
                                 return;
                             }
 
-                            layout.id = favorite.id;
-                            layout.name = favorite.name;
-                            layout.title = favorite.title;
-                            layout.description = favorite.description;
+                            layout.apply(favorite, ['id', 'name', 'description']);
 
                             layout.clone().put(function() {
                                 instanceManager.getById();

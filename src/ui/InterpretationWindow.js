@@ -61,7 +61,7 @@ InterpretationWindow = function(c, sharing) {
                         });
 
                         Ext.Ajax.request({
-                            url: encodeURI(path + '/api/sharing?type=reportTable&id=' + sharingId),
+                            url: encodeURI(path + '/api/sharing?type=' + apiResource + '&id=' + sharingId),
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

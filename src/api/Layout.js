@@ -203,11 +203,15 @@ Layout.prototype.apply = function(obj, keys) {
 
     var t = this;
 
-    keys = isArray(keys) ? keys : ['name', 'title', 'description'];
+    var preservedProps = ['name', 'description'];
+
+    keys = isArray(keys) ? keys : preservedProps;
 
     keys.forEach(function(key) {
         t[key] = obj[key];
     });
+
+    return t;
 };
 
 Layout.prototype.toRows = function(includeFilter) {
@@ -428,7 +432,7 @@ Layout.prototype.toPlugin = function(el) {
     return layout;
 };
 
-Layout.prototype.toPost = function() {
+Layout.prototype.toPostSuper = function() {
     delete this.klass;
     delete this.getResponse;
     delete this.setResponse;
@@ -585,6 +589,23 @@ Layout.prototype.data = function(source, format) {
     };
 };
 
+Layout.prototype.del = function(fn, doMask, doUnmask) {
+    var t = this,
+        refs = this.getRefs();
+
+    var instanceManager = refs.instanceManager;
+
+    instanceManager.delById(t.id, fn, doMask, doUnmask);
+};
+
+Layout.prototype.toPost = function() {
+    var t = this;
+
+    t.toPostSuper();
+};
+
+// dep 4
+
 Layout.prototype.post = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
@@ -664,17 +685,6 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
         }
     });
 };
-
-Layout.prototype.del = function(fn, doMask, doUnmask) {
-    var t = this,
-        refs = this.getRefs();
-
-    var instanceManager = refs.instanceManager;
-
-    instanceManager.delById(t.id, fn, doMask, doUnmask);
-};
-
-// dep 4
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
     var t = this,

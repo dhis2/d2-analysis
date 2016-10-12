@@ -480,7 +480,7 @@ EastRegion = function(c) {
             var interpretationPanelItems = [{
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 3px;',
+                style: 'margin-bottom: 6px;',
                 items: [{
                     xtype: 'label',
                     html: getLink(interpretation.user.displayName, true),
@@ -502,7 +502,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 7px;',
+                style: 'margin-bottom: 8px;',
                 items: [{
                     xtype: 'label',
                     text: interpretation.text,

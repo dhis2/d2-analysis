@@ -448,19 +448,19 @@ UiManager = function(refs) {
     t.confirmUnsaved = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
     };
 
     t.confirmReplace = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
     };
 
     t.confirmDelete = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(c, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
+        ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
     // redirect
