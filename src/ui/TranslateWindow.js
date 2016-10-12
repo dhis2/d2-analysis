@@ -1,6 +1,5 @@
 import isArray from 'd2-utilizr/lib/isArray';
-
-import getFavoriteTextCmp from './FavoriteTextCmp';
+import getTranslateTextCmp from './TranslateTextCmp';
 import fs from './FavoriteStyle';
 
 export var TranslateWindow;
@@ -12,49 +11,45 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         uiManager = refs.uiManager,
         instanceManager = refs.instanceManager,
         i18n = refs.i18nManager.get(),
-        uiConfig = refs.uiConfig,
         api = refs.api,
 
         path = appManager.getPath(),
-        apiResource = instanceManager.apiResource;
+        apiEndpoint = instanceManager.apiEndpoint;
 
     listeners = listeners || {};
 
-    // var fieldsToTranslate = ['name', 'shortName', 'description'];
-
-    const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
-
-    nameTextField["hidden"] = true;
-    titleTextField["hidden"] = true;
-    descriptionTextField["hidden"] = true;
+    const { nameTextField, nameLabelKey, titleTextField, titleLabelKey, descriptionTextField, descriptionLabelKey } = getTranslateTextCmp({ layout, i18n });
 
     var translations = {};
+    var textfieldPropertyMapping = {};
 
-    var onEventLocaleSelect = function(localeId){
-         console.log(localeId);
+    var onEventLocaleSelect = function(){
 
-        nameTextField.setValue("");
-        titleTextField.setValue("");
-        descriptionTextField.setValue("");
+        var locale = localeComboBox.getValue();
 
+        // Initialise map between db property and textfield
+        textfieldPropertyMapping = {
+            'NAME': nameTextField,
+            'SHORT_NAME': titleTextField,
+            'DESCRIPTION': descriptionTextField
+        }; 
+
+        // By default set them to empty
+        for (var property in textfieldPropertyMapping){
+            textfieldPropertyMapping[property].setValue("");
+        }
+
+        // If any value is found, change textfield value
         for (var i =0; i < translations.length; i++){
-            if (translations[i].locale == localeId){
-                if (translations[i].property == 'NAME'){
-                    nameTextField.setValue(translations[i].value);
-                }
-                else if (translations[i].property == 'SHORT_NAME'){
-                    titleTextField.setValue(translations[i].value);
-                }
-                else if (translations[i].property == 'DESCRIPTION'){
-                    descriptionTextField.setValue(translations[i].value);
-                }
+            if (translations[i].locale == locale){
+                if (translations[i].property in textfieldPropertyMapping){
+                    textfieldPropertyMapping[translations[i].property].setValue(translations[i].value);
+                }    
             }
         }
 
-        nameTextField.show();
-        titleTextField.show();
-        descriptionTextField.show();
-
+        // Display translate Panel
+        translatePanel.show();
     };
 
     var localeStore = Ext.create('Ext.data.Store', {
@@ -87,85 +82,77 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         emptyText: i18n.select_locale,
         listeners: {
             select: function(locale) {
-                onEventLocaleSelect(locale.getValue());
+                onEventLocaleSelect();
             }
         }
+    });
+
+    var translatePanel = Ext.create('Ext.form.Panel', {
+        bodyStyle: 'border-style:none',
+        style: 'margin-bottom: 10px;',
+        hidden:true,
+        items: [
+            {
+                xtype: 'panel',
+                bodyStyle: 'border-style:none',
+                style: 'margin-bottom:15px',
+                items: [nameTextField, nameLabelKey]
+            },
+            {
+                xtype: 'panel',
+                bodyStyle: 'border-style:none',
+                style: 'margin-bottom:15px',
+                items: [titleTextField, titleLabelKey]
+            },
+            {
+                xtype: 'panel',
+                bodyStyle: 'border-style:none',
+                style: 'margin-bottom:15px',
+                items: [descriptionTextField, descriptionLabelKey]
+            }
+        ]
     });
 
     var saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
         handler: function() {
-            
-            var name = nameTextField.getValue(),
-                title = titleTextField.getValue(),
-                description = descriptionTextField.getValue();
 
-            var isNameTranslated = false;
-            var isTitleTranslated = false;
-            var isDescriptionTranslated = false; 
-            for (var i =0; i < translations.length; i++){
-                if (translations[i].locale == localeComboBox.getValue()){
-                    if (translations[i].property == 'NAME'){
-                        translations[i].value = name;
-                        isNameTranslated = true;
+            var locale = localeComboBox.getValue();                
+
+            // Remove existing translation for this locale
+            var i = translations.length; 
+            while (i--){
+                if (translations[i].locale == locale){
+                    if (translations[i].property in textfieldPropertyMapping){
+                        translations.splice(i,1);
                     }
-                    else if (translations[i].property == 'SHORT_NAME'){
-                        translations[i].value = title;
-                        isTitleTranslated = true;
-                    }
-                    else if (translations[i].property == 'DESCRIPTION'){
-                        translations[i].value = description;
-                        isDescriptionTranslated = true;
-                    }
-                    
                 }
             }
 
+            // Add translation if value is not empyty
             var newTranslations = [].concat(translations);
-
-            if (!isNameTranslated){
-                var translation = {
-                    property: 'NAME',
-                    locale: localeComboBox.getValue(),
-                    value: name
-                };
-                newTranslations.push(translation);
+            for (var property in textfieldPropertyMapping){
+                if (textfieldPropertyMapping[property].getValue() != ''){
+                    newTranslations.push({
+                        property: property,
+                        locale: locale,
+                        value: textfieldPropertyMapping[property].getValue()
+                    });
+                }
             }
-            else if (!isTitleTranslated){
-                var translation = {
-                    property: 'SHORT_NAME',
-                    locale: localeComboBox.getValue(),
-                    value: title
-                };
-                newTranslations.push(translation);
-            }
-            else if (!isDescriptionTranslated){
-                var translation = {
-                    property: 'DESCRIPTION',
-                    locale: localeComboBox.getValue(),
-                    value: description
-                };
-                newTranslations.push(translation);
-            }
-           
-            var payloadTranslations = {"translations": newTranslations}
 
             console.log('Object to push')
-            console.log(payloadTranslations)
+            console.log(newTranslations)
 
+            // Update server with translations
             $.ajax({
-                url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '/translations/'),
+                url: encodeURI(path + '/api/' + apiEndpoint + '/' + layout.id + '/translations/'),
                 type: 'PUT',
-                data: JSON.stringify(payloadTranslations),
+                data: JSON.stringify({"translations": newTranslations}),
                 dataType: 'json',
                 headers: appManager.defaultRequestHeaders,
                 success: function(obj, success, r) {
                     window.destroy();
-                },
-                error: function(obj, success, r) {
-                    console.log(obj)
-                    console.log(success)
-                    console.log(r)
                 }
             });
            
@@ -186,9 +173,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         modal: true,
         items: [
             localeComboBox,
-            nameTextField,
-            titleTextField,
-            descriptionTextField
+            translatePanel
         ],
         destroyOnBlur: true,
         bbar: [
@@ -198,11 +183,12 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         ],
         listeners: {
             show: function(w) {
+                // Load locales
                 localeStore.load();
 
-                //TODO: Can we get translations from the endpoint? 
+                // Load translations for all languages
                 Ext.Ajax.request({
-                    url: encodeURI(path + '/api/' + apiResource + '/' + layout.id + '/translations.json?paging=false'),
+                    url: encodeURI(path + '/api/' + apiEndpoint + '/' + layout.id + '/translations.json?paging=false'),
                     disableCaching: false,
                     success: function(r) {
                        translations = Ext.decode(r.responseText).translations
@@ -210,7 +196,6 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                        console.log(translations);
                     }
                 });
-
 
                 var favoriteButton = uiManager.get('favoriteButton') || {};
 
