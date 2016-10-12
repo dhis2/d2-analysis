@@ -33,7 +33,11 @@ RenameWindow = function(refs, layout, fn, listeners) {
                         if (fn) {
                             fn();
                         }
-                        instanceManager.getById();
+                        instanceManager.getById(null, function(layout, isFavorite) {
+                            instanceManager.getReport(layout, isFavorite, false, false, function() {
+                                uiManager.unmask();
+                            });
+                        });
                         window.destroy();
                     }, true, true);
                 };

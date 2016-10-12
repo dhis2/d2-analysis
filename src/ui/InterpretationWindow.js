@@ -67,7 +67,11 @@ InterpretationWindow = function(c, sharing) {
                                     },
                                     params: Ext.encode(sharingBody),
                                     callback: function() {
-                                        instanceManager.getById();
+                                        instanceManager.getById(null, function(layout, isFavorite) {
+                                            instanceManager.getReport(layout, isFavorite, false, false, function() {
+                                                uiManager.unmask();
+                                            });
+                                        });
                                     }
                                 });
                             }

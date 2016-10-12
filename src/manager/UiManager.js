@@ -120,7 +120,7 @@ UiManager = function(refs) {
     };
 
     // state
-    t.setState = function(currentState, favoriteState, isFavorite, skipSelect, forceUiState) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState, skipStateCenter) {
         var north = t.get('northRegion'),
             west = t.get('westRegion'),
             east = t.get('eastRegion');
@@ -152,7 +152,7 @@ UiManager = function(refs) {
             });
 
             // west
-            if (forceUiState || (west && !skipSelect && (!currentState || isFavorite))) {
+            if (forceUiState || (west && !skipStateWest && (!currentState || isFavorite))) {
                 west.setState(currentState);
             }
 
@@ -162,7 +162,7 @@ UiManager = function(refs) {
             }
         }
 
-        // center
+        // set init text
         if (!currentState) {
             t.update();
         }

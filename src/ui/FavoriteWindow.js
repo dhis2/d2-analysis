@@ -234,7 +234,11 @@ FavoriteWindow = function(c, action) {
 
         var fn = function(id, success, r) {
             currentLayout.id = id || currentLayout.id;
-            instanceManager.getById(currentLayout.id);
+            instanceManager.getById(currentLayout.id, function(layout, isFavorite) {
+                instanceManager.getReport(layout, isFavorite, false, false, function() {
+                    uiManager.unmask();
+                });
+            });
         };
 
         currentLayout.apply({
