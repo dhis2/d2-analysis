@@ -7,13 +7,13 @@ import {ConfirmWindow} from '../ui/ConfirmWindow';
 
 export var UiManager;
 
-UiManager = function(c) {
+UiManager = function(refs) {
     var t = this;
 
-    c = isObject(c) ? c : {};
+    refs = isObject(refs) ? refs : {};
 
-    t.appManager = c.appManager;
-    t.instanceManager = c.instanceManager;
+    t.appManager = refs.appManager;
+    t.instanceManager = refs.instanceManager;
 
     var components = {};
 
