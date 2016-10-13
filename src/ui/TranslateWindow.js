@@ -23,7 +23,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     var translations = {};
     var textfieldPropertyMapping = {};
 
-    var onEventLocaleSelect = function(){
+    var onEventLocaleSelect = function() {
 
         var locale = localeComboBox.getValue();
 
@@ -32,7 +32,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
             'NAME': nameTextField,
             'SHORT_NAME': titleTextField,
             'DESCRIPTION': descriptionTextField
-        }; 
+        };
 
         // By default set them to empty
         for (var property in textfieldPropertyMapping){
@@ -40,13 +40,13 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         }
 
         // If any value is found, change textfield value
-        for (var i =0; i < translations.length; i++){
-            if (translations[i].locale == locale){
-                if (translations[i].property in textfieldPropertyMapping){
-                    textfieldPropertyMapping[translations[i].property].setValue(translations[i].value);
-                }    
+        translations.forEach(function(trn) {
+            if (trn.locale === locale) {
+                if (trn.property in textfieldPropertyMapping) {
+                    textfieldPropertyMapping[trn.property].setValue(trn.value);
+                }
             }
-        }
+        });
 
         // Display translate Panel
         translatePanel.show();
@@ -67,11 +67,12 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     });
 
     var localeComboBox = Ext.create('Ext.form.ComboBox', {
-        width: fs.windowCmpWidth * 0.9,
+        cls: 'ns-combo',
+        width: fs.windowCmpWidth,
         height: 45,
-        style: 'margin-top: 2px; margin-bottom: 0;margin-left:5px;',
-        fieldStyle: 'padding-right:0;padding-left:5px;font-size:11px;line-height:13px;',
-        fieldLabel: 'Select a locale to enter translations for ',
+        style: 'margin:2px 5px 0',
+        fieldStyle: 'padding-right:0; padding-left:5px; margin-bottom:3px; font-size:11px; line-height:13px;',
+        fieldLabel: i18n.select_a_locale_to_enter_translations_for,
         labelAlign: 'top',
         labelStyle: 'font-size:11px;font-weight:bold;color:#111;padding-top:4px;margin-bottom:2px',
         labelSeparator: '',
@@ -89,25 +90,20 @@ TranslateWindow = function(refs, layout, fn, listeners) {
 
     var translatePanel = Ext.create('Ext.form.Panel', {
         bodyStyle: 'border-style:none',
-        style: 'margin-bottom: 10px;',
-        hidden:true,
+        style: 'margin-bottom:0',
+        hidden: true,
+        defaults: {
+            bodyStyle: 'border-style:none',
+            style: 'margin-bottom:15px'
+        },
         items: [
             {
-                xtype: 'panel',
-                bodyStyle: 'border-style:none',
-                style: 'margin-bottom:15px',
                 items: [nameTextField, nameLabelKey]
             },
             {
-                xtype: 'panel',
-                bodyStyle: 'border-style:none',
-                style: 'margin-bottom:15px',
                 items: [titleTextField, titleLabelKey]
             },
             {
-                xtype: 'panel',
-                bodyStyle: 'border-style:none',
-                style: 'margin-bottom:15px',
                 items: [descriptionTextField, descriptionLabelKey]
             }
         ]
@@ -117,13 +113,13 @@ TranslateWindow = function(refs, layout, fn, listeners) {
         text: i18n.save,
         handler: function() {
 
-            var locale = localeComboBox.getValue();                
+            var locale = localeComboBox.getValue();
 
             // Remove existing translation for this locale
-            var i = translations.length; 
-            while (i--){
-                if (translations[i].locale == locale){
-                    if (translations[i].property in textfieldPropertyMapping){
+            var i = translations.length;
+            while (i--) {
+                if (translations[i].locale == locale) {
+                    if (translations[i].property in textfieldPropertyMapping) {
                         translations.splice(i,1);
                     }
                 }
@@ -132,7 +128,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
             // Add translation if value is not empyty
             var newTranslations = [].concat(translations);
             for (var property in textfieldPropertyMapping){
-                if (textfieldPropertyMapping[property].getValue() != ''){
+                if (textfieldPropertyMapping[property].getValue() != '') {
                     newTranslations.push({
                         property: property,
                         locale: locale,
@@ -145,14 +141,14 @@ TranslateWindow = function(refs, layout, fn, listeners) {
             $.ajax({
                 url: encodeURI(path + '/api/' + apiEndpoint + '/' + layout.id + '/translations/'),
                 type: 'PUT',
-                data: JSON.stringify({"translations": newTranslations}),
+                data: JSON.stringify({'translations': newTranslations}),
                 dataType: 'json',
                 headers: appManager.defaultRequestHeaders,
                 success: function(obj, success, r) {
                     window.destroy();
                 }
             });
-           
+
         }
     });
 
@@ -164,6 +160,7 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     });
 
     var window = Ext.create('Ext.window.Window', {
+        cls: 'ns-accordion',
         title: 'Translate',
         bodyStyle: 'padding:1px; background:#fff',
         resizable: false,

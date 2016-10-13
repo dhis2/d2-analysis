@@ -4,32 +4,36 @@ export default function({ layout, i18n }) {
 
     // Load Favorite textfield
     const { nameTextField, descriptionTextField, titleTextField } = getFavoriteTextCmp({ layout, i18n });
-    
+
     // Customise them for translate Panel
     delete nameTextField.height;
     delete titleTextField.height;
     delete descriptionTextField.height;
 
-    if (!layout.title || layout.title == ''){
+    nameTextField.emptyText = i18n.no_translation_for_name;
+
+    if (!layout.title) {
         titleTextField['disabled'] = true;
-        titleTextField.emptyText = 'No title';
+        titleTextField.emptyText = i18n.no_title;
     }
-    else{
-        titleTextField.emptyText = 'No translation for title';
+    else {
+        titleTextField.emptyText = i18n.no_translation_for_title;
     }
-    if (!layout.description || layout.description == ''){
+
+    if (!layout.description) {
         descriptionTextField['disabled'] = true;
-        descriptionTextField.emptyText = 'No description';
+        descriptionTextField.emptyText = i18n.no_description;
     }
-    else{
-        descriptionTextField.emptyText = 'No translation for description';
+    else {
+        descriptionTextField.emptyText = i18n.no_translation_for_description;
     }
 
     // Create labels for keys
     var getLabelKey = function(text) {
-        return Ext.create('Ext.form.Label', {
-            style: 'font-size: 11px;color: #111;padding-left: 7px;padding-top: 4px;margin-bottom: 0',
-            text: text
+        return Ext.create('Ext.panel.Panel', {
+            style: 'margin-bottom:0',
+            bodyStyle: 'font-size:11px; color:#666; padding-left:6px; padding-top:3px; border:0 none',
+            html: text
         });
     };
 
