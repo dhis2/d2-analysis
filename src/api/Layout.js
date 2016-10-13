@@ -274,6 +274,22 @@ Layout.prototype.extendRecords = function(response) {
     });
 };
 
+Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
+    var t = this;
+
+    if (!skipAddToFilter && !t.filters) {
+        t.filters = new refs.api.Axis();
+    }
+
+    t.getAxes(includeFilter).forEach(function(axis) {
+        axis.strip().forEach(function(dimension) {
+            if (!skipAddToFilter) {
+                t.filters.add(dimension);
+            }
+        });
+    });
+};
+
 // dep 2
 
 Layout.prototype.getRecordIds = function(includeFilter) {

@@ -30,8 +30,8 @@ Axis = function(config) {
         return this;
     };
 
-    t.add = function(dimensionConfig) {
-        var dimension = (new Dimension(dimensionConfig)).val();
+    t.add = function(dimensionConfig, skipValidation) {
+        var dimension = skipValidation ? dimensionConfig : (new Dimension(dimensionConfig)).val();
 
         if (dimension) {
             t.push(dimension);
@@ -122,6 +122,16 @@ Axis = function(config) {
         t.forEach(function(dimension) {
             dimension.extendRecords(response);
         });
+    };
+
+    t.strip = function() {
+        var rest = [];
+
+        while (t.length > 1) {
+            rest.push(t.pop());
+        }
+
+        return rest.reverse();
     };
 
     t.toPlugin = function() {
