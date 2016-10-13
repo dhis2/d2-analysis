@@ -3,15 +3,27 @@ import getFavoriteTextCmp from './FavoriteTextCmp';
 export default function({ layout, i18n }) {
 
     // Load Favorite textfield
-    const { nameTextField, titleTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
+    const { nameTextField, descriptionTextField, titleTextField } = getFavoriteTextCmp({ layout, i18n });
     
     // Customise them for translate Panel
     delete nameTextField.height;
     delete titleTextField.height;
     delete descriptionTextField.height;
 
-    titleTextField.emptyText = 'No title';
-    descriptionTextField.emptyText = 'No description';
+    if (!layout.title || layout.title == ''){
+        titleTextField['disabled'] = true;
+        titleTextField.emptyText = 'No title';
+    }
+    else{
+        titleTextField.emptyText = 'No translation for title';
+    }
+    if (!layout.description || layout.description == ''){
+        descriptionTextField['disabled'] = true;
+        descriptionTextField.emptyText = 'No description';
+    }
+    else{
+        descriptionTextField.emptyText = 'No translation for description';
+    }
 
     // Create labels for keys
     var getLabelKey = function(text) {

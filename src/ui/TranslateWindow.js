@@ -67,13 +67,13 @@ TranslateWindow = function(refs, layout, fn, listeners) {
     });
 
     var localeComboBox = Ext.create('Ext.form.ComboBox', {
-        width: fs.windowCmpWidth,
+        width: fs.windowCmpWidth * 0.9,
         height: 45,
-        style: 'margin-top: 2px; margin-bottom: 0',
-        fieldStyle: fs.textfieldStyle.join(';'),
+        style: 'margin-top: 2px; margin-bottom: 0;margin-left:5px;',
+        fieldStyle: 'padding-right:0;padding-left:5px;font-size:11px;line-height:13px;',
         fieldLabel: 'Select a locale to enter translations for ',
         labelAlign: 'top',
-        labelStyle: fs.textFieldLabelStyle.join(';'),
+        labelStyle: 'font-size:11px;font-weight:bold;color:#111;padding-top:4px;margin-bottom:2px',
         labelSeparator: '',
         store: localeStore,
         queryMode: 'local',
@@ -141,9 +141,6 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                 }
             }
 
-            console.log('Object to push')
-            console.log(newTranslations)
-
             // Update server with translations
             $.ajax({
                 url: encodeURI(path + '/api/' + apiEndpoint + '/' + layout.id + '/translations/'),
@@ -192,8 +189,6 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                     disableCaching: false,
                     success: function(r) {
                        translations = Ext.decode(r.responseText).translations
-                       console.log("currentTranslations");
-                       console.log(translations);
                     }
                 });
 
