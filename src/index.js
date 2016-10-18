@@ -36,7 +36,6 @@ import { FavoriteButton } from './ui/FavoriteButton.js';
 import { InterpretationWindow } from './ui/InterpretationWindow.js';
 import { InterpretationItem } from './ui/InterpretationItem.js';
 import { PluginItem } from './ui/PluginItem.js';
-import { LinkItem } from './ui/LinkItem.js';
 import { AboutWindow } from './ui/AboutWindow.js';
 import { GridHeaders } from './ui/GridHeaders.js';
 import { ChartTypeToolbar } from './ui/ChartTypeToolbar.js';
@@ -94,7 +93,6 @@ export {
     InterpretationWindow,
     InterpretationItem,
     PluginItem,
-    LinkItem,
     AboutWindow,
     GridHeaders,
     ChartTypeToolbar,
@@ -161,7 +159,6 @@ export const ui = {
     InterpretationWindow,
     InterpretationItem,
     PluginItem,
-    LinkItem,
     AboutWindow,
     GridHeaders,
     ChartTypeToolbar,

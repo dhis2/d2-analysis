@@ -14,7 +14,6 @@ import {Axis} from '../api/Axis.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';
-import {LinkItem} from './LinkItem.js';
 import {FavoriteButton} from './FavoriteButton.js';
 import {EmbedButton} from './EmbedButton.js';
 import {EastRegion} from './EastRegion.js';
