@@ -5,11 +5,11 @@ legendSetsInit = function(c) {
         appManager = c.appManager,
         requestManager = c.requestManager,
 
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
-        baseUrl: path + '/api/legendSets.json',
+        baseUrl: apiPath + '/legendSets.json',
         params: [
             'fields=id,displayName|rename(name),legends[id,displayName|rename(name),startValue,endValue,color]',
             'paging=false'

@@ -11,7 +11,7 @@ SharingWindow = function(c, sharing, configOnly) {
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig;
 
-    var path = appManager.getPath();
+    var apiPath = appManager.getApiPath();
 
     var UserGroupRow,
 
@@ -144,7 +144,7 @@ SharingWindow = function(c, sharing, configOnly) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(path + '/api/sharing/search'),
+            url: encodeURI(apiPath + '/sharing/search'),
             extraParams: {
                 pageSize: 50
             },

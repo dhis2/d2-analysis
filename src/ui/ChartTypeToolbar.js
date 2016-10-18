@@ -16,7 +16,6 @@ ChartTypeToolbar = function(c) {
         chartConf = c.chartConfig,
 
         i18n = c.i18nManager.get(),
-        path = appManager.getPath(),
 
         buttons = [];
 

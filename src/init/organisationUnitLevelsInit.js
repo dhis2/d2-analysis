@@ -5,11 +5,11 @@ organisationUnitLevelsInit = function(c) {
         appManager = c.appManager,
         requestManager = c.requestManager,
 
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
-        baseUrl: path + '/api/organisationUnitLevels.json',
+        baseUrl: apiPath + '/organisationUnitLevels.json',
         params: [
             'fields=id,displayName|rename(name),level',
             'paging=false'

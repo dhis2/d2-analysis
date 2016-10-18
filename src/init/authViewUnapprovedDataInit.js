@@ -5,10 +5,10 @@ authViewUnapprovedDataInit = function(c) {
         appManager = c.appManager,
         requestManager = c.requestManager,
 
-        path = appManager.getPath();
+        apiPath = appManager.getApiPath();
 
     return {
-        baseUrl: path + '/api/me/authorization/F_VIEW_UNAPPROVED_DATA',
+        baseUrl: appManager.getPath() + '/api/me/authorization/F_VIEW_UNAPPROVED_DATA', //TODO fix versioning +when supported by api
         success: function(r) {
             appManager.viewUnapprovedData = r;
             requestManager.ok(this);

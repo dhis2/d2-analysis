@@ -141,7 +141,7 @@ InstanceManager.prototype.getById = function(id, fn) {
     };
 
     var request = new t.api.Request({
-        baseUrl: appManager.getPath() + '/api/' + t.apiEndpoint + '/' + id + '.json',
+        baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {
             var layout = new t.api.Layout(t.refs, r);
@@ -181,7 +181,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     var i18n = t.i18nManager.get();
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/' + t.apiEndpoint + '/' + id,
+        baseUrl: t.appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
         method: 'DELETE',
         beforeRun: function() {
             if (doMask) {
@@ -209,7 +209,7 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/sharing',
+        baseUrl: t.appManager.getApiPath() + '/sharing',
         type: 'json',
         success: function(r) {
             fn && fn(r);
@@ -235,7 +235,7 @@ InstanceManager.prototype.postDataStatistics = function() {
     var t = this;
 
     var request = new t.api.Request({
-        baseUrl: t.appManager.getPath() + '/api/dataStatistics',
+        baseUrl: t.appManager.getApiPath() + '/dataStatistics',
         method: 'POST'
     });
 
@@ -267,7 +267,7 @@ InstanceManager.prototype.getInterpretationById = function(id, fn) {
     var uiManager = t.uiManager;
 
     var request = new t.api.Request({
-        baseUrl: appManager.getPath() + '/api/interpretations/' + id + '.json',
+        baseUrl: appManager.getApiPath() + '/interpretations/' + id + '.json',
         type: 'json',
         success: function(r) {
             if (isFunction(fn)) {

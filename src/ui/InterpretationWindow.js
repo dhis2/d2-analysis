@@ -8,7 +8,7 @@ InterpretationWindow = function(c, sharing) {
         instanceManager = c.instanceManager,
 
         i18n = c.i18nManager.get(),
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
@@ -42,7 +42,7 @@ InterpretationWindow = function(c, sharing) {
         handler: function() {
             if (textArea.getValue()) {
                 Ext.Ajax.request({
-                    url: encodeURI(path + '/api/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
+                    url: encodeURI(apiPath + '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
                     method: 'POST',
                     params: textArea.getValue(),
                     headers: {'Content-Type': 'text/html'},
@@ -52,7 +52,7 @@ InterpretationWindow = function(c, sharing) {
                             sharingBody = sharingCmp.getBody();
 
                         Ext.Ajax.request({
-                            url: encodeURI(path + '/api/sharing?type=interpretation&id=' + interpretationId),
+                            url: encodeURI(apiPath + '/sharing?type=interpretation&id=' + interpretationId),
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -60,7 +60,7 @@ InterpretationWindow = function(c, sharing) {
                             params: Ext.encode(sharingBody),
                             callback: function() {
                                 Ext.Ajax.request({
-                                    url: encodeURI(path + '/api/sharing?type=' + apiResource + '&id=' + sharingId),
+                                    url: encodeURI(apiPath + '/sharing?type=' + apiResource + '&id=' + sharingId),
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json'

@@ -5,11 +5,11 @@ dataApprovalLevelsInit = function(c) {
         appManager = c.appManager,
         requestManager = c.requestManager,
 
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
-        baseUrl: path + '/api/dataApprovalLevels.json',
+        baseUrl: apiPath + '/dataApprovalLevels.json',
         params: [
             'order=level:asc',
             'fields=id,' + displayPropertyUrl + ',level',

@@ -100,11 +100,6 @@ IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, b
                 });
 
                 b.menu.show();
-            },
-            listeners: {
-                render: function() {
-                    //centerRegion.cmp.push(this);
-                }
             }
         };
     }

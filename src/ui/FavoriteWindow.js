@@ -14,7 +14,7 @@ FavoriteWindow = function(c, action) {
         i18n = c.i18nManager.get(),
         uiConfig = c.uiConfig,
 
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
@@ -68,7 +68,7 @@ FavoriteWindow = function(c, action) {
         sortField = field || sortField;
 
         var value = action === 'open' ? searchTextfield.getValue() : null;
-        return path + '/api/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection(keepDir);
+        return apiPath + '/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection(keepDir);
     };
 
     favoriteStore = Ext.create('Ext.data.Store', {
@@ -85,7 +85,7 @@ FavoriteWindow = function(c, action) {
         isLoaded: false,
         pageSize: 10,
         page: 1,
-        defaultUrl: path + '/api/' + apiEndpoint + '.json?fields=' + urlFields + '&order=name:asc',
+        defaultUrl: apiPath + '/' + apiEndpoint + '.json?fields=' + urlFields + '&order=name:asc',
         loadStore: function(url) {
             this.proxy.url = encodeURI(url || this.defaultUrl);
 
@@ -146,7 +146,7 @@ FavoriteWindow = function(c, action) {
             if (value !== t.currentValue) {
                 t.currentValue = value;
 
-                var url = value ? path + '/api/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') : null;
+                var url = value ? apiPath + '/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') : null;
 
                 favoriteStore.page = 1;
                 favoriteStore.loadStore(url);

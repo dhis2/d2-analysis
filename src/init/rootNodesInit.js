@@ -5,11 +5,11 @@ rootNodesInit = function(c) {
         appManager = c.appManager,
         requestManager = c.requestManager,
 
-        path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
-        baseUrl: path + '/api/organisationUnits.json',
+        baseUrl: apiPath + '/organisationUnits.json',
         params: [
             'userDataViewFallback=true',
             'fields=id,' + displayPropertyUrl + ',children[id,' + displayPropertyUrl + ']',

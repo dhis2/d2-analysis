@@ -8,7 +8,7 @@ AboutWindow = function(c) {
         instanceManager = c.instanceManager,
 
         i18n = c.i18nManager.get(),
-        path = appManager.getPath();
+        apiPath = appManager.getApiPath();
 
     return Ext.create('Ext.window.Window', {
         title: i18n.about,
@@ -20,7 +20,7 @@ AboutWindow = function(c) {
             var t = this;
 
             Ext.Ajax.request({
-                url: encodeURI(path + '/api/system/info.json'),
+                url: encodeURI(apiPath + '/system/info.json'),
                 success: function(r) {
                     var info = Ext.decode(r.responseText),
                         divStyle = 'padding:3px',

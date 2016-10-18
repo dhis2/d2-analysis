@@ -7,6 +7,7 @@ LinkWindow = function(c) {
 
         i18n = c.i18nManager.get(),
         path = appManager.getPath(),
+        apiPath = appManager.getApiPath(),
         apiEndpoint = instanceManager.apiEndpoint,
         apiModule = instanceManager.apiModule;
 
@@ -20,7 +21,7 @@ LinkWindow = function(c) {
         html: function() {
             var layout = instanceManager.getStateFavorite(),
                 appUrl = path + '/' + apiModule + '/index.html?id=' + layout.id,
-                apiUrl = path + '/api/' + apiEndpoint + '/' + layout.id + '/data.html+css',
+                apiUrl = apiPath + '/' + apiEndpoint + '/' + layout.id + '/data.html+css',
                 hStyle = 'padding-bottom:10px; font-weight:bold; color:#444',
                 html = '';
 

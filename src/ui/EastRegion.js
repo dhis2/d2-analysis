@@ -13,8 +13,11 @@ EastRegion = function(c) {
         uiConfig = c.uiConfig,
         instanceManager = c.instanceManager,
         appManager = c.appManager,
-        i18nManager = c.i18nManager,
-        i18n = i18nManager.get();
+        i18nManager = c.i18nManager;
+
+    var i18n = i18nManager.get(),
+        path = appManager.getPath(),
+        apiPath = appManager.getApiPath();
 
     var descriptionMaxNumberCharacter = 200;
 
@@ -134,7 +137,7 @@ EastRegion = function(c) {
             // Get Number of Views from analytics api and update label
             var setNumberOfViews = function(label, favoritesId) {
                 Ext.Ajax.request({
-                    url: encodeURI(appManager.getPath() + '/api/dataStatistics/favorites/' + favoritesId + '.json'),
+                    url: encodeURI(apiPath + '/dataStatistics/favorites/' + favoritesId + '.json'),
                     method: 'GET',
                     scope: this,
                     success: function(r) {
@@ -353,7 +356,7 @@ EastRegion = function(c) {
                                 listeners: {
                                     render: function() {
                                         this.getEl().on('click', function() {
-                                            window.location.href = appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id;
+                                            window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id;
                                         });
                                     }
                                 }
@@ -411,7 +414,7 @@ EastRegion = function(c) {
 
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
-                url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
+                url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {
@@ -427,7 +430,7 @@ EastRegion = function(c) {
             var that = this;
             if (isLiked(interpretation)) {
                 Ext.Ajax.request({
-                    url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
+                    url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '/like'),
                     method: 'DELETE',
                     success: function() {
                         refreshInterpretationDataModel(that.up('#interpretationPanel' + interpretation.id));
@@ -435,7 +438,7 @@ EastRegion = function(c) {
                 });
             } else {
                 Ext.Ajax.request({
-                    url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/like'),
+                    url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '/like'),
                     method: 'POST',
                     success: function() {
                         refreshInterpretationDataModel(that.up('#interpretationPanel' + interpretation.id));
@@ -448,7 +451,7 @@ EastRegion = function(c) {
         var commentInterpretation = function(f) {
             if (f.getValue().trim() != '') {
                 Ext.Ajax.request({
-                    url: encodeURI(appManager.getPath() + '/api/interpretations/' + interpretation.id + '/comments'),
+                    url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '/comments'),
                     method: 'POST',
                     params: f.getValue(),
                     headers: {
@@ -490,7 +493,7 @@ EastRegion = function(c) {
                             var element = this.getEl();
 
                             element.on('click', function() {
-                                window.location.href = appManager.getPath() + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
+                                window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
                             });
                         }
                     }
