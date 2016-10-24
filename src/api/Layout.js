@@ -117,7 +117,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     }
 
         //favorite user
-    if (isObject(c.user)){
+    if (isObject(c.user)) {
         t.user = c.user;
     }
 
