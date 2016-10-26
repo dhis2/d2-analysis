@@ -35,10 +35,6 @@ Viewport = function(refs, cmp) {
 
         apiPath = appManager.getApiPath(),
         i18n = i18nManager.get(),
-        apiResource = instanceManager.apiResource,
-        apiEndpoint = instanceManager.apiEndpoint,
-        displayProperty = appManager.getDisplayProperty(),
-        displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
         dataObjectName = dimensionConfig.get('data').objectName,
         indicatorObjectName = dimensionConfig.get('indicator').objectName,
@@ -49,7 +45,6 @@ Viewport = function(refs, cmp) {
         programIndicatorObjectName = dimensionConfig.get('programIndicator').objectName,
         periodObjectName = dimensionConfig.get('period').objectName,
         organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
-        categoryObjectName = dimensionConfig.get('category').objectName,
 
         layoutWindow = uiManager.get('layoutWindow'),
         optionsWindow = uiManager.get('optionsWindow'),
@@ -3964,9 +3959,9 @@ Viewport = function(refs, cmp) {
                     var xlsReq = layout.req(null, 'xls');
                     var csvReq = layout.req(null, 'csv');
                     var jrxmlReq = layout.req(null, 'jrxml');
-                    var sqlReq = layout.req('/api/analytics/debug/sql', 'sql');
-                    var dataValueSetJsonReq = layout.req('/api/analytics/dataValueSet', 'json', null, null, true);
-                    var dataValueSetXmlReq = layout.req('/api/analytics/dataValueSet', 'xml', null, null, true);
+                    var sqlReq = layout.req('/analytics/debug/sql', 'sql');
+                    var dataValueSetJsonReq = layout.req('/analytics/dataValueSet', 'json', null, null, true);
+                    var dataValueSetXmlReq = layout.req('/analytics/dataValueSet', 'xml', null, null, true);
 
                     var items = [
                         {

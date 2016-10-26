@@ -8,8 +8,7 @@ SharingWindow = function(c, sharing, configOnly) {
     var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
-        i18n = c.i18nManager.get(),
-        uiConfig = c.uiConfig;
+        i18n = c.i18nManager.get();
 
     var apiPath = appManager.getApiPath();
 
@@ -275,7 +274,7 @@ SharingWindow = function(c, sharing, configOnly) {
                     text: i18n.save,
                     handler: function() {
                         Ext.Ajax.request({
-                            url: encodeURI(path + '/api/sharing?type=' + instanceManager.apiResource + '&id=' + sharing.object.id),
+                            url: encodeURI(apiPath + '/sharing?type=' + instanceManager.apiResource + '&id=' + sharing.object.id),
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
