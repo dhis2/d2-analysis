@@ -4,7 +4,6 @@ import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isDefined from 'd2-utilizr/lib/isDefined';
-import isEmpty from 'd2-utilizr/lib/isEmpty';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
@@ -13,7 +12,6 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 
 import {Axis} from './Axis.js';
 import {Dimension} from './Dimension.js';
-import {Record} from './Record.js';
 import {Request} from './Request.js';
 import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
 import {Sorting} from './Sorting.js';
@@ -30,7 +28,8 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     $.extend(c, applyConfig);
 
     // private
-    var _source = '/api/analytics';
+    var _path = refs.appManager.getApiPath();
+    var _source = '/analytics';
     var _format = 'json';
 
     var _response;
@@ -167,6 +166,10 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         _dataDimensionItems = a;
     };
 
+    t.getDefaultPath = function() {
+        return _path;
+    };
+
     t.getDefaultSource = function() {
         return _source;
     };
@@ -176,7 +179,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     };
 
     t.getRequestPath = function(s, f) {
-        return refs.appManager.getPath() + (s || _source) + '.' + (f || _format);
+        return (_path || refs.appManager.getPath()) + (s || _source) + '.' + (f || _format);
     };
 
     t.getRefs = function() {
@@ -331,13 +334,15 @@ Layout.prototype.removeDimensionItems = function(includeFilter) {
 };
 
 Layout.prototype.val = function(noError) {
+    var i18nManager = this.getRefs().i18nManager;
+
     if (!(this.columns || this.rows)) {
-        this.alert(I18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'), noError); //todo alert
+        this.alert(i18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'), noError); //todo alert
         return null;
     }
 
     if (!this.hasDimension(refs.dimensionConfig.get('period').dimensionName)) {
-        this.alert(I18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'), noError); //todo alert
+        this.alert(i18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'), noError); //todo alert
         return null;
     }
 
