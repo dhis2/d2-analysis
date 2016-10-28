@@ -35,10 +35,6 @@ Viewport = function(refs, cmp) {
 
         apiPath = appManager.getApiPath(),
         i18n = i18nManager.get(),
-        apiResource = instanceManager.apiResource,
-        apiEndpoint = instanceManager.apiEndpoint,
-        displayProperty = appManager.getDisplayProperty(),
-        displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
         dataObjectName = dimensionConfig.get('data').objectName,
         indicatorObjectName = dimensionConfig.get('indicator').objectName,
@@ -48,8 +44,7 @@ Viewport = function(refs, cmp) {
         eventDataItemObjectName = dimensionConfig.get('eventDataItem').objectName,
         programIndicatorObjectName = dimensionConfig.get('programIndicator').objectName,
         periodObjectName = dimensionConfig.get('period').objectName,
-        organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
-        categoryObjectName = dimensionConfig.get('category').objectName,
+        organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName
 
         layoutWindow = uiManager.get('layoutWindow'),
         optionsWindow = uiManager.get('optionsWindow'),
