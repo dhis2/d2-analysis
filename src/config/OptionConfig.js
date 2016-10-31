@@ -285,7 +285,9 @@ OptionConfig.prototype.prettyPrint = function(number, separator, noHtml) {
         return number;
     }
 
-    var pp = number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue);
+    var [num, dec] = ('' + number).split('.');
+
+    var pp = num.replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue) + (dec ? '.' + dec : '');
 
     if (noHtml) {
         pp = stringReplaceAll(pp, "&nbsp;", " ");

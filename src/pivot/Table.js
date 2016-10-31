@@ -32,7 +32,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         getValue,
         roundIf,
         getNumberOfDecimals,
-        prettyPrint,
         doColTotals,
         doRowTotals,
         doColSubTotals,
@@ -146,7 +145,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         colSpan = config.colSpan ? 'colspan="' + config.colSpan + '" ' : '';
         rowSpan = config.rowSpan ? 'rowspan="' + config.rowSpan + '" ' : '';
         htmlValue = getHtmlValue(config);
-        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
+        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
 
         cls += config.hidden ? ' td-hidden' : '';
         cls += config.collapsed ? ' td-collapsed' : '';
@@ -218,20 +217,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     getNumberOfDecimals = function(number) {
         var str = new String(number);
         return (str.indexOf('.') > -1) ? (str.length - str.indexOf('.') - 1) : 0;
-    };
-
-    prettyPrint = function(number, separator) {
-        var oc = optionConfig,
-            spaceId = oc.getDigitGroupSeparator('space').id,
-            noneId = oc.getDigitGroupSeparator('none').id;
-
-        separator = separator || spaceId;
-
-        if (separator === noneId) {
-            return number;
-        }
-
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, oc.getDigitGroupSeparatorValueById(separator) || '');
     };
 
     doColTotals = function() {
