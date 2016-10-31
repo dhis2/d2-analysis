@@ -44,11 +44,7 @@ Viewport = function(refs, cmp) {
         eventDataItemObjectName = dimensionConfig.get('eventDataItem').objectName,
         programIndicatorObjectName = dimensionConfig.get('programIndicator').objectName,
         periodObjectName = dimensionConfig.get('period').objectName,
-<<<<<<< HEAD
-        organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName
-=======
         organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
->>>>>>> 5745eff21aca770cc258c0728616a9e1f9d410cb
 
         layoutWindow = uiManager.get('layoutWindow'),
         optionsWindow = uiManager.get('optionsWindow'),
