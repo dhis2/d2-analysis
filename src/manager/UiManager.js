@@ -495,6 +495,69 @@ UiManager = function(refs) {
     t.resize = function(params) {
         resizeHandlers.run(params);
     };
+
+    // redirect
+
+    t.openTableLayoutTab = function(layout, type, isNewTab) {
+        type = type || 'xls';
+
+        var url = layout.req(null, type, false, true).url();
+        var target = isNewTab ? '_blank' : '_top';
+
+        window.open(url, target);
+    };
+
+    t.openPlainDataSource = function(url, extraParamString, isNewTab) {
+        url = (isString(url) ? url : url.url()) + (extraParamString || '');
+        var target = isNewTab ? '_blank' : '_top';
+
+        window.open(url, target);
+    };
+
+    t.openDataDump = function(layout, format, scheme, isNewTab) {
+        layout = layout || t.instanceManager.getLayout();
+
+        var includeFilter = false;
+
+        if (layout) {
+            var extraParams = [];
+
+            layout.toRows(includeFilter);
+
+            format = format || 'csv';
+
+            if (layout.showHierarchy) {
+                extraParams.push('showHierarchy=true');
+            }
+
+            extraParams.push('rows=' + layout.getDimensionNames(includeFilter).join(';'));
+
+            var url = layout.req(null, format).url(extraParams);
+            var target = isNewTab ? '_blank' : '_top';
+
+            window.open(url, target);
+        }
+    };
+
+    // svg
+    t.submitSvgForm = function(type) {
+        var svg = Ext.query('svg'),
+            form = Ext.query('#exportForm')[0];
+
+        if (!(isArray(svg) && svg.length)) {
+            alert('Browser does not support SVG');
+            return;
+        }
+
+        svg = Ext.get(svg[0]);
+        svg = svg.parent().dom.innerHTML;
+
+        Ext.query('#svgField')[0].value = svg;
+        Ext.query('#filenameField')[0].value = 'test';
+
+        form.action = ns.core.init.contextPath + '/api/svg.' + type;
+        form.submit();
+    };
 };
 
 UiManager.prototype.applyTo = function(modules) {
