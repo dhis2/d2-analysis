@@ -251,6 +251,8 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
 };
 
 AppManager.prototype.setAuth = function(auth) {
+    var J = 'jQuery' in window ? window['jQuery'] : undefined;
+    var E = 'Ext' in window ? window['Ext'] : undefined;
     var headers;
 
     if (auth) {
@@ -265,14 +267,14 @@ AppManager.prototype.setAuth = function(auth) {
     }
 
     if (headers) {
-        if ($) {
-            $.ajaxSetup({
+        if (J) {
+            J.ajaxSetup({
                 headers: headers
             });
         }
 
-        if (window.Ext && isObject(window.Ext.Ajax)) {
-            window.Ext.Ajax.defaultHeaders = headers;
+        if (E && isObject(E.Ajax)) {
+            E.Ajax.defaultHeaders = headers;
         }
     }
 };

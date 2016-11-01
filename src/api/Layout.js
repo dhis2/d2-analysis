@@ -106,13 +106,13 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     }
 
         //lastUpdated
-    if (DateManager.getYYYYMMDD(c.lastUpdated, true)) {
-        t.lastUpdated = DateManager.getYYYYMMDD(c.lastUpdated, true);
+    if (DateManager.getYYYYMMDD(c.lastUpdated)) {
+        t.lastUpdated = DateManager.getYYYYMMDD(c.lastUpdated);
     }
 
         //created
-    if (DateManager.getYYYYMMDD(c.created, true)) {
-        t.created = DateManager.getYYYYMMDD(c.created, true);
+    if (DateManager.getYYYYMMDD(c.created)) {
+        t.created = DateManager.getYYYYMMDD(c.created);
     }
 
         //favorite user
