@@ -113,6 +113,9 @@ AppManager = function(refs) {
     t.analysisFields;
     t.legendSetMap;
 
+    // optional
+    t.manifestVersion;
+
     // fns
     t.getUrlParam = function(s) {
         var output = '';
@@ -156,7 +159,7 @@ AppManager.prototype.getPath = function() {
 AppManager.prototype.getManifestFullVersionNumber = function() {
     var t = this;
 
-    return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : undefined;
+    return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
 };
 
 AppManager.prototype.getDateFormat = function() {
