@@ -69,6 +69,9 @@ Viewport = function(refs, cmp) {
 
     var integrationButtons = cmp.integrationButtons;
 
+    var DownloadButtonItems = cmp.DownloadButtonItems;
+
+    // stores
 
     var indicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
@@ -3921,32 +3924,7 @@ Viewport = function(refs, cmp) {
                     var dataValueSetXmlReq = layout.req('/analytics/dataValueSet', 'xml', null, null, true);
 
                     var items = [
-                        {
-                            xtype: 'label',
-                            text: i18n.table_layout,
-                            style: 'padding:7px 5px 5px 7px; font-weight:bold; border:0 none'
-                        },
-                        {
-                            text: 'Microsoft Excel (.xls)',
-                            iconCls: 'ns-menu-item-tablelayout',
-                            handler: function() {
-                                uiManager.openTableLayoutTab(layout, 'xls');
-                            }
-                        },
-                        {
-                            text: 'CSV (.csv)',
-                            iconCls: 'ns-menu-item-tablelayout',
-                            handler: function() {
-                                uiManager.openTableLayoutTab(layout, 'csv');
-                            }
-                        },
-                        {
-                            text: 'HTML (.html)',
-                            iconCls: 'ns-menu-item-tablelayout',
-                            handler: function() {
-                                uiManager.openTableLayoutTab(layout, 'html+css', true);
-                            }
-                        },
+                        ...DownloadButtonItems(refs, layout),
                         {
                             xtype: 'label',
                             text: i18n.plain_data_sources,
