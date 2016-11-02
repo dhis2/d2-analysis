@@ -555,7 +555,7 @@ UiManager = function(refs) {
         Ext.query('#svgField')[0].value = svg;
         Ext.query('#filenameField')[0].value = 'test';
 
-        form.action = ns.core.init.contextPath + '/api/svg.' + type;
+        form.action = t.appManager.getPath() + '/api/svg.' + type;
         form.submit();
     };
 };
