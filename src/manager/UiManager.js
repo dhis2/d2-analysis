@@ -196,11 +196,12 @@ UiManager = function(refs) {
             resource = t.instanceManager.apiResource,
             divId = resource + '1',
             pluginName = resource + 'Plugin',
+            pluginFileName = (resource || '').toLowerCase(),
             layout = t.instanceManager.getStateCurrent();
 
         text += '<html>\n<head>\n';
         text += '<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>\n';
-        text += '<script src="//dhis2-cdn.org/' + version + '/plugin/' + resource + '.js"></script>\n';
+        text += '<script src="//dhis2-cdn.org/' + version + '/plugin/' + pluginFileName + '.js"></script>\n';
         text += '</head>\n\n<body>\n';
         text += '<div id="' + divId + '"></div>\n\n';
         text += '<script>\n\n';

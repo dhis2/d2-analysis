@@ -390,6 +390,7 @@ Layout.prototype.toPlugin = function(el) {
             'title',
             'legendSet',
             'sorting',
+
             'targetLineValue',
             'targetLineTitle',
             'baseLineValue',
@@ -399,7 +400,12 @@ Layout.prototype.toPlugin = function(el) {
             'rangeAxisSteps',
             'rangeAxisDecimals',
             'rangeAxisTitle',
-            'domainAxisTitle'
+            'domainAxisTitle',
+
+            'regression',
+            'cumulative',
+            'sortOrder',
+            'topLimit'
         ];
 
         var deleteAnyway = [
