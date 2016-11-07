@@ -3,7 +3,6 @@ import isString from 'd2-utilizr/lib/isString';
 import isObject from 'd2-utilizr/lib/isObject';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
-import {DateManager} from '../manager/DateManager.js';
 
 export var InstanceManager;
 

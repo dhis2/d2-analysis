@@ -12,26 +12,7 @@ EmbedWindow = function(c) {
         height: 400,
         readOnly: true,
         cls: 'ns-textarea monospaced',
-        value: function() {
-            var text = '',
-                version = 'v' + parseFloat(appManager.systemInfo.version.split('.').join('')),
-                layout = instanceManager.getStateCurrent();
-
-            text += '<html>\n<head>\n';
-            text += '<link rel="stylesheet" href="//dhis2-cdn.org/' + version + '/ext/resources/css/ext-plugin-gray.css" />\n';
-            text += '<script src="//dhis2-cdn.org/' + version + '/ext/ext-all.js"></script>\n';
-            text += '<script src="//dhis2-cdn.org/' + version + '/plugin/table.js"></script>\n';
-            text += '</head>\n\n<body>\n';
-            text += '<div id="table1"></div>\n\n';
-            text += '<script>\n\n';
-            text += 'Ext.onReady(function() {\n\n';
-            text += 'DHIS.getTable(' + JSON.stringify(layout.toPlugin('table1'), null, 2) + ');\n\n';
-            text += '});\n\n';
-            text += '</script>\n\n';
-            text += '</body>\n</html>';
-
-            return text;
-        }()
+        value: uiManager.getEmbedHtml()
     });
 
     var window = Ext.create('Ext.window.Window', {
@@ -44,7 +25,7 @@ EmbedWindow = function(c) {
         bbar: [
             '->',
             {
-                text: 'Select',
+                text: i18n.select,
                 handler: function() {
                     textArea.selectText();
                 }
