@@ -14,6 +14,9 @@ UiManager = function(refs) {
 
     t.appManager = refs.appManager;
     t.instanceManager = refs.instanceManager;
+    t.i18nManager;
+
+    t.preventMask = false;
 
     var components = {};
 
@@ -52,10 +55,6 @@ UiManager = function(refs) {
     };
 
     var resizeHandlers = t.appManager.getEventHandlerArray();
-
-    t.preventMask = false;
-
-    t.i18nManager;
 
     // setters
     t.setInstanceManager = function(instanceManager) {
@@ -181,12 +180,38 @@ UiManager = function(refs) {
         theme = newTheme;
     };
 
+    // intro
     t.getIntroHtml = function() {
         return introHtml;
     };
 
     t.setIntroHtml = function(html) {
         introHtml = html;
+    };
+
+    // embed
+    t.getEmbedHtml = function() {
+        var text = '',
+            version = 'v' + parseFloat(t.appManager.systemInfo.version.split('.').join('')),
+            resource = t.instanceManager.apiResource,
+            divId = resource + '1',
+            pluginName = resource + 'Plugin',
+            layout = t.instanceManager.getStateCurrent();
+
+        text += '<html>\n<head>\n';
+        text += '<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>\n';
+        text += '<script src="//dhis2-cdn.org/' + version + '/plugin/' + resource + '.js"></script>\n';
+        text += '</head>\n\n<body>\n';
+        text += '<div id="' + divId + '"></div>\n\n';
+        text += '<script>\n\n';
+        text += pluginName + '.url = "<url to server>";\n';
+        text += pluginName + '.username = "<username>";\n';
+        text += pluginName + '.password = "<password>";\n\n';
+        text += resource + 'Plugin.load([' + JSON.stringify(layout.toPlugin(divId), null, 2) + ']);\n\n';
+        text += '</script>\n\n';
+        text += '</body>\n</html>';
+
+        return text;
     };
 
     // browser

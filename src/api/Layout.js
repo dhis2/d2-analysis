@@ -376,7 +376,8 @@ Layout.prototype.toPlugin = function(el) {
             'showColTotals',
             'showColSubTotals',
             'showRowSubTotals',
-            'showDimensionLabels'
+            'showDimensionLabels',
+            'showValues'
         ];
 
         var deleteIfFalsy = [
@@ -384,8 +385,21 @@ Layout.prototype.toPlugin = function(el) {
             'skipRounding',
             'showHierarchy',
             'completedOnly',
+            'hideLegend',
+            'hideTitle',
+            'title',
             'legendSet',
-            'sorting'
+            'sorting',
+            'targetLineValue',
+            'targetLineTitle',
+            'baseLineValue',
+            'baseLineTitle',
+            'rangeAxisMaxValue',
+            'rangeAxisMinValue',
+            'rangeAxisSteps',
+            'rangeAxisDecimals',
+            'rangeAxisTitle',
+            'domainAxisTitle'
         ];
 
         var deleteAnyway = [
@@ -404,7 +418,8 @@ Layout.prototype.toPlugin = function(el) {
             'created',
             'user',
             'publicAccess',
-            'userGroupAccesses'
+            'userGroupAccesses',
+            'prototype'
         ];
 
         deleteIfTruthy.forEach(function(item) {
@@ -441,6 +456,10 @@ Layout.prototype.toPlugin = function(el) {
 
         if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id) {
             delete layout.dataApprovalLevel;
+        }
+
+        if (layout.regressionType === 'NONE') {
+            delete layout.regressionType;
         }
     }
 
