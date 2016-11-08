@@ -281,7 +281,7 @@ Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
     var t = this;
 
     if (!skipAddToFilter && !t.filters) {
-        t.filters = new refs.api.Axis();
+        t.filters = new t.getRefs().api.Axis();
     }
 
     t.getAxes(includeFilter).forEach(function(axis) {
