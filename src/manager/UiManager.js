@@ -189,32 +189,6 @@ UiManager = function(refs) {
         introHtml = html;
     };
 
-    // embed
-    t.getEmbedHtml = function() {
-        var text = '',
-            version = 'v' + parseFloat(t.appManager.systemInfo.version.split('.').join('')),
-            resource = t.instanceManager.apiResource,
-            divId = resource + '1',
-            pluginName = resource + 'Plugin',
-            pluginFileName = (resource || '').toLowerCase(),
-            layout = t.instanceManager.getStateCurrent();
-
-        text += '<html>\n<head>\n';
-        text += '<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>\n';
-        text += '<script src="//dhis2-cdn.org/' + version + '/plugin/' + pluginFileName + '.js"></script>\n';
-        text += '</head>\n\n<body>\n';
-        text += '<div id="' + divId + '"></div>\n\n';
-        text += '<script>\n\n';
-        text += pluginName + '.url = "<url to server>";\n';
-        text += pluginName + '.username = "<username>";\n';
-        text += pluginName + '.password = "<password>";\n\n';
-        text += resource + 'Plugin.load([' + JSON.stringify(layout.toPlugin(divId), null, 2) + ']);\n\n';
-        text += '</script>\n\n';
-        text += '</body>\n</html>';
-
-        return text;
-    };
-
     // browser
     t.getScrollbarSize = function() {
         var size,
@@ -513,6 +487,31 @@ UiManager = function(refs) {
             '</div>' : '';
     };
 
+    t.getEmbedHtml = function() {
+        var text = '',
+            version = 'v' + parseFloat(t.appManager.systemInfo.version.split('.').join('')),
+            resource = t.instanceManager.apiResource,
+            divId = resource + '1',
+            pluginName = resource + 'Plugin',
+            pluginFileName = (resource || '').toLowerCase(),
+            layout = t.instanceManager.getStateCurrent();
+
+        text += '<html>\n<head>\n';
+        text += '<script src="//code.jquery.com/jquery-2.2.4.min.js"></script>\n';
+        text += '<script src="//dhis2-cdn.org/' + version + '/plugin/' + pluginFileName + '.js"></script>\n';
+        text += '</head>\n\n<body>\n';
+        text += '<div id="' + divId + '"></div>\n\n';
+        text += '<script>\n\n';
+        text += pluginName + '.url = "<url to server>";\n';
+        text += pluginName + '.username = "<username>";\n';
+        text += pluginName + '.password = "<password>";\n\n';
+        text += resource + 'Plugin.load([' + JSON.stringify(layout.toPlugin(divId), null, 2) + ']);\n\n';
+        text += '</script>\n\n';
+        text += '</body>\n</html>';
+
+        return text;
+    };
+
     // resize
     t.onResize = function(fn) {
         resizeHandlers.push(fn);
@@ -523,7 +522,6 @@ UiManager = function(refs) {
     };
 
     // redirect
-
     t.openTableLayoutTab = function(layout, type, isNewTab) {
         type = type || 'xls';
 

@@ -425,7 +425,8 @@ Layout.prototype.toPlugin = function(el) {
             'user',
             'publicAccess',
             'userGroupAccesses',
-            'prototype'
+            'prototype',
+            'url'
         ];
 
         deleteIfTruthy.forEach(function(item) {
