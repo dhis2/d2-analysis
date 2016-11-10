@@ -50,6 +50,7 @@ import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 
 import { SimpleRegression } from './util/SimpleRegression.js';
+import { Plugin } from './util/Plugin.js';
 
 import { extOverrides } from './override/extOverrides.js';
 import { extChartOverrides } from './override/extChartOverrides.js';
@@ -107,6 +108,7 @@ export {
     dataApprovalLevelsInit,
 
     SimpleRegression,
+    Plugin,
 
     extOverrides,
     extChartOverrides,
@@ -176,7 +178,8 @@ export const init = {
 };
 
 export const util = {
-    SimpleRegression
+    SimpleRegression,
+    Plugin,
 };
 
 export const override = {

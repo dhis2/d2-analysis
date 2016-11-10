@@ -512,6 +512,10 @@ UiManager = function(refs) {
         return text;
     };
 
+    t.renderLoadingIndicator = function(el) {
+        $('#' + el).append('<div class="spinner"></div>');
+    };
+
     // resize
     t.onResize = function(fn) {
         resizeHandlers.push(fn);
