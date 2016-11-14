@@ -15,6 +15,7 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
+    var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
 
@@ -127,6 +128,26 @@ OptionConfig = function() {
         };
     };
 
+    var setOutputType = function() {
+        outputType = {
+            'event': {
+                index: 1,
+                id: 'EVENT',
+                name: i18nManager.get('event') || 'Event'
+            },
+            'enrollment': {
+                index: 2,
+                id: 'ENROLLMENT',
+                name: i18nManager.get('enrollment') || 'Enrollment'
+            },
+            'trackedentityinstance': {
+                index: 3,
+                id: 'TRACKED_ENTITY_INSTANCE',
+                name: i18nManager.get('tracked_entity_instance') || 'Tracked entity instance'
+            }
+        };
+    };
+
     var setDataApprovalLevel = function() {
         dataApprovalLevel = {
             'def': {
@@ -188,6 +209,7 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
+        setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
     };
@@ -207,6 +229,10 @@ OptionConfig = function() {
 
     t.getAggregationType = function(key) {
         return key ? aggregationType[key] : aggregationType;
+    };
+
+    t.getOutputType = function(key) {
+        return key ? outputType[key] : outputType;
     };
 
     t.getDataApprovalLevel = function(key) {
@@ -231,6 +257,10 @@ OptionConfig = function() {
 
     t.getAggregationTypeRecords = function() {
         return getRecords(aggregationType);
+    };
+
+    t.getOutputTypeRecords = function() {
+        return getRecords(outputType);
     };
 
     t.getDataSetMetricRecords = function() {
