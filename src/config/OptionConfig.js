@@ -18,6 +18,7 @@ OptionConfig = function() {
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
+    var legendDisplayStyle;
 
     // setter
     var setDisplayDensity = function() {
@@ -188,6 +189,21 @@ OptionConfig = function() {
         };
     };
 
+    var setLegendDisplayStyle = function() {
+        legendDisplayStyle = {
+            'value': {
+                index: 0,
+                id: 'VALUE',
+                name: i18nManager.get('value') || 'Value'
+            },
+            'background': {
+                index: 1,
+                id: 'BACKGROUND',
+                name: i18nManager.get('background') || 'Background'
+            }
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -212,6 +228,7 @@ OptionConfig = function() {
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
+        setLegendDisplayStyle();
     };
 
     // prototype
@@ -243,6 +260,10 @@ OptionConfig = function() {
         return key ? dataSetMetric[key] : dataSetMetric;
     };
 
+    t.getLegendDisplayStyle = function(key) {
+        return key ? legendDisplayStyle[key] : legendDisplayStyle;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -267,6 +288,10 @@ OptionConfig = function() {
         return getRecords(dataSetMetric);
     };
 
+    t.getLegendDisplayStyleRecords = function() {
+        return getRecords(legendDisplayStyle);
+    };
+
     t.getDigitGroupSeparatorIdMap = function() {
         var map = {};
 
@@ -278,6 +303,7 @@ OptionConfig = function() {
 
         return map;
     };
+
 
     t.setI18nManager = function(manager) {
         i18nManager = manager;
