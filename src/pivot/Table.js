@@ -69,6 +69,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         totalColObjects = [],
         uuidDimUuidsMap = {},
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
+        legendDisplayStyle = layout.legendDisplayStyle,
         tdCount = 0,
         htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
@@ -177,8 +178,14 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             //html += '</div></div></div></td>';
         //}
         //else {
-            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         //}
+
+        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('background').id) {
+            html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        } else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('value').id) {
+            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        }
 
         return html;
     };
