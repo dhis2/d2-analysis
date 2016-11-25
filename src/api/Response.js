@@ -1,9 +1,10 @@
-import isObject from 'd2-utilizr/lib/isObject';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayInsert from 'd2-utilizr/lib/arrayInsert';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import {Record} from './Record.js';
 import {ResponseHeader} from './ResponseHeader.js';
 import {ResponseRow} from './ResponseRow.js';
@@ -42,7 +43,7 @@ Response = function(config) {
     // uninitialized
     t.idValueMap;
 
-    // ResponseHeader: index
+    // set index on Headers
     t.headers.forEach(function(header, index) {
         header.setIndex(index);
     });
@@ -60,6 +61,10 @@ Response.prototype.getHeaderByName = function(name) {
 
 Response.prototype.getHeaderIndexByName = function(name) {
     return this.nameHeaderMap[name].index;
+};
+
+Response.prototype.getOptionSetHeaders = function() {
+    return t.headers.filter(header => isString(header.optionSet) || isArray(header.optionSet));
 };
 
 Response.prototype.getNameById = function(id) {

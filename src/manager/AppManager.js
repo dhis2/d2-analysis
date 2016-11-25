@@ -370,3 +370,54 @@ AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
         }
     }).run();
 };
+
+AppManager.prototype.getOptionSets = function(response, callbackFn) {
+    var optionSetHeaders = response.getOptionSetHeaders();
+    var dhis2 = window.dhis2;
+
+    if (optionSetHeaders.length) {
+        var callbacks = 0,
+            optionMap = {};
+
+        var fn = function() {
+            if (++callbacks === optionSetHeaders.length) {
+                response.metaData.optionNames = optionMap;
+                callbackFn();
+            }
+        };
+
+        var getObjectMap = function(array, idProperty = 'id', nameProperty = 'name', namePrefix = '') {
+            if (!(isArray(array) && array.length)) {
+                return {};
+            }
+
+            var map = {};
+
+            array.forEach(obj => {
+                map[namePrefix + obj[idProperty]] = obj[nameProperty];
+            });
+
+            return map;
+        };
+
+        var getOptions = function(optionSetId, dataElementId) {
+            dhis2.er.store.get('optionSets', optionSetId).done( function(obj) {
+                Object.assign(optionMap, getObjectMap(obj.options, 'code', 'name', dataElementId));
+                fn();
+            });
+        };
+
+        // execute
+        optionSetHeaders.forEach(header => {
+            var optionSetIds = arrayFrom(header.optionSet);
+            var dataElementId = header.name;
+
+            optionSetIds.forEach(id => {
+                getOptions(id, dataElementId);
+            });
+        });
+    }
+    else {
+        callbackFn();
+    }
+};

@@ -45,7 +45,7 @@ WestRegionAggregateItems = function(c) {
         dimensionPanelMap = {};
 
     // stores
-    
+
     var programStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         proxy: {
@@ -338,7 +338,7 @@ WestRegionAggregateItems = function(c) {
             if (!(Ext.isObject(categoryCombo) && Ext.isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
                 return;
             }
-            
+
             var cats = categoryCombo.categories;
 
             if (cats.length === 1 && cats[0].name === 'default') {
@@ -363,7 +363,7 @@ WestRegionAggregateItems = function(c) {
         };
 
         load = function(stages, categories) {
-            
+
             // categories
             if (categories) {
                 accordionBody.addItems(categories);
@@ -372,7 +372,7 @@ WestRegionAggregateItems = function(c) {
             // stages
             stage.enable();
             stage.clearValue();
-            
+
             stagesByProgramStore.removeAll();
             stagesByProgramStore.loadData(stages);
 
@@ -1647,7 +1647,7 @@ WestRegionAggregateItems = function(c) {
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
-            
+
             ns.core.web.multiSelect.setHeight(
                 [fixedPeriodAvailable, fixedPeriodSelected],
                 this,
@@ -2420,7 +2420,7 @@ WestRegionAggregateItems = function(c) {
         //availableStore.on('load', function() {
             //ns.core.web.multiSelect.filterAvailable(available, selected);
         //});
-        
+
         panel = {
             itemId: dimension.itemId,
             xtype: 'panel',
@@ -2455,9 +2455,9 @@ WestRegionAggregateItems = function(c) {
                         availableStore.loadPage();
                     }
                 }
-                
+
                 accordion.setThisHeight(this.getHeightValue());
-                
+
                 ns.core.web.multiSelect.setHeight(
                     [available, selected],
                     this,
@@ -2495,11 +2495,12 @@ WestRegionAggregateItems = function(c) {
         organisationUnit,
         ...ns.core.init.dimensions.map(panel => getDimensionPanel(panel, 'ns-panel-title-dimension'))
     ];
-    
+
     var getItems = function(dimensions = []) {
         return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
     };
-    
+
+    //var accordionBody = Ext.create('Ext.panel.Panel', {
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
         activeOnTop: true,
@@ -2511,14 +2512,14 @@ WestRegionAggregateItems = function(c) {
             this.removeItems();
             this.add(getItems(dimensions));
             this.toBeRemoved = dimensions.map(dimension => dimension.itemId);
-            
+
             accordion.setThisHeight();
         },
         removeItems: function() {
             this.toBeRemoved.forEach(id => {
                 accordionBody.remove(id);
             });
-            
+
             this.toBeRemoved = [];
         },
         items: defaultItems
@@ -2746,21 +2747,19 @@ WestRegionAggregateItems = function(c) {
         panels: accordionPanels,
         expandInitPanels: function() {
             organisationUnit.expand();
-            //period.expand();
-            //data.expand();
         },
         map: layer ? layer.map : null,
         layer: layer ? layer : null,
         menu: layer ? layer.menu : null,
         setThisHeight: function(mx) {
             mx = mx || this.getExpandedPanel().getHeightValue();
-            
+
             var settingsHeight = 41;
 
             var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
                 accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - ns.core.conf.layout.west_fill,
                 accordionBodyHeight;
-                
+
             if (ns.app.westRegion.hasScrollbar) {
                 accordionBodyHeight = containerHeight - settingsHeight - ns.core.conf.layout.west_fill;
             }
@@ -2809,3 +2808,4 @@ WestRegionAggregateItems = function(c) {
     });
 
     return accordion;
+};
