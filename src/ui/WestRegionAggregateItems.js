@@ -42,7 +42,8 @@ WestRegionAggregateItems = function(c) {
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
-        dimensionPanelMap = {};
+        dimensionPanelMap = {},
+        periodCheckboxes = [];
 
     // stores
 
@@ -2043,8 +2044,7 @@ WestRegionAggregateItems = function(c) {
         ]
     });
 
-    var data = {
-        xtype: 'panel',
+    var data = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
         hideCollapseTool: true,
         dimension: dataObjectName,
@@ -2127,7 +2127,7 @@ WestRegionAggregateItems = function(c) {
                 p.onExpand();
             }
         }
-    };
+    });
     uiManager.reg(data, 'data');
 
     // period
@@ -2146,7 +2146,7 @@ WestRegionAggregateItems = function(c) {
         listeners: {
             added: function(chb) {
                 if (chb.xtype === 'checkbox') {
-                    period.checkboxes[chb.index] = chb;
+                    periodCheckboxes[chb.index] = chb;
                     relativePeriod.valueComponentMap[chb.relativePeriodId] = chb;
 
                     if (chb.relativePeriodId === appManager.getRelativePeriod()) {
@@ -2546,12 +2546,11 @@ WestRegionAggregateItems = function(c) {
         }
     });
 
-    var period = {
-        xtype: 'panel',
+    var period = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-period">Periods</div>',
         hideCollapseTool: true,
         dimension: periodObjectName,
-        checkboxes: [],
+        checkboxes: periodCheckboxes,
         clearDimension: function(all) {
             fixedPeriodSelectedStore.removeAll();
             period.resetRelativePeriods();
@@ -2690,7 +2689,7 @@ WestRegionAggregateItems = function(c) {
                 p.onExpand();
             }
         }
-    };
+    });
     uiManager.reg(period, 'period');
     // organisation unit
 
@@ -3053,8 +3052,7 @@ WestRegionAggregateItems = function(c) {
         items: tool
     });
 
-    var organisationUnit = {
-        xtype: 'panel',
+    var organisationUnit = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
@@ -3237,7 +3235,7 @@ WestRegionAggregateItems = function(c) {
                 p.onExpand();
             }
         }
-    };
+    });
     uiManager.reg(organisationUnit, 'organisationUnit');
 
     // dimensions
@@ -3589,8 +3587,7 @@ WestRegionAggregateItems = function(c) {
             onSelect();
         };
 
-        panel = {
-            xtype: 'panel',
+        panel = Ext.create('Ext.panel.Panel', {
             title: '<div class="' + iconCls + '">' + dimension.name + '</div>',
             hideCollapseTool: true,
             dimension: dimension.id,
@@ -3675,7 +3672,7 @@ WestRegionAggregateItems = function(c) {
                     p.onExpand();
                 }
             }
-        };
+        });
 
         return panel;
     };

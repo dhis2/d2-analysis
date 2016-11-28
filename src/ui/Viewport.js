@@ -46,6 +46,7 @@ Viewport = function(refs, cmp) {
         periodObjectName = dimensionConfig.get('period').objectName,
         organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
 
+        treePanel = uiManager.get('treePanel'),
         layoutWindow = uiManager.get('layoutWindow'),
         optionsWindow = uiManager.get('optionsWindow'),
         favoriteWindow = uiManager.get('favoriteWindow'),
@@ -153,7 +154,7 @@ Viewport = function(refs, cmp) {
                         text: 'CSV',
                         iconCls: 'ns-menu-item-datasource',
                         handler: function() {
-                            openDataDump('csv');
+                            uiManager.openDataDump(null, 'csv');
                         }
                     }
                 ],
@@ -640,7 +641,7 @@ Viewport = function(refs, cmp) {
             }
         }
 
-        config.parentGraphMap = uiManager.get('treePanel').getParentGraphMap();
+        config.parentGraphMap = treePanel.getParentGraphMap();
 
         return config;
     };
