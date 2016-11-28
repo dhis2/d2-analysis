@@ -54,7 +54,8 @@ Viewport = function(refs, cmp) {
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
-        dimensionPanelMap = {};
+        dimensionPanelMap = {},
+        periodCheckboxes = [];
 
     cmp = cmp || {};
 
@@ -2105,8 +2106,7 @@ Viewport = function(refs, cmp) {
         }
     });
 
-    var data = {
-        xtype: 'panel',
+    var data = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
         hideCollapseTool: true,
         dimension: dataObjectName,
@@ -2189,7 +2189,7 @@ Viewport = function(refs, cmp) {
                 p.onExpand();
             }
         }
-    };
+    });
 
     // period
 
@@ -2207,7 +2207,7 @@ Viewport = function(refs, cmp) {
         listeners: {
             added: function(chb) {
                 if (chb.xtype === 'checkbox') {
-                    period.checkboxes[chb.index] = chb;
+                    periodCheckboxes[chb.index] = chb;
                     relativePeriod.valueComponentMap[chb.relativePeriodId] = chb;
 
                     if (chb.relativePeriodId === appManager.getRelativePeriod()) {
@@ -2607,12 +2607,11 @@ Viewport = function(refs, cmp) {
         }
     });
 
-    var period = {
-        xtype: 'panel',
+    var period = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-period">Periods</div>',
         hideCollapseTool: true,
         dimension: periodObjectName,
-        checkboxes: [],
+        checkboxes: periodCheckboxes,
         clearDimension: function(all) {
             fixedPeriodSelectedStore.removeAll();
             period.resetRelativePeriods();
@@ -2751,7 +2750,7 @@ Viewport = function(refs, cmp) {
                 p.onExpand();
             }
         }
-    };
+    });
 
     // organisation unit
 
@@ -3114,8 +3113,7 @@ Viewport = function(refs, cmp) {
         items: tool
     });
 
-    var organisationUnit = {
-        xtype: 'panel',
+    var organisationUnit = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
@@ -3298,7 +3296,7 @@ Viewport = function(refs, cmp) {
                 p.onExpand();
             }
         }
-    };
+    });
 
     // dimensions
 
@@ -3649,8 +3647,7 @@ Viewport = function(refs, cmp) {
             onSelect();
         };
 
-        panel = {
-            xtype: 'panel',
+        panel = Ext.create('Ext.panel.Panel', {
             title: '<div class="' + iconCls + '">' + dimension.name + '</div>',
             hideCollapseTool: true,
             dimension: dimension.id,
@@ -3735,7 +3732,7 @@ Viewport = function(refs, cmp) {
                     p.onExpand();
                 }
             }
-        };
+        });
 
         return panel;
     };
@@ -3860,7 +3857,7 @@ Viewport = function(refs, cmp) {
                         text: 'CSV',
                         iconCls: 'ns-menu-item-datasource',
                         handler: function() {
-                            openDataDump('csv');
+                            uiManager.openDataDump(null, 'csv');
                         }
                     }
                 ],
