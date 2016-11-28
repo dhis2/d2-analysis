@@ -21,6 +21,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         klass = Table,
 
         appManager = klass.appManager,
+        uiManager = klass.uiManager,
         dimensionConfig = klass.dimensionConfig,
         optionConfig = klass.optionConfig;
 
@@ -182,7 +183,14 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         //}
 
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('background').id) {
-            html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+            if(bgColor) {
+                var rgb = uiManager.hexToRgb(bgColor),
+                    color = uiManager.isColorBright(rgb) ? 'black' : 'white';
+
+                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
+            } else {
+                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+            }
         } else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('value').id) {
             html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         }
