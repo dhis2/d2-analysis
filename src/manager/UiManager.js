@@ -586,6 +586,25 @@ UiManager = function(refs) {
         form.action = t.appManager.getPath() + '/api/svg.' + type;
         form.submit();
     };
+
+    // helpers
+    t.hexToRgb = function(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
+        return result ? [
+            parseInt(result[1], 16),
+            parseInt(result[2], 16),
+            parseInt(result[3], 16)
+        ] : null;
+    };
+
+    t.calculateColorBrightness = function(rgb) {
+        return Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+    };
+
+    t.isColorBright = function(rgbColor) {
+        return t.calculateColorBrightness(rgbColor) > 125;
+    }
 };
 
 UiManager.prototype.applyTo = function(modules) {
