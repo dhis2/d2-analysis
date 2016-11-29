@@ -191,15 +191,15 @@ OptionConfig = function() {
 
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
-            'value': {
+            'fill': {
                 index: 0,
-                id: 'VALUE',
-                name: i18nManager.get('value') || 'Value'
+                id: 'FILL',
+                name: i18nManager.get('background_color') || 'Background color'
             },
-            'background': {
+            'text': {
                 index: 1,
-                id: 'BACKGROUND',
-                name: i18nManager.get('background') || 'Background'
+                id: 'TEXT',
+                name: i18nManager.get('text_color') || 'Text color'
             }
         };
     };

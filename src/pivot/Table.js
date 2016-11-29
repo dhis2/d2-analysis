@@ -182,7 +182,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         //}
 
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('background').id) {
+        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
             if(bgColor) {
                 var rgb = uiManager.hexToRgb(bgColor),
                     color = uiManager.isColorBright(rgb) ? 'black' : 'white';
@@ -191,7 +191,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             } else {
                 html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
             }
-        } else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('value').id) {
+        }
+
+        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
             html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         }
 
