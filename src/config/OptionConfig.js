@@ -170,15 +170,15 @@ OptionConfig = function() {
 
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
-            'text': {
-                index: 0,
-                id: 'TEXT',
-                name: i18nManager.get('text_color') || 'Text color'
-            },
             'fill': {
-                index: 1,
+                index: 0,
                 id: 'FILL',
                 name: i18nManager.get('background_color') || 'Background color'
+            },
+            'text': {
+                index: 1,
+                id: 'TEXT',
+                name: i18nManager.get('text_color') || 'Text color'
             }
         };
     };
