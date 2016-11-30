@@ -27,8 +27,15 @@ RenameWindow = function(refs, layout, fn, listeners) {
         handler: function() {
             var name = nameTextField.getValue(),
                 description = descriptionTextField.getValue(),
-                put = function() {
-                    layout.clone().put(function() {
+                patch = function() {
+                    var properties = {
+                        name: name,
+                        description: description
+                    };
+
+                    layout.apply(properties);
+
+                    layout.patch(properties, function() {
                         if (fn) {
                             fn();
                         }
@@ -41,13 +48,8 @@ RenameWindow = function(refs, layout, fn, listeners) {
                     }, true, true);
                 };
 
-            if (layout.put) {
-                layout.apply({
-                    name: name,
-                    description: description
-                });
-
-                put();
+            if (layout.patch) {
+                patch();
             }
             else {
                 var fields = appManager.getAnalysisFields(),
@@ -55,13 +57,7 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
                 $.getJSON(encodeURI(url), function(r) {
                     layout = new api.Layout(refs, r).val();
-
-                    layout.apply({
-                        name: name,
-                        description: description
-                    });
-
-                    put();
+                    patch();
                 });
             }
         }
