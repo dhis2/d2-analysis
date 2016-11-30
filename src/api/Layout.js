@@ -733,6 +733,49 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
     });
 };
 
+Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
+    var t = this,
+        refs = this.getRefs();
+
+    var appManager = refs.appManager,
+        instanceManager = refs.instanceManager,
+        uiManager = refs.uiManager;
+
+    var apiPath = appManager.getApiPath(),
+        apiEndpoint = instanceManager.apiEndpoint;
+
+    var url = apiPath + '/' + apiEndpoint + '/' + t.id;
+
+    if (!isObject(properties)) {
+        return;
+    }
+
+    if (doMask) {
+        uiManager.mask();
+    }
+
+    $.ajax({
+        url: encodeURI(url),
+        type: 'PATCH',
+        data: JSON.stringify(properties),
+        dataType: 'json',
+        headers: appManager.defaultRequestHeaders,
+        success: function(obj, success, r) {
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+
+            if (fn) {
+                fn(null, success, r);
+            }
+        }
+    });
+};
+
+
+
+
+
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
     var t = this,
         refs = this.getRefs();
