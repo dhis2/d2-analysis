@@ -41,6 +41,7 @@ import { GridHeaders } from './ui/GridHeaders.js';
 import { ChartTypeToolbar } from './ui/ChartTypeToolbar.js';
 import { IntegrationButton } from './ui/IntegrationButton.js';
 import { WestRegionAggregateItems } from './ui/WestRegionAggregateItems.js';
+import { WestRegionTrackerItems } from './ui/WestRegionTrackerItems.js';
 
 import { i18nInit } from './init/i18nInit.js';
 import { authViewUnapprovedDataInit } from './init/authViewUnapprovedDataInit.js';
@@ -100,6 +101,7 @@ export {
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
+    WestRegionTrackerItems,
 
     i18nInit,
     authViewUnapprovedDataInit,
@@ -168,6 +170,7 @@ export const ui = {
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
+    WestRegionTrackerItems,
 };
 
 export const init = {

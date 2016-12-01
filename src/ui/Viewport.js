@@ -75,50 +75,50 @@ Viewport = function(refs, cmp) {
 
     // viewport
 
-    var accordionBody = Ext.create('Ext.panel.Panel', {
-        layout: 'accordion',
-        activeOnTop: true,
-        cls: 'ns-accordion',
-        bodyStyle: 'border:0 none; margin-bottom:2px',
-        height: 700,
-        dimensionPanels: null,
-        items: westRegionItems
-    });
-    uiManager.reg(accordionBody, 'accordionBody');
+    //var accordionBody = Ext.create('Ext.panel.Panel', {
+        //layout: 'accordion',
+        //activeOnTop: true,
+        //cls: 'ns-accordion',
+        //bodyStyle: 'border:0 none; margin-bottom:2px',
+        //height: 700,
+        //dimensionPanels: null,
+        //items: westRegionItems
+    //});
+    //uiManager.reg(accordionBody, 'accordionBody');
 
-    var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
-        items: accordionBody,
-        setThisHeight: function(mx) {
-            var panelHeight = westRegionItems.length * 28,
-                height;
+    //var accordion = Ext.create('Ext.panel.Panel', {
+        //bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        //items: accordionBody,
+        //setThisHeight: function(mx) {
+            //var panelHeight = westRegionItems.length * 28,
+                //height;
 
-            if (westRegion.hasScrollbar) {
-                height = panelHeight + mx;
-                this.setHeight(westRegion.getHeight() - 2);
-                accordionBody.setHeight(height - 2);
-            }
-            else {
-                height = westRegion.getHeight() - uiConfig.west_fill;
-                mx += panelHeight;
-                accordion.setHeight((height > mx ? mx : height) - 2);
-                accordionBody.setHeight((height > mx ? mx : height) - 4);
-            }
-        },
-        getExpandedPanel: function() {
-            for (var i = 0, panel; i < westRegionItems.length; i++) {
-                if (!westRegionItems[i].collapsed) {
-                    return westRegionItems[i];
-                }
-            }
+            //if (westRegion.hasScrollbar) {
+                //height = panelHeight + mx;
+                //this.setHeight(westRegion.getHeight() - 2);
+                //accordionBody.setHeight(height - 2);
+            //}
+            //else {
+                //height = westRegion.getHeight() - uiConfig.west_fill;
+                //mx += panelHeight;
+                //accordion.setHeight((height > mx ? mx : height) - 2);
+                //accordionBody.setHeight((height > mx ? mx : height) - 4);
+            //}
+        //},
+        //getExpandedPanel: function() {
+            //for (var i = 0, panel; i < westRegionItems.length; i++) {
+                //if (!westRegionItems[i].collapsed) {
+                    //return westRegionItems[i];
+                //}
+            //}
 
-            return null;
-        },
-        getFirstPanel: function() {
-            return accordionBody.items.items[0];
-        }
-    });
-    uiManager.reg(accordion, 'accordion');
+            //return null;
+        //},
+        //getFirstPanel: function() {
+            //return accordionBody.items.items[0];
+        //}
+    //});
+    //uiManager.reg(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
@@ -127,7 +127,7 @@ Viewport = function(refs, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: arrayClean([chartTypeToolbar, accordion]),
+        items: arrayClean([chartTypeToolbar, westRegionItems]),
         setState: function(layout) {
             setUiState(layout);
         }
@@ -657,7 +657,9 @@ Viewport = function(refs, cmp) {
         items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
         listeners: {
             afterrender: function() {
-
+                var accordion = westRegionItems;
+console.log(accordion);
+console.log(accordion.getFirstPanel);
                 // west resize
                 westRegion.on('resize', function() {
                     var panel = accordion.getExpandedPanel();

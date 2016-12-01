@@ -9,9 +9,9 @@ import isNumber from 'd2-utilizr/lib/isNumber';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
-export var WestRegionAggregateItems;
+export var WestRegionTrackerItems;
 
-WestRegionAggregateItems = function(c) {
+WestRegionTrackerItems = function(c) {
     var t = this,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
@@ -50,7 +50,7 @@ WestRegionAggregateItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: ns.core.init.contextPath + '/api/programs.json?fields=id,' + namePropertyUrl + '&paging=false',
+            url: encodeURI(apiPath + '/api/programs.json?fields=id,' + displayPropertyUrl + '&paging=false',
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -96,7 +96,7 @@ WestRegionAggregateItems = function(c) {
             var layoutWindow = ns.app.aggregateLayoutWindow;
 
             this.each(function(record) {
-                if (Ext.Array.contains(ns.core.conf.valueType.numericTypes, record.data.valueType)) {
+                if (arrayContains(ns.core.conf.valueType.numericTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
@@ -164,7 +164,7 @@ WestRegionAggregateItems = function(c) {
     };
 
     var setLayout = function(layout) {
-        var dimensions = Ext.Array.clean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
+        var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
             recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
 
             periodRecords = recMap[dimConf.period.objectName] || [],
@@ -258,7 +258,7 @@ WestRegionAggregateItems = function(c) {
             }
 
             if (!(isOu || isOuc || isOugc)) {
-                if (Ext.isObject(graphMap)) {
+                if (isObject(graphMap)) {
                     treePanel.selectGraphMap(graphMap);
                 }
             }
@@ -335,7 +335,7 @@ WestRegionAggregateItems = function(c) {
         ns.app.aggregateLayoutWindow.value.resetData();
 
         getCategories = function(categoryCombo) {
-            if (!(Ext.isObject(categoryCombo) && Ext.isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
+            if (!(isObject(categoryCombo) && isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
                 return;
             }
 
@@ -354,7 +354,7 @@ WestRegionAggregateItems = function(c) {
             cats.forEach(cat => {
                 cat.items = cat.categoryOptions;
 
-                if (Ext.isArray(cat.items)) {
+                if (isArray(cat.items)) {
                     arraySort(cat.items);
                 }
             });
@@ -411,7 +411,7 @@ WestRegionAggregateItems = function(c) {
                     }
 
                     stages = program.programStages;
-                    attributes = Ext.Array.pluck(program.programTrackedEntityAttributes, 'trackedEntityAttribute');
+                    attributes = arrayPluck(program.programTrackedEntityAttributes, 'trackedEntityAttribute');
                     programIndicators = program.programIndicators;
                     categoryCombo = program.categoryCombo;
 
@@ -422,7 +422,7 @@ WestRegionAggregateItems = function(c) {
                     });
 
                     // attributes cache
-                    if (Ext.isArray(attributes) && attributes.length) {
+                    if (isArray(attributes) && attributes.length) {
                         attributeStorage[programId] = attributes;
                     }
 
@@ -432,11 +432,11 @@ WestRegionAggregateItems = function(c) {
                     });
 
                     // program indicator cache
-                    if (Ext.isArray(programIndicators) && programIndicators.length) {
+                    if (isArray(programIndicators) && programIndicators.length) {
                         programIndicatorStorage[programId] = programIndicators;
                     }
 
-                    if (Ext.isArray(stages) && stages.length) {
+                    if (isArray(stages) && stages.length) {
 
                         // stages cache
                         stageStorage[programId] = stages;
@@ -498,7 +498,7 @@ WestRegionAggregateItems = function(c) {
         load = function(dataElements) {
             var attributes = attributeStorage[programId],
                 programIndicators = programIndicatorStorage[programId],
-                data = Ext.Array.clean([].concat(attributes || [], programIndicators || [], dataElements || []));
+                data = arrayClean([].concat(attributes || [], programIndicators || [], dataElements || []));
 
             dataElementsByStageStore.loadData(data);
             dataElementsByStageStore.onLoadData();
@@ -537,12 +537,12 @@ WestRegionAggregateItems = function(c) {
                         return;
                     }
 
-                    dataElements = Ext.Array.pluck(objects[0].programStageDataElements, 'dataElement');
+                    dataElements = arrayPluck(objects[0].programStageDataElements, 'dataElement');
 
                     // filter non-aggregatable types
                     dataElements.filter(function(item) {
                         item.isDataElement = true;
-                        return Ext.Array.contains(types, item.valueType);
+                        return arrayContains(types, item.valueType);
                     });
 
                     // data elements cache
@@ -768,23 +768,23 @@ WestRegionAggregateItems = function(c) {
 
         getUxType = function(element) {
 
-            if (Ext.isObject(element.optionSet) && Ext.isString(element.optionSet.id)) {
+            if (isObject(element.optionSet) && isString(element.optionSet.id)) {
                 return 'Ext.ux.panel.OrganisationUnitGroupSetContainer';
             }
 
-            if (Ext.Array.contains(ns.core.conf.valueType.numericTypes, element.valueType)) {
+            if (arrayContains(ns.core.conf.valueType.numericTypes, element.valueType)) {
                 return 'Ext.ux.panel.DataElementIntegerContainer';
             }
 
-            if (Ext.Array.contains(ns.core.conf.valueType.textTypes, element.valueType)) {
+            if (arrayContains(ns.core.conf.valueType.textTypes, element.valueType)) {
                 return 'Ext.ux.panel.DataElementStringContainer';
             }
 
-            if (Ext.Array.contains(ns.core.conf.valueType.dateTypes, element.valueType)) {
+            if (arrayContains(ns.core.conf.valueType.dateTypes, element.valueType)) {
                 return 'Ext.ux.panel.DataElementDateContainer';
             }
 
-            if (Ext.Array.contains(ns.core.conf.valueType.booleanTypes, element.valueType)) {
+            if (arrayContains(ns.core.conf.valueType.booleanTypes, element.valueType)) {
                 return 'Ext.ux.panel.DataElementBooleanContainer';
             }
 
@@ -848,10 +848,10 @@ WestRegionAggregateItems = function(c) {
         for (var i = 0, item; i < items.length; i++) {
             item = items[i];
 
-            if (Ext.isString(item)) {
+            if (isString(item)) {
                 dataElements.push(dataElementsByStageStore.getById(item).data);
             }
-            else if (Ext.isObject(item)) {
+            else if (isObject(item)) {
                 if (item.data) {
                     dataElements.push(item.data);
                 }
@@ -866,7 +866,7 @@ WestRegionAggregateItems = function(c) {
             element = dataElements[i];
             allElements.push(element);
 
-            if (Ext.Array.contains(ns.core.conf.valueType.numericTypes, element.valueType) && element.filter) {
+            if (arrayContains(ns.core.conf.valueType.numericTypes, element.valueType) && element.filter) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
 
@@ -900,7 +900,7 @@ WestRegionAggregateItems = function(c) {
                 }
             }
 
-            store = Ext.Array.contains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
+            store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
 
             aggWindow.addDimension(element, store, valueStore);
             queryWindow.colStore.add(element);
@@ -943,7 +943,7 @@ WestRegionAggregateItems = function(c) {
                 for (var i = 0, store, record, dim; i < layout.filters.length; i++) {
                     dim = layout.filters[i];
                     record = recordMap[dim.dimension];
-                    store = Ext.Array.contains(includeKeys, element.valueType) || element.optionSet ? aggWindow.filterStore : aggWindow.fixedFilterStore;
+                    store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.filterStore : aggWindow.fixedFilterStore;
 
                     //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), store, null, true);
                     store.add(record || extendDim(Ext.clone(dim)));
@@ -1764,7 +1764,7 @@ WestRegionAggregateItems = function(c) {
         recordsToSelect: [],
         recordsToRestore: [],
         multipleSelectIf: function(map, doUpdate) {
-            this.recordsToSelect = Ext.Array.clean(this.recordsToSelect);
+            this.recordsToSelect = arrayClean(this.recordsToSelect);
 
             if (this.recordsToSelect.length === ns.core.support.prototype.object.getLength(map)) {
                 this.getSelectionModel().select(this.recordsToSelect);
@@ -1813,7 +1813,7 @@ WestRegionAggregateItems = function(c) {
             var selection = this.getSelectionModel().getSelection(),
                 map = {};
 
-            if (Ext.isArray(selection) && selection.length) {
+            if (isArray(selection) && selection.length) {
                 for (var i = 0, pathArray, key; i < selection.length; i++) {
                     pathArray = selection[i].getPath().split('/');
                     map[pathArray.pop()] = pathArray.join('/');
@@ -1862,8 +1862,8 @@ WestRegionAggregateItems = function(c) {
             },
             listeners: {
                 load: function(store, node, records) {
-                    Ext.Array.each(records, function(record) {
-                        if (Ext.isBoolean(record.data.hasChildren)) {
+                    records.forEach(function(record) {
+                        if (isBoolean(record.data.hasChildren)) {
                             record.set('leaf', !record.data.hasChildren);
                         }
                     });
@@ -2447,7 +2447,7 @@ WestRegionAggregateItems = function(c) {
             },
             onExpand: function() {
                 if (!availableStore.isLoaded) {
-                    if (Ext.isArray(dimension.items) && dimension.items.length) {
+                    if (isArray(dimension.items) && dimension.items.length) {
                         availableStore.loadData(dimension.items);
                         availableStore.isLoaded = true;
                     }
@@ -2731,7 +2731,7 @@ WestRegionAggregateItems = function(c) {
     };
 
     var validateView = function(view) {
-        if (!(Ext.isArray(view.rows) && view.rows.length && Ext.isString(view.rows[0].dimension) && Ext.isArray(view.rows[0].items) && view.rows[0].items.length)) {
+        if (!(isArray(view.rows) && view.rows.length && isString(view.rows[0].dimension) && isArray(view.rows[0].items) && view.rows[0].items.length)) {
             NS.logg.push([view.rows, layer.id + '.rows: dimension array']);
             ns.alert('No organisation units selected');
             return false;
@@ -2798,14 +2798,57 @@ WestRegionAggregateItems = function(c) {
 
         getUxArray: function(id) {
             return dataElementSelected.getUxArrayById(id);
-        },
-
-        listeners: {
-            added: function() {
-                ns.app.accordion = this;
-            }
         }
     });
+    uiManager.reg(accordion, 'accordion');
 
     return accordion;
 };
+
+
+
+
+//var accordionBody = Ext.create('Ext.panel.Panel', {
+        //layout: 'accordion',
+        //activeOnTop: true,
+        //cls: 'ns-accordion',
+        //bodyStyle: 'border:0 none; margin-bottom:2px',
+        //height: 700,
+        //dimensionPanels: null,
+        //items: westRegionItems
+    //});
+    //uiManager.reg(accordionBody, 'accordionBody');
+
+    //var accordion = Ext.create('Ext.panel.Panel', {
+        //bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        //items: accordionBody,
+        //setThisHeight: function(mx) {
+            //var panelHeight = westRegionItems.length * 28,
+                //height;
+
+            //if (westRegion.hasScrollbar) {
+                //height = panelHeight + mx;
+                //this.setHeight(westRegion.getHeight() - 2);
+                //accordionBody.setHeight(height - 2);
+            //}
+            //else {
+                //height = westRegion.getHeight() - uiConfig.west_fill;
+                //mx += panelHeight;
+                //accordion.setHeight((height > mx ? mx : height) - 2);
+                //accordionBody.setHeight((height > mx ? mx : height) - 4);
+            //}
+        //},
+        //getExpandedPanel: function() {
+            //for (var i = 0, panel; i < westRegionItems.length; i++) {
+                //if (!westRegionItems[i].collapsed) {
+                    //return westRegionItems[i];
+                //}
+            //}
+
+            //return null;
+        //},
+        //getFirstPanel: function() {
+            //return accordionBody.items.items[0];
+        //}
+    //});
+    //uiManager.reg(accordion, 'accordion');
