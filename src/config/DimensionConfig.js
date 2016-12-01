@@ -11,13 +11,20 @@ DimensionConfig = function() {
 
     // uninitialized
     var dimensions;
+    var dataType;
 
-    // map
+    // dimension name map
     var dimensionNameDimensionMap = {
         'dx': 'data',
         'co': 'category',
         'pe': 'period',
         'ou': 'organisationUnit'
+    };
+
+    // data type map
+    t.dataType = {
+        'aggregated_values': 'AGGREGATED_VALUES',
+        'individual_cases': 'EVENTS'
     };
 
     // setter

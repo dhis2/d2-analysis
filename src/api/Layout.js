@@ -320,6 +320,8 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
 Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
     var map = {};
 
+    response = response || this.getResponse();
+
     this.getDimensions(true).forEach(function(dimension) {
         map[dimension.dimension] = dimension.getRecordIds(false, response);
     });
@@ -771,10 +773,6 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         }
     });
 };
-
-
-
-
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
     var t = this,

@@ -50,7 +50,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/programs.json?fields=id,' + displayPropertyUrl + '&paging=false',
+            url: encodeURI(apiPath + '/api/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -120,7 +120,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: ns.core.init.contextPath + '/api/organisationUnitGroups.json?fields=id,' + ns.core.init.namePropertyUrl + '&paging=false',
+            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + ns.core.init.displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
@@ -130,7 +130,7 @@ WestRegionTrackerItems = function(c) {
 
     var periodTypeStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
-        data: ns.core.conf.period.periodTypes
+        data: periodConfig.getPeriodTypeRecords()
     });
 
     var fixedPeriodAvailableStore = Ext.create('Ext.data.Store', {
@@ -164,13 +164,11 @@ WestRegionTrackerItems = function(c) {
     };
 
     var setLayout = function(layout) {
-        var dimensions = arrayClean([].concat(layout.columns || [], layout.rows || [], layout.filters || [])),
-            recMap = ns.core.service.layout.getObjectNameDimensionItemsMapFromDimensionArray(dimensions),
+        var recMap = layout.getDimensionNameRecordIdsMap();
 
-            periodRecords = recMap[dimConf.period.objectName] || [],
-            fixedPeriodRecords = [],
-
-            ouRecords = recMap[dimConf.organisationUnit.objectName],
+        var fixedPeriodRecords = [],
+            peRecords = recMap[periodObjectName] || [],
+            ouRecords = recMap[organisationUnitObjectName] || [],
             graphMap = layout.parentGraphMap,
             isOu = false,
             isOuc = false,
@@ -180,8 +178,8 @@ WestRegionTrackerItems = function(c) {
             winMap = {},
             optionsWindow;
 
-        winMap[finalsDataTypeConf.aggregated_values] = ns.app.aggregateOptionsWindow;
-        winMap[finalsDataTypeConf.individual_cases] = ns.app.queryOptionsWindow;
+        winMap[dimensionConfig.dataType['aggregated_values']] = uiManager.get('aggregateOptionsWindow');
+        winMap[dimensionConfig.dataType['individual_cases']] = uiManager.get('queryOptionsWindow');
 
         optionsWindow = winMap[layout.dataType];
 
@@ -189,9 +187,9 @@ WestRegionTrackerItems = function(c) {
 
         reset();
 
-        ns.app.typeToolbar.setType(layout.dataType);
-        ns.app.aggregateLayoutWindow.reset();
-        ns.app.queryLayoutWindow.reset();
+        uiManager.get('typeToolbar').setType(layout.dataType);
+        uiManager.get('aggregateLayoutWindow').reset();
+        uiManager.get('queryLayoutWindow').reset();
 
         // data
         programStore.add(layout.program);
@@ -209,16 +207,16 @@ WestRegionTrackerItems = function(c) {
             onPeriodModeSelect('periods');
         }
 
-        for (var i = 0, periodRecord, checkbox; i < periodRecords.length; i++) {
-            periodRecord = periodRecords[i];
-            checkbox = relativePeriodCmpMap[periodRecord.id];
-            if (checkbox) {
+        peRecords.forEach(function(peRecord) {
+            var checkbox = relativePeriodCmpMap[peRecord.id];
+
+            if (checkbox) {
                 checkbox.setValue(true);
             }
             else {
-                fixedPeriodRecords.push(periodRecord);
+                fixedPeriodRecords.push(peRecord);
             }
-        }
+        });
 
         fixedPeriodSelectedStore.add(fixedPeriodRecords);
 
@@ -1126,8 +1124,7 @@ WestRegionTrackerItems = function(c) {
 
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
-            checkboxes.push(cmp);
-            relativePeriodCmpMap[cmp.relativePeriodId] = cmp;
+            uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
         }
     };
 
@@ -1417,15 +1414,9 @@ WestRegionTrackerItems = function(c) {
             }
         ],
         getRecords: function() {
-            var a = [];
-
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].getValue()) {
-                    a.push(checkboxes[i].relativePeriodId);
-                }
-            }
-
-            return a;
+            return uiManager.getByGroup('relativePeriod')
+                .filter(cmp => cmp.getValue())
+                .map(cmp => cmp.relativePeriodId);
         }
     });
 

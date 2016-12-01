@@ -25,6 +25,8 @@ UiManager = function(refs) {
         onFavorite: []
     };
 
+    var componentGroups = {};
+
     var defaultUpdateComponentName = 'centerRegion';
 
     var theme = 'meringue';
@@ -74,28 +76,44 @@ UiManager = function(refs) {
     };
 
     // components
-    t.reg = function(cmp, name, tags, doNotOverwrite) {
+    t.reg = function(cmp, name, tags, groups, doNotOverwrite) {
         if (components.hasOwnProperty(name) && doNotOverwrite) {
             return;
         }
 
+        // cmp
+        components[name] = cmp;
+
+        // tags
         if (isString(tags)) {
-            tags.split(',').forEach(function(item) {
-                if (isArray(componentTags[item])) {
-                    componentTags[item].push(cmp);
+            tags.split(',').forEach(function(tag) {
+                if (isArray(componentTags[tag])) {
+                    componentTags[tag].push(cmp);
                 }
             });
         }
 
-        return components[name] = cmp;
+        // groups
+        if (isString(groups)) {
+            groups.split(',').forEach(function(group) {
+                componentGroups[group] = isArray(componentGroups[group]) ? componentGroups[group] : [];
+                componentGroups[group].push(cmp);
+            });
+        }
+
+        return cmp;
     };
 
     t.unreg = function(name) {
-        components[name] = null;
+        delete components[name];
     };
 
     t.get = function(name) {
         return components[name] || document.getElementById(name) || null;
+    };
+
+    t.getByGroup = function(groupName) {
+        return componentGroups[groupName];
     };
 
     t.getUpdateComponent = function() {
