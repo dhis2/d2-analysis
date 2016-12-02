@@ -120,7 +120,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + ns.core.init.displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
