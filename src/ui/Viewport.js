@@ -127,7 +127,7 @@ Viewport = function(refs, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: arrayClean([chartTypeToolbar, westRegionItems]),
+        items: arrayClean([chartTypeToolbar, accordion]),
         setState: function(layout) {
             setUiState(layout);
         }
@@ -711,7 +711,7 @@ Viewport = function(refs, cmp) {
                 }
 
                 // expand first panel
-                accordion.getFirstPanel().expand();
+                uiManager.get('data').expand();
 
                 // look for url params
                 var id = appManager.getUrlParam('id'),
