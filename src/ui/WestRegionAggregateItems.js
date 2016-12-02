@@ -2623,19 +2623,10 @@ WestRegionAggregateItems = function(c) {
             );
         },
         resetRelativePeriods: function() {
-            var a = this.checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                a[i].setValue(false);
-            }
+            uiManager.getByGroup('relativePeriod').forEach(cmp => cmp.setValue(false));
         },
         isNoRelativePeriods: function() {
-            var a = this.checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                if (a[i].getValue()) {
-                    return false;
-                }
-            }
-            return true;
+            return !uiManager.getByGroup('relativePeriod').some(cmp => cmp.getValue());
         },
         items: [
             {

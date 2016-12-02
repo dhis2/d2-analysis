@@ -11,7 +11,6 @@ DimensionConfig = function() {
 
     // uninitialized
     var dimensions;
-    var dataType;
 
     // dimension name map
     var dimensionNameDimensionMap = {
@@ -21,10 +20,20 @@ DimensionConfig = function() {
         'ou': 'organisationUnit'
     };
 
-    // data type map
+    // data type
     t.dataType = {
         'aggregated_values': 'AGGREGATED_VALUES',
         'individual_cases': 'EVENTS'
+    };
+
+    // value type
+    t.valueType = {
+        'numeric_types': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE'],
+        'text_types': ['TEXT','LONG_TEXT','LETTER','PHONE_NUMBER','EMAIL'],
+        'boolean_types': ['BOOLEAN','TRUE_ONLY'],
+        'date_types': ['DATE','DATETIME'],
+        'aggregate_aggregatable_types': ['BOOLEAN', 'TRUE_ONLY', 'TEXT', 'LONG_TEXT', 'LETTER', 'INTEGER', 'INTEGER_POSITIVE', 'INTEGER_NEGATIVE', 'INTEGER_ZERO_OR_POSITIVE', 'NUMBER', 'UNIT_INTERVAL', 'PERCENTAGE', 'COORDINATE'],
+        'tracker_aggregatable_types': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE','BOOLEAN','TRUE_ONLY']
     };
 
     // setter

@@ -93,10 +93,10 @@ WestRegionTrackerItems = function(c) {
         onLoadData: function() {
 
             // layout window
-            var layoutWindow = ns.app.aggregateLayoutWindow;
+            var layoutWindow = uiManager.get('aggregateLayoutWindow');
 
             this.each(function(record) {
-                if (arrayContains(ns.core.conf.valueType.numericTypes, record.data.valueType)) {
+                if (arrayContains(dimensionConfig.valueType['numericTypes'], record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
@@ -104,7 +104,7 @@ WestRegionTrackerItems = function(c) {
             //this.toggleProgramIndicators();
         },
         toggleProgramIndicators: function(type) {
-            type = type || ns.app.typeToolbar.getType();
+            type = type || uiManager.get('dataTypeToolbar').getType();
 
             this.clearFilter();
 
@@ -1522,13 +1522,11 @@ WestRegionTrackerItems = function(c) {
             generator = ns.core.init.periodGenerator,
             periods = generator.generateReversedPeriods(type, type === 'Yearly' ? periodOffset - 5 : periodOffset);
 
-        for (var i = 0; i < periods.length; i++) {
-            periods[i].id = periods[i].iso;
-        }
+        periods.forEach(period => period.id = period.iso);
 
         fixedPeriodAvailableStore.setIndex(periods);
         fixedPeriodAvailableStore.loadData(periods);
-        ns.core.web.multiSelect.filterAvailable(fixedPeriodAvailable, fixedPeriodSelected);
+        uiManager.msFilterAvailable(fixedPeriodAvailable, fixedPeriodSelected);
     };
 
     var periodType = Ext.create('Ext.form.field.ComboBox', {
@@ -1638,17 +1636,20 @@ WestRegionTrackerItems = function(c) {
         hideCollapseTool: true,
         width: accBaseWidth,
         getHeightValue: function() {
-            return ns.app.westRegion.hasScrollbar ?
-                ns.core.conf.layout.west_scrollbarheight_accordion_period :
-                ns.core.conf.layout.west_maxheight_accordion_period;
+            var westRegion = uiManager.get('westRegion');
+            var accordion = uiManager.get('accordion');
+
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_period :
+                uiConfig.west_maxheight_accordion_period;
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
 
-            ns.core.web.multiSelect.setHeight(
+            uiManager.msSetHeight(
                 [fixedPeriodAvailable, fixedPeriodSelected],
                 this,
-                ns.core.conf.layout.west_fill_accordion_period
+                uiConfig.west_fill_accordion_period
             );
         },
         reset: function() {
@@ -1692,10 +1693,10 @@ WestRegionTrackerItems = function(c) {
             return config.items.length ? config : null;
         },
         resetRelativePeriods: function() {
-            var a = checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                a[i].setValue(false);
-            }
+            uiManager.getByGroup('relativePeriod').forEach(cmp => cmp.setValue(false));
+        },
+        isNoRelativePeriods: function() {
+            return !uiManager.getByGroup('relativePeriod').some(cmp => cmp.getValue());
         },
         resetFixedPeriods: function() {
             fixedPeriodAvailableStore.removeAll();
@@ -1705,15 +1706,6 @@ WestRegionTrackerItems = function(c) {
         resetStartEndDates: function() {
             startDate.reset();
             endDate.reset();
-        },
-        isNoRelativePeriods: function() {
-            var a = checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                if (a[i].getValue()) {
-                    return false;
-                }
-            }
-            return true;
         },
         items: [
             periodMode,
