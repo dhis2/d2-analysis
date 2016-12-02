@@ -108,7 +108,7 @@ WestRegionTrackerItems = function(c) {
 
             this.clearFilter();
 
-            if (type === finalsDataTypeConf.aggregated_values) {
+            if (type === dimensionConfig.dataType['aggregated_values']) {
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
@@ -748,7 +748,7 @@ WestRegionTrackerItems = function(c) {
             for (var i = 0, item; i < len; i++) {
                 item = items[i];
 
-                if (type === finalsDataTypeConf.aggregated_values && item.isProgramIndicator) {
+                if (type === dimensionConfig.dataType['aggregated_values'] && item.isProgramIndicator) {
                     item.disable();
                 }
                 else {
@@ -905,7 +905,7 @@ WestRegionTrackerItems = function(c) {
         }
 
         // favorite
-        if (layout && layout.dataType === finalsDataTypeConf.aggregated_values) {
+        if (layout && layout.dataType === dimensionConfig.dataType['aggregated_values']) {
 
             aggWindow.reset(true, true);
 
@@ -981,8 +981,8 @@ WestRegionTrackerItems = function(c) {
         ],
         getHeightValue: function() {
             return ns.app.westRegion.hasScrollbar ?
-                ns.core.conf.layout.west_scrollbarheight_accordion_indicator :
-                ns.core.conf.layout.west_maxheight_accordion_indicator;
+                uiConfig.west_scrollbarheight_accordion_indicator :
+                uiConfig.west_maxheight_accordion_indicator;
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
@@ -2001,7 +2001,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.25,
         style: 'padding-top: 3px; padding-left: 5px; margin-bottom: 0',
         boxLabel: 'User org unit',
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnitChildren.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
@@ -2011,7 +2011,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.26,
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_units,
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
@@ -2021,7 +2021,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.4,
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_x2_units,
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitChildren.getValue()]);
         }
@@ -2187,13 +2187,13 @@ WestRegionTrackerItems = function(c) {
         ],
         getHeightValue: function() {
             return ns.app.westRegion.hasScrollbar ?
-                ns.core.conf.layout.west_scrollbarheight_accordion_organisationunit :
-                ns.core.conf.layout.west_maxheight_accordion_organisationunit;
+                uiConfig.west_scrollbarheight_accordion_organisationunit :
+                uiConfig.west_maxheight_accordion_organisationunit;
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
 
-            treePanel.setHeight(this.getHeight() - ns.core.conf.layout.west_fill_accordion_organisationunit);
+            treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
         listeners: {
             added: function(cmp) {
@@ -2431,8 +2431,8 @@ WestRegionTrackerItems = function(c) {
             },
             getHeightValue: function() {
                 return ns.app.westRegion.hasScrollbar ?
-                    ns.core.conf.layout.west_scrollbarheight_accordion_indicator :
-                    ns.core.conf.layout.west_maxheight_accordion_indicator;
+                    uiConfig.west_scrollbarheight_accordion_indicator :
+                    uiConfig.west_maxheight_accordion_indicator;
             },
             onExpand: function() {
                 if (!availableStore.isLoaded) {
@@ -2450,7 +2450,7 @@ WestRegionTrackerItems = function(c) {
                 ns.core.web.multiSelect.setHeight(
                     [available, selected],
                     this,
-                    ns.core.conf.layout.west_fill_accordion_dataset
+                    uiConfig.west_fill_accordion_dataset
                 );
             },
             items: [
@@ -2745,14 +2745,14 @@ WestRegionTrackerItems = function(c) {
             var settingsHeight = 41;
 
             var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - ns.core.conf.layout.west_fill,
+                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - uiConfig.west_fill,
                 accordionBodyHeight;
 
             if (ns.app.westRegion.hasScrollbar) {
-                accordionBodyHeight = containerHeight - settingsHeight - ns.core.conf.layout.west_fill;
+                accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
             }
             else {
-                accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - ns.core.conf.layout.west_fill;
+                accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - uiConfig.west_fill;
             }
 
             this.setHeight(accordionHeight);
