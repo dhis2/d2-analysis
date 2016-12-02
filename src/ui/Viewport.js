@@ -657,9 +657,7 @@ Viewport = function(refs, cmp) {
         items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
         listeners: {
             afterrender: function() {
-                var accordion = westRegionItems;
-console.log(accordion);
-console.log(accordion.getFirstPanel);
+
                 // west resize
                 westRegion.on('resize', function() {
                     var panel = accordion.getExpandedPanel();
