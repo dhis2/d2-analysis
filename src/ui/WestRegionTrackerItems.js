@@ -553,7 +553,7 @@ WestRegionTrackerItems = function(c) {
     };
 
     var dataElementLabel = Ext.create('Ext.form.Label', {
-        text: NS.i18n.available,
+        text: i18n.available,
         cls: 'ns-toolbar-multiselect-left-label',
         style: 'margin-right:5px'
     });
@@ -1114,11 +1114,17 @@ WestRegionTrackerItems = function(c) {
 
         // relative periods
     var onPeriodChange = function() {
+        var window = uiManager.get('aggregateLayoutWindow'),
+            peDimensionConfig = dimensionConfig.get('period');
+
         if ((period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
-            ns.app.aggregateLayoutWindow.addDimension({id: dimConf.period.dimensionName, name: dimConf.period.name}, ns.app.aggregateLayoutWindow.colStore);
+            window.addDimension({
+                id: peDimensionConfig.dimensionName,
+                name: peDimensionConfig.name
+            }, window.colStore);
         }
         else {
-            ns.app.aggregateLayoutWindow.removeDimension(dimConf.period.dimensionName);
+            window.removeDimension(peDimensionConfig.dimensionName);
         }
     };
 
@@ -1148,33 +1154,33 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.weeks,
+                text: i18n.weeks,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_WEEK',
-                boxLabel: NS.i18n.this_week
+                boxLabel: i18n.this_week
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_WEEK',
-                boxLabel: NS.i18n.last_week
+                boxLabel: i18n.last_week
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_4_WEEKS',
-                boxLabel: NS.i18n.last_4_weeks
+                boxLabel: i18n.last_4_weeks
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_12_WEEKS',
-                boxLabel: NS.i18n.last_12_weeks
+                boxLabel: i18n.last_12_weeks
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_52_WEEKS',
-                boxLabel: NS.i18n.last_52_weeks
+                boxLabel: i18n.last_52_weeks
             }
         ]
     });
@@ -1188,33 +1194,33 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.months,
+                text: i18n.months,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_MONTH',
-                boxLabel: NS.i18n.this_month
+                boxLabel: i18n.this_month
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_MONTH',
-                boxLabel: NS.i18n.last_month
+                boxLabel: i18n.last_month
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_3_MONTHS',
-                boxLabel: NS.i18n.last_3_months
+                boxLabel: i18n.last_3_months
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_6_MONTHS',
-                boxLabel: NS.i18n.last_6_months
+                boxLabel: i18n.last_6_months
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_12_MONTHS',
-                boxLabel: NS.i18n.last_12_months,
+                boxLabel: i18n.last_12_months,
                 checked: true
             }
         ]
@@ -1229,23 +1235,23 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.bimonths,
+                text: i18n.bimonths,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_BIMONTH',
-                boxLabel: NS.i18n.this_bimonth
+                boxLabel: i18n.this_bimonth
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_BIMONTH',
-                boxLabel: NS.i18n.last_bimonth
+                boxLabel: i18n.last_bimonth
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_6_BIMONTHS',
-                boxLabel: NS.i18n.last_6_bimonths
+                boxLabel: i18n.last_6_bimonths
             }
         ]
     });
@@ -1259,23 +1265,23 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.quarters,
+                text: i18n.quarters,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_QUARTER',
-                boxLabel: NS.i18n.this_quarter
+                boxLabel: i18n.this_quarter
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_QUARTER',
-                boxLabel: NS.i18n.last_quarter
+                boxLabel: i18n.last_quarter
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_4_QUARTERS',
-                boxLabel: NS.i18n.last_4_quarters
+                boxLabel: i18n.last_4_quarters
             }
         ]
     });
@@ -1289,23 +1295,23 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.sixmonths,
+                text: i18n.sixmonths,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_SIX_MONTH',
-                boxLabel: NS.i18n.this_sixmonth
+                boxLabel: i18n.this_sixmonth
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_SIX_MONTH',
-                boxLabel: NS.i18n.last_sixmonth
+                boxLabel: i18n.last_sixmonth
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_2_SIXMONTHS',
-                boxLabel: NS.i18n.last_2_sixmonths
+                boxLabel: i18n.last_2_sixmonths
             }
         ]
     });
@@ -1320,23 +1326,23 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.financial_years,
+                text: i18n.financial_years,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_FINANCIAL_YEAR',
-                boxLabel: NS.i18n.this_financial_year
+                boxLabel: i18n.this_financial_year
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_FINANCIAL_YEAR',
-                boxLabel: NS.i18n.last_financial_year
+                boxLabel: i18n.last_financial_year
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
-                boxLabel: NS.i18n.last_5_financial_years
+                boxLabel: i18n.last_5_financial_years
             }
         ]
     });
@@ -1350,23 +1356,23 @@ WestRegionTrackerItems = function(c) {
         items: [
             {
                 xtype: 'label',
-                text: NS.i18n.years,
+                text: i18n.years,
                 cls: 'ns-label-period-heading'
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'THIS_YEAR',
-                boxLabel: NS.i18n.this_year
+                boxLabel: i18n.this_year
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_YEAR',
-                boxLabel: NS.i18n.last_year
+                boxLabel: i18n.last_year
             },
             {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_5_YEARS',
-                boxLabel: NS.i18n.last_5_years
+                boxLabel: i18n.last_5_years
             }
         ]
     });
@@ -1431,7 +1437,7 @@ WestRegionTrackerItems = function(c) {
         tbar: [
             {
                 xtype: 'label',
-                text: NS.i18n.available,
+                text: i18n.available,
                 cls: 'ns-toolbar-multiselect-left-label'
             },
             '->',
@@ -1496,7 +1502,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'label',
-                text: NS.i18n.selected,
+                text: i18n.selected,
                 cls: 'ns-toolbar-multiselect-right-label'
             }
         ],
@@ -1531,7 +1537,7 @@ WestRegionTrackerItems = function(c) {
         width: accBaseWidth - 62 - 62 - 2,
         valueField: 'id',
         displayField: 'name',
-        emptyText: NS.i18n.select_period_type,
+        emptyText: i18n.select_period_type,
         editable: false,
         queryMode: 'remote',
         store: periodTypeStore,
@@ -1545,7 +1551,7 @@ WestRegionTrackerItems = function(c) {
     });
 
     var prevYear = Ext.create('Ext.button.Button', {
-        text: NS.i18n.prev_year,
+        text: i18n.prev_year,
         style: 'border-radius:1px; margin-right:1px',
         height: 24,
         width: 62,
@@ -1558,7 +1564,7 @@ WestRegionTrackerItems = function(c) {
     });
 
     var nextYear = Ext.create('Ext.button.Button', {
-        text: NS.i18n.next_year,
+        text: i18n.next_year,
         style: 'border-radius:1px',
         height: 24,
         width: 62,
@@ -1980,7 +1986,7 @@ WestRegionTrackerItems = function(c) {
                 if (!r.data.leaf) {
                     v.menu.add({
                         id: 'treepanel-contextmenu-item',
-                        text: NS.i18n.select_sub_units,
+                        text: i18n.select_sub_units,
                         icon: 'images/node-select-child.png',
                         handler: function() {
                             r.expand(false, function() {
@@ -2012,7 +2018,7 @@ WestRegionTrackerItems = function(c) {
     var userOrganisationUnitChildren = Ext.create('Ext.form.field.Checkbox', {
         columnWidth: 0.26,
         style: 'padding-top: 3px; margin-bottom: 0',
-        boxLabel: NS.i18n.user_sub_units,
+        boxLabel: i18n.user_sub_units,
         labelWidth: ns.core.conf.layout.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitGrandChildren.getValue()]);
@@ -2022,7 +2028,7 @@ WestRegionTrackerItems = function(c) {
     var userOrganisationUnitGrandChildren = Ext.create('Ext.form.field.Checkbox', {
         columnWidth: 0.4,
         style: 'padding-top: 3px; margin-bottom: 0',
-        boxLabel: NS.i18n.user_sub_x2_units,
+        boxLabel: i18n.user_sub_x2_units,
         labelWidth: ns.core.conf.layout.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitChildren.getValue()]);
@@ -2036,7 +2042,7 @@ WestRegionTrackerItems = function(c) {
         width: accBaseWidth - toolWidth - 1,
         valueField: 'level',
         displayField: 'name',
-        emptyText: NS.i18n.select_organisation_unit_levels,
+        emptyText: i18n.select_organisation_unit_levels,
         editable: false,
         hidden: true,
         store: {
@@ -2052,7 +2058,7 @@ WestRegionTrackerItems = function(c) {
         width: accBaseWidth - toolWidth - 1,
         valueField: 'id',
         displayField: 'name',
-        emptyText: NS.i18n.select_organisation_unit_groups,
+        emptyText: i18n.select_organisation_unit_groups,
         editable: false,
         hidden: true,
         store: organisationUnitGroupStore
@@ -2131,7 +2137,7 @@ WestRegionTrackerItems = function(c) {
                 style: 'padding:7px 5px 5px 7px; font-weight:bold; border:0 none'
             },
             {
-                text: NS.i18n.select_organisation_units + '&nbsp;&nbsp;',
+                text: i18n.select_organisation_units + '&nbsp;&nbsp;',
                 param: 'orgunit',
                 iconCls: 'ns-menu-item-selected'
             },
@@ -2172,7 +2178,7 @@ WestRegionTrackerItems = function(c) {
     });
 
     var organisationUnit = Ext.create('Ext.panel.Panel', {
-        title: '<div class="ns-panel-title-organisationunit">' + NS.i18n.organisation_units + '</div>',
+        title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         items: [
@@ -2327,7 +2333,7 @@ WestRegionTrackerItems = function(c) {
             tbar: [
                 {
                     xtype: 'label',
-                    text: NS.i18n.available,
+                    text: i18n.available,
                     cls: 'ns-toolbar-multiselect-left-label'
                 },
                 '->',
@@ -2392,7 +2398,7 @@ WestRegionTrackerItems = function(c) {
                 '->',
                 {
                     xtype: 'label',
-                    text: NS.i18n.selected,
+                    text: i18n.selected,
                     cls: 'ns-toolbar-multiselect-right-label'
                 }
             ],
@@ -2723,7 +2729,6 @@ WestRegionTrackerItems = function(c) {
 
     var validateView = function(view) {
         if (!(isArray(view.rows) && view.rows.length && isString(view.rows[0].dimension) && isArray(view.rows[0].items) && view.rows[0].items.length)) {
-            NS.logg.push([view.rows, layer.id + '.rows: dimension array']);
             ns.alert('No organisation units selected');
             return false;
         }
