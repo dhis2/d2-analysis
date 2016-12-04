@@ -130,11 +130,6 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.userGroupAccesses = c.userGroupAccesses;
     }
 
-        // reduce layout //todo: move to specific app
-    if (isBoolean(c.reduceLayout)) {
-        t.reduceLayout = c.reduceLayout;
-    }
-
     if (c.el && isString(c.el)) {
         t.el = c.el;
     }
