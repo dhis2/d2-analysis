@@ -500,7 +500,8 @@ WestRegionTrackerItems = function(c) {
             dataElementsByStageStore.onLoadData();
 
             if (layout) {
-                var dataDimensions = ns.core.service.layout.getDataDimensionsFromLayout(layout),
+                //var dataDimensions = ns.core.service.layout.getDataDimensionsFromLayout(layout),
+                var dataDimensions = layout ? layout.getDimensions().filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)),
                     records = [];
 
                 for (var i = 0, dim, row; i < dataDimensions.length; i++) {
@@ -1061,8 +1062,8 @@ WestRegionTrackerItems = function(c) {
 
     var onDateFieldRender = function(c) {
         $('#' + c.inputEl.id).calendarsPicker({
-            calendar: ns.core.init.calendar,
-            dateFormat: ns.core.init.systemInfo.dateFormat
+            calendar: calendarManager.calendar,
+            dateFormat: appManager.systemInfo.dateFormat
         });
     };
 
@@ -1073,7 +1074,7 @@ WestRegionTrackerItems = function(c) {
         labelSeparator: '',
         columnWidth: 0.5,
         height: 44,
-        value: ns.core.init.calendar.formatDate(ns.core.init.systemInfo.dateFormat, ns.core.init.calendar.today().add(-3, 'm')),
+        value: calendarManager.calendar.formatDate(appManager.systemInfo.dateFormat, calendarManager.calendar.today().add(-3, 'm')),
         listeners: {
             render: function(c) {
                 onDateFieldRender(c);
@@ -1089,7 +1090,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.5,
         height: 44,
         style: 'margin-left: 1px',
-        value: ns.core.init.calendar.formatDate(ns.core.init.systemInfo.dateFormat, ns.core.init.calendar.today()),
+        value: calendarManager.calendar.formatDate(appManager.systemInfo.dateFormat, calendarManager.calendar.today()),
         listeners: {
             render: function(c) {
                 onDateFieldRender(c);
@@ -1514,7 +1515,7 @@ WestRegionTrackerItems = function(c) {
     var onPeriodTypeSelect = function() {
         var type = periodType.getValue(),
             periodOffset = periodType.periodOffset,
-            generator = ns.core.init.periodGenerator,
+            generator = calendarManager.periodGenerator,
             periods = generator.generateReversedPeriods(type, type === 'Yearly' ? periodOffset - 5 : periodOffset);
 
         periods.forEach(period => period.id = period.iso);
@@ -1730,14 +1731,14 @@ WestRegionTrackerItems = function(c) {
         multiSelect: true,
         rendered: false,
         reset: function() {
-            var rootNode = this.getRootNode().findChild('id', ns.core.init.rootNodes[0].id);
+            var rootNode = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
             this.collapseAll();
             this.expandPath(rootNode.getPath());
             this.getSelectionModel().select(rootNode);
         },
         selectRootIf: function() {
             if (this.getSelectionModel().getSelection().length < 1) {
-                var node = this.getRootNode().findChild('id', ns.core.init.rootNodes[0].id);
+                var node = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
                 if (this.rendered) {
                     this.getSelectionModel().select(node);
                 }
@@ -1828,7 +1829,7 @@ WestRegionTrackerItems = function(c) {
                 extraParams: {
                     fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
                 },
-                url: ns.core.init.contextPath + '/api/organisationUnits',
+                url: appManager.getApiPath() + '/organisationUnits',
                 reader: {
                     type: 'json',
                     root: 'children'
@@ -1840,9 +1841,9 @@ WestRegionTrackerItems = function(c) {
                 direction: 'ASC'
             }],
             root: {
-                id: ns.core.conf.finals.root.id,
+                id: appManager.rootNodeId,
                 expanded: true,
-                children: ns.core.init.rootNodes
+                children: appManager.rootNodes
             },
             listeners: {
                 load: function(store, node, records) {
@@ -1867,7 +1868,7 @@ WestRegionTrackerItems = function(c) {
         getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
-                    dimension: ns.core.conf.finals.dimension.organisationUnit.objectName,
+                    dimension: dimensionConfig.dimensions.organisationUnit.objectName,
                     items: []
                 };
 
@@ -2034,7 +2035,7 @@ WestRegionTrackerItems = function(c) {
         hidden: true,
         store: {
             fields: ['id', 'name', 'level'],
-            data: ns.core.init.organisationUnitLevels
+            data: appManager.organisationUnitLevels
         }
     });
 
