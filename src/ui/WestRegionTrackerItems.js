@@ -42,7 +42,14 @@ WestRegionTrackerItems = function(c) {
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
-        dimensionPanelMap = {};
+        dimensionPanelMap = {},
+        dimensionIdAvailableStoreMap = {},
+        dimensionIdSelectedStoreMap = {},
+
+        baseWidth = 446,
+        accBaseWidth = baseWidth - 2,
+        toolWidth = 36,
+        nextButtonWidth = 62;
 
     // stores
 
@@ -501,7 +508,7 @@ WestRegionTrackerItems = function(c) {
 
             if (layout) {
                 //var dataDimensions = ns.core.service.layout.getDataDimensionsFromLayout(layout),
-                var dataDimensions = layout ? layout.getDimensions().filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)),
+                var dataDimensions = layout ? layout.getDimensions().filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)) : [],
                     records = [];
 
                 for (var i = 0, dim, row; i < dataDimensions.length; i++) {
@@ -1528,7 +1535,7 @@ WestRegionTrackerItems = function(c) {
     var periodType = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-right:1px; margin-bottom:1px',
-        width: accBaseWidth - 62 - 62 - 2,
+        width: accBaseWidth - (nextButtonWidth * 2) - 2,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_period_type,
@@ -1548,7 +1555,7 @@ WestRegionTrackerItems = function(c) {
         text: i18n.prev_year,
         style: 'border-radius:1px; margin-right:1px',
         height: 24,
-        width: 62,
+        width: nextButtonWidth,
         handler: function() {
             if (periodType.getValue()) {
                 periodType.periodOffset--;
@@ -1561,7 +1568,7 @@ WestRegionTrackerItems = function(c) {
         text: i18n.next_year,
         style: 'border-radius:1px',
         height: 24,
-        width: 62,
+        width: nextButtonWidth,
         handler: function() {
             if (periodType.getValue()) {
                 periodType.periodOffset++;
