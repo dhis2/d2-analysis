@@ -120,7 +120,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + ns.core.init.displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
@@ -278,7 +278,7 @@ WestRegionTrackerItems = function(c) {
 
                 if (recMap[key]) {
                     s.add(recMap[key]);
-                    ns.core.web.multiSelect.filterAvailable({store: a}, {store: s});
+                    uiManager.msFilterAvailable({store: a}, {store: s});
                 }
             }
         }
@@ -343,8 +343,6 @@ WestRegionTrackerItems = function(c) {
                 return;
             }
 
-            var arraySort = ns.core.support.prototype.array.sort;
-
             // sort categories
             arraySort(cats);
 
@@ -388,12 +386,12 @@ WestRegionTrackerItems = function(c) {
         else {
             Ext.Ajax.request({
                 url: [
-                    ns.core.init.contextPath + '/api/programs.json',
+                    appManager.getApiPath() + '/programs.json',
                     '?filter=id:eq:' + programId,
                     '&fields=programStages[id,displayName|rename(name)]',
-                    ',programIndicators[id,' + namePropertyUrl + ']',
-                    ',programTrackedEntityAttributes[trackedEntityAttribute[id,' + namePropertyUrl +',valueType,confidential,optionSet[id,displayName|rename(name)],legendSet[id,displayName|rename(name)]]]',
-                    ',categoryCombo[id,' + namePropertyUrl + ',categories[id,' + namePropertyUrl + ',categoryOptions[id,' + namePropertyUrl + ']]]',
+                    ',programIndicators[id,' + displayPropertyUrl + ']',
+                    ',programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName|rename(name)],legendSet[id,displayName|rename(name)]]]',
+                    ',categoryCombo[id,' + displayPropertyUrl + ',categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]',
                     '&paging=false'
                 ].join(''),
                 success: function(r) {
@@ -524,10 +522,10 @@ WestRegionTrackerItems = function(c) {
         }
         else {
             Ext.Ajax.request({
-                url: ns.core.init.contextPath + '/api/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + namePropertyUrl + ',valueType,optionSet[id,displayName|rename(name)],legendSet|rename(storageLegendSet)[id,displayName|rename(name)]]]',
+                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName|rename(name)],legendSet|rename(storageLegendSet)[id,displayName|rename(name)]]]',
                 success: function(r) {
                     var objects = Ext.decode(r.responseText).programStages,
-                        types = ns.core.conf.valueType.tAggregateTypes,
+                        types = dimensionConfig.valueType['tracker_aggregatable_types'],
                         dataElements;
 
                     if (!objects.length) {
@@ -765,24 +763,25 @@ WestRegionTrackerItems = function(c) {
         index = index || dataElementSelected.items.items.length;
 
         getUxType = function(element) {
+            var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
                 return 'Ext.ux.panel.OrganisationUnitGroupSetContainer';
             }
 
-            if (arrayContains(ns.core.conf.valueType.numericTypes, element.valueType)) {
+            if (arrayContains(valueTypes['numericTypes'], element.valueType)) {
                 return 'Ext.ux.panel.DataElementIntegerContainer';
             }
 
-            if (arrayContains(ns.core.conf.valueType.textTypes, element.valueType)) {
+            if (arrayContains(valueTypes['textTypes'], element.valueType)) {
                 return 'Ext.ux.panel.DataElementStringContainer';
             }
 
-            if (arrayContains(ns.core.conf.valueType.dateTypes, element.valueType)) {
+            if (arrayContains(valueTypes['dateTypes'], element.valueType)) {
                 return 'Ext.ux.panel.DataElementDateContainer';
             }
 
-            if (arrayContains(ns.core.conf.valueType.booleanTypes, element.valueType)) {
+            if (arrayContains(valueTypes['booleanTypes'], element.valueType)) {
                 return 'Ext.ux.panel.DataElementBooleanContainer';
             }
 
@@ -824,20 +823,14 @@ WestRegionTrackerItems = function(c) {
     var selectDataElements = function(items, layout) {
         var dataElements = [],
             allElements = [],
-            aggWindow = ns.app.aggregateLayoutWindow,
-            queryWindow = ns.app.queryLayoutWindow,
-            includeKeys = ns.core.conf.valueType.tAggregateTypes,
+            aggWindow = uiManager.get('aggregateLayoutWindow'),
+            queryWindow = uiManager.get('queryLayoutWindow'),
+            includeKeys = dimensionConfig.valueType['tracker_aggregatable_types'],
             ignoreKeys = ['pe', 'ou'],
-            recordMap = {
-                'pe': {id: 'pe', name: 'Periods'},
-                'ou': {id: 'ou', name: 'Organisation units'}
-            },
+            recordMap = dimensionConfig.getObjectNameMap(),
             extendDim = function(dim) {
-                var md = ns.app.response.metaData,
-                    dimConf = ns.core.conf.finals.dimension;
-
                 dim.id = dim.id || dim.dimension;
-                dim.name = dim.name || md.names[dim.dimension] || dimConf.objectNameMap[dim.dimension].name;
+                dim.name = dim.name || layout ? layout.getResponse().getNameById(dim.dimension) : null || recordMap[dim.dimension].name;
 
                 return dim;
             };
@@ -864,7 +857,7 @@ WestRegionTrackerItems = function(c) {
             element = dataElements[i];
             allElements.push(element);
 
-            if (arrayContains(ns.core.conf.valueType.numericTypes, element.valueType) && element.filter) {
+            if (arrayContains(dimensionConfig.valueType['numericTypes'], element.valueType) && element.filter) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
 
@@ -981,8 +974,8 @@ WestRegionTrackerItems = function(c) {
         ],
         getHeightValue: function() {
             return ns.app.westRegion.hasScrollbar ?
-                ns.core.conf.layout.west_scrollbarheight_accordion_indicator :
-                ns.core.conf.layout.west_maxheight_accordion_indicator;
+                uiConfig.west_scrollbarheight_accordion_indicator :
+                uiConfig.west_maxheight_accordion_indicator;
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
@@ -1030,21 +1023,23 @@ WestRegionTrackerItems = function(c) {
     });
 
     var onPeriodModeSelect = function(mode) {
+        var aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow');
+
         periodMode.setValue(mode);
 
         if (mode === 'dates') {
             startEndDate.show();
             periods.hide();
 
-            ns.app.aggregateLayoutWindow.addDimension({id: dimConf.startEndDate.value, name: dimConf.startEndDate.name}, ns.app.aggregateLayoutWindow.fixedFilterStore);
-            ns.app.aggregateLayoutWindow.removeDimension(dimConf.period.dimensionName);
+            aggregateLayoutWindow.addDimension({id: dimConf.startEndDate.value, name: dimConf.startEndDate.name}, aggregateLayoutWindow.fixedFilterStore);
+            aggregateLayoutWindow.removeDimension(dimConf.period.dimensionName);
         }
         else if (mode === 'periods') {
             startEndDate.hide();
             periods.show();
 
-            ns.app.aggregateLayoutWindow.addDimension({id: dimConf.period.dimensionName, name: dimConf.period.name}, ns.app.aggregateLayoutWindow.colStore);
-            ns.app.aggregateLayoutWindow.removeDimension(dimConf.startEndDate.value);
+            aggregateLayoutWindow.addDimension({id: dimConf.period.dimensionName, name: dimConf.period.name}, aggregateLayoutWindow.colStore);
+            aggregateLayoutWindow.removeDimension(dimConf.startEndDate.value);
         }
     };
 
@@ -1446,7 +1441,7 @@ WestRegionTrackerItems = function(c) {
                 icon: 'images/arrowright.png',
                 width: 22,
                 handler: function() {
-                    ns.core.web.multiSelect.select(fixedPeriodAvailable, fixedPeriodSelected);
+                    uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                     onPeriodChange();
                 }
             },
@@ -1455,7 +1450,7 @@ WestRegionTrackerItems = function(c) {
                 icon: 'images/arrowrightdouble.png',
                 width: 22,
                 handler: function() {
-                    ns.core.web.multiSelect.selectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
+                    uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
                     onPeriodChange();
                 }
             },
@@ -1464,7 +1459,7 @@ WestRegionTrackerItems = function(c) {
         listeners: {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
-                    ns.core.web.multiSelect.select(fixedPeriodAvailable, fixedPeriodSelected);
+                    uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                     onPeriodChange();
                 }, this);
             }
@@ -1486,7 +1481,7 @@ WestRegionTrackerItems = function(c) {
                 icon: 'images/arrowleftdouble.png',
                 width: 22,
                 handler: function() {
-                    ns.core.web.multiSelect.unselectAll(fixedPeriodAvailable, fixedPeriodSelected);
+                    uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
                     onPeriodChange();
                 }
             },
@@ -1495,7 +1490,7 @@ WestRegionTrackerItems = function(c) {
                 icon: 'images/arrowleft.png',
                 width: 22,
                 handler: function() {
-                    ns.core.web.multiSelect.unselect(fixedPeriodAvailable, fixedPeriodSelected);
+                    uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                     onPeriodChange();
                 }
             },
@@ -1509,7 +1504,7 @@ WestRegionTrackerItems = function(c) {
         listeners: {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
-                    ns.core.web.multiSelect.unselect(fixedPeriodAvailable, fixedPeriodSelected);
+                    uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                     onPeriodChange();
                 }, this);
             }
@@ -1831,7 +1826,7 @@ WestRegionTrackerItems = function(c) {
                 format: 'json',
                 noCache: false,
                 extraParams: {
-                    fields: 'children[id,' + ns.core.init.namePropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
+                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
                 },
                 url: ns.core.init.contextPath + '/api/organisationUnits',
                 reader: {
@@ -2001,7 +1996,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.25,
         style: 'padding-top: 3px; padding-left: 5px; margin-bottom: 0',
         boxLabel: 'User org unit',
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnitChildren.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
@@ -2011,7 +2006,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.26,
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_units,
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
@@ -2021,7 +2016,7 @@ WestRegionTrackerItems = function(c) {
         columnWidth: 0.4,
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_x2_units,
-        labelWidth: ns.core.conf.layout.form_label_width,
+        labelWidth: uiConfig.form_label_width,
         handler: function(chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitChildren.getValue()]);
         }
@@ -2187,13 +2182,13 @@ WestRegionTrackerItems = function(c) {
         ],
         getHeightValue: function() {
             return ns.app.westRegion.hasScrollbar ?
-                ns.core.conf.layout.west_scrollbarheight_accordion_organisationunit :
-                ns.core.conf.layout.west_maxheight_accordion_organisationunit;
+                uiConfig.west_scrollbarheight_accordion_organisationunit :
+                uiConfig.west_maxheight_accordion_organisationunit;
         },
         onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
 
-            treePanel.setHeight(this.getHeight() - ns.core.conf.layout.west_fill_accordion_organisationunit);
+            treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
         listeners: {
             added: function(cmp) {
@@ -2262,12 +2257,12 @@ WestRegionTrackerItems = function(c) {
                     return;
                 }
 
-                path = '/organisationUnitGroups.json?fields=id,' + ns.core.init.namePropertyUrl + '&filter=organisationUnitGroupSet.id:eq:' + dimension.id + (filter ? '&filter=name:ilike:' + filter : '');
+                path = '/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&filter=organisationUnitGroupSet.id:eq:' + dimension.id + (filter ? '&filter=name:ilike:' + filter : '');
 
                 store.isPending = true;
 
                 Ext.Ajax.request({
-                    url: ns.core.init.contextPath + '/api' + path,
+                    url: appManager.getApiPath() + path,
                     params: {
                         page: store.nextPage,
                         pageSize: 50
@@ -2293,7 +2288,7 @@ WestRegionTrackerItems = function(c) {
                 }
 
                 this.isPending = false;
-                ns.core.web.multiSelect.filterAvailable({store: availableStore}, {store: selectedStore});
+                uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
             },
             sortStore: function() {
                 this.sort('name', 'ASC');
@@ -2334,7 +2329,7 @@ WestRegionTrackerItems = function(c) {
                     icon: 'images/arrowright.png',
                     width: 22,
                     handler: function() {
-                        ns.core.web.multiSelect.select(available, selected);
+                        uiManager.msSelect(available, selected);
                     }
                 },
                 {
@@ -2342,7 +2337,7 @@ WestRegionTrackerItems = function(c) {
                     icon: 'images/arrowrightdouble.png',
                     width: 22,
                     handler: function() {
-                        ns.core.web.multiSelect.selectAll(available, selected);
+                        uiManager.msSelectAll(available, selected);
                     }
                 }
             ],
@@ -2357,7 +2352,7 @@ WestRegionTrackerItems = function(c) {
                     });
 
                     ms.boundList.on('itemdblclick', function() {
-                        ns.core.web.multiSelect.select(available, selected);
+                        uiManager.msSelect(available, selected);
                     }, ms);
                 }
             }
@@ -2376,7 +2371,7 @@ WestRegionTrackerItems = function(c) {
                     icon: 'images/arrowleftdouble.png',
                     width: 22,
                     handler: function() {
-                        ns.core.web.multiSelect.unselectAll(available, selected);
+                        uiManager.msUnselectAll(available, selected);
                     }
                 },
                 {
@@ -2384,7 +2379,7 @@ WestRegionTrackerItems = function(c) {
                     icon: 'images/arrowleft.png',
                     width: 22,
                     handler: function() {
-                        ns.core.web.multiSelect.unselect(available, selected);
+                        uiManager.msUnselect(available, selected);
                     }
                 },
                 '->',
@@ -2397,7 +2392,7 @@ WestRegionTrackerItems = function(c) {
             listeners: {
                 afterrender: function() {
                     this.boundList.on('itemdblclick', function() {
-                        ns.core.web.multiSelect.unselect(available, selected);
+                        uiManager.msUnselect(available, selected);
                     }, this);
                 }
             }
@@ -2407,7 +2402,7 @@ WestRegionTrackerItems = function(c) {
         dimensionIdSelectedStoreMap[dimension.id] = selectedStore;
 
         //availableStore.on('load', function() {
-            //ns.core.web.multiSelect.filterAvailable(available, selected);
+            //uiManager.msFilterAvailable(available, selected);
         //});
 
         panel = {
@@ -2431,8 +2426,8 @@ WestRegionTrackerItems = function(c) {
             },
             getHeightValue: function() {
                 return ns.app.westRegion.hasScrollbar ?
-                    ns.core.conf.layout.west_scrollbarheight_accordion_indicator :
-                    ns.core.conf.layout.west_maxheight_accordion_indicator;
+                    uiConfig.west_scrollbarheight_accordion_indicator :
+                    uiConfig.west_maxheight_accordion_indicator;
             },
             onExpand: function() {
                 if (!availableStore.isLoaded) {
@@ -2447,10 +2442,10 @@ WestRegionTrackerItems = function(c) {
 
                 accordion.setThisHeight(this.getHeightValue());
 
-                ns.core.web.multiSelect.setHeight(
+                uiManager.msSetHeight(
                     [available, selected],
                     this,
-                    ns.core.conf.layout.west_fill_accordion_dataset
+                    uiConfig.west_fill_accordion_dataset
                 );
             },
             items: [
@@ -2482,7 +2477,7 @@ WestRegionTrackerItems = function(c) {
         data,
         period,
         organisationUnit,
-        ...ns.core.init.dimensions.map(panel => getDimensionPanel(panel, 'ns-panel-title-dimension'))
+        ...appManager.dimensions.map(panel => getDimensionPanel(panel, 'ns-panel-title-dimension'))
     ];
 
     var getItems = function(dimensions = []) {
@@ -2745,14 +2740,14 @@ WestRegionTrackerItems = function(c) {
             var settingsHeight = 41;
 
             var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - ns.core.conf.layout.west_fill,
+                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - uiConfig.west_fill,
                 accordionBodyHeight;
 
             if (ns.app.westRegion.hasScrollbar) {
-                accordionBodyHeight = containerHeight - settingsHeight - ns.core.conf.layout.west_fill;
+                accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
             }
             else {
-                accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - ns.core.conf.layout.west_fill;
+                accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - uiConfig.west_fill;
             }
 
             this.setHeight(accordionHeight);
