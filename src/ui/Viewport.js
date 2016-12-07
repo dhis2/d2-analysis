@@ -127,7 +127,7 @@ Viewport = function(refs, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: arrayClean([chartTypeToolbar, accordion]),
+        items: arrayClean([chartTypeToolbar, westRegionItems]),
         setState: function(layout) {
             setUiState(layout);
         }

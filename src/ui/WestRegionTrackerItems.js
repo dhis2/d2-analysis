@@ -45,6 +45,7 @@ WestRegionTrackerItems = function(c) {
         dimensionPanelMap = {},
         dimensionIdAvailableStoreMap = {},
         dimensionIdSelectedStoreMap = {},
+        accordionPanels = [],
 
         baseWidth = 446,
         accBaseWidth = baseWidth - 2,
@@ -57,7 +58,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -127,7 +128,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
@@ -337,7 +338,7 @@ WestRegionTrackerItems = function(c) {
         stage.clearValue();
         dataElementsByStageStore.removeAll();
         dataElementSelected.removeAllDataElements(true);
-        ns.app.aggregateLayoutWindow.value.resetData();
+        uiManager.get('aggregateLayoutWindow').value.resetData();
 
         getCategories = function(categoryCombo) {
             if (!(isObject(categoryCombo) && isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
@@ -483,7 +484,7 @@ WestRegionTrackerItems = function(c) {
     var onStageSelect = function(stageId, layout) {
         if (!layout) {
             dataElementSelected.removeAllDataElements(true);
-            ns.app.aggregateLayoutWindow.value.resetData();
+            uiManager.get('aggregateLayoutWindow').value.resetData();
         }
 
         dataElementSearch.enable();
@@ -813,8 +814,8 @@ WestRegionTrackerItems = function(c) {
                     dataElementsByStageStore.sort();
                 }
 
-                ns.app.aggregateLayoutWindow.removeDimension(element.id, ns.app.aggregateLayoutWindow.valueStore);
-                ns.app.queryLayoutWindow.removeDimension(element.id);
+                uiManager.get('aggregateLayoutWindow').removeDimension(element.id, uiManager.get('aggregateLayoutWindow').valueStore);
+                uiManager.get('queryLayoutWindow').removeDimension(element.id);
             }
         };
 
@@ -981,7 +982,7 @@ WestRegionTrackerItems = function(c) {
             dataElementSelected
         ],
         getHeightValue: function() {
-            return ns.app.westRegion.hasScrollbar ?
+            return uiManager.get('westRegion').hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_indicator :
                 uiConfig.west_maxheight_accordion_indicator;
         },
@@ -1002,6 +1003,7 @@ WestRegionTrackerItems = function(c) {
             }
         }
     });
+    uiManager.reg(data, 'data');
 
         // dates
     var periodMode = Ext.create('Ext.form.field.ComboBox', {
@@ -1724,6 +1726,7 @@ WestRegionTrackerItems = function(c) {
             }
         }
     });
+    uiManager.reg(period, 'period');
 
         // organisation unit
     var treePanel = Ext.create('Ext.tree.Panel', {
@@ -2189,7 +2192,7 @@ WestRegionTrackerItems = function(c) {
             treePanel
         ],
         getHeightValue: function() {
-            return ns.app.westRegion.hasScrollbar ?
+            return uiManager.get('westRegion').hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_organisationunit :
                 uiConfig.west_maxheight_accordion_organisationunit;
         },
@@ -2207,7 +2210,7 @@ WestRegionTrackerItems = function(c) {
             }
         }
     });
-
+    uiManager.reg(organisationUnit, 'organisationUnit');
     // dimensions
 
     var getDimensionPanel = function(dimension, iconCls) {
@@ -2222,8 +2225,8 @@ WestRegionTrackerItems = function(c) {
             getPanels;
 
         onSelect = function() {
-            var aggWin = ns.app.aggregateLayoutWindow,
-                queryWin = ns.app.queryLayoutWindow;
+            var aggWin = uiManager.get('aggregateLayoutWindow'),
+                queryWin = uiManager.get('queryLayoutWindow');
 
             if (selectedStore.getRange().length) {
                 aggWin.addDimension({id: dimension.id, name: dimension.name}, aggWin.rowStore);
@@ -2433,7 +2436,7 @@ WestRegionTrackerItems = function(c) {
                 return config.items.length ? config : null;
             },
             getHeightValue: function() {
-                return ns.app.westRegion.hasScrollbar ?
+                return uiManager.get('westRegion').hasScrollbar ?
                     uiConfig.west_scrollbarheight_accordion_indicator :
                     uiConfig.west_maxheight_accordion_indicator;
             },
@@ -2556,13 +2559,13 @@ WestRegionTrackerItems = function(c) {
     var setGui = function(layout, response, updateGui) {
 
         // state
-        ns.app.downloadButton.enable();
+        uiManager.get('downloadButton').enable();
 
         if (layout.id) {
-            ns.app.shareButton.enable();
+            uiManager.get('shareButton').enable();
         }
 
-        ns.app.statusBar.setStatus(layout, response);
+        uiManager.get('statusBar').setStatus(layout, response);
 
         // set gui
         if (updateGui) {
@@ -2571,10 +2574,10 @@ WestRegionTrackerItems = function(c) {
     };
 
     var getView = function(config) {
-        var panels = ns.app.accordion.panels,
+        var panels = uiManager.get('accordion').panels,
             view = {},
-            dataType = ns.app.typeToolbar.getType(),
-            layoutWindow = ns.app.viewport.getLayoutWindow(dataType),
+            dataType = uiManager.get('typeToolbar').getType(),
+            layoutWindow = uiManager.get('viewport').getLayoutWindow(dataType),
             map = {},
             columns = [],
             rows = [],
@@ -2739,19 +2742,16 @@ WestRegionTrackerItems = function(c) {
         expandInitPanels: function() {
             organisationUnit.expand();
         },
-        map: layer ? layer.map : null,
-        layer: layer ? layer : null,
-        menu: layer ? layer.menu : null,
         setThisHeight: function(mx) {
             mx = mx || this.getExpandedPanel().getHeightValue();
 
             var settingsHeight = 41;
 
             var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - uiConfig.west_fill,
+                accordionHeight = uiManager.get('westRegion').getHeight() - settingsHeight - uiConfig.west_fill,
                 accordionBodyHeight;
 
-            if (ns.app.westRegion.hasScrollbar) {
+            if (uiManager.get('westRegion').hasScrollbar) {
                 accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
             }
             else {
