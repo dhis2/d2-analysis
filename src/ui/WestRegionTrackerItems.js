@@ -1761,7 +1761,7 @@ WestRegionTrackerItems = function(c) {
         multipleSelectIf: function(map, doUpdate) {
             this.recordsToSelect = arrayClean(this.recordsToSelect);
 
-            if (this.recordsToSelect.length === ns.core.support.prototype.object.getLength(map)) {
+            if (this.recordsToSelect.length === Object.keys(map).length) {
                 this.getSelectionModel().select(this.recordsToSelect);
                 this.recordsToSelect = [];
                 this.isPending = false;
@@ -1773,7 +1773,7 @@ WestRegionTrackerItems = function(c) {
         },
         multipleExpand: function(id, map, doUpdate) {
             var that = this,
-                rootId = ns.core.conf.finals.root.id,
+                rootId = appManager.rootNodeId,
                 path = map[id];
 
             if (path.substr(0, rootId.length + 1) !== ('/' + rootId)) {
@@ -1818,7 +1818,8 @@ WestRegionTrackerItems = function(c) {
             return map;
         },
         selectGraphMap: function(map, update) {
-            if (!ns.core.support.prototype.object.getLength(map)) {
+            //if (!ns.core.support.prototype.object.getLength(map)) {
+            if (!Object.keys(map).length) {
                 return;
             }
 

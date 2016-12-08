@@ -5,6 +5,8 @@ import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
 var DataElementIntegerContainer = function(refs) {
+    var appManager = refs.appManager;
+
     Ext.define('Ext.ux.panel.DataElementIntegerContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementintegerpanel',
@@ -251,7 +253,7 @@ var DataElementIntegerContainer = function(refs) {
                     container.rangeSearchCmp.show();
                     container.rangeValueCmp.show();
 
-                    ranges = Ext.clone(ns.core.init.idLegendSetMap[id].legends);
+                    ranges = Ext.clone(appManager.getLegendSetById(id).legends);
 
                     // display name
                     for (var i = 0; i < ranges.length; i++) {
@@ -303,7 +305,7 @@ var DataElementIntegerContainer = function(refs) {
 
                         if (de.legendSet || de.storageLegendSet) {
                             var id = de.legendSet ? de.legendSet.id : (de.storageLegendSet ? de.storageLegendSet.id : null),
-                                legendSet = ns.core.init.idLegendSetMap[id];
+                                legendSet = appManager.getLegendSetById(id);
 
                             if (isObject(legendSet)) {
                                 cb.store.add(legendSet);
