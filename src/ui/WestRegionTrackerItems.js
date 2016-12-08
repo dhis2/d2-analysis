@@ -775,7 +775,7 @@ WestRegionTrackerItems = function(c) {
             var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
-                return 'Ext.ux.panel.OrganisationUnitGroupSetContainer';
+                return 'Ext.ux.panel.GroupSetContainer';
             }
 
             if (arrayContains(valueTypes['numericTypes'], element.valueType)) {
