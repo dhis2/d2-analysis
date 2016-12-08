@@ -1,6 +1,8 @@
 import arrayMin from 'd2-utilizr/lib/arrayMin';
 
-var StatusBar = function(refs) {
+export var StatusBar;
+
+StatusBar = function(refs) {
     var dimensionConfig = refs.dimensionConfig;
 
     var aggregated_values = dimensionConfig.dataType['aggregated_values'],
@@ -166,5 +168,3 @@ var StatusBar = function(refs) {
         }
     });
 };
-
-export default StatusBar;

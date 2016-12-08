@@ -1,13 +1,17 @@
 import isString from 'd2-utilizr/lib/isString';
 
-var DataElementDateContainer = function(refs) {
+import containerConfig from './containerConfig';
+
+export var DataElementDateContainer;
+
+DataElementDateContainer = function(refs) {
     Ext.define('Ext.ux.panel.DataElementDateContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementdatepanel',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin: ' + margin,
+        style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var record = {};
 
@@ -34,7 +38,7 @@ var DataElementDateContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + namePadding
+                style: 'padding:' + containerConfig.namePadding
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -49,7 +53,7 @@ var DataElementDateContainer = function(refs) {
 
             this.removeCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-linkbutton',
-                style: removeCmpStyle,
+                style: containerConfig.removeCmpStyle,
                 height: 18,
                 text: 'Remove',
                 handler: function() {
@@ -62,7 +66,7 @@ var DataElementDateContainer = function(refs) {
                 displayField: 'name',
                 queryMode: 'local',
                 editable: false,
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0',
                 value: 'EQ',
                 store: {
@@ -79,7 +83,7 @@ var DataElementDateContainer = function(refs) {
             });
 
             this.valueCmp = Ext.create('Ext.form.field.Date', {
-                width: nameCmpWidth - operatorCmpWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0',
                 format: 'Y-m-d'
             });
@@ -88,7 +92,7 @@ var DataElementDateContainer = function(refs) {
                 {
                     xtype: 'container',
                     layout: 'hbox',
-                    width: nameCmpWidth,
+                    width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
                         this.addCmp,
@@ -103,5 +107,3 @@ var DataElementDateContainer = function(refs) {
         }
     });
 };
-
-export default DataElementDateContainer;

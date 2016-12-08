@@ -2,6 +2,7 @@ import clone from 'd2-utilizr/lib/clone';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import isArray from 'd2-utilizr/lib/isArray';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
@@ -46,6 +47,11 @@ WestRegionTrackerItems = function(c) {
         dimensionIdAvailableStoreMap = {},
         dimensionIdSelectedStoreMap = {},
         accordionPanels = [],
+
+        stageStorage = {},
+        attributeStorage = {},
+        programIndicatorStorage = {},
+        dataElementStorage = {},
 
         baseWidth = 446,
         accBaseWidth = baseWidth - 2,
@@ -570,7 +576,7 @@ WestRegionTrackerItems = function(c) {
         height: 22,
         cls: 'ns-button-icon',
         disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
+        style: 'background: url(./src/images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             dataElementLabel.hide();
             this.hide();
@@ -652,7 +658,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowdown.png',
+                icon: './src/images/arrowdown.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -663,7 +669,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowdowndouble.png',
+                icon: './src/images/arrowdowndouble.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -699,7 +705,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowupdouble.png',
+                icon: './src/images/arrowupdouble.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -1448,7 +1454,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                icon: './src/images/arrowright.png',
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1457,7 +1463,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                icon: './src/images/arrowrightdouble.png',
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
@@ -1488,7 +1494,7 @@ WestRegionTrackerItems = function(c) {
             ' ',
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                icon: './src/images/arrowleftdouble.png',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1497,7 +1503,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                icon: './src/images/arrowleft.png',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1986,7 +1992,7 @@ WestRegionTrackerItems = function(c) {
                     v.menu.add({
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
-                        icon: 'images/node-select-child.png',
+                        icon: './src/images/node-select-child.png',
                         handler: function() {
                             r.expand(false, function() {
                                 v.getSelectionModel().select(r.childNodes, true);
@@ -2338,7 +2344,7 @@ WestRegionTrackerItems = function(c) {
                 '->',
                 {
                     xtype: 'button',
-                    icon: 'images/arrowright.png',
+                    icon: './src/images/arrowright.png',
                     width: 22,
                     handler: function() {
                         uiManager.msSelect(available, selected);
@@ -2346,7 +2352,7 @@ WestRegionTrackerItems = function(c) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowrightdouble.png',
+                    icon: './src/images/arrowrightdouble.png',
                     width: 22,
                     handler: function() {
                         uiManager.msSelectAll(available, selected);
@@ -2380,7 +2386,7 @@ WestRegionTrackerItems = function(c) {
             tbar: [
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleftdouble.png',
+                    icon: './src/images/arrowleftdouble.png',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselectAll(available, selected);
@@ -2388,7 +2394,7 @@ WestRegionTrackerItems = function(c) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleft.png',
+                    icon: './src/images/arrowleft.png',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselect(available, selected);

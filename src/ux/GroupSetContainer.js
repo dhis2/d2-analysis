@@ -4,6 +4,8 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
+import containerConfig from './containerConfig';
+
 var GroupSetContainer = function(refs) {
     Ext.define('Ext.ux.panel.OrganisationUnitGroupSetContainer', {
         extend: 'Ext.container.Container',
@@ -11,7 +13,7 @@ var GroupSetContainer = function(refs) {
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin: ' + margin,
+        style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var items = this.valueCmp.getValue(),
                 record = {
@@ -59,7 +61,7 @@ var GroupSetContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + namePadding
+                style: 'padding:' + containerConfig.namePadding
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -74,7 +76,7 @@ var GroupSetContainer = function(refs) {
 
             this.removeCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-linkbutton',
-                style: removeCmpStyle,
+                style: containerConfig.removeCmpStyle,
                 height: 18,
                 text: 'Remove',
                 handler: function() {
@@ -88,7 +90,7 @@ var GroupSetContainer = function(refs) {
                 queryMode: 'local',
                 editable: false,
                 style: 'margin-bottom:0',
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 value: 'IN',
                 store: {
                     fields: ['id', 'name'],
@@ -159,7 +161,7 @@ var GroupSetContainer = function(refs) {
 
             this.searchCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
-                width: operatorCmpWidth - triggerCmpWidth,
+                width: containerConfig.operatorCmpWidth - containerConfig.triggerCmpWidth,
                 style: 'margin-bottom:0',
                 emptyText: 'Search..',
                 valueField: idProperty,
@@ -168,7 +170,7 @@ var GroupSetContainer = function(refs) {
                 enableKeyEvents: true,
                 queryMode: 'local',
                 listConfig: {
-                    minWidth: nameCmpWidth - operatorCmpWidth
+                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth
                 },
                 store: this.searchStore,
                 listeners: {
@@ -210,7 +212,7 @@ var GroupSetContainer = function(refs) {
             this.triggerCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-button-combotrigger',
                 disabledCls: 'ns-button-combotrigger-disabled',
-                width: triggerCmpWidth,
+                width: containerConfig.triggerCmpWidth,
                 height: 22,
                 handler: function(b) {
                     container.searchStore.loadOptionSet();
@@ -232,7 +234,7 @@ var GroupSetContainer = function(refs) {
             this.valueCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
                 style: 'margin-bottom:0',
-                width: nameCmpWidth - operatorCmpWidth - operatorCmpWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.operatorCmpWidth,
                 valueField: idProperty,
                 displayField: nameProperty,
                 emptyText: 'No selected items',
@@ -276,7 +278,7 @@ var GroupSetContainer = function(refs) {
                 {
                     xtype: 'container',
                     layout: 'hbox',
-                    width: nameCmpWidth,
+                    width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
                         this.addCmp,

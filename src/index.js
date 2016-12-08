@@ -57,6 +57,13 @@ import { Plugin } from './util/Plugin.js';
 import { extOverrides } from './override/extOverrides.js';
 import { extChartOverrides } from './override/extChartOverrides.js';
 
+import { DataElementBooleanContainer } from './ux/DataElementBooleanContainer.js';
+import { DataElementDateContainer } from './ux/DataElementDateContainer.js';
+import { DataElementIntegerContainer } from './ux/DataElementIntegerContainer.js';
+import { DataElementStringContainer } from './ux/DataElementStringContainer.js';
+import { LimitContainer } from './ux/LimitContainer.js';
+import { StatusBar } from './ux/StatusBar.js';
+
 export {
     Record,
     Dimension,
@@ -116,6 +123,13 @@ export {
 
     extOverrides,
     extChartOverrides,
+
+    DataElementBooleanContainer,
+    DataElementDateContainer,
+    DataElementIntegerContainer,
+    DataElementStringContainer,
+    LimitContainer,
+    StatusBar,
 };
 
 export const api = {
@@ -191,4 +205,13 @@ export const util = {
 export const override = {
     extOverrides,
     extChartOverrides,
+};
+
+export const ux = {
+    DataElementBooleanContainer,
+    DataElementDateContainer,
+    DataElementIntegerContainer,
+    DataElementStringContainer,
+    LimitContainer,
+    StatusBar,
 };

@@ -4,7 +4,11 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
-var DataElementIntegerContainer = function(refs) {
+import containerConfig from './containerConfig';
+
+export var DataElementIntegerContainer;
+
+DataElementIntegerContainer = function(refs) {
     var appManager = refs.appManager;
 
     Ext.define('Ext.ux.panel.DataElementIntegerContainer', {
@@ -13,10 +17,10 @@ var DataElementIntegerContainer = function(refs) {
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin: ' + margin,
+        style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var record = {},
-                isRange = this.rangeSetCmp.getValue() !== defaultRangeSetId;
+                isRange = this.rangeSetCmp.getValue() !== containerConfig.defaultRangeSetId;
 
             record.dimension = this.dataElement.id;
             record.name = this.dataElement.name;
@@ -52,9 +56,9 @@ var DataElementIntegerContainer = function(refs) {
                 }
             }
             else if (record.filter) {
-                //this.rangeSetCmp.pendingValue = defaultRangeSetId;
-                this.rangeSetCmp.setValue(defaultRangeSetId); //todo?
-                this.onRangeSetSelect(defaultRangeSetId);
+                //this.rangeSetCmp.pendingValue = containerConfig.defaultRangeSetId;
+                this.rangeSetCmp.setValue(containerConfig.defaultRangeSetId); //todo?
+                this.onRangeSetSelect(containerConfig.defaultRangeSetId);
 
                 var a = record.filter.split(':');
 
@@ -73,7 +77,7 @@ var DataElementIntegerContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + namePadding
+                style: 'padding:' + containerConfig.namePadding
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -88,7 +92,7 @@ var DataElementIntegerContainer = function(refs) {
 
             this.removeCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-linkbutton',
-                style: removeCmpStyle,
+                style: containerConfig.removeCmpStyle,
                 height: 18,
                 text: NS.i18n.remove,
                 handler: function() {
@@ -101,7 +105,7 @@ var DataElementIntegerContainer = function(refs) {
                 displayField: nameProperty,
                 queryMode: 'local',
                 editable: false,
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0',
                 value: 'EQ',
                 store: {
@@ -118,7 +122,7 @@ var DataElementIntegerContainer = function(refs) {
             });
 
             this.valueCmp = Ext.create('Ext.form.field.Number', {
-                width: nameCmpWidth - operatorCmpWidth - rangeSetWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.rangeSetWidth,
                 style: 'margin-bottom:0'
             });
 
@@ -166,7 +170,7 @@ var DataElementIntegerContainer = function(refs) {
 
             this.rangeSearchCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom: 0',
                 emptyText: NS.i18n.select + '..',
                 valueField: idProperty,
@@ -176,7 +180,7 @@ var DataElementIntegerContainer = function(refs) {
                 hidden: true,
                 store: this.rangeSearchStore,
                 listConfig: {
-                    minWidth: operatorCmpWidth + (nameCmpWidth - operatorCmpWidth - rangeSetWidth)
+                    minWidth: containerConfig.operatorCmpWidth + (containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.rangeSetWidth)
                 },
                 listeners: {
                     select: function() {
@@ -203,7 +207,7 @@ var DataElementIntegerContainer = function(refs) {
             this.rangeValueCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
                 style: 'margin-bottom: 0',
-                width: nameCmpWidth - operatorCmpWidth - rangeSetWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.rangeSetWidth,
                 valueField: idProperty,
                 displayField: nameProperty,
                 emptyText: 'No selected items',
@@ -213,7 +217,7 @@ var DataElementIntegerContainer = function(refs) {
                 hidden: true,
                 store: container.rangeValueStore,
                 listConfig: {
-                    minWidth: valueCmpWidth,
+                    minWidth: containerConfig.valueCmpWidth,
                     cls: 'ns-optionselector'
                 },
                 setOptionValues: function(records) {
@@ -239,7 +243,7 @@ var DataElementIntegerContainer = function(refs) {
 
             // function
             this.onRangeSetSelect = function(id) {
-                if (!id || id === defaultRangeSetId) {
+                if (!id || id === containerConfig.defaultRangeSetId) {
                     container.operatorCmp.show();
                     container.valueCmp.show();
                     container.rangeSearchCmp.hide();
@@ -269,7 +273,7 @@ var DataElementIntegerContainer = function(refs) {
             this.rangeSetCmp = Ext.create('Ext.form.field.ComboBox', {
                 cls: 'ns-combo h22',
                 style: 'margin-bottom: 0',
-                width: rangeSetWidth,
+                width: containerConfig.rangeSetWidth,
                 height: 22,
                 fieldStyle: 'height: 22px',
                 queryMode: 'local',
@@ -287,7 +291,7 @@ var DataElementIntegerContainer = function(refs) {
                     }
 
                     if (!this.getValue()) {
-                        this.pendingValue = defaultRangeSetId;
+                        this.pendingValue = containerConfig.defaultRangeSetId;
                         this.setPendingValue();
                     }
                 },
@@ -297,7 +301,7 @@ var DataElementIntegerContainer = function(refs) {
                 listeners: {
                     added: function(cb) {
                         cb.store.add({
-                            id: defaultRangeSetId,
+                            id: containerConfig.defaultRangeSetId,
                             name: 'No range set'
                         });
 
@@ -328,7 +332,7 @@ var DataElementIntegerContainer = function(refs) {
                 {
                     xtype: 'container',
                     layout: 'hbox',
-                    width: nameCmpWidth,
+                    width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
                         this.addCmp,
@@ -346,5 +350,3 @@ var DataElementIntegerContainer = function(refs) {
         }
     });
 };
-
-export default DataElementIntegerContainer;

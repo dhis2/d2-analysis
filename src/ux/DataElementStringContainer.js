@@ -1,11 +1,15 @@
-var DataElementIntegerContainer = function(refs) {
+import containerConfig from './containerConfig';
+
+export var DataElementStringContainer;
+
+DataElementStringContainer = function(refs) {
     Ext.define('Ext.ux.panel.DataElementStringContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementstringpanel',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin: ' + margin,
+        style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var record = {};
 
@@ -28,7 +32,7 @@ var DataElementIntegerContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + namePadding
+                style: 'padding:' + containerConfig.namePadding
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -43,7 +47,7 @@ var DataElementIntegerContainer = function(refs) {
 
             this.removeCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-linkbutton',
-                style: removeCmpStyle,
+                style: containerConfig.removeCmpStyle,
                 height: 18,
                 text: 'Remove',
                 handler: function() {
@@ -57,7 +61,7 @@ var DataElementIntegerContainer = function(refs) {
                 displayField: 'name',
                 queryMode: 'local',
                 editable: false,
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0',
                 value: 'LIKE',
                 store: {
@@ -70,7 +74,7 @@ var DataElementIntegerContainer = function(refs) {
             });
 
             this.valueCmp = Ext.create('Ext.form.field.Text', {
-                width: nameCmpWidth - operatorCmpWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0'
             });
 
@@ -78,7 +82,7 @@ var DataElementIntegerContainer = function(refs) {
                 {
                     xtype: 'container',
                     layout: 'hbox',
-                    width: nameCmpWidth,
+                    width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
                         this.addCmp,
@@ -93,5 +97,3 @@ var DataElementIntegerContainer = function(refs) {
         }
     });
 };
-
-export default DataElementStringContainer;

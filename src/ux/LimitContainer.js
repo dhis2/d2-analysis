@@ -1,12 +1,18 @@
 import isNumber from 'd2-utilizr/lib/isNumber';
 
-var LimitPanel = function(refs) {
+export var LimitContainer;
+
+LimitContainer = function(refs) {
     var i18n = refs.i18nManager.get();
 
-    Ext.define('Ext.ux.container.LimitPanel', {
+    Ext.define('Ext.ux.container.LimitContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.LimitPanel',
+        alias: 'widget.limitcontainer',
         layout: 'hbox',
+        sortOrder: null,
+        topLimit: null,
+        comboboxWidth: null,
+        comboBottomMargin: null,
         onCheckboxChange: function(value) {
             this.sortOrderCmp.setDisabled(!value);
             this.topLimitCmp.setDisabled(!value);
@@ -85,7 +91,7 @@ var LimitPanel = function(refs) {
                 this.topLimitCmp
             ];
 
-            this.callParent();
+            //this.callParent();
         },
         listeners: {
             render: function() {
@@ -94,5 +100,3 @@ var LimitPanel = function(refs) {
         }
     });
 };
-
-export default LimitPanel;

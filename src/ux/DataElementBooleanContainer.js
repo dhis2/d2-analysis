@@ -4,14 +4,18 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
-var DataElementBooleanContainer = function(refs) {
+import containerConfig from './containerConfig';
+
+export var DataElementBooleanContainer;
+
+DataElementBooleanContainer = function(refs) {
     Ext.define('Ext.ux.panel.DataElementBooleanContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementbooleanpanel',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin: ' + margin,
+        style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var items = this.valueCmp.getValue(),
                 record = {
@@ -59,7 +63,7 @@ var DataElementBooleanContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + namePadding
+                style: 'padding:' + containerConfig.namePadding
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -74,7 +78,7 @@ var DataElementBooleanContainer = function(refs) {
 
             this.removeCmp = Ext.create('Ext.button.Button', {
                 cls: 'ns-linkbutton',
-                style: removeCmpStyle,
+                style: containerConfig.removeCmpStyle,
                 height: 18,
                 text: 'Remove',
                 handler: function() {
@@ -88,7 +92,7 @@ var DataElementBooleanContainer = function(refs) {
                 queryMode: 'local',
                 editable: false,
                 style: 'margin-bottom:0',
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 value: 'IN',
                 store: {
                     fields: ['id', 'name'],
@@ -143,14 +147,14 @@ var DataElementBooleanContainer = function(refs) {
 
             this.searchCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
-                width: operatorCmpWidth,
+                width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom:0',
                 emptyText: 'Select..',
                 valueField: idProperty,
                 displayField: nameProperty,
                 queryMode: 'local',
                 listConfig: {
-                    minWidth: nameCmpWidth - operatorCmpWidth
+                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth
                 },
                 store: this.searchStore,
                 listeners: {
@@ -189,7 +193,7 @@ var DataElementBooleanContainer = function(refs) {
             this.valueCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
                 style: 'margin-bottom:0',
-                width: nameCmpWidth - operatorCmpWidth - operatorCmpWidth,
+                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.operatorCmpWidth,
                 valueField: idProperty,
                 displayField: nameProperty,
                 emptyText: 'No selected items',
@@ -226,7 +230,7 @@ var DataElementBooleanContainer = function(refs) {
                 {
                     xtype: 'container',
                     layout: 'hbox',
-                    width: nameCmpWidth,
+                    width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
                         this.addCmp,
@@ -242,5 +246,3 @@ var DataElementBooleanContainer = function(refs) {
         }
     });
 };
-
-export default DataElementBooleanContainer;
