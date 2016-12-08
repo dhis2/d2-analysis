@@ -61,6 +61,7 @@ import { DataElementBooleanContainer } from './ux/DataElementBooleanContainer.js
 import { DataElementDateContainer } from './ux/DataElementDateContainer.js';
 import { DataElementIntegerContainer } from './ux/DataElementIntegerContainer.js';
 import { DataElementStringContainer } from './ux/DataElementStringContainer.js';
+import { GroupSetContainer } from './ux/GroupSetContainer.js';
 import { LimitContainer } from './ux/LimitContainer.js';
 import { StatusBar } from './ux/StatusBar.js';
 
@@ -128,6 +129,7 @@ export {
     DataElementDateContainer,
     DataElementIntegerContainer,
     DataElementStringContainer,
+    GroupSetContainer,
     LimitContainer,
     StatusBar,
 };
@@ -212,6 +214,7 @@ export const ux = {
     DataElementDateContainer,
     DataElementIntegerContainer,
     DataElementStringContainer,
+    GroupSetContainer,
     LimitContainer,
     StatusBar,
 };

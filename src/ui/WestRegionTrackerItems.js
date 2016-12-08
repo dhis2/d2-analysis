@@ -105,12 +105,10 @@ WestRegionTrackerItems = function(c) {
             direction: 'ASC'
         }],
         onLoadData: function() {
-
-            // layout window
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
 
             this.each(function(record) {
-                if (arrayContains(dimensionConfig.valueType['numericTypes'], record.data.valueType)) {
+                if (arrayContains(dimensionConfig.valueType['numeric_types'], record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
@@ -373,6 +371,7 @@ WestRegionTrackerItems = function(c) {
         };
 
         load = function(stages, categories) {
+            var stageId;
 
             // categories
             if (categories) {
@@ -781,23 +780,23 @@ WestRegionTrackerItems = function(c) {
             var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
-                return 'Ext.ux.panel.GroupSetContainer';
+                return 'Ext.ux.container.GroupSetContainer';
             }
 
-            if (arrayContains(valueTypes['numericTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementIntegerContainer';
+            if (arrayContains(valueTypes['numeric_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementIntegerContainer';
             }
 
-            if (arrayContains(valueTypes['textTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementStringContainer';
+            if (arrayContains(valueTypes['text_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementStringContainer';
             }
 
-            if (arrayContains(valueTypes['dateTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementDateContainer';
+            if (arrayContains(valueTypes['date_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementDateContainer';
             }
 
-            if (arrayContains(valueTypes['booleanTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementBooleanContainer';
+            if (arrayContains(valueTypes['boolean_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementBooleanContainer';
             }
 
             return 'Ext.ux.panel.DataElementIntegerContainer';
@@ -872,7 +871,7 @@ WestRegionTrackerItems = function(c) {
             element = dataElements[i];
             allElements.push(element);
 
-            if (arrayContains(dimensionConfig.valueType['numericTypes'], element.valueType) && element.filter) {
+            if (arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) && element.filter) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
 
@@ -908,7 +907,7 @@ WestRegionTrackerItems = function(c) {
 
             store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
 
-            aggWindow.addDimension(element, store, valueStore);
+            aggWindow.addDimension(element, store, aggWindow.valueStore);
             queryWindow.colStore.add(element);
         }
 

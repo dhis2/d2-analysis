@@ -3,9 +3,9 @@ import containerConfig from './containerConfig';
 export var DataElementStringContainer;
 
 DataElementStringContainer = function(refs) {
-    Ext.define('Ext.ux.panel.DataElementStringContainer', {
+    Ext.define('Ext.ux.container.DataElementStringContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.dataelementstringpanel',
+        alias: 'widget.dataelementstringcontainer',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',

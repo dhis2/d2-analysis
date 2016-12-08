@@ -9,9 +9,9 @@ import containerConfig from './containerConfig';
 export var DataElementBooleanContainer;
 
 DataElementBooleanContainer = function(refs) {
-    Ext.define('Ext.ux.panel.DataElementBooleanContainer', {
+    Ext.define('Ext.ux.container.DataElementBooleanContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.dataelementbooleanpanel',
+        alias: 'widget.dataelementbooleancontainer',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',

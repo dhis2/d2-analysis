@@ -11,9 +11,9 @@ export var DataElementIntegerContainer;
 DataElementIntegerContainer = function(refs) {
     var appManager = refs.appManager;
 
-    Ext.define('Ext.ux.panel.DataElementIntegerContainer', {
+    Ext.define('Ext.ux.container.DataElementIntegerContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.dataelementintegerpanel',
+        alias: 'widget.dataelementintegercontainer',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',

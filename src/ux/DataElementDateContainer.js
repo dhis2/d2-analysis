@@ -5,9 +5,9 @@ import containerConfig from './containerConfig';
 export var DataElementDateContainer;
 
 DataElementDateContainer = function(refs) {
-    Ext.define('Ext.ux.panel.DataElementDateContainer', {
+    Ext.define('Ext.ux.container.DataElementDateContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.dataelementdatepanel',
+        alias: 'widget.dataelementdatecontainer',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',

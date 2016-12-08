@@ -6,10 +6,12 @@ import isString from 'd2-utilizr/lib/isString';
 
 import containerConfig from './containerConfig';
 
-var GroupSetContainer = function(refs) {
-    Ext.define('Ext.ux.panel.OrganisationUnitGroupSetContainer', {
+export var GroupSetContainer;
+
+GroupSetContainer = function(refs) {
+    Ext.define('Ext.ux.container.GroupSetContainer', {
         extend: 'Ext.container.Container',
-        alias: 'widget.organisationunitgroupsetpanel',
+        alias: 'widget.groupsetcontainer',
         cls: 'ns-dxselector',
         layout: 'column',
         bodyStyle: 'border:0 none',
@@ -291,9 +293,7 @@ var GroupSetContainer = function(refs) {
                 this.valueCmp
             ];
 
-            this.callParent();
+            //this.callParent();
         }
     });
 };
-
-export default GroupSetContainer;
