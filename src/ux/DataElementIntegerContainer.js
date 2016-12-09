@@ -11,6 +11,8 @@ export var DataElementIntegerContainer;
 DataElementIntegerContainer = function(refs) {
     var appManager = refs.appManager;
 
+    var i18n = refs.i18nManager.get();
+
     Ext.define('Ext.ux.container.DataElementIntegerContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementintegercontainer',
@@ -84,7 +86,7 @@ DataElementIntegerContainer = function(refs) {
                 cls: 'ns-linkbutton',
                 style: 'padding: 0',
                 height: 18,
-                text: NS.i18n.duplicate,
+                text: i18n.duplicate,
                 handler: function() {
                     container.duplicateDataElement();
                 }
@@ -94,7 +96,7 @@ DataElementIntegerContainer = function(refs) {
                 cls: 'ns-linkbutton',
                 style: containerConfig.removeCmpStyle,
                 height: 18,
-                text: NS.i18n.remove,
+                text: i18n.remove,
                 handler: function() {
                     container.removeDataElement();
                 }
@@ -172,7 +174,7 @@ DataElementIntegerContainer = function(refs) {
                 multiSelect: true,
                 width: containerConfig.operatorCmpWidth,
                 style: 'margin-bottom: 0',
-                emptyText: NS.i18n.select + '..',
+                emptyText: i18n.select + '..',
                 valueField: idProperty,
                 displayField: displayProperty,
                 editable: false,
@@ -346,7 +348,7 @@ DataElementIntegerContainer = function(refs) {
                 this.rangeSetCmp
             ];
 
-            this.callParent();
+            //this.callParent();
         }
     });
 };

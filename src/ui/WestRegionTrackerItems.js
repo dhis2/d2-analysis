@@ -53,6 +53,8 @@ WestRegionTrackerItems = function(c) {
         programIndicatorStorage = {},
         dataElementStorage = {},
 
+        checkboxes = [],
+
         baseWidth = 446,
         accBaseWidth = baseWidth - 2,
         toolWidth = 36,
@@ -799,7 +801,7 @@ WestRegionTrackerItems = function(c) {
                 return 'Ext.ux.container.DataElementBooleanContainer';
             }
 
-            return 'Ext.ux.panel.DataElementIntegerContainer';
+            return 'Ext.ux.container.DataElementIntegerContainer';
         };
 
         // add

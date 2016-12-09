@@ -9,6 +9,8 @@ import containerConfig from './containerConfig';
 export var DataElementBooleanContainer;
 
 DataElementBooleanContainer = function(refs) {
+    var i18n = refs.i18nManager.get();
+
     Ext.define('Ext.ux.container.DataElementBooleanContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementbooleancontainer',
@@ -106,9 +108,9 @@ DataElementBooleanContainer = function(refs) {
                 var data = [], yes = {}, no = {};
 
                 yes[idProperty] = '1';
-                yes[nameProperty] = NS.i18n.yes;
+                yes[nameProperty] = i18n.yes;
                 no[idProperty] = '0';
-                no[nameProperty] = NS.i18n.no;
+                no[nameProperty] = i18n.no;
 
                 for (var i = 0; i < idArray.length; i++) {
                     if (idArray[i] === '1' || idArray[i] === 1) {
@@ -242,7 +244,7 @@ DataElementBooleanContainer = function(refs) {
                 this.valueCmp
             ];
 
-            this.callParent();
+            //this.callParent();
         }
     });
 };

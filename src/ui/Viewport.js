@@ -66,6 +66,8 @@ Viewport = function(refs, cmp) {
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
 
+    var dataTypeToolbar = cmp.dataTypeToolbar;
+
     var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
     var embedButton = uiManager.reg(EmbedButton(refs), 'embedButton', 'onCurrent');
 
@@ -127,7 +129,7 @@ Viewport = function(refs, cmp) {
         collapseMode: 'mini',
         border: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: arrayClean([chartTypeToolbar, westRegionItems]),
+        items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
         setState: function(layout) {
             setUiState(layout);
         }
@@ -526,6 +528,35 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(centerRegion, 'centerRegion');
+
+//todo //wip
+    var getLayoutWindow = function(dataType) {
+        dataType = dataType || typeToolbar.getType();
+
+        if (dataType === finalsDataTypeConf.aggregated_values) {
+            return ns.app.aggregateLayoutWindow;
+        }
+
+        if (dataType === finalsDataTypeConf.individual_cases) {
+            return ns.app.queryLayoutWindow;
+        }
+
+        return null;
+    };
+
+    var getOptionsWindow = function(dataType) {
+        dataType = dataType || typeToolbar.getType();
+
+        if (dataType === finalsDataTypeConf.aggregated_values) {
+            return ns.app.aggregateOptionsWindow;
+        }
+
+        if (dataType === finalsDataTypeConf.individual_cases) {
+            return ns.app.queryOptionsWindow;
+        }
+
+        return null;
+    };
 
     var setUiState = function(layout) {
         var layoutWindow = uiManager.get('layoutWindow'),

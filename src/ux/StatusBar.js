@@ -164,7 +164,7 @@ StatusBar = function(refs) {
                 this.statusCmp
             ];
 
-            this.callParent();
+            //this.callParent();
         }
     });
 };
