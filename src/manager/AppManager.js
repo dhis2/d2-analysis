@@ -99,6 +99,7 @@ AppManager = function(refs) {
     t.dimensions = [];
     t.legendSets = [];
     t.dataApprovalLevels = [];
+    t.userFavorites = [];
 
     // transient
     t.path;
