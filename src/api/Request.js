@@ -16,7 +16,7 @@ Request = function(config) {
 
     // constructor
     t.method = isString(config.method) ? config.method : 'GET';
-    t.headers = isObject(config.headers) ? config.headers : null;
+    t.headers = isObject(config.headers) ? config.headers : t.klass.appManager.defaultRequestHeaders;
     t.dataType = isString(config.dataType) ? config.dataType : null;
     t.contentType = isString(config.contentType) ? config.contentType : null;
     t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
