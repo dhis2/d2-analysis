@@ -17,10 +17,12 @@ import {PluginItem} from './PluginItem.js';
 import {FavoriteButton} from './FavoriteButton.js';
 import {EmbedButton} from './EmbedButton.js';
 import {EastRegion} from './EastRegion.js';
+import {LayoutButton} from './LayoutButton.js';
+import {OptionsButton} from './OptionsButton.js';
 
 export var Viewport;
 
-Viewport = function(refs, cmp) {
+Viewport = function(refs, cmp, config) {
     var uiManager = refs.uiManager,
         appManager = refs.appManager,
         i18nManager = refs.i18nManager,
@@ -69,6 +71,11 @@ Viewport = function(refs, cmp) {
     var dataTypeToolbar = cmp.dataTypeToolbar;
 
     var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
+
+    var layoutButton = uiManager.reg(LayoutButton(refs), 'layoutButton');
+
+    var optionsButton = uiManager.reg(OptionsButton(refs), 'optionsButton');
+
     var embedButton = uiManager.reg(EmbedButton(refs), 'embedButton', 'onCurrent');
 
     var integrationButtons = cmp.integrationButtons;
@@ -128,8 +135,14 @@ Viewport = function(refs, cmp) {
         collapsible: true,
         collapseMode: 'mini',
         border: false,
+        hasScrollbar: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
+        onScrollbar: function() {
+            this.hasScrollbar = true;
+
+            dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
+        },
         setState: function(layout) {
             setUiState(layout);
         }
@@ -177,26 +190,6 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(updateButton, 'updateButton');
-
-    var layoutButton = Ext.create('Ext.button.Button', {
-        text: 'Layout',
-        menu: {},
-        handler: function() {
-            var name = 'layoutWindow';
-            (uiManager.get(name) || uiManager.reg(LayoutWindow(c), name)).show();
-        }
-    });
-    uiManager.reg(layoutButton, 'layoutButton');
-
-    var optionsButton = Ext.create('Ext.button.Button', {
-        text: i18n.options,
-        menu: {},
-        handler: function() {
-            var name = 'optionsWindow';
-            (uiManager.get(name) || uiManager.reg(OptionsWindow(c), name)).show();
-        }
-    });
-    uiManager.reg(optionsButton, 'optionsButton');
 
     var downloadButton = Ext.create('Ext.button.Button', {
         text: i18n.download,
@@ -529,21 +522,6 @@ Viewport = function(refs, cmp) {
     });
     uiManager.reg(centerRegion, 'centerRegion');
 
-//todo //wip
-    var getLayoutWindow = function(dataType) {
-        dataType = dataType || typeToolbar.getType();
-
-        if (dataType === finalsDataTypeConf.aggregated_values) {
-            return ns.app.aggregateLayoutWindow;
-        }
-
-        if (dataType === finalsDataTypeConf.individual_cases) {
-            return ns.app.queryLayoutWindow;
-        }
-
-        return null;
-    };
-
     var getOptionsWindow = function(dataType) {
         dataType = dataType || typeToolbar.getType();
 
@@ -686,6 +664,9 @@ Viewport = function(refs, cmp) {
         centerRegion: centerRegion,
         northRegion: northRegion,
         items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
+        getLayoutWindow: null,
+        getOptionsWindow: null,
+        ...config,
         listeners: {
             afterrender: function() {
 
@@ -733,7 +714,7 @@ Viewport = function(refs, cmp) {
                     }
                 }
                 else {
-                    westRegion.hasScrollbar = true;
+                    westRegion.onScrollBar();
                 }
 
                 // north
