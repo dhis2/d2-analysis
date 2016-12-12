@@ -50,6 +50,7 @@ import { organisationUnitLevelsInit } from './init/organisationUnitLevelsInit.js
 import { legendSetsInit } from './init/legendSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
+import { userFavoritesInit } from './init/userFavoritesInit.js';
 
 import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
@@ -181,6 +182,7 @@ export const init = {
     legendSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+    userFavoritesInit
 };
 
 export const util = {
