@@ -33,9 +33,9 @@ UiManager = function(refs) {
 
     var introHtml = '';
 
-    var updateFn = function(content, elementId) {
-        content = content || t.getIntroHtml();
+    var introFn = Function.prototype;
 
+    var updateFn = function(content, elementId) {
         var el = document.getElementById(elementId);
 
         if (elementId && el) {
@@ -43,7 +43,11 @@ UiManager = function(refs) {
             return;
         }
 
-        t.getUpdateComponent() && t.getUpdateComponent().update(content);
+        t.getUpdateComponent() && t.getUpdateComponent().update(content || t.getIntroHtml());
+
+        if (!content) {
+            introFn();
+        }
     };
 
     var updateInterpretationFn = function(interpretation, layout) {
@@ -205,6 +209,14 @@ UiManager = function(refs) {
 
     t.setIntroHtml = function(html) {
         introHtml = html;
+    };
+
+    t.setIntroFn = function(fn) {
+        introFn = fn;
+    };
+
+    t.callIntroFn = function() {
+        introFn();
     };
 
     // browser
