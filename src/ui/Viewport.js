@@ -369,6 +369,11 @@ Viewport = function(refs, cmp) {
                             iconCls: 'ns-menu-item-advanced',
                             menu: [
                                 {
+                                    xtype: 'label',
+                                    text: i18n.data_value_set,
+                                    style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
+                                },
+                                {
                                     text: i18n.data_value_set + ' JSON',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
@@ -381,6 +386,11 @@ Viewport = function(refs, cmp) {
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetXmlReq, null, true);
                                     }
+                                },
+                                {
+                                    xtype: 'label',
+                                    text: i18n.other_formats,
+                                    style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
                                 },
                                 {
                                     text: 'JRXML',
