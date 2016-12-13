@@ -773,11 +773,13 @@ WestRegionTrackerItems = function(c) {
     });
 
     var addUxFromDataElement = function(element, index) {
-        var getUxType,
+        var aggWindow = uiManager.get('aggregateLayoutWindow'),
+            queryWindow = uiManager.get('queryLayoutWindow'),
+            getUxType,
             ux;
 
         index = index || dataElementSelected.items.items.length;
-
+console.log("element, index", element, index);
         getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
 
@@ -821,8 +823,8 @@ WestRegionTrackerItems = function(c) {
                     dataElementsByStageStore.sort();
                 }
 
-                uiManager.get('aggregateLayoutWindow').removeDimension(element.id, uiManager.get('aggregateLayoutWindow').valueStore);
-                uiManager.get('queryLayoutWindow').removeDimension(element.id);
+                aggWindow.removeDimension(element.id, aggWindow.valueStore);
+                queryWindow.removeDimension(element.id);
             }
         };
 
