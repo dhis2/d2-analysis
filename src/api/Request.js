@@ -29,6 +29,7 @@ Request = function(config) {
     t.manager = config.manager || null;
 
     t.beforeRun = isFunction(config.beforeRun) ? config.beforeRun : null;
+    t.afterRun = isFunction(config.afterRun) ? config.afterRun : null;
 
     // defaults
     t.defaultSuccess = function() {
@@ -158,6 +159,14 @@ Request.prototype.run = function(config) {
         error = config.error || t.error,
         complete = config.complete || t.complete;
 
+    var completeFn = function() {
+        if (isFunction(t.afterRun)) {
+            t.afterRun();
+        }
+
+        complete();
+    };
+
     if (t.beforeRun && t.beforeRun() === false) {
         return;
     }
@@ -180,7 +189,7 @@ Request.prototype.run = function(config) {
         contentType && (xhr.contentType = contentType);
         xhr.success = success;
         xhr.error = error;
-        xhr.complete = complete;
+        xhr.complete = completeFn;
 
         return $.ajax(xhr);
     }
