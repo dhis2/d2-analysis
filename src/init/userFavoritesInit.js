@@ -13,7 +13,7 @@ userFavoritesInit = function(c) {
         params: [
             'eventType=REPORT_TABLE_VIEW',
             'username=' + username,
-            'pageSize=5'
+            'pageSize=10'
         ],
         success: function(response) {
             appManager.userFavorites = response;
