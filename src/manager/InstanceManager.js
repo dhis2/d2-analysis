@@ -121,7 +121,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     return layout;
 };
 
-InstanceManager.prototype.getById = function(id, fn) {
+InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
     var t = this;
 
     id = isString(id) ? id : t.getStateFavoriteId() || null;
@@ -142,6 +142,16 @@ InstanceManager.prototype.getById = function(id, fn) {
     var request = new t.api.Request({
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
+        beforeRun: function() {
+            if (doMask) {
+                uiManager.mask();
+            }
+        },
+        afterRun: function() {
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+        },
         success: function(r) {
             var layout = new t.api.Layout(t.refs, r);
 
@@ -150,8 +160,6 @@ InstanceManager.prototype.getById = function(id, fn) {
             }
         },
         error: function(r) {
-            uiManager.unmask();
-
             if (arrayContains([403], parseInt(r.httpStatusCode))) {
                 r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
             }
