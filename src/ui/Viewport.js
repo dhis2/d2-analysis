@@ -220,6 +220,9 @@ Viewport = function(refs, cmp) {
                     var items = [
                         ...DownloadButtonItems(refs, layout),
                         {
+                            xtype: 'menuseparator'
+                        },
+                        {
                             xtype: 'label',
                             text: i18n.plain_data_sources,
                             style: 'padding:7px 5px 5px 7px; font-weight:bold'
@@ -386,6 +389,9 @@ Viewport = function(refs, cmp) {
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetXmlReq, null, true);
                                     }
+                                },
+                                {
+                                    xtype: 'menuseparator'
                                 },
                                 {
                                     xtype: 'label',
