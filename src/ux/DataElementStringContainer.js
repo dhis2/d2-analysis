@@ -93,7 +93,7 @@ DataElementStringContainer = function(refs) {
                 this.valueCmp
             ];
 
-            //this.callParent();
+            this.self.superclass.initComponent.call(this);
         }
     });
 };

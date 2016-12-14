@@ -91,7 +91,7 @@ LimitContainer = function(refs) {
                 this.topLimitCmp
             ];
 
-            //this.callParent();
+            this.self.superclass.initComponent.call(this);
         },
         listeners: {
             render: function() {

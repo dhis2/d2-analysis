@@ -348,7 +348,7 @@ DataElementIntegerContainer = function(refs) {
                 this.rangeSetCmp
             ];
 
-            //this.callParent();
+            this.self.superclass.initComponent.call(this);
         }
     });
 };
