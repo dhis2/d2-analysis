@@ -377,14 +377,14 @@ Viewport = function(refs, cmp) {
                                     style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
                                 },
                                 {
-                                    text: i18n.data_value_set + ' JSON',
+                                    text: 'JSON',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetJsonReq, null, true);
                                     }
                                 },
                                 {
-                                    text: i18n.data_value_set + ' XML',
+                                    text: 'XML',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetXmlReq, null, true);
