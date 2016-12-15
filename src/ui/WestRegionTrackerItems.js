@@ -118,7 +118,7 @@ WestRegionTrackerItems = function(c) {
             //this.toggleProgramIndicators();
         },
         toggleProgramIndicators: function(type) {
-            type = type || uiManager.get('dataTypeToolbar').getType();
+            type = type || uiManager.get('dataTypeToolbar').getDataType();
 
             this.clearFilter();
 
@@ -2584,11 +2584,9 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         }
     };
 
-    var getView = function(config) {
+    var getUiState = function(layoutWindow) {
         var panels = uiManager.get('accordion').panels,
-            view = {},
-            dataType = uiManager.get('typeToolbar').getType(),
-            layoutWindow = uiManager.get('viewport').getLayoutWindow(dataType),
+            config = {},
             map = {},
             columns = [],
             rows = [],
@@ -2599,11 +2597,10 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
             data,
             a;
 
-        view.dataType = dataType;
-        view.program = program.getRecord();
-        view.programStage = stage.getRecord();
+        config.program = program.getRecord();
+        config.programStage = stage.getRecord();
 
-        if (!(view.dataType && view.program && view.programStage)) {
+        if (!(config.dataType && config.program && config.programStage)) {
             return;
         }
 
@@ -2612,10 +2609,10 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
 
         // pe
         if (periodMode.getValue() === 'dates') {
-            view.startDate = startDate.getSubmitValue();
-            view.endDate = endDate.getSubmitValue();
+            config.startDate = startDate.getSubmitValue();
+            config.endDate = endDate.getSubmitValue();
 
-            if (!(view.startDate && view.endDate)) {
+            if (!(config.startDate && config.endDate)) {
                 return;
             }
 
@@ -2721,19 +2718,19 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         }
 
         if (columns.length) {
-            view.columns = columns;
+            config.columns = columns;
         }
         if (rows.length) {
-            view.rows = rows;
+            config.rows = rows;
         }
         if (filters.length) {
-            view.filters = filters;
+            config.filters = filters;
         }
 
         // value, aggregation type
-        Ext.apply(view, layoutWindow.getValueConfig());
+        Ext.apply(config, layoutWindow.getValueConfig());
 
-        return view;
+        return config;
     };
 
     var validateView = function(view) {
@@ -2787,6 +2784,9 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         getParentGraphMap: function() {
             return treePanel.getParentGraphMap();
         },
+        getUxArray: function(id) {
+            return dataElementSelected.getUxArrayById(id);
+        },
 
         accordionBody: accordionBody,
         panels: accordionPanels,
@@ -2794,15 +2794,10 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
 
         reset: reset,
         setGui: setGui,
-        getView: getView,
+        getUiState: getUiState,
 
-        onTypeClick: onTypeClick,
-
-        getUxArray: function(id) {
-            return dataElementSelected.getUxArrayById(id);
-        }
+        onTypeClick: onTypeClick
     });
-    uiManager.reg(accordion, 'accordion');
 
     return accordion;
 };

@@ -1,6 +1,7 @@
 import arrayDifference from 'd2-utilizr/lib/arrayDifference';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
+import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 

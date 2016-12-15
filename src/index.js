@@ -48,6 +48,7 @@ import { authViewUnapprovedDataInit } from './init/authViewUnapprovedDataInit.js
 import { rootNodesInit } from './init/rootNodesInit.js';
 import { organisationUnitLevelsInit } from './init/organisationUnitLevelsInit.js';
 import { legendSetsInit } from './init/legendSetsInit.js';
+import { optionSetsInit } from './init/optionSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 
@@ -116,6 +117,7 @@ export {
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,
+    optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
 
@@ -195,6 +197,7 @@ export const init = {
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,
+    optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
 };

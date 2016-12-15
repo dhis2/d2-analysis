@@ -84,50 +84,50 @@ Viewport = function(refs, cmp, config) {
 
     // viewport
 
-    var accordionBody = Ext.create('Ext.panel.Panel', {
-        layout: 'accordion',
-        activeOnTop: true,
-        cls: 'ns-accordion',
-        bodyStyle: 'border:0 none; margin-bottom:2px',
-        height: 700,
-        dimensionPanels: null,
-        items: westRegionItems
-    });
-    uiManager.reg(accordionBody, 'accordionBody');
+    //var accordionBody = Ext.create('Ext.panel.Panel', {
+        //layout: 'accordion',
+        //activeOnTop: true,
+        //cls: 'ns-accordion',
+        //bodyStyle: 'border:0 none; margin-bottom:2px',
+        //height: 700,
+        //dimensionPanels: null,
+        //items: westRegionItems
+    //});
+    //uiManager.reg(accordionBody, 'accordionBody');
 
-    var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
-        items: accordionBody,
-        setThisHeight: function(mx) {
-            var panelHeight = westRegionItems.length * 28,
-                height;
+    //var accordion = Ext.create('Ext.panel.Panel', {
+        //bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        //items: accordionBody,
+        //setThisHeight: function(mx) {
+            //var panelHeight = westRegionItems.length * 28,
+                //height;
 
-            if (westRegion.hasScrollbar) {
-                height = panelHeight + mx;
-                this.setHeight(westRegion.getHeight() - 2);
-                accordionBody.setHeight(height - 2);
-            }
-            else {
-                height = westRegion.getHeight() - uiConfig.west_fill;
-                mx += panelHeight;
-                accordion.setHeight((height > mx ? mx : height) - 2);
-                accordionBody.setHeight((height > mx ? mx : height) - 4);
-            }
-        },
-        getExpandedPanel: function() {
-            for (var i = 0, panel; i < westRegionItems.length; i++) {
-                if (!westRegionItems[i].collapsed) {
-                    return westRegionItems[i];
-                }
-            }
+            //if (westRegion.hasScrollbar) {
+                //height = panelHeight + mx;
+                //this.setHeight(westRegion.getHeight() - 2);
+                //accordionBody.setHeight(height - 2);
+            //}
+            //else {
+                //height = westRegion.getHeight() - uiConfig.west_fill;
+                //mx += panelHeight;
+                //accordion.setHeight((height > mx ? mx : height) - 2);
+                //accordionBody.setHeight((height > mx ? mx : height) - 4);
+            //}
+        //},
+        //getExpandedPanel: function() {
+            //for (var i = 0, panel; i < westRegionItems.length; i++) {
+                //if (!westRegionItems[i].collapsed) {
+                    //return westRegionItems[i];
+                //}
+            //}
 
-            return null;
-        },
-        getFirstPanel: function() {
-            return accordionBody.items.items[0];
-        }
-    });
-    uiManager.reg(accordion, 'accordion');
+            //return null;
+        //},
+        //getFirstPanel: function() {
+            //return accordionBody.items.items[0];
+        //}
+    //});
+    //uiManager.reg(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
@@ -522,20 +522,6 @@ Viewport = function(refs, cmp, config) {
     });
     uiManager.reg(centerRegion, 'centerRegion');
 
-    var getOptionsWindow = function(dataType) {
-        dataType = dataType || typeToolbar.getType();
-
-        if (dataType === finalsDataTypeConf.aggregated_values) {
-            return ns.app.aggregateOptionsWindow;
-        }
-
-        if (dataType === finalsDataTypeConf.individual_cases) {
-            return ns.app.queryOptionsWindow;
-        }
-
-        return null;
-    };
-
     var setUiState = function(layout) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow');
@@ -591,66 +577,18 @@ Viewport = function(refs, cmp, config) {
 
     var getUiState = function() {
         var layoutWindow = uiManager.get('viewport').getLayoutWindow(),
-            optionsWindow = uiManager.get('viewport').getOptionsWindow();
+            optionsWindow = uiManager.get('viewport').getOptionsWindow(),
+            accordion = uiManager.get('accordion');
 
-        var columnDimNames = layoutWindow.colStore.getDimensionNames(),
-            rowDimNames = layoutWindow.rowStore.getDimensionNames(),
-            filterDimNames = layoutWindow.filterStore.getDimensionNames(),
-            config = optionsWindow.getOptions(),
-            dx = dimensionConfig.get('data').dimensionName,
-            co = dimensionConfig.get('category').dimensionName,
-            nameDimArrayMap = {};
+        var config = Object.assign({}, accordion.getUiState(layoutWindow), optionsWindow.getOptions());
 
-        //todo fixme charts
         if (chartTypeToolbar) {
             config.type = chartTypeToolbar.getChartType();
         }
 
-        config.columns = [];
-        config.rows = [];
-        config.filters = [];
-
-        // panel data
-        for (var i = 0, dim, dimName; i < westRegionItems.length; i++) {
-            dim = westRegionItems[i].getDimension();
-
-            if (dim) {
-                nameDimArrayMap[dim.dimension] = [dim];
-            }
+        if (dataTypeToolbar) {
+            config.dataType = dataTypeToolbar.getDataType();
         }
-
-        // columns, rows, filters
-        for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
-            dimNames = nameArrays[i];
-
-            for (var j = 0, dimName, dim; j < dimNames.length; j++) {
-                dimName = dimNames[j];
-
-                if (dimName === co) {
-                    axes[i].push({
-                        dimension: co,
-                        items: []
-                    });
-                }
-                else if (dimName === dx && nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
-                    for (var k = 0; k < nameDimArrayMap[dx].length; k++) {
-                        axes[i].push(Ext.clone(nameDimArrayMap[dx][k]));
-
-                        // TODO program
-                        if (nameDimArrayMap[dx][k].program) {
-                            config.program = nameDimArrayMap[dx][k].program;
-                        }
-                    }
-                }
-                else if (nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
-                    for (var k = 0; k < nameDimArrayMap[dimName].length; k++) {
-                        axes[i].push(Ext.clone(nameDimArrayMap[dimName][k]));
-                    }
-                }
-            }
-        }
-
-        config.parentGraphMap = treePanel.getParentGraphMap();
 
         return config;
     };
