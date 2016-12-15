@@ -590,8 +590,8 @@ Viewport = function(refs, cmp, config) {
     };
 
     var getUiState = function() {
-        var layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow');
+        var layoutWindow = uiManager.get('viewport').getLayoutWindow(),
+            optionsWindow = uiManager.get('viewport').getOptionsWindow();
 
         var columnDimNames = layoutWindow.colStore.getDimensionNames(),
             rowDimNames = layoutWindow.rowStore.getDimensionNames(),
