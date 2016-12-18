@@ -620,17 +620,17 @@ EastRegion = function(c) {
             // Expand comments on click
             expandComments: function() {
                 if (!this.displayingComments) {
-                    for (var i = 0; i < this.up("#interpretationsPanel").items.items.length; i++) {
-                        if (this.up("#interpretationsPanel").items.items[i].interpretation != undefined) {
-                            this.up("#interpretationsPanel").items.items[i].displayingComments = (this.up("#interpretationsPanel").items.items[i].id == this.id);
-                            //this.up("#interpretationsPanel").items.items[i].numberOfCommentsToDisplay = 3;
-                            this.up("#interpretationsPanel").items.items[i].updateInterpretationPanelItems();
-                        }
-                    }
+                    // for (var i = 0; i < this.up("#interpretationsPanel").items.items.length; i++) {
+                    //     if (this.up("#interpretationsPanel").items.items[i].interpretation != undefined) {
+                    //         this.up("#interpretationsPanel").items.items[i].displayingComments = (this.up("#interpretationsPanel").items.items[i].id == this.id);
+                    //         //this.up("#interpretationsPanel").items.items[i].numberOfCommentsToDisplay = 3;
+                    //         this.up("#interpretationsPanel").items.items[i].updateInterpretationPanelItems();
+                    //     }
+                    // }
 
-                    // Swop top panel
-                    this.up("[xtype='panel']").down('#shareInterpretation').hide();
-                    this.up("[xtype='panel']").down('#backToToday').show();
+                    // // Swop top panel
+                    // this.up("[xtype='panel']").down('#shareInterpretation').hide();
+                    // this.up("[xtype='panel']").down('#backToToday').show();
 
                     // Update canvas with favorite as it was by the time the interpretation was created
                     uiManager.updateInterpretation(interpretation);
@@ -759,7 +759,9 @@ EastRegion = function(c) {
             // Add an interpretation panel per interpretation
             if (interpretations != undefined && interpretations.length > 0) {
                 for (var i = 0; i < interpretations.length; i++) {
-                    this.add(this.getInterpretationPanel(interpretations[i], (interpretations[i].id == interpretationId)));
+                    if (interpretations[i].id == interpretationId || interpretationId == undefined){
+                        this.add(this.getInterpretationPanel(interpretations[i], (interpretations[i].id == interpretationId)));
+                    }
                 }
             }
         },
@@ -778,6 +780,7 @@ EastRegion = function(c) {
         collapseMode: 'mini',
         collapsed: true,
         border: false,
+        bodyStyle: 'overflow: auto;',
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
