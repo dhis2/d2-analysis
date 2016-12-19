@@ -4216,7 +4216,6 @@ Viewport = function(refs, cmp) {
                         this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
                     },
                     handler: function(b) {
-                        eastRegion.toggleCollapse();
                         this.setIconState();
                     }
                 }

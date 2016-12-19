@@ -785,12 +785,16 @@ EastRegion = function(c) {
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
         setState: function(layout) {
-
+            if (layout.interpretationId){
+                this.toggleCollapse();
+            }
+            
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
             // Favorite loaded with interpretations ->  Add interpretation panel and update
             this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         },
+
         listeners: {
             expand: function() {
                 this.doLayout();
