@@ -1,5 +1,4 @@
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
-import {Dimension} from './Dimension.js';
 
 export var Axis;
 
@@ -11,7 +10,7 @@ Axis = function(config) {
 
     // constructor
     config.forEach(function(dimensionConfig) {
-        t.push((new Dimension(dimensionConfig)).val());
+        t.push((new t.klass.api.Dimension(dimensionConfig)).val());
     });
 
     // prototype
@@ -31,7 +30,7 @@ Axis = function(config) {
     };
 
     t.add = function(dimensionConfig, skipValidation) {
-        var dimension = skipValidation ? dimensionConfig : (new Dimension(dimensionConfig)).val();
+        var dimension = skipValidation ? dimensionConfig : (new t.klass.api.Dimension(dimensionConfig)).val();
 
         if (dimension) {
             t.push(dimension);

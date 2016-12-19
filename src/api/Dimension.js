@@ -5,8 +5,6 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
-import {Record} from './Record.js';
-
 var REQUIRED_DIMENSIONS = ['dx', 'pe', 'ou'];
 
 export var Dimension;
@@ -23,7 +21,7 @@ Dimension = function(config) {
     t.dimension = config.dimension;
 
     t.items = config.items.map(function(record) {
-        return (new Record(record)).val();
+        return (new t.klass.api.Record(record)).val();
     });
 
     if (config.sorted) {
@@ -55,7 +53,9 @@ Dimension.prototype.val = function(noError) {
 };
 
 Dimension.prototype.add = function(recordConfig) {
-    var record = (new Record(recordConfig)).val();
+    var t = this;
+
+    var record = (new t.klass.api.Record(recordConfig)).val();
 
     if (record) {
         this.items.push(record);

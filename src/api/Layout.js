@@ -276,7 +276,7 @@ Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
     var t = this;
 
     if (!skipAddToFilter && !t.filters) {
-        t.filters = new t.getRefs().api.Axis();
+        t.filters = new t.klass.api.Axis();
     }
 
     t.getAxes(includeFilter).forEach(function(axis) {
@@ -775,7 +775,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
 //filter: "LT:5",
 //name: "Age in years"
 
-// URL -> dimension=qrur9Dvnyt5
+// URL -> dimension=qrur9Dvnyt5:LT:5
 
 
 //dimension: "qrur9Dvnyt5",
