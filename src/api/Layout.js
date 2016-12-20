@@ -77,7 +77,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
 
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
-        t.sorting = new Sorting(c.sorting);
+        t.sorting = new t.klass.api.Sorting(c.sorting);
     }
 
         // displayProperty
@@ -537,6 +537,8 @@ Layout.prototype.toSession = function() {
 };
 
 Layout.prototype.sort = function(table) {
+    var t = this;
+
     var id = this.sorting.id,
         direction = this.sorting.direction,
         dimension = this.rows[0],
@@ -554,7 +556,7 @@ Layout.prototype.sort = function(table) {
     ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
-        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination([id, item]).get())]);
+        sortingId = parseFloat(idValueMap[(new t.klass.api.ResponseRowIdCombination([id, item]).get())]);
 
         obj = {
             id: item,
@@ -571,7 +573,7 @@ Layout.prototype.sort = function(table) {
     dimension.items = records;
     dimension.sorted = true;
 
-    dimension = new Dimension(dimension);
+    dimension = new t.klass.api.Dimension(dimension);
 
     this.sorting.id = id;
 };
@@ -798,7 +800,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
 
     var optionConfig = refs.optionConfig,
         appManager = refs.appManager,
-        request = new Request();
+        request = new t.klass.api.Request();
 
     var defAggTypeId = optionConfig.getAggregationType('def').id,
         displayProperty = this.displayProperty || appManager.getAnalyticsDisplayProperty();

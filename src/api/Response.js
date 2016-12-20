@@ -20,7 +20,7 @@ Response = function(config) {
 
     // constructor
     t.headers = (config.headers || []).map(function(header) {
-        return new ResponseHeader(header);
+        return new t.klass.api.ResponseHeader(header);
     });
 
     t.metaData = config.metaData;
@@ -52,7 +52,7 @@ Response = function(config) {
 Response.prototype.clone = function() {
     var t = this;
 
-    return new Response(t);
+    return new t.klass.api.Response(t);
 };
 
 Response.prototype.getHeaderByName = function(name) {
@@ -210,12 +210,14 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
+    var t = this;
+
     var metaData = this.metaData,
         ids = metaData[dimensionName],
         records = [];
 
     ids.forEach(function(id) {
-        records.push((new Record({
+        records.push((new t.klass.api.Record({
             id: id,
             name: metaData.names[id]
         })).val());
@@ -247,7 +249,7 @@ Response.prototype.getIdValueMap = function(layout) {
         idCombination;
 
     this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination();
+        idCombination = new t.klass.api.ResponseRowIdCombination();
 
         headerIndexOrder.forEach(function(index) {
             idCombination.add(responseRow.getAt(index));

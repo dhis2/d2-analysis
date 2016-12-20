@@ -4,13 +4,14 @@ export var Axis;
 
 Axis = function(config) {
     var t = [];
-    t.klass = Axis;
+
+    var { Dimension } = t.klass.refs.api;
 
     config = arrayFrom(config);
 
     // constructor
     config.forEach(function(dimensionConfig) {
-        t.push((new t.klass.api.Dimension(dimensionConfig)).val());
+        t.push((new Dimension(dimensionConfig)).val());
     });
 
     // prototype
@@ -30,7 +31,7 @@ Axis = function(config) {
     };
 
     t.add = function(dimensionConfig, skipValidation) {
-        var dimension = skipValidation ? dimensionConfig : (new t.klass.api.Dimension(dimensionConfig)).val();
+        var dimension = skipValidation ? dimensionConfig : (new Dimension(dimensionConfig)).val();
 
         if (dimension) {
             t.push(dimension);
@@ -38,7 +39,7 @@ Axis = function(config) {
     };
 
     t.clone = function() {
-        return Axis(this);
+        return t.klass.refs.api.Axis(this);
     };
 
     t.empty = function() {
