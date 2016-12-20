@@ -8,9 +8,8 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 
 export var Request;
 
-Request = function(config) {
+Request = function(refs, config) {
     var t = this;
-    t.klass = Request;
 
     config = isObject(config) ? config : {};
 

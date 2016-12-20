@@ -12,12 +12,12 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var WestRegionTrackerItems;
 
-WestRegionTrackerItems = function(c) {
+WestRegionTrackerItems = function(refs) {
     var t = this,
-        uiManager = c.uiManager,
-        instanceManager = c.instanceManager,
-        appManager = c.appManager,
-        i18nManager = c.i18nManager,
+        uiManager = refs.uiManager,
+        instanceManager = refs.instanceManager,
+        appManager = refs.appManager,
+        i18nManager = refs.i18nManager,
         sessionStorageManager = refs.sessionStorageManager,
         calendarManager = refs.calendarManager,
         dimensionConfig = refs.dimensionConfig,
@@ -222,6 +222,7 @@ WestRegionTrackerItems = function(c) {
         }
 
         peRecords.forEach(function(peRecord) {
+console.log("peRecord", peRecord);return;
             var checkbox = relativePeriodCmpMap[peRecord.id];
 
             if (checkbox) {
@@ -1145,6 +1146,7 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
 
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
+console.log("cmp.relativePeriodId", cmp.relativePeriodId);
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
         }
     };
@@ -1612,23 +1614,17 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
     var periods = Ext.create('Ext.container.Container', {
         bodyStyle: 'border-style:none',
         getRecords: function() {
-            var map = relativePeriodCmpMap,
-                selectedPeriods = [],
-                records = [];
+            var selectedRecords = [],
+                records;
 
             fixedPeriodSelectedStore.each( function(r) {
-                selectedPeriods.push(r.data.id);
+                selectedRecords.push({id: r.data.id});
             });
 
-            for (var i = 0; i < selectedPeriods.length; i++) {
-                records.push({id: selectedPeriods[i]});
-            }
-
-            for (var rp in map) {
-                if (map.hasOwnProperty(rp) && map[rp].getValue()) {
-                    records.push({id: map[rp].relativePeriodId});
-                }
-            }
+            records = [
+                ...selectedRecords,
+                ...uiManager.getByGroup('relativePeriod').filter(cmp => cmp.getValue()).map(cmp => ({id: cmp.relativePeriodId }))
+            ];
 
             return records.length ? records : null;
         },
@@ -1685,7 +1681,7 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         },
         getDimension: function() {
             var config = {
-                    dimension: dimConf.period.objectName,
+                    dimension: periodObjectName,
                     items: []
                 };
 
@@ -1889,7 +1885,7 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
-                    dimension: dimensionConfig.dimensions.organisationUnit.objectName,
+                    dimension: organisationUnitObjectName,
                     items: []
                 };
 
@@ -2600,7 +2596,7 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
         config.program = program.getRecord();
         config.programStage = stage.getRecord();
 
-        if (!(config.dataType && config.program && config.programStage)) {
+        if (!(config.program && config.programStage)) {
             return;
         }
 
@@ -2729,7 +2725,7 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
 
         // value, aggregation type
         Ext.apply(config, layoutWindow.getValueConfig());
-
+console.log("west region tracker getuistate", config);
         return config;
     };
 

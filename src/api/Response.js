@@ -5,28 +5,25 @@ import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
-import {Record} from './Record.js';
-import {ResponseHeader} from './ResponseHeader.js';
-import {ResponseRow} from './ResponseRow.js';
-import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
 
 export var Response;
 
-Response = function(config) {
+Response = function(refs, config) {
     var t = this;
-    t.klass = Response;
 
     config = isObject(config) ? config : {};
 
+    var { ResponseHeader, ResponseRow } = refs.api;
+
     // constructor
     t.headers = (config.headers || []).map(function(header) {
-        return new t.klass.api.ResponseHeader(header);
+        return new ResponseHeader(refs, header);
     });
 
     t.metaData = config.metaData;
 
     t.rows = (config.rows || []).map(function(row) {
-        return ResponseRow(row);
+        return ResponseRow(refs, row);
     });
 
     // transient
@@ -47,12 +44,19 @@ Response = function(config) {
     t.headers.forEach(function(header, index) {
         header.setIndex(index);
     });
+
+    t.getRefs = function() {
+        return refs;
+    };
 };
 
 Response.prototype.clone = function() {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
 
-    return new t.klass.api.Response(t);
+    var { Response } = refs.api;
+
+    return new Response(refs, t);
 };
 
 Response.prototype.getHeaderByName = function(name) {
@@ -210,14 +214,17 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Record } = refs.api;
 
     var metaData = this.metaData,
         ids = metaData[dimensionName],
         records = [];
 
     ids.forEach(function(id) {
-        records.push((new t.klass.api.Record({
+        records.push((new Record(refs, {
             id: id,
             name: metaData.names[id]
         })).val());
@@ -244,12 +251,16 @@ Response.prototype.getIdValueMap = function(layout) {
     }
 
     var t = this,
-        headerIndexOrder = t.getHeaderIndexOrder(layout.getDimensionNames()),
+        refs = t.getRefs();
+
+    var { ResponseRowIdCombination } = refs.api;
+
+    var headerIndexOrder = t.getHeaderIndexOrder(layout.getDimensionNames()),
         idValueMap = {},
         idCombination;
 
     this.rows.forEach(function(responseRow) {
-        idCombination = new t.klass.api.ResponseRowIdCombination();
+        idCombination = new ResponseRowIdCombination(refs);
 
         headerIndexOrder.forEach(function(index) {
             idCombination.add(responseRow.getAt(index));
@@ -266,6 +277,11 @@ Response.prototype.getIdValueMap = function(layout) {
 // dep 4
 
 Response.prototype.getValue = function(param, layout) {
+    var t = this,
+        refs = t.getRefs();
+
+    var { ResponseRowIdCombination } = refs.api;
+
     var id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
     return this.getIdValueMap(layout)[id];

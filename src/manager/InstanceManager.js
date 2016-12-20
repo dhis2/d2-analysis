@@ -9,9 +9,8 @@ export var InstanceManager;
 InstanceManager = function(refs) {
     var t = this;
 
-    t.refs = isObject(refs) ? refs : {};
+    refs = isObject(refs) ? refs : {};
 
-    t.api = refs.api;
     t.appManager = refs.appManager;
     t.uiManager = refs.uiManager;
     t.i18nManager = refs.i18nManager;
@@ -103,16 +102,23 @@ InstanceManager = function(refs) {
     t.setFn = function(func) {
         fn = func;
     };
+
+    t.getRefs = function() {
+        return refs;
+    };
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
     var t = this,
+        refs = t.getRefs(),
         favorite = t.getStateFavorite(),
         layout;
 
+    var { Layout } = refs.api;
+
     layoutConfig = layoutConfig || t.uiManager.getUiState();
 
-    layout = new t.api.Layout(t.refs, layoutConfig);
+    layout = new Layout(refs, layoutConfig);
 
     if (layout) {
         layout.apply(favorite);
@@ -122,7 +128,10 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
 };
 
 InstanceManager.prototype.getById = function(id, fn) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Layout } = refs.api;
 
     id = isString(id) ? id : t.getStateFavoriteId() || null;
 
@@ -143,7 +152,7 @@ InstanceManager.prototype.getById = function(id, fn) {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {
-            var layout = new t.api.Layout(t.refs, r);
+            var layout = new Layout(refs, r);
 
             if (layout) {
                 fn(layout, true);

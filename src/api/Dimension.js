@@ -9,24 +9,28 @@ var REQUIRED_DIMENSIONS = ['dx', 'pe', 'ou'];
 
 export var Dimension;
 
-Dimension = function(config) {
+Dimension = function(refs, config) {
     var t = this;
-
-    t.klass = Dimension;
 
     config = isObject(config) ? config : {};
     config.items = arrayFrom(config.items);
+
+    var { Record } = refs.api;
 
     // constructor
     t.dimension = config.dimension;
 
     t.items = config.items.map(function(record) {
-        return (new t.klass.api.Record(record)).val();
+        return (new Record(refs, record)).val();
     });
 
     if (config.sorted) {
         t.sorted = config.sorted;
     }
+
+    t.getRefs = function() {
+        return refs;
+    };
 };
 
 Dimension.prototype.log = function(text, noError) {
@@ -53,9 +57,12 @@ Dimension.prototype.val = function(noError) {
 };
 
 Dimension.prototype.add = function(recordConfig) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
 
-    var record = (new t.klass.api.Record(recordConfig)).val();
+    var { Record } = refs.api;
+
+    var record = (new Record(refs, recordConfig)).val();
 
     if (record) {
         this.items.push(record);

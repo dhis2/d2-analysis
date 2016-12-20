@@ -3,9 +3,8 @@ import isObject from 'd2-utilizr/lib/isObject';
 
 export var Record;
 
-Record = function(config) {
+Record = function(refs, config) {
     var t = this;
-    t.klass = Record;
 
     config = isObject(config) ? config : {};
 

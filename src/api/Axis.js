@@ -2,16 +2,16 @@ import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var Axis;
 
-Axis = function(config) {
+Axis = function(refs, config) {
     var t = [];
 
-    var { Dimension } = t.klass.refs.api;
+    var { Axis, Dimension } = refs.api;
 
     config = arrayFrom(config);
 
     // constructor
     config.forEach(function(dimensionConfig) {
-        t.push((new Dimension(dimensionConfig)).val());
+        t.push((new Dimension(refs, dimensionConfig)).val());
     });
 
     // prototype
@@ -31,7 +31,7 @@ Axis = function(config) {
     };
 
     t.add = function(dimensionConfig, skipValidation) {
-        var dimension = skipValidation ? dimensionConfig : (new Dimension(dimensionConfig)).val();
+        var dimension = skipValidation ? dimensionConfig : (new Dimension(refs, dimensionConfig)).val();
 
         if (dimension) {
             t.push(dimension);
@@ -39,7 +39,7 @@ Axis = function(config) {
     };
 
     t.clone = function() {
-        return t.klass.refs.api.Axis(this);
+        return Axis(refs, this);
     };
 
     t.empty = function() {

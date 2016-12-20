@@ -3,9 +3,8 @@ import isNumeric from 'd2-utilizr/lib/isNumeric';
 
 export var ResponseHeader;
 
-ResponseHeader = function(config) {
+ResponseHeader = function(refs, config) {
     var t = this;
-    t.klass = ResponseHeader;
 
     config = isObject(config) ? config : {};
 

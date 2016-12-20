@@ -12,18 +12,14 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
 
-import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
-
 export var Table;
 
-Table = function(layout, response, colAxis, rowAxis, options) {
-    var t = this,
-        klass = Table,
+Table = function(refs, layout, response, colAxis, rowAxis, options) {
+    var t = this;
 
-        appManager = klass.appManager,
-        uiManager = klass.uiManager,
-        dimensionConfig = klass.dimensionConfig,
-        optionConfig = klass.optionConfig;
+    var { ResponseRowIdCombination } = refs.api;
+
+    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
 
     options = options || {};
 
@@ -467,7 +463,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             valueObjectsRow = [];
 
             for (var j = 0, rric, value, responseValue, htmlValue, empty, _uuid, uuids; j < colAxisSize; j++) {
-                rric = new ResponseRowIdCombination();
+                rric = new ResponseRowIdCombination(refs);
                 empty = false;
                 uuids = [];
 
@@ -539,7 +535,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 // add row totals to idValueMap to make sorting on totals possible
                 if (doSortableColumnHeaders()) {
-                    var totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]),
+                    var totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]),
                         isEmpty = !arrayContains(empty, false);
 
                     idValueMap[totalIdComb.get()] = isEmpty ? null : total;

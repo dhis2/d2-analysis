@@ -10,12 +10,7 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
-import {Axis} from './Axis.js';
-import {Dimension} from './Dimension.js';
-import {Request} from './Request.js';
-import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
-import {Sorting} from './Sorting.js';
-import {DateManager} from '../manager/DateManager.js';
+import { DateManager } from '../manager/DateManager.js';
 
 export var Layout;
 
@@ -23,6 +18,8 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var t = this;
 
     refs = isObject(refs) ? refs : {};
+
+    var { Axis, Sorting } = refs.api;
 
     c = isObject(c) ? c : {};
     $.extend(c, applyConfig);
@@ -38,9 +35,9 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var _dataDimensionItems;
 
     // constructor
-    t.columns = (Axis(c.columns)).val();
-    t.rows = (Axis(c.rows)).val();
-    t.filters = (Axis(c.filters)).val(true);
+    t.columns = (Axis(refs, c.columns)).val();
+    t.rows = (Axis(refs, c.rows)).val();
+    t.filters = (Axis(refs, c.filters)).val(true);
 
         // sharing
     _access = isObject(c.access) ? c.access : null;
@@ -77,7 +74,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
 
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
-        t.sorting = new t.klass.api.Sorting(c.sorting);
+        t.sorting = new Sorting(refs, c.sorting);
     }
 
         // displayProperty
@@ -273,10 +270,13 @@ Layout.prototype.extendRecords = function(response) {
 };
 
 Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Axis } = refs.api;
 
     if (!skipAddToFilter && !t.filters) {
-        t.filters = new t.klass.api.Axis();
+        t.filters = new Axis(refs);
     }
 
     t.getAxes(includeFilter).forEach(function(axis) {
@@ -537,7 +537,10 @@ Layout.prototype.toSession = function() {
 };
 
 Layout.prototype.sort = function(table) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Dimension, ResponseRowIdCombination } = refs.api;
 
     var id = this.sorting.id,
         direction = this.sorting.direction,
@@ -556,7 +559,7 @@ Layout.prototype.sort = function(table) {
     ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
-        sortingId = parseFloat(idValueMap[(new t.klass.api.ResponseRowIdCombination([id, item]).get())]);
+        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination(refs, [id, item]).get())]);
 
         obj = {
             id: item,
@@ -573,7 +576,7 @@ Layout.prototype.sort = function(table) {
     dimension.items = records;
     dimension.sorted = true;
 
-    dimension = new t.klass.api.Dimension(dimension);
+    dimension = new Dimension(refs, dimension);
 
     this.sorting.id = id;
 };
@@ -798,9 +801,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     var t = this,
         refs = this.getRefs();
 
+    var { Request } = refs.api;
+
     var optionConfig = refs.optionConfig,
         appManager = refs.appManager,
-        request = new t.klass.api.Request();
+        request = new Request(refs);
 
     var defAggTypeId = optionConfig.getAggregationType('def').id,
         displayProperty = this.displayProperty || appManager.getAnalyticsDisplayProperty();

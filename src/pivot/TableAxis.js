@@ -7,7 +7,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 export var TableAxis;
 
-TableAxis = function(layout, response, type) {
+TableAxis = function(refs, layout, response, type) {
     var spanType,
         aDimensions = [],
         nAxisWidth = 1,
