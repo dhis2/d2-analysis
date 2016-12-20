@@ -2582,6 +2582,10 @@ console.log("cmp.relativePeriodId", cmp.relativePeriodId);
 
     var getUiState = function(layoutWindow) {
         var panels = uiManager.get('accordion').panels,
+            dataTypeToolbar = uiManager.get('dataTypeToolbar'),
+            aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),
+            aggregateOptionsWindow = uiManager.get('aggregateOptionsWindow'),
+            queryOptionsWindow = uiManager.get('queryOptionsWindow'),
             config = {},
             map = {},
             columns = [],
@@ -2599,6 +2603,8 @@ console.log("cmp.relativePeriodId", cmp.relativePeriodId);
         if (!(config.program && config.programStage)) {
             return;
         }
+
+        var dataType = dataTypeToolbar.getDataType();
 
         // dy
         map['dy'] = [{dimension: 'dy'}];
@@ -2725,6 +2731,29 @@ console.log("cmp.relativePeriodId", cmp.relativePeriodId);
 
         // value, aggregation type
         Ext.apply(config, layoutWindow.getValueConfig());
+
+        if (dataType === dimensionConfig.dataType['aggregated_values']) {
+            Ext.applyIf(config, aggregateOptionsWindow.getOptions());
+            Ext.applyIf(config, aggregateLayoutWindow.getOptions());
+
+            // if order and limit -> sort
+            if (config.sortOrder && config.topLimit) {
+                config.sorting = {
+                    id: 1,
+                    direction: config.sortOrder == 1 ? 'DESC' : 'ASC'
+                };
+            }
+        }
+
+        if (dataType === dimensionConfig.dataType['individual_cases']) {
+            Ext.applyIf(config, queryOptionsWindow.getOptions());
+
+            view.paging = {
+                page: uiManager.get('statusBar').getCurrentPage(),
+                pageSize: 100
+            };
+        }
+
 console.log("west region tracker getuistate", config);
         return config;
     };

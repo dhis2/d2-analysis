@@ -26,6 +26,11 @@ DimensionConfig = function() {
         'individual_cases': 'EVENTS'
     };
 
+    t.dataTypeUrl = {
+        'AGGREGATED_VALUES': 'aggregate',
+        'EVENTS': 'query'
+    };
+
     // value type
     t.valueType = {
         'numeric_types': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE'],

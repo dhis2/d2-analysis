@@ -775,29 +775,6 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
 };
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
-
-//dimension: "qrur9Dvnyt5",
-//filter: "LT:5",
-//name: "Age in years"
-
-// URL -> dimension=qrur9Dvnyt5:LT:5
-
-
-//dimension: "qrur9Dvnyt5",
-//name: "Age in years",
-//legendSet: {
-    //id: "Yf6UHoPkdS6"
-//}
-
-// URL -> dimension=qrur9Dvnyt5-Yf6UHoPkdS6
-
-
-//dimension: "oZg33kd9taw",
-//filter: "IN:Male",
-//name: "Gender"
-
-// URL -> dimension=oZg33kd9taw:IN:Male
-
     var t = this,
         refs = this.getRefs();
 

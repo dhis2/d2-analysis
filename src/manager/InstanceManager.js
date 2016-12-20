@@ -33,6 +33,7 @@ InstanceManager = function(refs) {
     // uninitialized
     t.apiResource;
     t.apiEndpoint;
+    t.analyticsEndpoint = '/analytics';
     t.dataStatisticsEventType;
 
     // getter/setter
