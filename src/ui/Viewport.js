@@ -8,9 +8,6 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import clone from 'd2-utilizr/lib/clone';
 
-import {Record} from '../api/Record.js';
-import {Dimension} from '../api/Dimension.js';
-import {Axis} from '../api/Axis.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';

@@ -48,7 +48,7 @@ Dimension.prototype.val = function(noError) {
     }
 
     // warning
-    if (!this.items.length && this.dimension !== 'co') {
+    if (!this.items.length && !arrayContains(['co', 'dy'], this.dimension)) {
         this.log('(Dimension) No items', noError);
         //return null;
     }
