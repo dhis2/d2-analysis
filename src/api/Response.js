@@ -64,7 +64,9 @@ Response.prototype.getHeaderByName = function(name) {
 };
 
 Response.prototype.getHeaderIndexByName = function(name) {
-    return this.nameHeaderMap[name].index;
+    var header = this.nameHeaderMap[name] || {};
+
+    return header.index;
 };
 
 Response.prototype.getOptionSetHeaders = function() {
@@ -220,7 +222,7 @@ Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var { Record } = refs.api;
 
     var metaData = this.metaData,
-        ids = metaData[dimensionName],
+        ids = metaData[dimensionName] || [],
         records = [];
 
     ids.forEach(function(id) {
@@ -230,7 +232,7 @@ Response.prototype.getRecordsByDimensionName = function(dimensionName) {
         })).val());
     });
 
-    return records;
+    return arrayClean(records);
 };
 
 Response.prototype.getValueHeader = function() {

@@ -602,42 +602,6 @@ Layout.prototype.getFirstDxId = function() {
     return this.getDimension('dx').getRecordIds()[0];
 };
 
-Layout.prototype.data = function(source, format) {
-    var t = this,
-        refs = this.getRefs();
-
-    var uiManager = refs.uiManager;
-
-    var metaDataRequest = this.req(source, format);
-    var dataRequest = this.req(source, format, true);
-
-    var errorFn = function(r) {
-
-        // 409
-        if (isObject(r) && r.status == 409) {
-            uiManager.unmask();
-
-            if (isString(r.responseText)) {
-                uiManager.alert(JSON.parse(r.responseText));
-            }
-        }
-    };
-
-    metaDataRequest.setType(this.getDefaultFormat());
-    dataRequest.setType(this.getDefaultFormat());
-
-    metaDataRequest.add('skipData=true');
-    dataRequest.add('skipMeta=true');
-
-    metaDataRequest.setError(errorFn);
-    dataRequest.setError(Function.prototype);
-
-    return {
-        metaData: metaDataRequest.run(),
-        data: dataRequest.run()
-    };
-};
-
 Layout.prototype.del = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
@@ -873,4 +837,42 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     request.setBaseUrl(this.getRequestPath(source, format));
 
     return request;
+};
+
+// dep 5
+
+Layout.prototype.data = function(source, format) {
+    var t = this,
+        refs = this.getRefs();
+
+    var uiManager = refs.uiManager;
+
+    var metaDataRequest = this.req(source, format);
+    var dataRequest = this.req(source, format, true);
+
+    var errorFn = function(r) {
+
+        // 409
+        if (isObject(r) && r.status == 409) {
+            uiManager.unmask();
+
+            if (isString(r.responseText)) {
+                uiManager.alert(JSON.parse(r.responseText));
+            }
+        }
+    };
+
+    metaDataRequest.setType(this.getDefaultFormat());
+    dataRequest.setType(this.getDefaultFormat());
+
+    metaDataRequest.add('skipData=true');
+    dataRequest.add('skipMeta=true');
+
+    metaDataRequest.setError(errorFn);
+    dataRequest.setError(Function.prototype);
+
+    return {
+        metaData: metaDataRequest.run(),
+        data: dataRequest.run()
+    };
 };

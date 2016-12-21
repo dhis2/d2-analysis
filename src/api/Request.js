@@ -3,8 +3,9 @@ import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isFunction from 'd2-utilizr/lib/isFunction';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var Request;
 
@@ -140,9 +141,9 @@ Request.prototype.setComplete = function(fn) {
 };
 
 Request.prototype.url = function(extraParams) {
-    extraParams = arrayFrom(extraParams);
+    var params = arrayClean([].concat(this.params, arrayFrom(extraParams)));
 
-    return this.baseUrl + '?' + ([].concat(this.params, arrayFrom(extraParams))).join('&');
+    return this.baseUrl + (params.length ? '?' + params.join('&') : '');
 };
 
 // dep 1
