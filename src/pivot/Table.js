@@ -70,6 +70,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         totalColObjects = [],
         uuidDimUuidsMap = {},
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
+        legendSetByDataItem = isObject(layout.legendSet) && layout.legendSet.id === 'BY_DATA_ITEM',
         legendDisplayStyle = layout.legendDisplayStyle,
         tdCount = 0,
         htmlArray,
@@ -94,6 +95,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty,
             isValue = isNumeric && config.type === 'value',
             cls = '',
+            response = layout.getResponse(),
             html = '',
             getHtmlValue;
 
@@ -132,14 +134,24 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         // number of cells
         tdCount = tdCount + 1;
 
-        // background color from legend set
-        if (isValue && legendSet) {
-            var value = parseFloat(config.value);
-            legends = legendSet.legends;
+        if (isValue) {
+            if (legendSet) {
+                legends = legendSet.legends;
+            }
 
-            for (var i = 0; i < legends.length; i++) {
-                if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
-                    bgColor = legends[i].color;
+            if (legendSetByDataItem && response.metaData.items[config.dxId].legendSet) {
+                var legendSetId = response.metaData.items[config.dxId].legendSet,
+                    _legendSet = appManager.getLegendSetById(legendSetId),
+                    value = parseFloat(config.value);
+
+                legends = _legendSet.legends;
+            }
+
+            if (legendSet || (legendSetByDataItem && response.metaData.items[config.dxId].legendSet)) {
+                for (var i = 0; i < legends.length; i++) {
+                    if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
+                        bgColor = legends[i].color;
+                    }
                 }
             }
         }
