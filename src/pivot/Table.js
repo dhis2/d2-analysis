@@ -507,7 +507,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     value: value,
                     htmlValue: htmlValue,
                     empty: empty,
-                    uuids: uuids
+                    uuids: uuids,
+                    dxId: rric.getDxIdByIds(response.metaData.dx)
                 });
 
                 // map element id to dim element ids
