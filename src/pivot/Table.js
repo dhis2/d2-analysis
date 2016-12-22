@@ -507,7 +507,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     value: value,
                     htmlValue: htmlValue,
                     empty: empty,
-                    uuids: uuids
+                    uuids: uuids,
+                    dxId: rric.getDxIdByIds(response.metaData.dx)
                 });
 
                 // map element id to dim element ids
@@ -939,8 +940,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         var cls = 'pivot user-select',
             table;
 
-        cls += layout.displayDensity && layout.displayDensity !== optionConfig.getDisplayDensity('normal').id ? ' displaydensity-' + layout.displayDensity : '';
-        cls += layout.fontSize && layout.fontSize !== optionConfig.getFontSize('normal').id ? ' fontsize-' + layout.fontSize : '';
+        cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
+        cls += layout.fontSize ? ' fontsize-' + layout.fontSize : '';
 
         table = '<table class="' + cls + '">';
 
