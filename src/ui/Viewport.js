@@ -4146,6 +4146,29 @@ Viewport = function(refs, cmp) {
         pressed: true
     });
 
+    var eastRegionButton = Ext.create('Ext.button.Button', {
+        text: ' ',
+        width: 26,
+        padding: '3',
+        iconCls: 'ns-button-icon-arrowlefttriple',
+        iconClsLeft: 'ns-button-icon-arrowlefttriple',
+        iconClsRight: 'ns-button-icon-arrowrighttriple',
+        iconState: 1,
+        setIconState: function() {
+            this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
+        },
+        handler: function(b) {
+            eastRegion.toggleCollapse();
+            this.setIconState();
+        },
+        displayPanel: function(){
+            eastRegion.toggleCollapse();
+            this.setIconState();
+        }
+
+    });
+    uiManager.reg(eastRegionButton, 'eastRegionButton');
+
     var centerRegion = Ext.create('Ext.panel.Panel', {
         region: 'center',
         bodyStyle: 'padding:1px',
@@ -4164,6 +4187,9 @@ Viewport = function(refs, cmp) {
                 }
             });
         },
+        // displayPanel: function(){
+        //     eastRegionButton.displayPanel();
+        // },
         tbar: {
             defaults: {
                 height: 26
@@ -4204,21 +4230,7 @@ Viewport = function(refs, cmp) {
                 embedButton,
                 '->',
                 ...integrationButtons,
-                {
-                    text: ' ',
-                    width: 26,
-                    padding: '3',
-                    iconCls: 'ns-button-icon-arrowlefttriple',
-                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
-                    iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 1,
-                    setIconState: function() {
-                        this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
-                    },
-                    handler: function(b) {
-                        this.setIconState();
-                    }
-                }
+                eastRegionButton
             ]
         },
         listeners: {
@@ -4430,6 +4442,8 @@ Viewport = function(refs, cmp) {
                                 uiManager.updateInterpretation(interpretation, layout);
                             });
                         });
+
+                        eastRegionButton.displayPanel();
                     }
                     else {
                         instanceManager.getById(id);
