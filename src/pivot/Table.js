@@ -456,7 +456,8 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
 //                   [ dim, dim ]
 //                   [ dim, dim ]
 //                   [ dim, dim ] ];
-
+console.log("rowAxisSize", rowAxisSize);
+console.log("colAxisSize", colAxisSize);return;
         // value
         for (var i = 0, valueItemsRow, valueObjectsRow; i < rowAxisSize; i++) {
             valueItemsRow = [];
@@ -665,7 +666,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
             for (var i = 0; i < tmpAxisAllObjects.length; i++) {
                 tmpValueObjects.push([]);
             }
-
+console.log("xValueObjects", xValueObjects);return;
             for (var i = 0; i < xValueObjects[0].length; i++) {
                 for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
                     item = xValueObjects[j][i];

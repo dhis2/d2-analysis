@@ -48,8 +48,8 @@ Dimension.prototype.val = function(noError) {
     }
 
     // warning
-    if (!this.items.length && !arrayContains(['co', 'dy'], this.dimension)) {
-        this.log('(Dimension) No items', noError);
+    if (!this.items.length && !arrayContains(['co', 'dy', 'longitude', 'latitude'], this.dimension)) {
+        //this.log('(Dimension) No items', noError);
         //return null;
     }
 

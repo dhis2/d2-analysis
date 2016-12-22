@@ -222,7 +222,6 @@ WestRegionTrackerItems = function(refs) {
         }
 
         peRecords.forEach(function(peRecord) {
-console.log("peRecord", peRecord);return;
             var checkbox = relativePeriodCmpMap[peRecord.id];
 
             if (checkbox) {
@@ -780,7 +779,7 @@ console.log("peRecord", peRecord);return;
             ux;
 
         index = index || dataElementSelected.items.items.length;
-console.log("element, index", element, index);
+
         getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
 
@@ -853,7 +852,7 @@ console.log("element, index", element, index);
 
                 return dim;
             };
-console.log("items", items);
+
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
             item = items[i];
@@ -870,12 +869,12 @@ console.log("items", items);
                 }
             }
         }
-console.log("dataElements", dataElements);
+
         // expand if multiple filter
         for (var i = 0, element, a, numberOfElements; i < dataElements.length; i++) {
             element = dataElements[i];
             allElements.push(element);
-console.log("element.valueType", element.valueType, element.filter);
+
             if (arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) && element.filter) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
@@ -895,13 +894,12 @@ console.log("element.valueType", element.valueType, element.filter);
             }
         }
 
-console.log("allElements", allElements);
         // panel, store
         for (var i = 0, element, ux, store; i < allElements.length; i++) {
             element = allElements[i];
             element.name = element.name || element.displayName;
             recordMap[element.id] = element;
-console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.value.getValue());
+
             // dont create ux if dim is selected as value
             if (element.id !== aggWindow.value.getValue()) {
                 ux = addUxFromDataElement(element);
@@ -1146,7 +1144,6 @@ console.log("element.id", element.id, "aggWindow.value.getValue()", aggWindow.va
 
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
-console.log("cmp.relativePeriodId", cmp.relativePeriodId);
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
         }
     };

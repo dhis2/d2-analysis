@@ -6,6 +6,7 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
+import isEmpty from 'd2-utilizr/lib/isEmpty';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
@@ -35,18 +36,39 @@ Response = function(refs, config) {
     });
 
     // metaData
+    //t.metaData = function() {
+        //var metaData = Object.assign({}, config.metaData),
+            //ignoreHeaders = ['value'];
+
+        //var dimensions = metaData.dimensions,
+            //items = metaData.items;
+
+        //var parseString = getParseMiddleware('STRING');
+
+        //// populate metaData dimensions
+        //t.headers.forEach(header => {
+            //if (!arrayContains(ignoreHeaders, header.name) && !dimensions[header.name]) {
+                //var parse = getParseMiddleware(header.valueType);
+
+                //dimensions[header.name] = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
+            //}
+        //});
+
+        //return metaData;
+    //}();
+
     t.metaData = function() {
         var metaData = Object.assign({}, config.metaData),
             ignoreHeaders = ['value'];
 
-        var dimensions = metaData.dimensions,
+        var dimensions = metaData,
             items = metaData.items;
 
         var parseString = getParseMiddleware('STRING');
 
         // populate metaData dimensions
         t.headers.forEach(header => {
-            if (!arrayContains(ignoreHeaders, header.name) && !dimensions[header.name]) {
+            if (!arrayContains(ignoreHeaders, header.name) && (isEmpty(dimensions[header.name]))) {
                 var parse = getParseMiddleware(header.valueType);
 
                 dimensions[header.name] = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
