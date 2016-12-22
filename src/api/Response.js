@@ -1,10 +1,15 @@
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayInsert from 'd2-utilizr/lib/arrayInsert';
+import arraySort from 'd2-utilizr/lib/arraySort';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
+
+import getParseMiddleware from '../util/getParseMiddleware';
 
 export var Response;
 
@@ -15,16 +20,41 @@ Response = function(refs, config) {
 
     var { ResponseHeader, ResponseRow } = refs.api;
 
-    // constructor
+    // headers
     t.headers = (config.headers || []).map(function(header) {
         return new ResponseHeader(refs, header);
     });
 
-    t.metaData = config.metaData;
+    t.headers.forEach(function(header, index) {
+        header.setIndex(index);
+    });
 
+    // rows
     t.rows = (config.rows || []).map(function(row) {
         return ResponseRow(refs, row);
     });
+
+    // metaData
+    t.metaData = function() {
+        var metaData = Object.assign({}, config.metaData),
+            ignoreHeaders = ['value'];
+
+        var dimensions = metaData.dimensions,
+            items = metaData.items;
+
+        var parseString = getParseMiddleware('STRING');
+
+        // populate metaData dimensions
+        t.headers.forEach(header => {
+            if (!arrayContains(ignoreHeaders, header.name) && !dimensions[header.name]) {
+                var parse = getParseMiddleware(header.valueType);
+
+                dimensions[header.name] = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
+            }
+        });
+
+        return metaData;
+    }();
 
     // transient
     t.nameHeaderMap = function() {
@@ -40,10 +70,6 @@ Response = function(refs, config) {
     // uninitialized
     t.idValueMap;
 
-    // set index on Headers
-    t.headers.forEach(function(header, index) {
-        header.setIndex(index);
-    });
 
     t.getRefs = function() {
         return refs;
