@@ -4158,10 +4158,9 @@ Viewport = function(refs, cmp) {
             this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
         },
         handler: function(b) {
-            eastRegion.toggleCollapse();
-            this.setIconState();
+            this.toggleCollapsePanel();
         },
-        toggle: function(){
+        toggleCollapsePanel: function(){
             eastRegion.toggleCollapse();
             this.setIconState();
         }
@@ -4181,10 +4180,9 @@ Viewport = function(refs, cmp) {
             this.setIconCls(this.iconState++ % 2 ? this.iconClsLeft : this.iconClsRight);
         },
         handler: function(b) {
-            westRegion.toggleCollapse();
-            this.setIconState();
+            this.toggleCollapsePanel();
         },
-        toggle: function(){
+        toggleCollapsePanel: function(){
             westRegion.toggleCollapse();
             this.setIconState();
         }
@@ -4212,8 +4210,8 @@ Viewport = function(refs, cmp) {
         setSidePanelsUIState: function(interpretationId){
             // If there is an interpretation loaded, collapse left panel and expand right panel
             if (interpretationId){
-                eastRegionButton.toggle();
-                westRegionButton.toggle();
+                eastRegionButton.toggleCollapsePanel();
+                westRegionButton.toggleCollapsePanel();
             }
         },
         tbar: {
