@@ -4211,11 +4211,7 @@ Viewport = function(refs, cmp) {
         },
         setSidePanelsUIState: function(interpretationId){
             // If there is an interpretation loaded, collapse left panel and expand right panel
-            console.log("taka")
-            console.log(interpretationId)
             if (interpretationId){
-                console.log("taka2")
-            console.log(interpretationId)
                 eastRegionButton.toggle();
                 westRegionButton.toggle();
             }
