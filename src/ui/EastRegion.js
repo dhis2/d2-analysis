@@ -622,18 +622,6 @@ EastRegion = function(c) {
             // Expand comments on click
             expandComments: function() {
                 if (!this.displayingComments) {
-                    // for (var i = 0; i < this.up("#interpretationsPanel").items.items.length; i++) {
-                    //     if (this.up("#interpretationsPanel").items.items[i].interpretation != undefined) {
-                    //         this.up("#interpretationsPanel").items.items[i].displayingComments = (this.up("#interpretationsPanel").items.items[i].id == this.id);
-                    //         //this.up("#interpretationsPanel").items.items[i].numberOfCommentsToDisplay = 3;
-                    //         this.up("#interpretationsPanel").items.items[i].updateInterpretationPanelItems();
-                    //     }
-                    // }
-
-                    // // Swop top panel
-                    // this.up("[xtype='panel']").down('#shareInterpretation').hide();
-                    // this.up("[xtype='panel']").down('#backToToday').show();
-
                     // Update canvas with favorite as it was by the time the interpretation was created
                     uiManager.updateInterpretation(interpretation);
                 }
@@ -788,16 +776,11 @@ EastRegion = function(c) {
         cls: 'eastPanel',
                 
         setState: function(layout) {
-            
-            
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
             // Favorite loaded with interpretations ->  Add interpretation panel and update
             this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
-
-            
         },
-
         listeners: {
             expand: function() {
                 this.doLayout();
