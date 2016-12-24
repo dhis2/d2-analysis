@@ -55,8 +55,7 @@ EastRegion = function(c) {
                     xtype: 'label',
                     itemId: 'descriptionLabel',
                     html: isTooLongDescription ? shortDescription : description,
-                    cls: 'interpretationActions',
-                    style: 'white-space: pre-wrap;'
+                    cls: 'interpretationActions'
                 });
 
                 // Longer than 200 characters -> Create More/Less link
@@ -363,8 +362,7 @@ EastRegion = function(c) {
                                 }
                             }, {
                                 xtype: 'label',
-                                text: comment.text,
-                                style: 'white-space: pre-wrap;'
+                                text: comment.text
                             }]
                         }, {
                             xtype: 'label',
@@ -507,7 +505,7 @@ EastRegion = function(c) {
             }, {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
-                style: 'margin-bottom: 8px; white-space: pre-wrap;',
+                style: 'margin-bottom: 8px;',
                 items: [{
                     xtype: 'label',
                     text: interpretation.text,
@@ -770,11 +768,10 @@ EastRegion = function(c) {
         collapseMode: 'mini',
         collapsed: true,
         border: false,
-        bodyStyle: 'overflow: auto;',
+        bodyStyle: 'overflow: auto; white-space: pre-wrap;',
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
-                
         setState: function(layout) {
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
