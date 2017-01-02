@@ -7,6 +7,7 @@ import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
+import isNumeric from 'd2-utilizr/lib/isNumeric';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
@@ -49,7 +50,9 @@ Response = function(refs, config) {
             if (!arrayContains(ignoreHeaders, header.name) && (isEmpty(dimensions[header.name]))) {
                 var parse = getParseMiddleware(header.valueType);
 
-                dimensions[header.name] = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
+                var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
+console.log("uniqueIdStrings", uniqueIdStrings);
+                dimensions[header.name] = uniqueIdStrings;
             }
         });
 

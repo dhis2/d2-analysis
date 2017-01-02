@@ -100,7 +100,7 @@ TableManager = function(c) {
 
                 dimension.add({
                     id: obj.id,
-                    name: response.metaData.names[obj.id]
+                    name: response.getNameById(obj.id)
                 });
             }
         }
