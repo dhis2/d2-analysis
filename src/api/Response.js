@@ -92,7 +92,6 @@ Response = function(refs, config) {
     // uninitialized
     t.idValueMap;
 
-
     t.getRefs = function() {
         return refs;
     };

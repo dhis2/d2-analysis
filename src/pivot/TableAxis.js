@@ -1,7 +1,8 @@
 import isArray from 'd2-utilizr/lib/isArray';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
-import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import arraySort from 'd2-utilizr/lib/arraySort';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import clone from 'd2-utilizr/lib/clone';
 import uuid from 'd2-utilizr/lib/uuid';
 
@@ -20,14 +21,15 @@ TableAxis = function(refs, layout, response, type) {
         aaAllFloorIds = [],
         aCondoId = [],
         aaAllFloorObjects = [],
-        uuidObjectMap = {};
+        uuidObjectMap = {},
+        ignoreKeys = ['dy', 'longitude', 'latitude'];
 
     if (type === 'col') {
-        aDimensions = layout.columns;
+        aDimensions = layout.columns.filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'colSpan';
     }
     else if (type === 'row') {
-        aDimensions = layout.rows;
+        aDimensions = layout.rows.filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'rowSpan';
     }
 
