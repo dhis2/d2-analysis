@@ -178,20 +178,23 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
         //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         //}
 
+        // legend
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
-            if(bgColor) {
+            if (bgColor) {
                 var rgb = uiManager.hexToRgb(bgColor),
                     color = uiManager.isColorBright(rgb) ? 'black' : 'white';
 
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
-            } else {
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '');
+            }
+            else {
+                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '');
             }
         }
-
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
+            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '');
         }
+
+        html += '">' + htmlValue + '</td>';
 
         return html;
     };
