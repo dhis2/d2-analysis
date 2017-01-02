@@ -35,33 +35,11 @@ Response = function(refs, config) {
         return ResponseRow(refs, row);
     });
 
-    // metaData
-    //t.metaData = function() {
-        //var metaData = Object.assign({}, config.metaData),
-            //ignoreHeaders = ['value'];
-
-        //var dimensions = metaData.dimensions,
-            //items = metaData.items;
-
-        //var parseString = getParseMiddleware('STRING');
-
-        //// populate metaData dimensions
-        //t.headers.forEach(header => {
-            //if (!arrayContains(ignoreHeaders, header.name) && !dimensions[header.name]) {
-                //var parse = getParseMiddleware(header.valueType);
-
-                //dimensions[header.name] = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
-            //}
-        //});
-
-        //return metaData;
-    //}();
-
     t.metaData = function() {
         var metaData = Object.assign({}, config.metaData),
             ignoreHeaders = ['value'];
 
-        var dimensions = metaData,
+        var dimensions = metaData.dimensions,
             items = metaData.items;
 
         var parseString = getParseMiddleware('STRING');
@@ -121,7 +99,7 @@ Response.prototype.getOptionSetHeaders = function() {
 };
 
 Response.prototype.getNameById = function(id) {
-    return this.metaData.names[id] || '';
+    return (this.metaData.items[id] || {}).name || '';
 };
 
 Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
@@ -141,7 +119,7 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getIdsByDimensionName = function(dimensionName) {
-    return this.metaData[dimensionName] || [];
+    return this.metaData.dimensions[dimensionName] || [];
 };
 
 Response.prototype.addOuHierarchyDimensions = function() {
@@ -269,13 +247,13 @@ Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var { Record } = refs.api;
 
     var metaData = this.metaData,
-        ids = metaData[dimensionName] || [],
+        ids = this.getIdsByDimensionName(dimensionName) || [],
         records = [];
 
     ids.forEach(function(id) {
         records.push((new Record(refs, {
             id: id,
-            name: metaData.names[id]
+            name: t.getNameById(id)
         })).val());
     });
 

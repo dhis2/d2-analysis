@@ -300,6 +300,7 @@ Layout.prototype.getRecordIds = function(includeFilter) {
     return ids;
 };
 
+
 Layout.prototype.getDimension = function(dimensionName) {
     return this.getDimensions(true).find(function(dimension) {
         return dimension.dimension === dimensionName;

@@ -456,8 +456,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
 //                   [ dim, dim ]
 //                   [ dim, dim ]
 //                   [ dim, dim ] ];
-console.log("rowAxisSize", rowAxisSize);
-console.log("colAxisSize", colAxisSize);return;
+
         // value
         for (var i = 0, valueItemsRow, valueObjectsRow; i < rowAxisSize; i++) {
             valueItemsRow = [];

@@ -252,22 +252,19 @@ DataElementIntegerContainer = function(refs) {
                     container.rangeValueCmp.hide();
                 }
                 else {
-                    var ranges;
-
                     container.operatorCmp.hide();
                     container.valueCmp.hide();
                     container.rangeSearchCmp.show();
                     container.rangeValueCmp.show();
 
-                    ranges = Ext.clone(appManager.getLegendSetById(id).legends);
+                    // legend display name
+                    var legends = appManager.getLegendSetById(id).legends.slice();
 
-                    // display name
-                    for (var i = 0; i < ranges.length; i++) {
-                        range = ranges[i];
-                        range.displayName = range.name + ' (' + range.startValue + ' - ' + range.endValue + ')';
-                    }
+                    legends.forEach(legend => {
+                        legend.displayName = legend.name + ' (' + legend.startValue + ' - ' + legend.endValue + ')';
+                    });
 
-                    container.rangeSearchStore.loadData(ranges);
+                    container.rangeSearchStore.loadData(legends);
                     container.rangeSearchStore.sort('startValue', 'ASC');
                 }
             };
