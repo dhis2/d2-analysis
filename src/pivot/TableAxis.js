@@ -3,7 +3,6 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
-import clone from 'd2-utilizr/lib/clone';
 import uuid from 'd2-utilizr/lib/uuid';
 
 export var TableAxis;
@@ -248,7 +247,7 @@ TableAxis = function(refs, layout, response, type) {
     if (aaAllFloorObjects.length) {
 
         // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-        var nSpan = nAxisHeight > 1 ? arraySort(clone(aFloorSpan))[1] : nAxisWidth,
+        var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
             aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
         for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
@@ -264,7 +263,7 @@ TableAxis = function(refs, layout, response, type) {
             }
 
             // add parent uuids to leaf
-            leaf.uuids = clone(parentUuids);
+            leaf.uuids = parentUuids.slice();
 
             // add uuid for all leaves
             if (leafUuids.length === nSpan) {

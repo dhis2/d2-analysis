@@ -884,7 +884,8 @@ WestRegionTrackerItems = function(refs) {
                     a.shift();
 
                     for (var j = 1, newElement; j < numberOfElements; j++) {
-                        newElement = Ext.clone(element);
+                        //newElement = Ext.clone(element);
+                        newElement = Object.assign({}, element);
                         newElement.filter = a.shift();
                         newElement.filter += ':' + a.shift();
 
@@ -928,34 +929,31 @@ WestRegionTrackerItems = function(refs) {
             // columns
             if (layout.columns) {
                 for (var i = 0, record, dim; i < layout.columns.length; i++) {
-                    dim = layout.columns[i];
+                    dim = Object.assign({}, layout.columns[i]);
                     record = recordMap[dim.dimension];
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), aggWindow.colStore, null, true);
-                    aggWindow.colStore.add(record || extendDim(Ext.clone(dim)));
+                    aggWindow.colStore.add(record || extendDim(dim));
                 }
             }
 
             // rows
             if (layout.rows) {
                 for (var i = 0, record, dim; i < layout.rows.length; i++) {
-                    dim = layout.rows[i];
+                    dim = Object.assign({}, layout.rows[i]);
                     record = recordMap[dim.dimension];
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), aggWindow.rowStore, null, true);
-                    aggWindow.rowStore.add(record || extendDim(Ext.clone(dim)));
+                    aggWindow.rowStore.add(record || extendDim(dim));
                 }
             }
 
             // filters
             if (layout.filters) {
                 for (var i = 0, store, record, dim; i < layout.filters.length; i++) {
-                    dim = layout.filters[i];
+                    dim = Object.assign({}, layout.filters[i]);
                     record = recordMap[dim.dimension];
                     store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.filterStore : aggWindow.fixedFilterStore;
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), store, null, true);
-                    store.add(record || extendDim(Ext.clone(dim)));
+                    store.add(record || extendDim(dim));
                 }
             }
 
@@ -1784,7 +1782,7 @@ WestRegionTrackerItems = function(refs) {
             }
 
             that.expandPath(path, 'id', '/', function() {
-                record = Ext.clone(that.getRootNode().findChild('id', id, true));
+                record = Object.assign({}, that.getRootNode().findChild('id', id, true));
                 that.recordsToSelect.push(record);
                 that.multipleSelectIf(map, doUpdate);
             });
