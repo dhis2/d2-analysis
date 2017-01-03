@@ -6,6 +6,7 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
+import isDefined from 'd2-utilizr/lib/isDefined';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
 import isNumeric from 'd2-utilizr/lib/isNumeric';
 import isObject from 'd2-utilizr/lib/isObject';
@@ -51,7 +52,7 @@ Response = function(refs, config) {
                 var parse = getParseMiddleware(header.valueType);
 
                 var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
-console.log("uniqueIdStrings", uniqueIdStrings);
+
                 dimensions[header.name] = uniqueIdStrings;
             }
         });
@@ -102,20 +103,23 @@ Response.prototype.getOptionSetHeaders = function() {
 };
 
 Response.prototype.getNameById = function(id) {
-    return (this.metaData.items[id] || {}).name || '';
+console.log(id, this.metaData.items[id]);
+    return (this.metaData.items[id] || {}).name || id;
 };
 
 Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
     var metaData = this.metaData,
         name = '';
 
+    var items = metaData.items;
+
     if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
         a.shift();
 
-        for (var i = 0; i < a.length; i++) {
-            name += (isHtml ? '<span class="text-weak">' : '') + metaData.names[a[i]] + (isHtml ? '</span>' : '') + ' / ';
-        }
+        a.forEach(function(id) {
+            name += (isHtml ? '<span class="text-weak">' : '') + items[id].name + (isHtml ? '</span>' : '') + ' / ';
+        });
     }
 
     return name;

@@ -24,7 +24,8 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
     options = options || {};
 
     // init
-    var getRoundedHtmlValue,
+    var getHtmlValue,
+        getRoundedHtmlValue,
         getTdHtml,
         getValue,
         roundIf,
@@ -74,49 +75,43 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
         idValueMap = response.getIdValueMap(layout),
         sortableIdObjects = []; //todo
 
+    getHtmlValue = function(config, isValue) {
+        if (config.collapsed) {
+            return '';
+        }
+
+        var str = config.htmlValue,
+            n = parseFloat(config.htmlValue);
+
+        if (isValue) {
+            if (isBoolean(str)) {
+                return str;
+            }
+
+            //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
+            if (!isNumber(n) || n != str) {
+                return str;
+            }
+
+            return n;
+        }
+
+        return str || '';
+    };
+
     getRoundedHtmlValue = function(value, dec) {
         dec = dec || 2;
         return parseFloat(roundIf(value, 2)).toString();
     };
 
     getTdHtml = function(config, metaDataId) {
-        var bgColor,
-            legends,
-            colSpan,
-            rowSpan,
-            htmlValue,
-            displayDensity,
-            fontSize,
-            isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty,
-            isValue = isNumeric && config.type === 'value',
-            cls = '',
-            html = '',
-            getHtmlValue;
+        var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
 
-        getHtmlValue = function(config) {
-            var str = config.htmlValue,
-                n = parseFloat(config.htmlValue);
+        var isValue = isNumeric && config.type === 'value';
 
-            if (config.collapsed) {
-                return '';
-            }
+        var legendColor = isValue && legendSet ? appManager.getLegendColorByValue(legendSet.id, parseFloat(config.value)) : null;
 
-            if (isValue) {
-                if (isBoolean(str)) {
-                    return str;
-                }
-
-                //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
-                if (!isNumber(n) || n != str) {
-                    return str;
-                }
-
-                return n;
-            }
-
-            return str || '';
-        }
-
+        // validation
         if (!isObject(config)) {
             return '';
         }
@@ -125,86 +120,81 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
             return '';
         }
 
-        // number of cells
+        // count number of cells
         tdCount = tdCount + 1;
 
-        // background color from legend set
-        if (isValue && legendSet) {
-            var value = parseFloat(config.value);
-            legends = legendSet.legends;
+        var attributes = [];
+        var cls = [];
+        var style = [];
 
-            for (var i = 0; i < legends.length; i++) {
-                if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
-                    bgColor = legends[i].color;
-                }
-            }
-        }
+        // html value
+        var htmlValue = getHtmlValue(config, isValue);
+        var ppHtmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
 
-        colSpan = config.colSpan ? 'colspan="' + config.colSpan + '" ' : '';
-        rowSpan = config.rowSpan ? 'rowspan="' + config.rowSpan + '" ' : '';
-        htmlValue = getHtmlValue(config);
-        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
+        // cls
+        cls = config.cls ? cls.concat(config.cls.split(' ')) : cls;
+        cls.push(config.hidden ? 'td-hidden' : null);
+        cls.push(config.collapsed ? 'td-collapsed' : null);
+        cls.push(isValue ? 'pointer' : null);
+        cls.push(isString(metaDataId) ? 'td-sortable' : null);
 
-        cls += config.hidden ? ' td-hidden' : '';
-        cls += config.collapsed ? ' td-collapsed' : '';
-        cls += isValue ? ' pointer' : '';
-        //cls += bgColor ? ' legend' : (config.cls ? ' ' + config.cls : '');
-        cls += config.cls ? ' ' + config.cls : '';
-
-        // if sorting
         if (isString(metaDataId)) {
-            cls += ' td-sortable';
-
             sortableIdObjects.push({
                 id: metaDataId,
                 uuid: config.uuid
             });
         }
 
-        html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
-        html += ' class="' + cls + '" ' + colSpan + rowSpan;
-        html += config.title ? ' title="' + config.title + '" ' : '';
+        // style
+        if (legendColor && isValue) {
+            var color;
+            var backgroundColor;
 
-        //if (bgColor && isValue) {
-            //html += 'style="color:' + bgColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
+            if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
+                color = legendColor;
+            }
+            else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
+                color = uiManager.isColorBright(uiManager.hexToRgb(legendColor)) ? 'black' : 'white';
+                backgroundColor = legendColor;
+            }
+
+            style.push(color ? ('color: ' + color) : null);
+            style.push(backgroundColor ? ('background-color: ' + backgroundColor) : null);
+        }
+
+        // attributes
+        cls = arrayClean(cls);
+        style = arrayClean(style);
+
+        attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
+        attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
+        attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
+        attributes.push(config.colSpan ? 'colspan="' + config.colSpan + '"' : null);
+        attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
+        attributes.push(config.title ? 'title="' + config.title + '"' : null);
+
+        //if (legendColor && isValue) {
+            //html += 'style="color:' + legendColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
             //html += '>';
             //html += '<div class="legendCt">';
             //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
             //html += '<div class="arrowCt ' + config.cls + '">';
-            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + bgColor + '">&nbsp;</div>';
+            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + legendColor + '">&nbsp;</div>';
             //html += '</div></div></div></td>';
         //}
         //else {
-        //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        //    html += 'style="' + (legendColor && isValue ? 'color:' + legendColor + '; ' : '') + '">' + htmlValue + '</td>';
         //}
 
-        // legend
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
-            if (bgColor) {
-                var rgb = uiManager.hexToRgb(bgColor),
-                    color = uiManager.isColorBright(rgb) ? 'black' : 'white';
-
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '');
-            }
-            else {
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '');
-            }
-        }
-        else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '');
-        }
-
-        html += '">' + htmlValue + '</td>';
-
-        return html;
+        return '<td ' + arrayClean(attributes).join(' ') + '>' + ppHtmlValue + '</td>';
     };
 
     getValue = function(str) {
-        var n = parseFloat(str);
-
         if (isBoolean(str)) {
             return 1;
         }
+
+        var n = parseFloat(str);
 
         // return string if
         // - parsefloat(string) is not a number
