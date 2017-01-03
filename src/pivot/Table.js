@@ -135,7 +135,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
         cls = config.cls ? cls.concat(config.cls.split(' ')) : cls;
         cls.push(config.hidden ? 'td-hidden' : null);
         cls.push(config.collapsed ? 'td-collapsed' : null);
-        cls.push(isValue ? 'pointer' : null);
+        cls.push(isValue && !options.unclickable ? 'pointer' : null);
         cls.push(isString(metaDataId) ? 'td-sortable' : null);
 
         if (isString(metaDataId)) {
