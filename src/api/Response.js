@@ -103,7 +103,6 @@ Response.prototype.getOptionSetHeaders = function() {
 };
 
 Response.prototype.getNameById = function(id) {
-console.log(id, this.metaData.items[id]);
     return (this.metaData.items[id] || {}).name || id;
 };
 

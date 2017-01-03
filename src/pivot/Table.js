@@ -924,7 +924,7 @@ console.log("xValueObjects", xValueObjects);return;
         return [row];
     };
 
-    getHtml = function() {
+    getHtml = function(htmlArray) {
         var cls = 'pivot user-select',
             table;
 
