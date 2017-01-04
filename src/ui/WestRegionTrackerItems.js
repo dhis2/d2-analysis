@@ -55,7 +55,7 @@ WestRegionTrackerItems = function(refs) {
 
         checkboxes = [],
 
-        baseWidth = 446,
+        baseWidth = 448,
         accBaseWidth = baseWidth - 2,
         toolWidth = 36,
         nextButtonWidth = 62;

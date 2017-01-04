@@ -657,8 +657,8 @@ Viewport = function(refs, cmp, config) {
                     northRegion.setLogoWidth(centerRegion.getPosition()[0]);
                 }
 
-                // expand first panel
-                uiManager.get('data').expand();
+                // expand to make sure treepanel is rendered
+                uiManager.get('organisationUnit').expand();
 
                 // look for url params
                 var id = appManager.getUrlParam('id'),
