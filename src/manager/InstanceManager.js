@@ -30,7 +30,7 @@ InstanceManager = function(refs) {
     t.plugin = false;
     t.dashboard = false;
 
-    // uninitialized
+    // configurable
     t.apiResource;
     t.apiEndpoint;
     t.analyticsEndpoint = '/analytics';

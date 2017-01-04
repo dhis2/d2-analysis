@@ -8,6 +8,7 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
 export var AppManager;
 
@@ -22,14 +23,6 @@ AppManager = function(refs) {
     t.defaultAnalyticsDisplayProperty = 'name';
     t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
-
-    t.valueTypes = {
-        'numeric': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE'],
-        'text': ['TEXT','LONG_TEXT','LETTER','PHONE_NUMBER','EMAIL'],
-        'boolean': ['BOOLEAN','TRUE_ONLY'],
-        'date': ['DATE','DATETIME'],
-        'aggregate': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE','BOOLEAN','TRUE_ONLY']
-    };
 
     t.defaultRequestHeaders = {
         'Accept': 'application/json',
@@ -80,6 +73,18 @@ AppManager = function(refs) {
         'USER_ORGUNIT',
         'USER_ORGUNIT_CHILDREN',
         'USER_ORGUNIT_GRANDCHILDREN'
+    ];
+
+    t.ignoreResponseHeaders = [
+        'dy',
+        'value',
+        'psi',
+        'ps',
+        'eventdate',
+        'longitude',
+        'latitude',
+        'ouname',
+        'oucode'
     ];
 
     // uninitialized
@@ -188,10 +193,6 @@ AppManager.prototype.getAnalyticsDisplayProperty = function() {
     return this.analyticsDisplayProperty = (this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
 };
 
-AppManager.prototype.getValueTypesByType = function(type) {
-    return this.valueTypes[type];
-};
-
 AppManager.prototype.getRootNodes = function() {
     return this.rootNodes;
 };
@@ -246,6 +247,15 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
     this.dataApprovalLevels = arrayClean(this.dataApprovalLevels.concat(arrayFrom(param)));
 
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
+};
+
+AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
+    var t = this;
+
+    t.ignoreResponseHeaders = arrayUnique([
+        ...(append ? t.ignoreResponseHeaders : []),
+        ...headers
+    ]);
 };
 
 AppManager.prototype.setAuth = function(auth) {

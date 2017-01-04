@@ -16,12 +16,12 @@ import getParseMiddleware from '../util/getParseMiddleware';
 
 export var Response;
 
-const IGNORE_HEADERS = ['dy', 'value', 'psi', 'ps', 'eventdate', 'longitude', 'latitude', 'ouname', 'oucode'];
-
 Response = function(refs, config) {
     var t = this;
 
     config = isObject(config) ? config : {};
+
+    var { appManager } = refs;
 
     var { ResponseHeader, ResponseRow } = refs.api;
 
@@ -47,9 +47,11 @@ Response = function(refs, config) {
 
         var parseString = getParseMiddleware('STRING');
 
+        var ignoreHeaders = appManager.ignoreResponseHeaders;
+
         // populate metaData dimensions
         t.headers.forEach(header => {
-            if (!arrayContains(IGNORE_HEADERS, header.name) && dimensions && (isEmpty(dimensions[header.name]))) {
+            if (!arrayContains(ignoreHeaders, header.name) && dimensions && (isEmpty(dimensions[header.name]))) {
                 var parse = getParseMiddleware(header.valueType);
 
                 var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));

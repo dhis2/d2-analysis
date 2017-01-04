@@ -18,6 +18,7 @@ import { CalendarManager } from './manager/CalendarManager.js';
 import { I18nManager } from './manager/I18nManager.js';
 import { RequestManager } from './manager/RequestManager.js';
 import { SessionStorageManager } from './manager/SessionStorageManager.js';
+import { IndexedDbManager } from './manager/IndexedDbManager.js';
 import { UiManager } from './manager/UiManager.js';
 import { InstanceManager } from './manager/InstanceManager.js';
 import { TableManager } from './manager/TableManager.js';
@@ -87,6 +88,7 @@ export {
     I18nManager,
     RequestManager,
     SessionStorageManager,
+    IndexedDbManager,
     UiManager,
     InstanceManager,
     TableManager,
@@ -161,6 +163,7 @@ export const manager = {
     I18nManager,
     RequestManager,
     SessionStorageManager,
+    IndexedDbManager,
     UiManager,
     InstanceManager,
     TableManager,

@@ -134,7 +134,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
         var ppHtmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
 
         // cls
-        cls = config.cls ? cls.concat(config.cls.split(' ')) : cls;
+        cls.push(...(config.cls ? config.cls.split(' ') : []));
         cls.push(config.hidden ? 'td-hidden' : null);
         cls.push(config.collapsed ? 'td-collapsed' : null);
         cls.push(isValue && !unclickable ? 'pointer' : null);
@@ -281,7 +281,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
                         }));
                     }
                 }
-
+console.log(response.getNameById(columnDimensionNames[i]));
                 a.push(getEmptyNameTdConfig({
                     cls: 'pivot-dim-label',
                     htmlValue: response.getNameById(columnDimensionNames[i]) // objectNameMap[columnDimensionNames[i]].name
