@@ -16,6 +16,8 @@ import getParseMiddleware from '../util/getParseMiddleware';
 
 export var Response;
 
+const IGNORE_HEADERS = ['dy', 'value', 'psi', 'ps', 'eventdate', 'longitude', 'latitude', 'ouname', 'oucode'];
+
 Response = function(refs, config) {
     var t = this;
 
@@ -38,8 +40,7 @@ Response = function(refs, config) {
     });
 
     t.metaData = function() {
-        var metaData = Object.assign({}, config.metaData),
-            ignoreHeaders = ['value'];
+        var metaData = Object.assign({}, config.metaData);
 
         var dimensions = metaData.dimensions,
             items = metaData.items;
@@ -48,7 +49,7 @@ Response = function(refs, config) {
 
         // populate metaData dimensions
         t.headers.forEach(header => {
-            if (!arrayContains(ignoreHeaders, header.name) && (isEmpty(dimensions[header.name]))) {
+            if (!arrayContains(IGNORE_HEADERS, header.name) && dimensions && (isEmpty(dimensions[header.name]))) {
                 var parse = getParseMiddleware(header.valueType);
 
                 var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
@@ -125,7 +126,7 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getIdsByDimensionName = function(dimensionName) {
-    return this.metaData.dimensions[dimensionName] || [];
+    return this.metaData.dimensions ? this.metaData.dimensions[dimensionName] || [] : [];
 };
 
 Response.prototype.addOuHierarchyDimensions = function() {

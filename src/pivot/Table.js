@@ -17,9 +17,11 @@ export var Table;
 Table = function(refs, layout, response, colAxis, rowAxis, options) {
     var t = this;
 
+    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
+
     var { ResponseRowIdCombination } = refs.api;
 
-    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
+    var { unclickable } = options;
 
     options = options || {};
 
@@ -135,7 +137,7 @@ Table = function(refs, layout, response, colAxis, rowAxis, options) {
         cls = config.cls ? cls.concat(config.cls.split(' ')) : cls;
         cls.push(config.hidden ? 'td-hidden' : null);
         cls.push(config.collapsed ? 'td-collapsed' : null);
-        cls.push(isValue && !options.unclickable ? 'pointer' : null);
+        cls.push(isValue && !unclickable ? 'pointer' : null);
         cls.push(isString(metaDataId) ? 'td-sortable' : null);
 
         if (isString(metaDataId)) {

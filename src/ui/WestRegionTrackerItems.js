@@ -2743,7 +2743,7 @@ WestRegionTrackerItems = function(refs) {
         if (dataType === dimensionConfig.dataType['individual_cases']) {
             Ext.applyIf(config, queryOptionsWindow.getOptions());
 
-            view.paging = {
+            config.paging = {
                 page: uiManager.get('statusBar').getCurrentPage(),
                 pageSize: 100
             };

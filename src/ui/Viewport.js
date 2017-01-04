@@ -67,6 +67,8 @@ Viewport = function(refs, cmp, config) {
 
     var dataTypeToolbar = cmp.dataTypeToolbar;
 
+    var statusBar = cmp.statusBar;
+
     var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
 
     var layoutButton = uiManager.reg(LayoutButton(refs), 'layoutButton');
@@ -511,6 +513,7 @@ Viewport = function(refs, cmp, config) {
                 }
             ]
         },
+        bbar: statusBar,
         listeners: {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());

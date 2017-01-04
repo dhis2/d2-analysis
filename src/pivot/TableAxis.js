@@ -24,11 +24,11 @@ TableAxis = function(refs, layout, response, type) {
         ignoreKeys = ['dy', 'longitude', 'latitude'];
 
     if (type === 'col') {
-        aDimensions = layout.columns.filter(dim => !arrayContains(ignoreKeys, dim.dimension));
+        aDimensions = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'colSpan';
     }
     else if (type === 'row') {
-        aDimensions = layout.rows.filter(dim => !arrayContains(ignoreKeys, dim.dimension));
+        aDimensions = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'rowSpan';
     }
 
