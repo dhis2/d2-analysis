@@ -49,15 +49,19 @@ Response = function(refs, config) {
 
         var ignoreHeaders = appManager.ignoreResponseHeaders;
 
-        // populate metaData dimensions
+        // populate metaData dimensions and items
         t.headers.forEach(header => {
-            if (!arrayContains(ignoreHeaders, header.name) && dimensions && (isEmpty(dimensions[header.name]))) {
+            if (!arrayContains(ignoreHeaders, header.name) && (isEmpty((dimensions || {})[header.name]))) {
                 var parse = getParseMiddleware(header.valueType);
 
                 var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
 
                 dimensions[header.name] = uniqueIdStrings;
             }
+
+            //if (header.optionSet) {
+
+
         });
 
         return metaData;
