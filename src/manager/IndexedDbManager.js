@@ -16,19 +16,19 @@ IndexedDbManager = function() {
     }));
 
     // cache
-    t.optionSets = {};
+    t.cachedOptionSets = {};
 };
 
 IndexedDbManager.prototype.getCachedOptionSet = function(id) {
-    return this.optionSets[id];
+    return this.cachedOptionSets[id];
 };
 
 IndexedDbManager.prototype.setCachedOptionSet = function(optionSet) {
-    this.getOptionSets[optionSet.id] = optionSet;
+    this.cachedOptionSets[optionSet.id] = optionSet;
 };
 
 IndexedDbManager.prototype.hasCachedOptionSet = function(id) {
-    return (id in this.optionSets);
+    return (id in this.cachedOptionSets);
 };
 
 // dep 1

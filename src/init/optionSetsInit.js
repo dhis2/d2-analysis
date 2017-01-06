@@ -1,9 +1,10 @@
 export var optionSetsInit;
 
-optionSetsInit = function(refs, store) {
+optionSetsInit = function(refs) {
     var t = this,
         appManager = refs.appManager,
-        requestManager = refs.requestManager;
+        requestManager = refs.requestManager,
+        indexedDbManager = refs.indexedDbManager;
 
     var apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
@@ -12,10 +13,10 @@ optionSetsInit = function(refs, store) {
         baseUrl: '.',
         disableCaching: false,
         success: function() {
-            store.open().done(function() {
+            indexedDbManager.open().done(function() {
 
                 // check if idb has any option sets
-                store.getKeys('optionSets').done( function(keys) {
+                indexedDbManager.getKeys('optionSets').done( function(keys) {
                     if (keys.length === 0) {
                         Ext.Ajax.request({
                             url: appManager.getApiPath() + '/optionSets.json?fields=id,name,version,options[code,name]&paging=false',
@@ -23,7 +24,7 @@ optionSetsInit = function(refs, store) {
                                 var sets = Ext.decode(r.responseText).optionSets;
 
                                 if (sets.length) {
-                                    store.setAll('optionSets', sets).done(function() {
+                                    indexedDbManager.setAll('optionSets', sets).done(function() {
                                         requestManager.ok(t);
                                     });
                                 }
@@ -59,7 +60,7 @@ optionSetsInit = function(refs, store) {
                                             success: function(r) {
                                                 var sets = Ext.decode(r.responseText).optionSets;
 
-                                                store.setAll('optionSets', sets).done(function() {
+                                                indexedDbManager.setAll('optionSets', sets).done(function() {
                                                     requestManager.ok(t);
                                                 });
                                             }
@@ -68,7 +69,7 @@ optionSetsInit = function(refs, store) {
                                 };
 
                                 var registerOptionSet = function(optionSet) {
-                                    store.get('optionSets', optionSet.id).done( function(obj) {
+                                    indexedDbManager.get('optionSets', optionSet.id).done( function(obj) {
                                         if (!Ext.isObject(obj) || obj.version !== optionSet.version) {
                                             ids.push(optionSet.id);
                                         }
