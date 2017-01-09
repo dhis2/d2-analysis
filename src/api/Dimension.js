@@ -48,7 +48,7 @@ Dimension.prototype.val = function(noError) {
     }
 
     // warning
-    if (!this.items.length && !arrayContains(['co', 'dy', 'longitude', 'latitude'], this.dimension)) {
+    if (!this.items.length && !arrayContains(['co', 'dy', 'longitude', 'latitude'], this.dimension)) { //todo use centralised keys
         //this.log('(Dimension) No items', noError);
         //return null;
     }

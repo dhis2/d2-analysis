@@ -25,6 +25,19 @@ Response = function(refs, config) {
 
     var { ResponseHeader, ResponseRow } = refs.api;
 
+    t.prefixProps = ['legendSet', 'optionSet'];
+
+    t.isPrefixHeader = (header, dimensions) => isEmpty(dimensions) || t.prefixProps.some(prop => (prop in header));
+
+    t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
+
+    t.getSortedUniqueRowIdStringsByHeader = (header) => {
+        var parseByType = getParseMiddleware(header.valueType);
+        var parseString = getParseMiddleware('STRING');
+
+        return arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parseByType(responseRow.getAt(header.index)))))).map(id => parseString(id));
+    };
+
     // headers
     t.headers = (config.headers || []).map(function(header) {
         return new ResponseHeader(refs, header);
@@ -45,25 +58,27 @@ Response = function(refs, config) {
         var dimensions = metaData.dimensions,
             items = metaData.items;
 
-        var parseString = getParseMiddleware('STRING');
-
         var ignoreHeaders = appManager.ignoreResponseHeaders;
+
+        var isIgnoreHeader = (header) => arrayContains(ignoreHeaders, header.name);
+
+        var isDimensionEmpty = (name) => !((name in dimensions) && dimensions[name].length);
 
         // populate metaData dimensions and items
         t.headers.forEach(header => {
-            if (!arrayContains(ignoreHeaders, header.name) && (isEmpty((dimensions || {})[header.name]))) {
-                var parse = getParseMiddleware(header.valueType);
+            if (!isIgnoreHeader(header)) {
+                if (t.isPrefixHeader(header, dimensions[header.name])) {
+                    if (isEmpty(dimensions[header.name])) {
+                        dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
+                    }
 
-                var uniqueIdStrings = arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parse(responseRow.getAt(header.index)))))).map(id => parseString(id));
-
-                dimensions[header.name] = uniqueIdStrings;
+                    console.log("before: ", dimensions[header.name]);
+                    dimensions[header.name] = dimensions[header.name].map(id => t.getPrefixedId(id, header.name));
+                    console.log("after: ", dimensions[header.name]);
+                }
             }
-
-            //if (header.optionSet) {
-
-
         });
-
+console.log("metaData", metaData);
         return metaData;
     }();
 
@@ -97,6 +112,10 @@ Response.prototype.clone = function() {
 
 Response.prototype.getHeaderByName = function(name) {
     return this.nameHeaderMap[name];
+};
+
+Response.prototype.getHeaderByIndex = function(index) {
+    return this.headers[index];
 };
 
 Response.prototype.getHeaderIndexByName = function(name) {
@@ -227,6 +246,10 @@ Response.prototype.printResponseCSV = function() {
 
 // dep 1
 
+Response.prototype.getHeaderNameByIndex = function(index) {
+    this.getHeaderByIndex(index).name;
+};
+
 Response.prototype.getHeaderIndexOrder = function(dimensionNames) {
     var t = this,
         headerIndexOrder = [];
@@ -295,7 +318,7 @@ Response.prototype.getIdValueMap = function(layout) {
 
     var { ResponseRowIdCombination } = refs.api;
 
-    var headerIndexOrder = t.getHeaderIndexOrder(layout.getDimensionNames()),
+    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
         idValueMap = {},
         idCombination;
 
@@ -303,7 +326,12 @@ Response.prototype.getIdValueMap = function(layout) {
         idCombination = new ResponseRowIdCombination(refs);
 
         headerIndexOrder.forEach(function(index) {
-            idCombination.add(responseRow.getAt(index));
+            var header = t.getHeaderByIndex(index);
+            var rowItem = responseRow.getAt(index);
+
+            var key = t.isPrefixHeader(header) ? t.getPrefixedId(rowItem, header.name) : rowItem;
+
+            idCombination.add(key);
         });
 
         responseRow.setIdCombination(idCombination);
