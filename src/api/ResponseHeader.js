@@ -3,13 +3,13 @@ import isNumeric from 'd2-utilizr/lib/isNumeric';
 
 export var ResponseHeader;
 
-ResponseHeader = function(refs, config) {
+ResponseHeader = function(refs, config, extraConfig) {
     var t = this;
 
     config = isObject(config) ? config : {};
 
     // constructor
-    $.extend(this, config);
+    Object.assign(t, config, extraConfig);
 
     // uninitialized
     t.index;

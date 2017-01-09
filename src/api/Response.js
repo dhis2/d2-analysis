@@ -40,7 +40,9 @@ Response = function(refs, config) {
 
     // headers
     t.headers = (config.headers || []).map(function(header) {
-        return new ResponseHeader(refs, header);
+        var extraConfig = t.isPrefixHeader(header, config.metaData.dimensions[header.name]) ? { isPrefix: true } : {};
+
+        return new ResponseHeader(refs, header, extraConfig);
     });
 
     t.headers.forEach(function(header, index) {
@@ -66,19 +68,16 @@ Response = function(refs, config) {
 
         // populate metaData dimensions and items
         t.headers.forEach(header => {
-            if (!isIgnoreHeader(header)) {
-                if (t.isPrefixHeader(header, dimensions[header.name])) {
-                    if (isEmpty(dimensions[header.name])) {
-                        dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
-                    }
-
-                    console.log("before: ", dimensions[header.name]);
-                    dimensions[header.name] = dimensions[header.name].map(id => t.getPrefixedId(id, header.name));
-                    console.log("after: ", dimensions[header.name]);
+            if (!isIgnoreHeader(header) && header.isPrefix) {
+                if (isEmpty(dimensions[header.name])) {
+                    dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
                 }
+
+                dimensions[header.name] = dimensions[header.name].map(id => t.getPrefixedId(id, header.name));
+                console.log("after: ", dimensions[header.name]);
             }
         });
-console.log("metaData", metaData);
+
         return metaData;
     }();
 
@@ -322,14 +321,16 @@ Response.prototype.getIdValueMap = function(layout) {
         idValueMap = {},
         idCombination;
 
+    var dimensions = t.metaData.dimensions;
+
     this.rows.forEach(function(responseRow) {
         idCombination = new ResponseRowIdCombination(refs);
 
         headerIndexOrder.forEach(function(index) {
             var header = t.getHeaderByIndex(index);
-            var rowItem = responseRow.getAt(index);
+            var rowValue = responseRow.getAt(index);
 
-            var key = t.isPrefixHeader(header) ? t.getPrefixedId(rowItem, header.name) : rowItem;
+            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
 
             idCombination.add(key);
         });
@@ -338,7 +339,7 @@ Response.prototype.getIdValueMap = function(layout) {
 
         idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
     });
-
+console.log("idValueMap", idValueMap);
     return this.idValueMap = idValueMap;
 };
 

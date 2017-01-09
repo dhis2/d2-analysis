@@ -476,9 +476,9 @@ console.log(response.getNameById(columnDimensionNames[i]));
                 if (rowAxis.type) {
                     uuids = uuids.concat(rowAxis.objects.all[rowAxis.dims - 1][i].uuids);
                 }
-
+var rricVal = rric.get();
                 // value, htmlValue
-                responseValue = idValueMap[rric.get()];
+                responseValue = idValueMap[rricVal];
 
                 if (isDefined(responseValue)) {
                     value = getValue(responseValue);
