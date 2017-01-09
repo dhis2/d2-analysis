@@ -21,13 +21,35 @@ Response = function(refs, config) {
 
     config = isObject(config) ? config : {};
 
-    var { appManager } = refs;
+    var { appManager, indexedDbManager } = refs;
 
     var { ResponseHeader, ResponseRow } = refs.api;
 
-    t.prefixProps = ['legendSet', 'optionSet'];
+                                //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
 
-    t.isPrefixHeader = (header, dimensions) => isEmpty(dimensions) || t.prefixProps.some(prop => (prop in header));
+//- required                        V               V           nei             nei
+
+//- legendSet                       V               V           nei             nei
+//- !dimensions                     x               x           ja              ja
+
+//- optionset, !dimensions          x               x           ja              ja
+//- optionset                       V               x           nei             ja
+
+    var isPrefixHeader = (header, dimensions) => {
+        if (arrayContains(appManager.ignoreResponseHeaders, header.name)) {
+            return false;
+        }
+
+        return ('optionSet' in header) || isEmpty(dimensions);
+    };
+
+    var isCollectHeader = (header, dimensions) => {
+        if (arrayContains(appManager.ignoreResponseHeaders, header.name)) {
+            return false;
+        }
+
+        return isEmpty(dimensions);
+    };
 
     t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
 
@@ -39,20 +61,19 @@ Response = function(refs, config) {
     };
 
     // headers
-    t.headers = (config.headers || []).map(function(header) {
-        var extraConfig = t.isPrefixHeader(header, config.metaData.dimensions[header.name]) ? { isPrefix: true } : {};
+    t.headers = (config.headers || []).map(header => {
+        var dimensions = config.metaData.dimensions;
 
-        return new ResponseHeader(refs, header, extraConfig);
+        var prefixConfig = isPrefixHeader(header, dimensions[header.name]) ? { isPrefix: true } : {};
+        var collectConfig = isCollectHeader(header, dimensions[header.name]) ? { isCollect: true } : {};
+
+        return new ResponseHeader(refs, header, Object.assign({}, prefixConfig, collectConfig));
     });
 
-    t.headers.forEach(function(header, index) {
-        header.setIndex(index);
-    });
+    t.headers.forEach((header, index) => header.setIndex(index));
 
     // rows
-    t.rows = (config.rows || []).map(function(row) {
-        return ResponseRow(refs, row);
-    });
+    t.rows = (config.rows || []).map(row => ResponseRow(refs, row));
 
     t.metaData = function() {
         var metaData = Object.assign({}, config.metaData);
@@ -60,24 +81,35 @@ Response = function(refs, config) {
         var dimensions = metaData.dimensions,
             items = metaData.items;
 
-        var ignoreHeaders = appManager.ignoreResponseHeaders;
-
-        var isIgnoreHeader = (header) => arrayContains(ignoreHeaders, header.name);
-
-        var isDimensionEmpty = (name) => !((name in dimensions) && dimensions[name].length);
-
         // populate metaData dimensions and items
         t.headers.forEach(header => {
-            if (!isIgnoreHeader(header) && header.isPrefix) {
-                if (isEmpty(dimensions[header.name])) {
-                    dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
-                }
+            var ids = dimensions[header.name];
 
-                dimensions[header.name] = dimensions[header.name].map(id => t.getPrefixedId(id, header.name));
-                console.log("after: ", dimensions[header.name]);
+            // collect row values
+            if (header.isCollect) {
+                ids = t.getSortedUniqueRowIdStringsByHeader(header);
+                dimensions[header.name] = ids;
+            }
+
+            if (header.isPrefix) {
+
+                // prefix dimensions
+                dimensions[header.name] = ids.map(id => t.getPrefixedId(id, header.name));
+
+                // create items
+                if (header.optionSet) {
+                    dimensions[header.name].forEach((prefixedId, index) => {
+                        items[prefixedId] = { name: indexedDbManager.getCachedOptionName(ids[index], header.optionSet) };
+                    });
+                }
+                else {
+                    dimensions[header.name].forEach((prefixedId, index) => {
+                        items[prefixedId] = { name: ids[index] };
+                    });
+                }
             }
         });
-
+console.log(metaData);
         return metaData;
     }();
 
