@@ -10,6 +10,8 @@ import containerConfig from './containerConfig';
 export var GroupSetContainer;
 
 GroupSetContainer = function(refs) {
+    var { indexedDbManager } = refs;
+
     Ext.define('Ext.ux.container.GroupSetContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.groupsetcontainer',
@@ -112,19 +114,22 @@ GroupSetContainer = function(refs) {
                     optionSetId = optionSetId || container.dataElement.optionSet.id;
                     pageSize = pageSize || 100;
 
-                    dhis2.er.store.get('optionSets', optionSetId).done( function(obj) {
-                        if (isObject(obj) && isArray(obj.options) && obj.options.length) {
+                    //indexedDbManager.get('optionSets', optionSetId).done( function(obj) {
+                    indexedDbManager.getOptionSets(optionSetId, function(optionSets) {
+                        var optionSet = optionSets[0];
+
+                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
                             var data = [];
 
                             if (key) {
                                 var re = new RegExp(key, 'gi');
 
-                                for (var i = 0, name, match; i < obj.options.length; i++) {
-                                    name = obj.options[i].name;
+                                for (var i = 0, name, match; i < optionSet.options.length; i++) {
+                                    name = optionSet.options[i].name;
                                     match = name.match(re);
 
                                     if (isArray(match) && match.length) {
-                                        data.push(obj.options[i]);
+                                        data.push(optionSet.options[i]);
 
                                         if (data.length === pageSize) {
                                             break;
@@ -133,7 +138,7 @@ GroupSetContainer = function(refs) {
                                 }
                             }
                             else {
-                                data = obj.options;
+                                data = optionSet.options;
                             }
 
                             store.removeAll();
@@ -253,9 +258,12 @@ GroupSetContainer = function(refs) {
                     var me = this,
                         records = [];
 
-                    dhis2.er.store.get('optionSets', container.dataElement.optionSet.id).done( function(obj) {
-                        if (isObject(obj) && isArray(obj.options) && obj.options.length) {
-                            records = container.getRecordsByCode(obj.options, codeArray);
+                    //indexedDbManager.get('optionSets', container.dataElement.optionSet.id).done( function(obj) {
+                    indexedDbManager.getOptionSets(container.dataElement.optionSet.id, function(optionSets) {
+                        var optionSet = optionSets[0];
+
+                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
+                            records = container.getRecordsByCode(optionSet.options, codeArray);
 
                             container.valueStore.removeAll();
                             container.valueStore.loadData(records);

@@ -660,7 +660,7 @@ console.log(response.getNameById(columnDimensionNames[i]));
             for (var i = 0; i < tmpAxisAllObjects.length; i++) {
                 tmpValueObjects.push([]);
             }
-console.log("xValueObjects", xValueObjects);return;
+console.log("xValueObjects", xValueObjects);
             for (var i = 0; i < xValueObjects[0].length; i++) {
                 for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
                     item = xValueObjects[j][i];
