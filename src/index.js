@@ -9,8 +9,9 @@ import { ResponseRowIdCombination } from './api/ResponseRowIdCombination.js';
 import { Response } from './api/Response.js';
 import { Sorting } from './api/Sorting.js';
 
-import { TableAxis } from './pivot/TableAxis.js';
-import { Table } from './pivot/Table.js';
+import { PivotTableAxis } from './table/PivotTableAxis.js';
+import { PivotTable } from './table/PivotTable.js';
+import { EventDataTable } from './table/EventDataTable.js';
 
 import { AppManager } from './manager/AppManager.js';
 import { DateManager } from './manager/DateManager.js';
@@ -79,8 +80,9 @@ export {
     Response,
     Sorting,
 
-    TableAxis,
-    Table,
+    PivotTableAxis,
+    PivotTable,
+    EventDataTable,
 
     AppManager,
     DateManager,
@@ -151,9 +153,10 @@ export const api = {
     Sorting,
 };
 
-export const pivot = {
-    TableAxis,
-    Table,
+export const table = {
+    PivotTableAxis,
+    PivotTable,
+    EventDataTable,
 };
 
 export const manager = {

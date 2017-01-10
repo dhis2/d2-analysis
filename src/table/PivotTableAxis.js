@@ -5,9 +5,9 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import uuid from 'd2-utilizr/lib/uuid';
 
-export var TableAxis;
+export var PivotTableAxis;
 
-TableAxis = function(refs, layout, response, type) {
+PivotTableAxis = function(refs, layout, response, type) {
     var spanType,
         aDimensions = [],
         nAxisWidth = 1,

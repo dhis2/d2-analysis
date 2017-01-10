@@ -12,9 +12,9 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
 
-export var Table;
+export var PivotTable;
 
-Table = function(refs, layout, response, colAxis, rowAxis, options) {
+PivotTable = function(refs, layout, response, colAxis, rowAxis, options) {
     var t = this;
 
     var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
@@ -970,6 +970,6 @@ console.log("xValueObjects", xValueObjects);
     t.tdCount = tdCount;
 };
 
-Table.prototype.getUuidObjectMap = function() {
+PivotTable.prototype.getUuidObjectMap = function() {
     return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };
