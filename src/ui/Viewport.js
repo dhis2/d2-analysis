@@ -4146,6 +4146,49 @@ Viewport = function(refs, cmp) {
         pressed: true
     });
 
+    var eastRegionButton = Ext.create('Ext.button.Button', {
+        text: ' ',
+        width: 26,
+        padding: '3',
+        iconCls: 'ns-button-icon-arrowlefttriple',
+        iconClsLeft: 'ns-button-icon-arrowlefttriple',
+        iconClsRight: 'ns-button-icon-arrowrighttriple',
+        iconState: 1,
+        setIconState: function() {
+            this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
+        },
+        handler: function(b) {
+            this.toggleCollapsePanel();
+        },
+        toggleCollapsePanel: function(){
+            eastRegion.toggleCollapse();
+            this.setIconState();
+        }
+
+    });
+    uiManager.reg(eastRegionButton, 'eastRegionButton');
+
+    var westRegionButton = Ext.create('Ext.button.Button', {
+        text: ' ',
+        width: 26,
+        padding: '3',
+        iconCls: 'ns-button-icon-arrowlefttriple',
+        iconClsLeft: 'ns-button-icon-arrowlefttriple',
+        iconClsRight: 'ns-button-icon-arrowrighttriple',
+        iconState: 0,
+        setIconState: function() {
+            this.setIconCls(this.iconState++ % 2 ? this.iconClsLeft : this.iconClsRight);
+        },
+        handler: function(b) {
+            this.toggleCollapsePanel();
+        },
+        toggleCollapsePanel: function(){
+            westRegion.toggleCollapse();
+            this.setIconState();
+        }
+    });
+    uiManager.reg(westRegionButton, 'westRegionButton');
+
     var centerRegion = Ext.create('Ext.panel.Panel', {
         region: 'center',
         bodyStyle: 'padding:1px',
@@ -4164,27 +4207,19 @@ Viewport = function(refs, cmp) {
                 }
             });
         },
+        setSidePanelsUIState: function(interpretationId){
+            // If there is an interpretation loaded, collapse left panel and expand right panel
+            if (interpretationId){
+                eastRegionButton.toggleCollapsePanel();
+                westRegionButton.toggleCollapsePanel();
+            }
+        },
         tbar: {
             defaults: {
                 height: 26
             },
             items: [
-                {
-                    text: ' ',
-                    width: 26,
-                    padding: '3',
-                    iconCls: 'ns-button-icon-arrowlefttriple',
-                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
-                    iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 0,
-                    setIconState: function() {
-                        this.setIconCls(this.iconState++ % 2 ? this.iconClsLeft : this.iconClsRight);
-                    },
-                    handler: function(b) {
-                        westRegion.toggleCollapse();
-                        this.setIconState();
-                    }
-                },
+                westRegionButton,
                 ' ',
                 updateButton,
                 favoriteButton,
@@ -4204,22 +4239,7 @@ Viewport = function(refs, cmp) {
                 embedButton,
                 '->',
                 ...integrationButtons,
-                {
-                    text: ' ',
-                    width: 26,
-                    padding: '3',
-                    iconCls: 'ns-button-icon-arrowlefttriple',
-                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
-                    iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 1,
-                    setIconState: function() {
-                        this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
-                    },
-                    handler: function(b) {
-                        eastRegion.toggleCollapse();
-                        this.setIconState();
-                    }
-                }
+                eastRegionButton
             ]
         },
         listeners: {
@@ -4443,6 +4463,9 @@ Viewport = function(refs, cmp) {
                         instanceManager.getReport(layout, false, false, true);
                     }
                 }
+
+                // Show/Collapse right and left panel
+                centerRegion.setSidePanelsUIState(interpretationId);
 
                 var initEl = document.getElementById('init');
                 initEl.parentNode.removeChild(initEl);

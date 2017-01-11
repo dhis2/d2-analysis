@@ -1,4 +1,4 @@
-import isFunction from 'd2-utilizr/lib/isString';
+import isFunction from 'd2-utilizr/lib/isFunction';
 import isString from 'd2-utilizr/lib/isString';
 import isObject from 'd2-utilizr/lib/isObject';
 import arrayContains from 'd2-utilizr/lib/arrayContains';

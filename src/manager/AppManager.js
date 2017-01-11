@@ -124,7 +124,7 @@ AppManager = function(refs) {
             for (var i = 0; i < query.length; i++) {
                 if (query[i].indexOf('=') > -1) {
                     var a = query[i].split('=');
-                    if (a[0].toLowerCase() === s) {
+                    if (a[0].toLowerCase() === s.toLowerCase()) {
                         output = a[1];
                         break;
                     }

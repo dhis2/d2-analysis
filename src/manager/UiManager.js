@@ -114,8 +114,8 @@ UiManager = function(refs) {
         updateFn(content, elementId);
     };
 
-    t.updateInterpretation = function(interpretation) {
-        updateInterpretationFn(interpretation);
+    t.updateInterpretation = function(interpretation, layout) {
+        updateInterpretationFn(interpretation, layout);
     };
 
     // state
