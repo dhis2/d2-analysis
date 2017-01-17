@@ -10,12 +10,12 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
-import {Axis} from './Axis.js';
-import {Dimension} from './Dimension.js';
-import {Request} from './Request.js';
-import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
-import {Sorting} from './Sorting.js';
-import {DateManager} from '../manager/DateManager.js';
+import { Axis } from './Axis.js';
+import { Dimension } from './Dimension.js';
+import { Request } from './Request.js';
+import { ResponseRowIdCombination } from './ResponseRowIdCombination.js';
+import { Sorting } from './Sorting.js';
+import { DateManager } from '../manager/DateManager.js';
 
 export var Layout;
 
@@ -42,7 +42,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     t.rows = (Axis(c.rows)).val();
     t.filters = (Axis(c.filters)).val(true);
 
-        // sharing
+        // access
     _access = isObject(c.access) ? c.access : null;
 
         // data dimension items
@@ -230,6 +230,13 @@ Layout.prototype.applyInterpretation = function(interpretation) {
     this.setResponse(null);
     this.relativePeriodDate = interpretation.created;
     this.interpretationId = interpretation.id;
+};
+
+Layout.prototype.setSharing = function(sharing) {
+    this.publicAccess = sharing.publicAccess;
+    this.externalAccess = sharing.externalAccess;
+    this.userGroupAccesses = sharing.userGroupAccesses;
+    this.userAccesses = sharing.userAccesses;
 };
 
 // dep 1
@@ -650,6 +657,12 @@ Layout.prototype.toPost = function() {
 
 // dep 4
 
+Layout.prototype.toPut = function() {
+    this.toPost();
+};
+
+// dep 5
+
 Layout.prototype.post = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
@@ -663,37 +676,46 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
 
     var url = apiPath + '/' + apiEndpoint;
 
-    t.toPost();
-
     if (doMask) {
         uiManager.mask();
     }
 
-    $.ajax({
-        url: encodeURI(url),
-        type: 'POST',
-        headers: appManager.defaultRequestHeaders,
-        data: JSON.stringify(t),
-        dataType: 'json',
-        success: function(obj, success, r) {
-            var id = (r.getResponseHeader('location') || '').split('/').pop();
+    instanceManager.getSharingById(t.id, function(sharing) {
+        t.toPost();
 
-            if (!isString(id)) {
-                console.log('Layout post', 'Invalid id', id);
-            }
-
-            if (doUnmask) {
-                uiManager.unmask();
-            }
-
-            if (fn) {
-                fn(id, success, r);
-            }
+        // set sharing
+        if (isObject(sharing) && isObject(sharing.object)) {
+            t.setSharing(sharing.object);
         }
+
+        // post
+        var postRequest = new Request({
+            baseUrl: url,
+            type: 'ajax',
+            method: 'POST',
+            data: JSON.stringify(t),
+            success: function(obj, success, r) {
+                var id = (r.getResponseHeader('location') || '').split('/').pop();
+
+                if (!isString(id)) {
+                    console.log('Layout post', 'Invalid id', id);
+                }
+
+                if (doUnmask) {
+                    uiManager.unmask();
+                }
+
+                if (fn) {
+                    fn(id, success, r);
+                }
+            }
+        });
+
+        postRequest.run();
     });
 };
 
-Layout.prototype.put = function(fn, doMask, doUnmask) {
+Layout.prototype.put = function(id, fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
 
@@ -704,29 +726,38 @@ Layout.prototype.put = function(fn, doMask, doUnmask) {
     var apiPath = appManager.getApiPath(),
         apiEndpoint = instanceManager.apiEndpoint;
 
-    var url = apiPath + '/' + apiEndpoint + '/' + t.id;
-
-    t.toPost();
+    var url = apiPath + '/' + apiEndpoint + '/' + id;
 
     if (doMask) {
         uiManager.mask();
     }
 
-    $.ajax({
-        url: encodeURI(url),
-        type: 'PUT',
-        data: JSON.stringify(t),
-        dataType: 'json',
-        headers: appManager.defaultRequestHeaders,
-        success: function(obj, success, r) {
-            if (doUnmask) {
-                uiManager.unmask();
-            }
+    instanceManager.getSharingById(t.id, function(sharing) {
+        t.toPut();
 
-            if (fn) {
-                fn(null, success, r);
-            }
+        // set sharing
+        if (isObject(sharing) && isObject(sharing.object)) {
+            t.setSharing(sharing.object);
         }
+
+        // put
+        var putRequest = new Request({
+            baseUrl: url,
+            type: 'ajax',
+            method: 'PUT',
+            data: JSON.stringify(t),
+            success: function(obj, success, r) {
+                if (doUnmask) {
+                    uiManager.unmask();
+                }
+
+                if (fn) {
+                    fn(id, success, r);
+                }
+            }
+        });
+
+        putRequest.run();
     });
 };
 

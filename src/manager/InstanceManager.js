@@ -215,12 +215,19 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
 InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this;
 
+    var success = function(r) {
+        fn && fn(r);
+    };
+
+    if (!id) {
+        success();
+        return;
+    }
+
     var request = new t.api.Request({
         baseUrl: t.appManager.getApiPath() + '/sharing',
         type: 'json',
-        success: function(r) {
-            fn && fn(r);
-        },
+        success: success,
         error: function() {
             t.uiManager.unmask();
         }
@@ -228,10 +235,10 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
 
     request.add({
         type: t.apiResource,
-        id: id
+        id: id || t.getStateFavoriteId()
     });
 
-    request.run();
+    return request.run();
 };
 
 InstanceManager.prototype.getUiState = function() {
