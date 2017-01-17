@@ -16,8 +16,8 @@ Request = function(config) {
 
     // constructor
     t.method = isString(config.method) ? config.method : 'GET';
-    t.headers = isObject(config.headers) ? config.headers : null;
-    t.dataType = isString(config.dataType) ? config.dataType : null;
+    t.headers = isObject(config.headers) ? config.headers : t.klass.appManager.defaultRequestHeaders;
+    t.dataType = isString(config.dataType) ? config.dataType : 'json';
     t.contentType = isString(config.contentType) ? config.contentType : null;
     t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
     t.error = isFunction(config.error) ? config.error : function() { t.defaultError(); };
@@ -26,6 +26,7 @@ Request = function(config) {
     t.type = isString(config.type) ? config.type : 'ajax';
     t.baseUrl = isString(config.baseUrl) ? config.baseUrl : '';
     t.params = arrayFrom(config.params);
+    t.data = config.data ? config.data : null;
     t.manager = config.manager || null;
 
     t.beforeRun = isFunction(config.beforeRun) ? config.beforeRun : null;
@@ -170,11 +171,13 @@ Request.prototype.run = function(config) {
             headers = config.headers || t.headers,
             dataType = config.dataType || t.dataType,
             contentType = config.contentType || t.contentType,
+            data = config.data || t.data,
             xhr = {};
 
         xhr.url = url;
         xhr.method = method;
         xhr.type = method;
+        xhr.data = data;
         headers && (xhr.headers = headers);
         dataType && (xhr.dataType = dataType);
         contentType && (xhr.contentType = contentType);
