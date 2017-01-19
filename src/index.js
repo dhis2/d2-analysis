@@ -111,6 +111,7 @@ export {
     legendSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+    userFavoritesInit,
 
     SimpleRegression,
     Plugin,
