@@ -6,12 +6,13 @@ userFavoritesInit = function(c) {
         requestManager = c.requestManager,
 
         apiPath = appManager.getApiPath(),
-        username = c.appManager.userAccount.username;
+        username = appManager.userAccount.username,
+        eventType = instanceManager.dataStatisticsEventType;
 
     return {
         baseUrl: apiPath + '/dataStatistics/favorites.json',
         params: [
-            'eventType=REPORT_TABLE_VIEW',
+            'eventType=' + eventType,
             'username=' + username,
             'pageSize=10'
         ],
