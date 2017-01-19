@@ -4,6 +4,7 @@ userFavoritesInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,
+        instanceManager = c.instanceManager,
 
         apiPath = appManager.getApiPath(),
         username = appManager.userAccount.username,
