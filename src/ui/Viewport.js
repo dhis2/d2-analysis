@@ -657,8 +657,6 @@ Viewport = function(refs, cmp) {
             }
         }
 
-        config.parentGraphMap = treePanel.getParentGraphMap();
-
         return config;
     };
 

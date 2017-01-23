@@ -1,0 +1,21 @@
+language: node_js
+node_js:
+- '6'
+cache:
+  directories:
+  - node_modules
+script:
+- npm run build
+deploy:
+  provider: npm
+  email: jason.p.pickering@gmail.com
+  api_key:
+    secure: HI8UWxaOuS2Xg7QCT3uEUXlHm3Glcg7kidl5q9P0RS6huUe4luGoSbW58jyvVHRefvBchFqJ7zKJ2rw7omsajPRKaV/3rjGbbyXs6MV+zIYSsIWBkw/UWvhk6XFI4h6wVYMc9XTOLSCjLZvL6oyLqQubL5wpsJ5znIxc0f5WJ9679n/KHiuFzfUCdmgs+/EgchFIA8idOUTc9/DOaURTrGRhcWRz6qm5HKkwEzwzkb/bL6Z11/N7ztKhK1v6r3RUXAa4n4EF9QjqkVFq/5+V57sx58O9VkXdZsKGOVsxgErYgQQsGF1QVawi4oSgm8650uiQxP2kMqVLO3XsCRu8AxXXWeot7iC+5JuNFnFjNApf65PAKEGk3KuBhBgu5HgRT39k6jQraAfA2+l06b87swaDSAqKinkgDR/W5usA+BvIXimk9FPBkhWDYhdVGNf0OBgzO2jKlPlJKjdFRhcWOyA0dJ9YXzh1HneXbrJGy1T7OP7qEx0XH+FbAmiDTqUZofGg+MJC/nzU+5NLdPb9c1f5L+D3Bdn8LhA5qGfSafUaRZ3mGpPgFiceRHQSrCva/rjosQ5n0QUPWGmiVuL/5uC9TUHEoTsHTHaDYyQtNjlPVyx/9OqhY30zLNlVr6VcTYivdiA1onXio+kDOWltFoJNkIj5+TVSWrDJQMezweA=
+  on:
+    tags: true
+  skip_cleanup: true
+notifications:
+  slack:
+    secure: Nv3V2w3pYFtt2BQ6eJpKbzxEm7MON9MYRVSUDNFEh8G+3jPbAtL7C10v8K+3nYR7f1LoTtKzawgfLja+xcE2SUTN1mS6qCay2A2Dd6oKoXM7XYsPzJA8LvwXgx0s3TDqzsuR/1k0zqaQIuTI8je1nx3q/Qjj6YySGs0iLZPw6OcF6Y/AfI02KpP/RDK1gWJ72iYc5I8+yYJ6hMB6GhGeBx02o0d5oUCnQHWY05zVehnqWlkXJpY0aIXuCF1dhlKboWG8D5ldZVcDNlXo870uSxWEJFfqlGDIJH9ggzn0FYeD2O0AeDcNMv7GGbzKEK1kf/LeV/NsGBBIDIlPra/yyjAxJBn5Zw0nlcbUJHjGTpTGp6cWw8EnAbR+EMKVDd+UT1CE9IBjKgrXs80uSoMTCqEO3bPbd8PpXRyEHTczX+gdQuOyHnZnCzC5yzPM6ZV69CrN1AL/nqyO5y75MS89ziIDNvdZsRDNG9TtHrNcpQrUW6i8bCvS0Bxjb9qXiyiNKQmmYCX8ZhSZEk1+4CMCCzmmRtis50dU/Z2KLnrOZj6o1Giy8i+RtNkDioiUPHLLKfTbF9pNQQQGpH+2wHmTUZSym4iMOYnBDtTlOoPmHtSOkYRzS22waSng5fyCMXMTdQ7RgS/cdPG+Omfiu9lELcJC4sWMFXea2czPxEqTrBg=a
+    on_failure: always
+    on_success: change
