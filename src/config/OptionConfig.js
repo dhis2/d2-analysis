@@ -220,7 +220,7 @@ OptionConfig = function() {
     };
 
     // init
-    var initialize = function() {
+    t.init = function() {
         setDisplayDensity();
         setFontSize();
         setDigitGroupSeparator();
@@ -304,10 +304,8 @@ OptionConfig = function() {
         return map;
     };
 
-
     t.setI18nManager = function(manager) {
         i18nManager = manager;
-        initialize();
     };
 };
 
