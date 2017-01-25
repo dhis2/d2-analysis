@@ -68,7 +68,7 @@ Response.prototype.getOptionSetHeaders = function() {
 };
 
 Response.prototype.getNameById = function(id) {
-    return this.metaData.names[id] || '';
+    return (this.metaData.items[id] || {}).name || id;
 };
 
 Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
@@ -80,7 +80,7 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
         a.shift();
 
         for (var i = 0; i < a.length; i++) {
-            name += (isHtml ? '<span class="text-weak">' : '') + metaData.names[a[i]] + (isHtml ? '</span>' : '') + ' / ';
+            name += (isHtml ? '<span class="text-weak">' : '') + metaData.items[id].name + (isHtml ? '</span>' : '') + ' / ';
         }
     }
 
@@ -211,13 +211,13 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var metaData = this.metaData,
-        ids = metaData[dimensionName],
+        ids = metaData.dimensions[dimensionName],
         records = [];
 
     ids.forEach(function(id) {
         records.push((new Record({
             id: id,
-            name: metaData.names[id]
+            name: metaData.items[id].name
         })).val());
     });
 

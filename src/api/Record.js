@@ -37,9 +37,10 @@ Record.prototype.val = function(noError) {
 };
 
 Record.prototype.setName = function(name, response) {
-    var t = this;
+    var t = this,
+        item = response ? (response.metaData.items[t.id] || {}) : {};
 
-    t.name = t.name || name || (response ? response.metaData.names[t.id] : undefined);
+    t.name = t.name || name || (response ? (item || {}).name : undefined);
 };
 
 Record.prototype.toPlugin = function() {
