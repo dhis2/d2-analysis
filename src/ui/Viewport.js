@@ -177,7 +177,7 @@ Viewport = function(refs, cmp) {
     uiManager.reg(updateButton, 'updateButton');
 
     var layoutButton = Ext.create('Ext.button.Button', {
-        text: 'Layout',
+        text: i18n.layout,
         menu: {},
         handler: function() {
             var name = 'layoutWindow';
