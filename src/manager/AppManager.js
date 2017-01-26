@@ -150,6 +150,18 @@ AppManager = function(refs) {
     };
 };
 
+AppManager.prototype.logVersion = function() {
+    if (console && this.manifest && this.manifest.version) {
+        var version = 'v' + this.manifest.version;
+        var name = this.manifest.name || null;
+
+        var msg = arrayClean(['Loading:', name, version]).join(' ');
+        var fn = console.info || console.log;
+
+        fn.call(console, msg);
+    }
+};
+
 AppManager.prototype.getPath = function() {
     var dhis = this.manifest ? this.manifest.activities.dhis : {};
 
