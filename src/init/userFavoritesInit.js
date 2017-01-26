@@ -1,12 +1,13 @@
 export var userFavoritesInit;
 
-userFavoritesInit = function(c) {
-    var t = this,
-        appManager = c.appManager,
-        requestManager = c.requestManager,
-        instanceManager = c.instanceManager,
+userFavoritesInit = function(refs, pageSize = 10) {
+    var t = this;
 
-        apiPath = appManager.getApiPath(),
+    var appManager = refs.appManager,
+        requestManager = refs.requestManager,
+        instanceManager = refs.instanceManager;
+
+    var apiPath = appManager.getApiPath(),
         username = appManager.userAccount.username,
         eventType = instanceManager.dataStatisticsEventType;
 
@@ -15,7 +16,7 @@ userFavoritesInit = function(c) {
         params: [
             'eventType=' + eventType,
             'username=' + username,
-            'pageSize=10'
+            'pageSize=' + pageSize
         ],
         success: function(response) {
             appManager.userFavorites = response;
