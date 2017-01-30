@@ -61,9 +61,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     }
 
         // name
-    if (isString(c.name)) {
-        t.name = c.name;
-    }
+    t.name = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(item => isString(item));
 
         // title
     if (isString(c.title)) {
