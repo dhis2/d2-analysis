@@ -1,14 +1,15 @@
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayInsert from 'd2-utilizr/lib/arrayInsert';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
-import isObject from 'd2-utilizr/lib/isObject';
-import isString from 'd2-utilizr/lib/isString';
-import {Record} from './Record.js';
-import {ResponseHeader} from './ResponseHeader.js';
-import {ResponseRow} from './ResponseRow.js';
-import {ResponseRowIdCombination} from './ResponseRowIdCombination.js';
+import { Record } from './Record.js';
+import { ResponseHeader } from './ResponseHeader.js';
+import { ResponseRow } from './ResponseRow.js';
+import { ResponseRowIdCombination } from './ResponseRowIdCombination.js';
 
 export var Response;
 
@@ -231,7 +232,7 @@ Response.prototype.getValueHeader = function() {
 // dep 2
 
 Response.prototype.getValueHeaderIndex = function() {
-    return this.getValueHeader().getIndex();
+    return this.getValueHeader() ? this.getValueHeader().getIndex() : null;
 };
 
 // dep 3
@@ -259,6 +260,16 @@ Response.prototype.getIdValueMap = function(layout) {
     });
 
     return this.idValueMap = idValueMap;
+};
+
+Response.prototype.getTotal = function() {
+    var valueHeaderIndex = this.getValueHeaderIndex();
+
+    if (!isNumber(valueHeaderIndex)) {
+        return;
+    }
+
+    return this.rows.reduce((total, row) => total + parseFloat(row[valueHeaderIndex]), 0);
 };
 
 // dep 4
