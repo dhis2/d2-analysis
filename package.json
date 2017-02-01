@@ -1,6 +1,6 @@
 {
   "name": "d2-analysis",
-  "version": "26.0.6",
+  "version": "27.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
