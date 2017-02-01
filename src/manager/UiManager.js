@@ -598,9 +598,8 @@ UiManager = function(refs) {
     };
 
     // svg
-    t.submitSvgForm = function(type) {
-        var svg = Ext.query('svg'),
-            form = Ext.query('#exportForm')[0];
+    t.getSvg = function() {
+        var svg = Ext.query('svg');
 
         if (!(isArray(svg) && svg.length)) {
             alert('Browser does not support SVG');
@@ -610,8 +609,19 @@ UiManager = function(refs) {
         svg = Ext.get(svg[0]);
         svg = svg.parent().dom.innerHTML;
 
+        return svg;
+    };
+
+    t.submitSvgForm = function(type, filename) {
+        var form = Ext.query('#exportForm')[0];
+        var svg = this.getSvg();
+
+        if (!svg) {
+            return;
+        }
+
         Ext.query('#svgField')[0].value = svg;
-        Ext.query('#filenameField')[0].value = 'test';
+        Ext.query('#filenameField')[0].value = filename || 'unsaved';
 
         form.action = t.appManager.getPath() + '/api/svg.' + type;
         form.submit();
