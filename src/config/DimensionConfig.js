@@ -27,8 +27,8 @@ DimensionConfig = function() {
     };
 
     t.dataTypeUrl = {
-        'AGGREGATED_VALUES': 'aggregate',
-        'EVENTS': 'query'
+        'AGGREGATED_VALUES': '/events/aggregate',
+        'EVENTS': '/events/query'
     };
 
     // value type
