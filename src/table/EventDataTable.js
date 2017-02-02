@@ -9,11 +9,7 @@ EventDataTable = function(refs, layout, response) {
 
     var { ResponseRowIdCombination } = refs.api;
 
-    var { unclickable } = options;
-
     var table = {};
-
-    options = options || {};
 
     //var dimensionHeaders = xResponse.dimensionHeaders,
     var dimensionHeaders = response.headers,
