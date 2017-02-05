@@ -21,9 +21,14 @@ Response = function(refs, config) {
 
     config = isObject(config) ? config : {};
 
-    var { appManager, indexedDbManager } = refs;
+    var { appManager, indexedDbManager, i18nManager } = refs;
 
     var { ResponseHeader, ResponseRow } = refs.api;
+
+    var booleanMap = {
+        '0': i18nManager.no || 'No',
+        '1': i18nManager.yes || 'Yes'
+    };
 
                                 //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
 
@@ -58,6 +63,15 @@ Response = function(refs, config) {
         var parseString = getParseMiddleware('STRING');
 
         return arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parseByType(responseRow.getAt(header.index)))))).map(id => parseString(id));
+    };
+
+    t.getNameByIdsByValueType = (id, valueType) => {
+console.log(id, valueType);
+        if (valueType === 'BOOLEAN') {
+            return booleanMap[id];
+        }
+
+        return id;
     };
 
     // headers
@@ -99,12 +113,22 @@ Response = function(refs, config) {
                 // create items
                 if (header.optionSet) {
                     dimensions[header.name].forEach((prefixedId, index) => {
-                        items[prefixedId] = { name: indexedDbManager.getCachedOptionName(ids[index], header.optionSet) };
+                        var id = ids[index];
+                        var optionSet = header.optionSet;
+
+                        var name = indexedDbManager.getCachedOptionName(ids[index], header.optionSet);
+
+                        items[prefixedId] = { name: name };
                     });
                 }
                 else {
                     dimensions[header.name].forEach((prefixedId, index) => {
-                        items[prefixedId] = { name: ids[index] };
+                        var id = ids[index];
+                        var valueType = header.valueType;
+
+                        var name = t.getNameByIdsByValueType(id, valueType);
+
+                        items[prefixedId] = { name: name };
                     });
                 }
             }

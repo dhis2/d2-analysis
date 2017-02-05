@@ -5,22 +5,24 @@ export var EventDataTable;
 EventDataTable = function(refs, layout, response) {
     var t = this;
 
-    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
+    var { appManager, uiManager, i18nManager, dimensionConfig, optionConfig } = refs;
 
     var { ResponseRowIdCombination } = refs.api;
+
+    var i18n = i18nManager.get();
 
     var table = {};
 
     //var dimensionHeaders = xResponse.dimensionHeaders,
-    var dimensionHeaders = response.headers,
+    var headers = response.headers,
         //rows = xResponse.rows,
         rows = response.rows,
         //names = xResponse.metaData.names,
-        names = xResponse.metaData.names,
-        optionNames = xResponse.metaData.optionNames,
+names = xResponse.metaData.names,
+optionNames = xResponse.metaData.optionNames,
         booleanNames = {
-            '1': NS.i18n.yes,
-            '0': NS.i18n.no
+            '1': i18n.yes,
+            '0': i18n.no
         },
         //pager = xResponse.metaData.pager,
         pager = response.metaData.pager,
@@ -37,6 +39,11 @@ EventDataTable = function(refs, layout, response) {
     html += '<td class="pivot-dim pivot-dim-subtotal">' + '#' + '</td>';
 
     // get header indexes
+    //headers.forEach(header => {
+        //var uuid = uuid();
+
+
+
     for (var i = 0, header, uuid; i < dimensionHeaders.length; i++) {
         header = dimensionHeaders[i];
         uuid = uuid();
