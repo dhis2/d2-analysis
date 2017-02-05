@@ -253,10 +253,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options) {
             rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [],
             getFilterRow,
             getEmptyNameTdConfig,
-            getEmptyHtmlArray;
+            getEmptyHtmlArray,
+            ignoreResponseHeaders = appManager.ignoreResponseHeaders;
+
+        columnDimensionNames = columnDimensionNames.filter(name => !arrayContains(ignoreResponseHeaders, name));
+        rowDimensionNames = rowDimensionNames.filter(name => !arrayContains(ignoreResponseHeaders, name));
 
         //getFilterRow = function() {
-
 
         getEmptyNameTdConfig = function(config) {
             config = config || {};

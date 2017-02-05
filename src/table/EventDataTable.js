@@ -14,11 +14,12 @@ EventDataTable = function(refs, layout, response) {
     var table = {};
 
     //var dimensionHeaders = xResponse.dimensionHeaders,
-    var headers = response.headers,
+    var headers = response.headers;
+    var rows = response.rows;
         //rows = xResponse.rows,
-        rows = response.rows,
         //names = xResponse.metaData.names,
-names = xResponse.metaData.names,
+
+var names = xResponse.metaData.names,
 optionNames = xResponse.metaData.optionNames,
         booleanNames = {
             '1': i18n.yes,
@@ -27,11 +28,12 @@ optionNames = xResponse.metaData.optionNames,
         //pager = xResponse.metaData.pager,
         pager = response.metaData.pager,
         count = pager.page * pager.pageSize - pager.pageSize
-        cls = 'pivot',
+        cls = ['pivot'],
         html = '';
 
     table.sortableIdObjects = [];
 
+    var cls = 'pivot';
     cls += layout.displayDensity && layout.displayDensity !== conf.finals.style.none ? ' displaydensity-' + layout.displayDensity : '';
     cls += layout.fontSize && layout.fontSize !== conf.finals.style.normal ? ' fontsize-' + layout.fontSize : '';
 
