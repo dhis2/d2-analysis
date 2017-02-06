@@ -86,7 +86,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     getTdHtml = function(config, metaDataId) {
         var bgColor,
-            legends,
+            legends = [],
             colSpan,
             rowSpan,
             htmlValue,
@@ -132,18 +132,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // number of cells
         tdCount = tdCount + 1;
-
-        // background color from legend set
-        // if (isValue && legendSet) {
-        //     var value = parseFloat(config.value);
-        //     legends = legendSet.legends;
-        //
-        //     for (var i = 0; i < legends.length; i++) {
-        //         if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
-        //             bgColor = legends[i].color;
-        //         }
-        //     }
-        // }
 
         if (isValue) {
             var value = parseFloat(config.value);
@@ -530,7 +518,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dx)
+                    dxId: rric.getDxIdByIds(response.metaData.dimensions.dx)
                 });
 
                 // map element id to dim element ids
