@@ -71,6 +71,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         uuidDimUuidsMap = {},
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
         legendDisplayStyle = layout.legendDisplayStyle,
+        legendDisplayStrategy = layout.legendDisplayStrategy,
         tdCount = 0,
         htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
@@ -119,7 +120,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             return str || '';
-        }
+        };
 
         if (!isObject(config)) {
             return '';
@@ -133,9 +134,30 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         tdCount = tdCount + 1;
 
         // background color from legend set
-        if (isValue && legendSet) {
+        // if (isValue && legendSet) {
+        //     var value = parseFloat(config.value);
+        //     legends = legendSet.legends;
+        //
+        //     for (var i = 0; i < legends.length; i++) {
+        //         if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
+        //             bgColor = legends[i].color;
+        //         }
+        //     }
+        // }
+
+        if (isValue) {
             var value = parseFloat(config.value);
-            legends = legendSet.legends;
+
+            if (legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id) {
+                if (config.dxId && response.metaData.items[config.dxId].legendSet) {
+                    var legendSetId = response.metaData.items[config.dxId].legendSet,
+                        _legendSet = appManager.getLegendSetById(legendSetId);
+
+                    legends = _legendSet.legends;
+                }
+            } else {
+                legends = legendSet ? legendSet.legends : [];
+            }
 
             for (var i = 0; i < legends.length; i++) {
                 if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
