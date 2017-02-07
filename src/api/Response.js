@@ -25,10 +25,15 @@ Response = function(refs, config) {
 
     var { ResponseHeader, ResponseRow } = refs.api;
 
+    var i18n = i18nManager.get();
+
     var booleanMap = {
-        '0': i18nManager.no || 'No',
-        '1': i18nManager.yes || 'Yes'
+        '0': i18n.no || 'No',
+        '1': i18n.yes || 'Yes'
     };
+
+    var OUNAME = 'ouname';
+    var OU = 'ou';
 
                                 //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
 
@@ -40,6 +45,7 @@ Response = function(refs, config) {
 //- optionset, !dimensions          x               x           ja              ja
 //- optionset                       V               x           nei             ja
 
+    // functions
     var isPrefixHeader = (header, dimensions) => {
         if (arrayContains(appManager.ignoreResponseHeaders, header.name)) {
             return false;
@@ -54,6 +60,14 @@ Response = function(refs, config) {
         }
 
         return isEmpty(dimensions);
+    };
+
+    var getHeader = (name) => {
+        return t.headers.find(header => header.name === name);
+    };
+
+    var hasHeader = (name) => {
+        return getHeader(name) !== undefined;
     };
 
     t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
@@ -129,6 +143,31 @@ Response = function(refs, config) {
 
                         items[prefixedId] = { name: name };
                     });
+                }
+
+                if (header.name === OUNAME && hasHeader(OU)) {
+                    var ouHeader = getHeader(OU);
+                    var ouHeaderIndex = ouHeader.index;
+
+                    for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
+                        row = t.rows[i];
+                        ouId = row.getAt(ouHeader.index);
+
+                        if (items[ouId] !== undefined) {
+                            continue;
+                        }
+
+                        ouName = row.getAt(header.index);
+//TODO not working
+
+                        items[ouId] = {
+                            name: ouName
+                        };
+
+console.log("ouId", ouId);
+console.log("ouName", ouName);
+                    }
+console.log("items", items);
                 }
             }
         });
