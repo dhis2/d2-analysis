@@ -33,11 +33,11 @@ AppManager = function() {
 
     t.defaultAnalysisFields = [
         '*',
-        'program[id,displayName|rename(name)]',
-        'programStage[id,displayName|rename(name)]',
-        'columns[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
-        'rows[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
-        'filters[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
+        'program[id,displayName~rename(name)]',
+        'programStage[id,displayName~rename(name)]',
+        'columns[dimension,filter,items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'rows[dimension,filter,items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'filters[dimension,filter,items[dimensionItem~rename(id),dimensionItemType,$]]',
         'access',
         '!lastUpdated',
         '!href',
@@ -267,7 +267,7 @@ AppManager.prototype.getDisplayPropertyUrl = function() {
 
     var key = this.getDisplayProperty();
 
-    return this.displayPropertyUrl = (key + '|rename(name)');
+    return this.displayPropertyUrl = (key + '~rename(name)');
 };
 
 AppManager.prototype.isUiLocaleDefault = function() {
