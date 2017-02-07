@@ -66,7 +66,6 @@ Response = function(refs, config) {
     };
 
     t.getNameByIdsByValueType = (id, valueType) => {
-console.log(id, valueType);
         if (valueType === 'BOOLEAN') {
             return booleanMap[id];
         }
@@ -133,7 +132,7 @@ console.log(id, valueType);
                 }
             }
         });
-console.log(metaData);
+
         return metaData;
     }();
 

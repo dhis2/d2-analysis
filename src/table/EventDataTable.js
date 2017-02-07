@@ -1,3 +1,5 @@
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
 
 export var EventDataTable;
@@ -12,66 +14,71 @@ EventDataTable = function(refs, layout, response) {
     var i18n = i18nManager.get();
 
     var table = {};
+    table.sortableIdObjects = [];
 
     //var dimensionHeaders = xResponse.dimensionHeaders,
-    var headers = response.headers;
+    var filteredHeaders = response.headers.filter(header => !arrayContains(appManager.ignoreResponseHeaders, header.name));
     var rows = response.rows;
-        //rows = xResponse.rows,
-        //names = xResponse.metaData.names,
+    var items = response.metaData.items;
+console.log("filteredHeaders", filteredHeaders);
+    var cls = [];
+    var html = '';
 
-var names = xResponse.metaData.names,
-optionNames = xResponse.metaData.optionNames,
-        booleanNames = {
-            '1': i18n.yes,
-            '0': i18n.no
-        },
-        //pager = xResponse.metaData.pager,
-        pager = response.metaData.pager,
-        count = pager.page * pager.pageSize - pager.pageSize
-        cls = ['pivot'],
-        html = '';
+    var pager = response.metaData.pager;
+    var count = pager.page * pager.pageSize - pager.pageSize;
 
     table.sortableIdObjects = [];
 
-    var cls = 'pivot';
-    cls += layout.displayDensity && layout.displayDensity !== conf.finals.style.none ? ' displaydensity-' + layout.displayDensity : '';
-    cls += layout.fontSize && layout.fontSize !== conf.finals.style.normal ? ' fontsize-' + layout.fontSize : '';
+    cls.push('pivot');
+    cls.push(layout.displayDensity !== optionConfig.getDisplayDensity('normal') ? ' displaydensity-' + layout.displayDensity : null);
+    cls.push(layout.fontSize !== optionConfig.getFontSize('normal') ? ' fontsize-' + layout.fontSize : null);
 
-    html += '<table class="' + cls + '"><tr>';
+    html += '<table class="' + arrayClean(cls).join(' ') + '"><tr>';
     html += '<td class="pivot-dim pivot-dim-subtotal">' + '#' + '</td>';
 
     // get header indexes
-    //headers.forEach(header => {
-        //var uuid = uuid();
-
-
-
-    for (var i = 0, header, uuid; i < dimensionHeaders.length; i++) {
-        header = dimensionHeaders[i];
-        uuid = uuid();
+    filteredHeaders.forEach(header => {
+        var uid = uuid();
 
         html += '<td id="' + uuid + '" class="pivot-dim td-sortable">' + header.column + '</td>';
 
         table.sortableIdObjects.push({
             id: header.name,
-            uuid: uuid
+            uuid: uid
         });
-    }
+    });
 
     html += '</tr>';
 
     // rows
-    for (var i = 0, row; i < rows.length; i++) {
+    for (var i = 0, row, rowHtml; i < rows.length; i++) {
         row = rows[i];
-        html += '<tr>';
-        html += '<td class="pivot-value align-right">' + (count + (i + 1)) + '</td>';
+        rowHtml = '';
 
-        for (var j = 0, str, header, name; j < dimensionHeaders.length; j++) {
-            header = dimensionHeaders[j];
-            isBoolean = header.type === 'java.lang.Boolean';
-            str = row[header.index];
-            str = optionNames[header.name + str] || optionNames[str] || (isBoolean ? booleanNames[str] : null) || names[str] || str;
-            name = web.report.query.format(str);
+        for (var ii = 0, header, itemKey, name; ii < filteredHeaders.length; ii++) {
+            header = filteredHeaders[ii];
+
+console.log("header.isPrefix", header.isPrefix);
+console.log("header", header);
+console.log("header.name", header.name);
+console.log("header.index", header.index);
+console.log("row[header.index]", row[header.index]);
+console.log("itemKey", itemKey);
+console.log("items", items);
+
+            itemKey = (header.isPrefix ? header.name + '_' : '') + row[header.index];
+
+            name = items[itemKey].name;
+
+
+
+
+
+
+            //isBoolean = header.type === 'java.lang.Boolean';
+            //str = row[header.index];
+            //str = optionNames[header.name + str] || optionNames[str] || (isBoolean ? booleanNames[str] : null) || names[str] || str;
+            //name = web.report.query.format(str);
 
             //if (header.name === 'ouname' && layout.showHierarchy) {
                 //var a = Ext.Array.clean(name.split('/'));
@@ -84,10 +91,10 @@ optionNames = xResponse.metaData.optionNames,
                 //}
             //}
 
-            html += '<td class="pivot-value align-left">' + name + '</td>';
+            rowHtml += '<td class="pivot-value align-left">' + name + '</td>';
         }
 
-        html += '</tr>';
+        html += '<tr><td class="pivot-value align-right">' + (count + (i + 1)) + '</td>' + rowHtml + '</tr>';
     }
 
     html += '</table>';
