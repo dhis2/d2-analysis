@@ -6,13 +6,14 @@ export var ResponseHeader;
 ResponseHeader = function(refs, config, extraConfig) {
     var t = this;
 
+    t.isPrefix = false;
+    t.isCollect = false;
+    t.index;
+
     config = isObject(config) ? config : {};
 
     // constructor
     Object.assign(t, config, extraConfig);
-
-    // uninitialized
-    t.index;
 };
 
 ResponseHeader.prototype.setIndex = function(index) {

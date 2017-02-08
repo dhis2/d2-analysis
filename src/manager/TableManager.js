@@ -49,7 +49,6 @@ TableManager = function(c) {
 
     t.setColumnHeaderMouseHandlers = function(layout, table) {
         var elObjects = table.sortableIdObjects,
-            idValueMap = table.idValueMap,
             dom;
 
         elObjects.forEach(function(item) {

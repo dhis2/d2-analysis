@@ -13,21 +13,17 @@ EventDataTable = function(refs, layout, response) {
 
     var i18n = i18nManager.get();
 
-    var table = {};
-    table.sortableIdObjects = [];
-
-    //var dimensionHeaders = xResponse.dimensionHeaders,
     var filteredHeaders = response.headers.filter(header => !arrayContains(appManager.ignoreResponseHeaders, header.name));
     var rows = response.rows;
     var items = response.metaData.items;
-console.log("filteredHeaders", filteredHeaders);
+
     var cls = [];
     var html = '';
 
     var pager = response.metaData.pager;
     var count = pager.page * pager.pageSize - pager.pageSize;
 
-    table.sortableIdObjects = [];
+    var sortableIdObjects = [];
 
     cls.push('pivot');
     cls.push(layout.displayDensity !== optionConfig.getDisplayDensity('normal') ? ' displaydensity-' + layout.displayDensity : null);
@@ -40,9 +36,9 @@ console.log("filteredHeaders", filteredHeaders);
     filteredHeaders.forEach(header => {
         var uid = uuid();
 
-        html += '<td id="' + uuid + '" class="pivot-dim td-sortable">' + header.column + '</td>';
+        html += '<td id="' + uid + '" class="pivot-dim td-sortable">' + header.column + '</td>';
 
-        table.sortableIdObjects.push({
+        sortableIdObjects.push({
             id: header.name,
             uuid: uid
         });
@@ -58,22 +54,9 @@ console.log("filteredHeaders", filteredHeaders);
         for (var ii = 0, header, itemKey, name; ii < filteredHeaders.length; ii++) {
             header = filteredHeaders[ii];
 
-console.log("header.isPrefix", header.isPrefix);
-console.log("header", header);
-console.log("header.name", header.name);
-console.log("header.index", header.index);
-console.log("row[header.index]", row[header.index]);
-console.log("itemKey", itemKey);
-console.log("items", items);
-
             itemKey = (header.isPrefix ? header.name + '_' : '') + row[header.index];
 
             name = items[itemKey].name;
-
-
-
-
-
 
             //isBoolean = header.type === 'java.lang.Boolean';
             //str = row[header.index];
@@ -100,6 +83,7 @@ console.log("items", items);
     html += '</table>';
 
     return {
-        html: html
+        sortableIdObjects,
+        html
     };
 };

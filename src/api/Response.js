@@ -35,6 +35,17 @@ Response = function(refs, config) {
     var OUNAME = 'ouname';
     var OU = 'ou';
 
+    var IGNORE_HEADERS = [
+        'psi',
+        'ps',
+        'eventdate',
+        'longitude',
+        'latitude',
+        'ouname',
+        'oucode',
+        'eventdate',
+        'eventdate'
+    ];
                                 //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
 
 //- required                        V               V           nei             nei
@@ -88,16 +99,14 @@ Response = function(refs, config) {
     };
 
     // headers
-    t.headers = (config.headers || []).map(header => {
+    t.headers = (config.headers || []).map((header, index) => {
         var dimensions = config.metaData.dimensions;
 
         var prefixConfig = isPrefixHeader(header, dimensions[header.name]) ? { isPrefix: true } : {};
         var collectConfig = isCollectHeader(header, dimensions[header.name]) ? { isCollect: true } : {};
 
-        return new ResponseHeader(refs, header, Object.assign({}, prefixConfig, collectConfig));
+        return new ResponseHeader(refs, header, Object.assign({}, prefixConfig, collectConfig, { index }));
     });
-
-    t.headers.forEach((header, index) => header.setIndex(index));
 
     // rows
     t.rows = (config.rows || []).map(row => ResponseRow(refs, row));
@@ -109,18 +118,21 @@ Response = function(refs, config) {
             items = metaData.items;
 
         // populate metaData dimensions and items
-        t.headers.forEach(header => {
-            var ids = dimensions[header.name];
+        t.headers.filter(header => !arrayContains(IGNORE_HEADERS, header.name)).forEach(header => {
+            var ids;
 
             // collect row values
             if (header.isCollect) {
                 ids = t.getSortedUniqueRowIdStringsByHeader(header);
                 dimensions[header.name] = ids;
             }
+            else {
+                ids = dimensions[header.name];
+            }
 
             if (header.isPrefix) {
 
-                // prefix dimensions
+                // create prefixed dimensions array
                 dimensions[header.name] = ids.map(id => t.getPrefixedId(id, header.name));
 
                 // create items
@@ -144,33 +156,29 @@ Response = function(refs, config) {
                         items[prefixedId] = { name: name };
                     });
                 }
-
-                if (header.name === OUNAME && hasHeader(OU)) {
-                    var ouHeader = getHeader(OU);
-                    var ouHeaderIndex = ouHeader.index;
-
-                    for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
-                        row = t.rows[i];
-                        ouId = row.getAt(ouHeader.index);
-
-                        if (items[ouId] !== undefined) {
-                            continue;
-                        }
-
-                        ouName = row.getAt(header.index);
-//TODO not working
-
-                        items[ouId] = {
-                            name: ouName
-                        };
-
-console.log("ouId", ouId);
-console.log("ouName", ouName);
-                    }
-console.log("items", items);
-                }
             }
         });
+
+        // for events, add items from 'ouname'
+        if (hasHeader(OUNAME) && hasHeader(OU)) {
+            var ounameHeaderIndex = getHeader(OUNAME).getIndex();
+            var ouHeaderIndex = getHeader(OU).getIndex();
+
+            for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
+                row = t.rows[i];
+                ouId = row.getAt(ouHeaderIndex);
+
+                if (items[ouId] !== undefined) {
+                    continue;
+                }
+
+                ouName = row.getAt(ounameHeaderIndex);
+
+                items[ouId] = {
+                    name: ouName
+                };
+            }
+        }
 
         return metaData;
     }();
