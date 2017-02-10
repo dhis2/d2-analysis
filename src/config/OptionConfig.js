@@ -182,7 +182,7 @@ OptionConfig = function() {
     };
 
     // init
-    var initialize = function() {
+    t.init = function() {
         setDisplayDensity();
         setFontSize();
         setDigitGroupSeparator();
@@ -250,7 +250,6 @@ OptionConfig = function() {
 
     t.setI18nManager = function(manager) {
         i18nManager = manager;
-        initialize();
     };
 
     // dep 1

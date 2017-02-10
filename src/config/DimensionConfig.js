@@ -10,7 +10,7 @@ DimensionConfig = function() {
     var i18nManager;
 
     // uninitialized
-    var dimensions;
+    var dimensions = {};
 
     // map
     var dimensionNameDimensionMap = {
@@ -22,7 +22,7 @@ DimensionConfig = function() {
 
     // setter
     var setDimensions = function() {
-        dimensions = {
+        dimensions = Object.assign(dimensions, {
             data: {
                 value: 'data',
                 name: i18nManager.get('data') || 'Data',
@@ -95,11 +95,11 @@ DimensionConfig = function() {
             value: {
                 value: 'value'
             }
-        };
+        });
     };
 
     // init
-    var initialize = function() {
+    t.init = function() {
         setDimensions();
     };
 
@@ -145,7 +145,6 @@ DimensionConfig = function() {
 
     t.setI18nManager = function(manager) {
         i18nManager = manager;
-        initialize();
     };
 };
 
