@@ -1,6 +1,6 @@
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayInsert from 'd2-utilizr/lib/arrayInsert';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
@@ -35,7 +35,7 @@ Response = function(refs, config) {
     var OUNAME = 'ouname';
     var OU = 'ou';
 
-    var IGNORE_HEADERS = [
+    var DEFAULT_COLLECT_IGNORE_HEADERS = [
         'psi',
         'ps',
         'eventdate',
@@ -46,6 +46,7 @@ Response = function(refs, config) {
         'eventdate',
         'eventdate'
     ];
+
                                 //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
 
 //- required                        V               V           nei             nei
@@ -58,7 +59,7 @@ Response = function(refs, config) {
 
     // functions
     var isPrefixHeader = (header, dimensions) => {
-        if (arrayContains(appManager.ignoreResponseHeaders, header.name)) {
+        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
             return false;
         }
 
@@ -66,7 +67,7 @@ Response = function(refs, config) {
     };
 
     var isCollectHeader = (header, dimensions) => {
-        if (arrayContains(appManager.ignoreResponseHeaders, header.name)) {
+        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
             return false;
         }
 
@@ -118,7 +119,7 @@ Response = function(refs, config) {
             items = metaData.items;
 
         // populate metaData dimensions and items
-        t.headers.filter(header => !arrayContains(IGNORE_HEADERS, header.name)).forEach(header => {
+        t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
             var ids;
 
             // collect row values
@@ -343,6 +344,10 @@ Response.prototype.printResponseCSV = function() {
     alink.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
     alink.setAttribute('download', 'data.csv');
     alink.click();
+};
+
+Response.prototype.getFilteredHeaders = function(names) {
+    return this.headers.filter(header => arrayContains(names, header.name));
 };
 
 // dep 1

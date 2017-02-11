@@ -12,11 +12,11 @@ EventDataTable = function(refs, layout, response) {
     var { ResponseRowIdCombination } = refs.api;
 
     var i18n = i18nManager.get();
-
-    var filteredHeaders = response.headers.filter(header => !arrayContains(appManager.ignoreResponseHeaders, header.name));
+console.log("[].concat(['eventdata'], layout.getDimensionNames())", [].concat(['eventdate'], layout.getDimensionNames()));
+    var filteredHeaders = response.getFilteredHeaders([].concat(['eventdate'], layout.getDimensionNames()));
     var rows = response.rows;
     var items = response.metaData.items;
-
+console.log("filteredHeaders", filteredHeaders);
     var cls = [];
     var html = '';
 
@@ -51,12 +51,13 @@ EventDataTable = function(refs, layout, response) {
         row = rows[i];
         rowHtml = '';
 
-        for (var ii = 0, header, itemKey, name; ii < filteredHeaders.length; ii++) {
+        for (var ii = 0, header, rowValue, itemKey, name; ii < filteredHeaders.length; ii++) {
             header = filteredHeaders[ii];
+            rowValue = row[header.index];
 
-            itemKey = (header.isPrefix ? header.name + '_' : '') + row[header.index];
+            itemKey = (header.isPrefix ? header.name + '_' : '') + rowValue;
 
-            name = items[itemKey].name;
+            name = (items[itemKey] || {}).name || rowValue;
 
             //isBoolean = header.type === 'java.lang.Boolean';
             //str = row[header.index];
