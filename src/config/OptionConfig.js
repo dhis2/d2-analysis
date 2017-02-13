@@ -220,7 +220,7 @@ OptionConfig = function() {
     };
 
     // init
-    var initialize = function() {
+    t.init = function() {
         setDisplayDensity();
         setFontSize();
         setDigitGroupSeparator();
@@ -277,6 +277,7 @@ OptionConfig = function() {
     };
 
     t.getAggregationTypeRecords = function() {
+console.log(getRecords(aggregationType));
         return getRecords(aggregationType);
     };
 
@@ -307,7 +308,6 @@ OptionConfig = function() {
 
     t.setI18nManager = function(manager) {
         i18nManager = manager;
-        initialize();
     };
 };
 

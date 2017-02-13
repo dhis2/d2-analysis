@@ -29,7 +29,7 @@ PeriodConfig = function() {
     };
 
     // init
-    var initialize = function() {
+    t.init = function() {
         setPeriodTypes();
     };
 
@@ -51,7 +51,6 @@ PeriodConfig = function() {
 
     t.setI18nManager = function(manager) {
         i18nManager = manager;
-        initialize();
     };
 };
 
