@@ -610,7 +610,7 @@ Viewport = function(refs, cmp, config) {
 
                 // west resize
                 westRegion.on('resize', function() {
-                    var panel = accordion.getExpandedPanel();
+                    var panel = westRegionItems.getExpandedPanel();
 
                     if (panel) {
                         panel.onExpand();
