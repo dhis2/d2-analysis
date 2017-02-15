@@ -477,6 +477,16 @@ Viewport = function(refs, cmp) {
                 }
             });
         },
+        subscribed: [],
+        subscribe: function(fn) {
+            this.subscribed.push(fn);
+        },
+        renew: function(html) {
+            this.update(html);
+            this.subscribed.forEach(fn => {
+                fn();
+            });
+        },
         tbar: {
             defaults: {
                 height: 26

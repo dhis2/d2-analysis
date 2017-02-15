@@ -17,6 +17,7 @@ UiManager = function(refs) {
     t.i18nManager;
 
     t.preventMask = false;
+    t.introHtmlIsAsync = false;
 
     var components = {};
 
@@ -34,6 +35,7 @@ UiManager = function(refs) {
     var introHtml = '';
 
     var introFn = Function.prototype;
+    var updateIntroHtml = Function.prototype;
 
     var updateFn = function(content, elementId) {
         var el = document.getElementById(elementId);
@@ -43,10 +45,18 @@ UiManager = function(refs) {
             return;
         }
 
-        t.getUpdateComponent() && t.getUpdateComponent().update(content || t.getIntroHtml());
+        if (content) {
+            t.getUpdateComponent().update(content);
+            return;
+        }
 
-        if (!content) {
-            introFn();
+        if(t.introHtmlIsAsync) {
+            updateIntroHtml().then(function(html) {
+                t.setIntroHtml(html);
+                t.getUpdateComponent().renew(html);
+            });
+        } else {
+            t.getUpdateComponent().renew(t.getIntroHtml());
         }
     };
 
@@ -115,6 +125,12 @@ UiManager = function(refs) {
     t.get = function(name) {
         return components[name] || document.getElementById(name) || null;
     };
+
+    t.subscribe = function(component, fn) {
+        if (t.get(component)) {
+            t.get(component).subscribe(fn);
+        }
+    }
 
     t.getByGroup = function(groupName) {
         return componentGroups[groupName];
@@ -206,6 +222,10 @@ UiManager = function(refs) {
     t.getIntroHtml = function() {
         return introHtml;
     };
+
+    t.setUpdateIntroHtmlFn = function(fn) {
+        updateIntroHtml = fn;
+    }
 
     t.setIntroHtml = function(html) {
         introHtml = html;
