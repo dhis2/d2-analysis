@@ -9,24 +9,37 @@ TableManager = function(c) {
     var appManager = c.appManager,
         instanceManager = c.instanceManager,
         uiManager = c.uiManager,
-        sessionStorageManager = c.sessionStorageManager;
+        sessionStorageManager = c.sessionStorageManager,
+        dimensionConfig = c.dimensionConfig;
 
     var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
     };
 
+    var sortIdMap = {
+        'pe': 'eventdate',
+        'ou': 'ouname'
+    };
+
+    var getSortId = function(id, type) {
+        if (type === dimensionConfig.dataType['individual_cases']) {
+            return sortIdMap[id] || id;
+        }
+
+        return id;
+    };
+
     var onColumnHeaderMouseClick = function(layout, id) {
+console.log("layout.sorting && layout.sorting.id === id", layout.sorting);
         if (layout.sorting && layout.sorting.id === id) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
             layout.sorting = {
-                id: id,
+                id: getSortId(id, layout.dataType),
                 direction: 'DESC'
             };
         }
-
-        uiManager.mask();
 
         instanceManager.getReport(layout, false, true);
     };

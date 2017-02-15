@@ -480,6 +480,7 @@ console.log(response.getNameById(columnDimensionNames[i]));
                     uuids = uuids.concat(rowAxis.objects.all[rowAxis.dims - 1][i].uuids);
                 }
 var rricVal = rric.get();
+console.log("rricVal", rricVal);
                 // value, htmlValue
                 responseValue = idValueMap[rricVal];
 
@@ -663,32 +664,34 @@ var rricVal = rric.get();
             for (var i = 0; i < tmpAxisAllObjects.length; i++) {
                 tmpValueObjects.push([]);
             }
-console.log("xValueObjects", xValueObjects);
-            for (var i = 0; i < xValueObjects[0].length; i++) {
-                for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
-                    item = xValueObjects[j][i];
-                    tmpValueObjects[tmpCount++].push(item);
-                    subTotal += item.value;
-                    empty.push(!!item.empty);
-                    rowCount++;
 
-                    if (axisAllObjects[j][0].root) {
-                        collapsed = !!axisAllObjects[j][0].collapsed;
-                    }
+            if (xValueObjects.length) {
+                for (var i = 0; i < xValueObjects[0].length; i++) {
+                    for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
+                        item = xValueObjects[j][i];
+                        tmpValueObjects[tmpCount++].push(item);
+                        subTotal += item.value;
+                        empty.push(!!item.empty);
+                        rowCount++;
 
-                    if (!isArray(axisAllObjects[j+1]) || axisAllObjects[j+1][0].root) {
-                        var isEmpty = !arrayContains(empty, false);
+                        if (axisAllObjects[j][0].root) {
+                            collapsed = !!axisAllObjects[j][0].collapsed;
+                        }
 
-                        tmpValueObjects[tmpCount++].push({
-                            type: item.type === 'value' ? 'valueSubtotal' : 'valueSubtotalTotal',
-                            value: subTotal,
-                            htmlValue: isEmpty ? '&nbsp;' : getRoundedHtmlValue(subTotal),
-                            collapsed: collapsed,
-                            cls: (item.type === 'value' ? 'pivot-value-subtotal' : 'pivot-value-subtotal-total') + (isEmpty ? ' cursor-default' : '')
-                        });
-                        rowCount = 0;
-                        subTotal = 0;
-                        empty = [];
+                        if (!isArray(axisAllObjects[j+1]) || axisAllObjects[j+1][0].root) {
+                            var isEmpty = !arrayContains(empty, false);
+
+                            tmpValueObjects[tmpCount++].push({
+                                type: item.type === 'value' ? 'valueSubtotal' : 'valueSubtotalTotal',
+                                value: subTotal,
+                                htmlValue: isEmpty ? '&nbsp;' : getRoundedHtmlValue(subTotal),
+                                collapsed: collapsed,
+                                cls: (item.type === 'value' ? 'pivot-value-subtotal' : 'pivot-value-subtotal-total') + (isEmpty ? ' cursor-default' : '')
+                            });
+                            rowCount = 0;
+                            subTotal = 0;
+                            empty = [];
+                        }
                     }
                 }
             }

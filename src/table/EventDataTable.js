@@ -12,11 +12,14 @@ EventDataTable = function(refs, layout, response) {
     var { ResponseRowIdCombination } = refs.api;
 
     var i18n = i18nManager.get();
-console.log("[].concat(['eventdata'], layout.getDimensionNames())", [].concat(['eventdate'], layout.getDimensionNames()));
-    var filteredHeaders = response.getFilteredHeaders([].concat(['eventdate'], layout.getDimensionNames()));
+
+    var FIXED_HEADERS = ['eventdate'];
+
+    var filteredHeaders = response.getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()));
+console.log("filteredHeaders", filteredHeaders);
+
     var rows = response.rows;
     var items = response.metaData.items;
-console.log("filteredHeaders", filteredHeaders);
     var cls = [];
     var html = '';
 
