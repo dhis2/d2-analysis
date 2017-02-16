@@ -305,7 +305,7 @@ WestRegionTrackerItems = function(refs) {
         // data items
         onProgramSelect(layout.program.id, layout);
     };
-
+window.SL = setLayout;
     var program = Ext.create('Ext.form.field.ComboBox', {
         editable: false,
         valueField: 'id',
@@ -988,6 +988,15 @@ WestRegionTrackerItems = function(refs) {
             dataElementAvailable,
             dataElementSelected
         ],
+        clearDimension: function() {
+            program.clearValue();
+            stage.clearValue();
+
+            dataElementsByStageStore.removeAll();
+            dataElementSelected.removeAll();
+
+            dataElementSearch.hideFilter();
+        },
         getHeightValue: function() {
             return uiManager.get('westRegion').hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_indicator :
@@ -1641,6 +1650,14 @@ WestRegionTrackerItems = function(refs) {
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         width: accBaseWidth,
+        clearDimension: function(all) {
+            fixedPeriodSelectedStore.removeAll();
+            period.resetRelativePeriods();
+
+            if (!all) {
+                relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
+            }
+        },
         getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
             var accordion = uiManager.get('accordion');
@@ -2193,6 +2210,18 @@ WestRegionTrackerItems = function(refs) {
             },
             treePanel
         ],
+        clearDimension: function() {
+            toolMenu.clickHandler(toolMenu.menuValue);
+
+            treePanel.reset();
+
+			userOrganisationUnit.setValue(false);
+			userOrganisationUnitChildren.setValue(false);
+			userOrganisationUnitGrandChildren.setValue(false);
+
+			organisationUnitLevel.clearValue();
+			organisationUnitGroup.clearValue();
+        },
         getHeightValue: function() {
             return uiManager.get('westRegion').hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_organisationunit :
@@ -2436,6 +2465,9 @@ WestRegionTrackerItems = function(refs) {
                 });
 
                 return config.items.length ? config : null;
+            },
+            clearDimension: function() {
+                alert("clear dynamic panels");
             },
             getHeightValue: function() {
                 return uiManager.get('westRegion').hasScrollbar ?
@@ -2769,6 +2801,16 @@ console.log("west region tracker getuistate", config);
         panels: accordionPanels,
         expandInitPanels: function() {
             organisationUnit.expand();
+        },
+        clearDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.clearDimension(!!layout);
+            });
+        },
+        setDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.setDimension(layout);
+            });
         },
         setThisHeight: function(mx) {
             mx = mx || this.getExpandedPanel().getHeightValue();

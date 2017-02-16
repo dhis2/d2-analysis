@@ -149,7 +149,7 @@ InstanceManager.prototype.getById = function(id, fn) {
         t.getReport(layout, isFavorite);
     };
 
-    var request = new Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {

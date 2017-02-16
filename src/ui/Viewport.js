@@ -531,9 +531,7 @@ Viewport = function(refs, cmp, config) {
         }
 
         // clear panels
-        westRegionItems.forEach(function(panel) {
-            panel.clearDimension(!!layout);
-        });
+        westRegionItems.clearDimensions(layout);
 
         if (layout) {
             var graphMap = layout.parentGraphMap,
@@ -545,9 +543,7 @@ Viewport = function(refs, cmp, config) {
             }
 
             // panels
-            westRegionItems.forEach(function(panel) {
-                panel.setDimension(layout);
-            });
+            westRegionItems.setDimensions(layout);
 
             // layout window
             if (layoutWindow) {

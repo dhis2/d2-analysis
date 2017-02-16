@@ -481,7 +481,7 @@ console.log(response.getNameById(columnDimensionNames[i]));
                 }
 
                 // value, htmlValue
-                responseValue = idValueMap[rricVal];
+                responseValue = idValueMap[rric.get()];
 
                 if (isDefined(responseValue)) {
                     value = getValue(responseValue);
