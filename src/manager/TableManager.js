@@ -22,16 +22,16 @@ TableManager = function(c) {
     };
 
     var getSortId = function(id, type) {
-        if (type === dimensionConfig.dataType['individual_cases']) {
-            return sortIdMap[id] || id;
+        if (type === dimensionConfig.dataType['aggregated_values']) {
+            return id;
         }
 
-        return id;
+        return sortIdMap[id] || id;
     };
 
     var onColumnHeaderMouseClick = function(layout, id) {
-console.log("layout.sorting && layout.sorting.id === id", layout.sorting);
-        if (layout.sorting && layout.sorting.id === id) {
+var sortId = getSortId(id);
+        if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
