@@ -50,14 +50,9 @@ UiManager = function(refs) {
             return;
         }
 
-        if(t.introHtmlIsAsync) {
-            updateIntroHtml().then(function(html) {
-                t.setIntroHtml(html);
-                t.getUpdateComponent().renew(html);
-            });
-        } else {
-            t.getUpdateComponent().renew(t.getIntroHtml());
-        }
+        t.getIntroHtml().then(html => {
+            t.getUpdateComponent().renew(html);
+        });
     };
 
     var updateInterpretationFn = function(interpretation, layout) {
@@ -220,7 +215,10 @@ UiManager = function(refs) {
 
     // intro
     t.getIntroHtml = function() {
-        return introHtml;
+        if (t.introHtmlIsAsync) {
+            return updateIntroHtml();
+        }
+        return new Promise(resolve => resolve(introHtml));
     };
 
     t.setUpdateIntroHtmlFn = function(fn) {
@@ -228,7 +226,7 @@ UiManager = function(refs) {
     }
 
     t.setIntroHtml = function(html) {
-        introHtml = html;
+        return introHtml = html;
     };
 
     t.setIntroFn = function(fn) {
