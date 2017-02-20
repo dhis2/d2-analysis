@@ -201,7 +201,7 @@ WestRegionTrackerItems = function(refs) {
 
         reset();
 
-        uiManager.get('typeToolbar').setType(layout.dataType);
+        uiManager.get('dataTypeToolbar').setType(layout.dataType);
         uiManager.get('aggregateLayoutWindow').reset();
         uiManager.get('queryLayoutWindow').reset();
 
@@ -305,7 +305,7 @@ WestRegionTrackerItems = function(refs) {
         // data items
         onProgramSelect(layout.program.id, layout);
     };
-window.SL = setLayout;
+
     var program = Ext.create('Ext.form.field.ComboBox', {
         editable: false,
         valueField: 'id',
@@ -988,6 +988,7 @@ window.SL = setLayout;
             dataElementAvailable,
             dataElementSelected
         ],
+        setDimension: setLayout,
         clearDimension: function() {
             program.clearValue();
             stage.clearValue();
@@ -2198,76 +2199,214 @@ window.SL = setLayout;
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: organisationUnitObjectName,
+        collapsed: false,
+        clearDimension: function(doClear) {
+            if (doClear) {
+                treePanel.reset();
+
+                userOrganisationUnit.setValue(false);
+                userOrganisationUnitChildren.setValue(false);
+                userOrganisationUnitGrandChildren.setValue(false);
+            }
+        },
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
+                var dimension = layout.getDimension(this.dimension, true),
+                    parentGraphMap = layout.parentGraphMap;
+
+                var records = dimension.getRecords(),
+                    ids = [],
+                    levels = [],
+                    groups = [],
+                    isOu,
+                    isOuc,
+                    isOugc;
+
+                records.forEach(function(record) {
+                    if (record.id === 'USER_ORGUNIT') {
+                        isOu = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
+                        isOuc = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                        isOugc = true;
+                    }
+                    else if (record.id.substr(0,5) === 'LEVEL') {
+                        levels.push(parseInt(record.id.split('-')[1]));
+                    }
+                    else if (record.id === 'OU_GROUP') {
+                        groups.push(record.id.split('-')[1]);
+                    }
+                    else {
+                        ids.push(record.id);
+                    }
+                });
+
+                if (levels.length) {
+                    toolMenu.clickHandler('level');
+                    organisationUnitLevel.setValue(levels);
+                }
+                else if (groups.length) {
+                    toolMenu.clickHandler('group');
+                    organisationUnitGroup.setValue(groups);
+                }
+                else {
+                    toolMenu.clickHandler('orgunit');
+                    userOrganisationUnit.setValue(isOu);
+                    userOrganisationUnitChildren.setValue(isOuc);
+                    userOrganisationUnitGrandChildren.setValue(isOugc);
+                }
+
+                if (!(isOu || isOuc || isOugc)) {
+                    if (isObject(parentGraphMap)) {
+                        treePanel.selectGraphMap(parentGraphMap);
+                    }
+                }
+            }
+            else {
+                this.clearDimension(true);
+            }
+        },
+        getDimension: function() {
+            var r = treePanel.getSelectionModel().getSelection(),
+                config = {
+                    dimension: organisationUnitObjectName,
+                    items: []
+                };
+
+            if (toolMenu.menuValue === 'orgunit') {
+                if (userOrganisationUnit.getValue() || userOrganisationUnitChildren.getValue() || userOrganisationUnitGrandChildren.getValue()) {
+                    if (userOrganisationUnit.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_CHILDREN',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitGrandChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_GRANDCHILDREN',
+                            name: ''
+                        });
+                    }
+                }
+                else {
+                    for (var i = 0; i < r.length; i++) {
+                        config.items.push({id: r[i].data.id});
+                    }
+                }
+            }
+            else if (toolMenu.menuValue === 'level') {
+                var levels = organisationUnitLevel.getValue();
+
+                for (var i = 0; i < levels.length; i++) {
+                    config.items.push({
+                        id: 'LEVEL-' + levels[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+            else if (toolMenu.menuValue === 'group') {
+                var groupIds = organisationUnitGroup.getValue();
+
+                for (var i = 0; i < groupIds.length; i++) {
+                    config.items.push({
+                        id: 'OU_GROUP-' + groupIds[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+
+            return config.items.length ? config : null;
+        },
+        onExpand: function() {
+            var westRegion = uiManager.get('westRegion');
+            var accordion = uiManager.get('accordion');
+
+            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_organisationunit : uiConfig.west_maxheight_accordion_organisationunit;
+
+            accordion.setThisHeight(accordionHeight);
+
+            treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
+        },
         items: [
             {
                 layout: 'column',
-                bodyStyle: 'border:0 none;',
+                bodyStyle: 'border:0 none',
                 style: 'padding-bottom:1px',
                 items: [
                     toolPanel,
-                    organisationUnitPanel
+                    {
+                        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+                        layout: 'column',
+                        bodyStyle: 'border:0 none',
+                        items: [
+                            userOrganisationUnit,
+                            userOrganisationUnitChildren,
+                            userOrganisationUnitGrandChildren,
+                            organisationUnitLevel,
+                            organisationUnitGroup
+                        ]
+                    }
                 ]
             },
             treePanel
         ],
-        clearDimension: function() {
-            toolMenu.clickHandler(toolMenu.menuValue);
-
-            treePanel.reset();
-
-			userOrganisationUnit.setValue(false);
-			userOrganisationUnitChildren.setValue(false);
-			userOrganisationUnitGrandChildren.setValue(false);
-
-			organisationUnitLevel.clearValue();
-			organisationUnitGroup.clearValue();
-        },
-        getHeightValue: function() {
-            return uiManager.get('westRegion').hasScrollbar ?
-                uiConfig.west_scrollbarheight_accordion_organisationunit :
-                uiConfig.west_maxheight_accordion_organisationunit;
-        },
-        onExpand: function() {
-            accordion.setThisHeight(this.getHeightValue());
-
-            treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
-        },
-        listeners: {
-            added: function(cmp) {
-                accordionPanels.push(cmp);
-            },
-            expand: function(cmp) {
-                cmp.onExpand();
+        listeners: {
+            expand: function(p) {
+                p.onExpand();
             }
         }
     });
     uiManager.reg(organisationUnit, 'organisationUnit');
+
     // dimensions
 
     var getDimensionPanel = function(dimension, iconCls) {
-        var	onSelect,
+        var onSelect,
             availableStore,
             selectedStore,
+            dataLabel,
+            dataSearch,
+            dataFilter,
+            selectedAll,
             available,
             selected,
+            onSelectAll,
             panel,
 
             createPanel,
             getPanels;
 
         onSelect = function() {
-            var aggWin = uiManager.get('aggregateLayoutWindow'),
-                queryWin = uiManager.get('queryLayoutWindow');
+            var win = uiManager.get('layoutWindow');
 
-            if (selectedStore.getRange().length) {
-                aggWin.addDimension({id: dimension.id, name: dimension.name}, aggWin.rowStore);
-                queryWin.addDimension({id: dimension.id, name: dimension.name}, queryWin.colStore);
+            if (selectedStore.getRange().length || selectedAll.getValue()) {
+                win.addDimension({id: dimension.id, name: dimension.name});
             }
-            else if (!selectedStore.getRange().length && aggWin.hasDimension(dimension.id)) {
-                aggWin.removeDimension(dimension.id);
-            }
-            else if (!selectedStore.getRange().length && queryWin.hasDimension(dimension.id)) {
-                queryWin.removeDimension(dimension.id);
+            else if (win.hasDimension(dimension.id)) {
+                win.removeDimension(dimension.id);
             }
         };
 
@@ -2282,46 +2421,96 @@ window.SL = setLayout;
                 this.lastPage = null;
                 this.nextPage = 1;
                 this.isPending = false;
-                //indicatorSearch.hideFilter();
+                dataSearch.hideFilter();
             },
-            loadPage: function(filter, append) {
-                var store = this,
-                    path;
+            storage: {},
+            addToStorage: function(dimensionId, filter, data) {
+                filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
-                filter = filter || null;
-
-                if (!append) {
-                    this.lastPage = null;
-                    this.nextPage = 1;
-                }
-
-                if (store.nextPage === store.lastPage) {
+                if (!dimensionId) {
                     return;
                 }
 
-                path = '/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&filter=organisationUnitGroupSet.id:eq:' + dimension.id + (filter ? '&filter=name:ilike:' + filter : '');
+                if (!this.storage.hasOwnProperty(dimensionId)) {
+                    this.storage[dimensionId] = {};
+                }
 
-                store.isPending = true;
-
-                Ext.Ajax.request({
-                    url: appManager.getApiPath() + path,
-                    params: {
-                        page: store.nextPage,
-                        pageSize: 50
-                    },
-                    failure: function() {
-                        store.isPending = false;
-                    },
-                    success: function(r) {
-                        var response = Ext.decode(r.responseText),
-                            data = response.organisationUnitGroups || [],
-                            pager = response.pager;
-
-                        store.loadStore(data, pager, append);
-                    }
-                });
+                if (!this.storage[dimensionId][filter]) {
+                    this.storage[dimensionId][filter] = data;
+                }
             },
-            loadStore: function(data, pager, append) {
+            getFromStorage: function(dimensionId, filter) {
+                filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
+
+                if (this.storage.hasOwnProperty(dimensionId)) {
+                    if (this.storage[dimensionId].hasOwnProperty(filter)) {
+                        return this.storage[dimensionId][filter];
+                    }
+                }
+
+                return;
+            },
+            loadPage: function(filter, append, noPaging, fn) {
+                var store = this,
+                    params = {},
+                    url,
+                    cacheData;
+
+                filter = filter || dataFilter.getValue() || null;
+
+                // check session cache
+                cacheData = store.getFromStorage(dimension.id, filter);
+
+                if (!append && cacheData) {
+                    store.loadStore(cacheData, {}, append, fn);
+                }
+                else {
+                    if (!append) {
+                        this.lastPage = null;
+                        this.nextPage = 1;
+                    }
+
+                    if (store.nextPage === store.lastPage) {
+                        return;
+                    }
+
+                    url = '/dimensions/' + dimension.id + '/items.json?fields=id,' + displayPropertyUrl + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
+
+                    if (noPaging) {
+                        params.paging = false;
+                    }
+                    else {
+                        params.page = store.nextPage;
+                        params.pageSize = 50;
+                    }
+
+                    store.isPending = true;
+                    uiManager.mask(available.boundList);
+
+                    Ext.Ajax.request({
+                        url: encodeURI(apiPath + url),
+                        method: 'GET',
+                        params: params,
+                        success: function(r) {
+                            var response = Ext.decode(r.responseText),
+                                data = response.items || [],
+                                pager = response.pager;
+
+                            // add to session cache
+                            store.addToStorage(dimension.id, filter, data);
+
+                            store.loadStore(data, pager, append, fn);
+                        },
+                        callback: function() {
+                            store.isPending = false;
+                            uiManager.unmask(available.boundList);
+                        }
+                    });
+                }
+            },
+            loadStore: function(data, pager, append, fn) {
+                pager = pager || {};
+
                 this.loadData(data, append);
                 this.lastPage = this.nextPage;
 
@@ -2330,7 +2519,12 @@ window.SL = setLayout;
                 }
 
                 this.isPending = false;
+
                 uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+
+                if (fn) {
+                    fn();
+                }
             },
             sortStore: function() {
                 this.sort('name', 'ASC');
@@ -2353,22 +2547,100 @@ window.SL = setLayout;
             }
         });
 
+        dataLabel = Ext.create('Ext.form.Label', {
+            text: i18n.available,
+            cls: 'ns-toolbar-multiselect-left-label',
+            style: 'margin-right:5px'
+        });
+
+        dataSearch = Ext.create('Ext.button.Button', {
+            width: 22,
+            height: 22,
+            cls: 'ns-button-icon',
+            iconCls: 'ns-button-icon-search',
+            showFilter: function() {
+                dataLabel.hide();
+                this.hide();
+                dataFilter.show();
+                dataFilter.reset();
+            },
+            hideFilter: function() {
+                dataLabel.show();
+                this.show();
+                dataFilter.hide();
+                dataFilter.reset();
+            },
+            handler: function() {
+                this.showFilter();
+            }
+        });
+
+        dataFilter = Ext.create('Ext.form.field.Trigger', {
+            cls: 'ns-trigger-filter',
+            emptyText: 'Filter available..',
+            height: 22,
+            hidden: true,
+            enableKeyEvents: true,
+            fieldStyle: 'height:22px; border-right:0 none',
+            style: 'height:22px',
+            onTriggerClick: function() {
+                this.reset();
+                this.onKeyUpHandler();
+
+                dataSearch.hideFilter();
+            },
+            onKeyUpHandler: function() {
+                var value = this.getValue(),
+                    store = availableStore;
+
+                if (isString(value) || isNumber(value)) {
+                    store.loadPage(value, false, true);
+                }
+            },
+            listeners: {
+                keyup: {
+                    fn: function(cmp) {
+                        cmp.onKeyUpHandler();
+                    },
+                    buffer: 100
+                },
+                show: function(cmp) {
+                    cmp.focus(false, 50);
+                },
+                focus: function(cmp) {
+                    cmp.addCls('ns-trigger-filter-focused');
+                },
+                blur: function(cmp) {
+                    cmp.removeCls('ns-trigger-filter-focused');
+                }
+            }
+        });
+
+        selectedAll = Ext.create('Ext.form.field.Checkbox', {
+            cls: 'ns-checkbox',
+            style: 'margin-left: 2px; margin-right: 5px',
+            boxLabel: 'All',
+            listeners: {
+                change: function(chb, newVal) {
+                    onSelectAll(newVal);
+                }
+            }
+        });
+
         available = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-left',
-            width: accBaseWidth / 2,
+            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
             valueField: 'id',
             displayField: 'name',
             store: availableStore,
             tbar: [
-                {
-                    xtype: 'label',
-                    text: i18n.available,
-                    cls: 'ns-toolbar-multiselect-left-label'
-                },
+                dataLabel,
+                dataSearch,
+                dataFilter,
                 '->',
                 {
                     xtype: 'button',
-                    icon: './src/images/arrowright.png',
+                    iconCls: 'ns-button-icon-arrowright',
                     width: 22,
                     handler: function() {
                         uiManager.msSelect(available, selected);
@@ -2376,10 +2648,12 @@ window.SL = setLayout;
                 },
                 {
                     xtype: 'button',
-                    icon: './src/images/arrowrightdouble.png',
+                    iconCls: 'ns-button-icon-arrowrightdouble',
                     width: 22,
                     handler: function() {
-                        uiManager.msSelectAll(available, selected);
+                        availableStore.loadPage(null, null, true, function() {
+                            uiManager.msSelectAll(available, selected);
+                        });
                     }
                 }
             ],
@@ -2388,7 +2662,7 @@ window.SL = setLayout;
                     var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
                     el.addEventListener('scroll', function(e) {
-                        if (isScrolled(e) && !availableStore.isPending) {
+                        if (uiManager.isScrolled(e) && !availableStore.isPending) {
                             availableStore.loadPage(null, true);
                         }
                     });
@@ -2402,7 +2676,7 @@ window.SL = setLayout;
 
         selected = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-right',
-            width: accBaseWidth / 2,
+            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
             valueField: 'id',
             displayField: 'name',
             ddReorder: true,
@@ -2410,7 +2684,7 @@ window.SL = setLayout;
             tbar: [
                 {
                     xtype: 'button',
-                    icon: './src/images/arrowleftdouble.png',
+                    iconCls: 'ns-button-icon-arrowleftdouble',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselectAll(available, selected);
@@ -2418,7 +2692,7 @@ window.SL = setLayout;
                 },
                 {
                     xtype: 'button',
-                    icon: './src/images/arrowleft.png',
+                    iconCls: 'ns-button-icon-arrowleft',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselect(available, selected);
@@ -2429,7 +2703,8 @@ window.SL = setLayout;
                     xtype: 'label',
                     text: i18n.selected,
                     cls: 'ns-toolbar-multiselect-right-label'
-                }
+                },
+                selectedAll
             ],
             listeners: {
                 afterrender: function() {
@@ -2440,57 +2715,88 @@ window.SL = setLayout;
             }
         });
 
-        dimensionIdAvailableStoreMap[dimension.id] = availableStore;
-        dimensionIdSelectedStoreMap[dimension.id] = selectedStore;
+        onSelectAll = function(value) {
+            if (available.boundList && selected.boundList) {
+                if (value) {
+                    available.boundList.disable();
+                    selected.boundList.disable();
+                }
+                else {
+                    available.boundList.enable();
+                    selected.boundList.enable();
+                }
+            }
 
-        //availableStore.on('load', function() {
-            //uiManager.msFilterAvailable(available, selected);
-        //});
+            onSelect();
+        };
 
-        panel = {
-            itemId: dimension.itemId,
-            xtype: 'panel',
+        panel = Ext.create('Ext.panel.Panel', {
             title: '<div class="' + iconCls + '">' + dimension.name + '</div>',
             hideCollapseTool: true,
+            dimension: dimension.id,
             availableStore: availableStore,
             selectedStore: selectedStore,
-            getDimension: function() {
-                var config = {
-                    dimension: dimension.id,
-                    items: []
-                };
-
-                selectedStore.each( function(r) {
-                    config.items.push({id: r.data.id});
-                });
-
-                return config.items.length ? config : null;
-            },
+            selectedAll: selectedAll,
             clearDimension: function() {
-                alert("clear dynamic panels");
+                availableStore.reset();
+                selectedStore.removeAll();
+                selectedAll.setValue(false);
             },
-            getHeightValue: function() {
-                return uiManager.get('westRegion').hasScrollbar ?
-                    uiConfig.west_scrollbarheight_accordion_indicator :
-                    uiConfig.west_maxheight_accordion_indicator;
-            },
-            onExpand: function() {
-                if (!availableStore.isLoaded) {
-                    if (isArray(dimension.items) && dimension.items.length) {
-                        availableStore.loadData(dimension.items);
-                        availableStore.isLoaded = true;
+            setDimension: function(layout) {
+                if (layout.hasDimension(this.dimension, true)) {
+                    var records = layout.getDimension(this.dimension).getRecords();
+
+                    if (records.length) {
+                        selectedStore.add(records);
+                        uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
                     }
                     else {
-                        availableStore.loadPage();
+                        selectedAll.setValue(true);
                     }
                 }
+            },
+            getDimension: function() {
+                var config = {};
 
-                accordion.setThisHeight(this.getHeightValue());
+                if (dimension.id) {
+                    config.dimension = dimension.id;
+                }
+
+                if (selectedStore.getRange().length) {
+                    config.items = [];
+
+                    selectedStore.each(function(r) {
+                        config.items.push({id: r.data.id});
+                    });
+                }
+
+                return config.dimension ? config : null;
+            },
+            onExpand: function() {
+
+                // load items
+                if (!availableStore.isLoaded) {
+                    availableStore.loadPage();
+                }
+
+                // enable/disable ui
+                if (selectedAll.getValue()) {
+                    available.boundList.disable();
+                    selected.boundList.disable();
+                }
+
+                // set height
+                var westRegion = uiManager.get('westRegion');
+                var accordion = uiManager.get('accordion');
+
+                var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_group : uiConfig.west_maxheight_accordion_group;
+
+                accordion.setThisHeight(accordionHeight);
 
                 uiManager.msSetHeight(
                     [available, selected],
                     this,
-                    uiConfig.west_fill_accordion_dataset
+                    uiConfig.west_fill_accordion_group
                 );
             },
             items: [
@@ -2505,14 +2811,11 @@ window.SL = setLayout;
                 }
             ],
             listeners: {
-                added: function() {
-                    accordionPanels.push(this);
-                },
                 expand: function(p) {
                     p.onExpand();
                 }
             }
-        };
+        });
 
         return panel;
     };

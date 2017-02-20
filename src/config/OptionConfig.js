@@ -277,7 +277,6 @@ OptionConfig = function() {
     };
 
     t.getAggregationTypeRecords = function() {
-console.log(getRecords(aggregationType));
         return getRecords(aggregationType);
     };
 
