@@ -103,6 +103,10 @@ DimensionConfig = function() {
             relativePeriod: {
                 value: 'relativePeriod'
             },
+            startEndDate: {
+                value: 'dates',
+                name: i18nManager.get('start_end_dates')
+            },
             organisationUnit: {
                 value: 'organisationUnit',
                 name: i18nManager.get('i18n.organisation_units') || 'Organisation units',

@@ -313,7 +313,7 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     return isSorted ? names.sort() : names;
 };
 
-Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
+Layout.prototype.getDimensionNameIdsMap = function(response) {
     var map = {};
 
     response = response || this.getResponse();
@@ -557,7 +557,7 @@ Layout.prototype.sort = function(table) {
         return;
     }
 
-    ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
+    ids = this.getDimensionNameIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
         sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination(refs, [id, item]).get())]);

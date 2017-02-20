@@ -39,14 +39,14 @@ PivotTableAxis = function(refs, layout, response, type) {
     // aaUniqueFloorIds: array of arrays with unique ids for each dimension floor
     aaUniqueFloorIds = function() {
         var a = [],
-            dimensionNameRecordIdsMap = layout.getDimensionNameRecordIdsMap(response);
+            dimensionNameIdsMap = layout.getDimensionNameIdsMap(response);
 
         aDimensions.forEach(function(dimension) {
             if (dimension.sorted) {
                 a.push(arrayPluck(dimension.items, 'id'));
             }
             else {
-                a.push(dimensionNameRecordIdsMap[dimension.dimension]);
+                a.push(dimensionNameIdsMap[dimension.dimension]);
             }
         });
 
