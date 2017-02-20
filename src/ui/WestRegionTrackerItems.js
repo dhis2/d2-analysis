@@ -2781,17 +2781,7 @@ window.SL = setLayout;
             };
         }
 
-console.log("west region tracker getuistate", config);
         return config;
-    };
-
-    var validateView = function(view) {
-        if (!(isArray(view.rows) && view.rows.length && isString(view.rows[0].dimension) && isArray(view.rows[0].items) && view.rows[0].items.length)) {
-            ns.alert('No organisation units selected');
-            return false;
-        }
-
-        return view;
     };
 
     var accordion = Ext.create('Ext.panel.Panel', {
