@@ -122,7 +122,7 @@ UiManager = function(refs) {
     };
 
     t.subscribe = function(component, fn) {
-        t.get(component) || t.get(component).subscribe(fn);
+        t.get(component) && t.get(component).subscribe(fn);
     }
 
     t.getByGroup = function(groupName) {
