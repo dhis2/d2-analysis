@@ -125,6 +125,16 @@ OptionConfig = function() {
                 index: 8,
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
+            },
+            'percent_of_row': {
+                index: 9,
+                id: 'PERCENT_OF_ROW',
+                name: i18nManager.get('percent_of_row') || '$ of row'
+            },
+            'percent_of_column': {
+                index: 10,
+                id: 'PERCENT_OF_COLUMN',
+                name: i18nManager.get('percent_of_column') || '% of column'
             }
         };
     };
