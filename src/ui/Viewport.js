@@ -523,8 +523,8 @@ Viewport = function(refs, cmp, config) {
     uiManager.reg(centerRegion, 'centerRegion');
 
     var setUiState = function(layout) {
-        var layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow');
+        var layoutWindow = uiManager.get('viewport').getLayoutWindow(),
+            optionsWindow = uiManager.get('viewport').getOptionsWindow();
 
         if (chartTypeToolbar) {
             chartTypeToolbar.reset();
