@@ -2932,21 +2932,19 @@ console.log("peId", peId);
         //}
     };
 
-    var setGui = function(layout, response, updateGui) {
+    var setUiState = function(layout, response) {
 
         // state
-        uiManager.get('downloadButton').enable();
+        //uiManager.get('downloadButton').enable();
 
-        if (layout.id) {
-            uiManager.get('shareButton').enable();
-        }
+        //if (layout.id) {
+            //uiManager.get('shareButton').enable();
+        //}
 
-        uiManager.get('statusBar').setStatus(layout, response);
+        //uiManager.get('statusBar').setStatus(layout, response);
 
-        // set gui
-        if (updateGui) {
-            setLayout(layout);
-        }
+        // set ui
+        setLayout(layout);
     };
 
     var getUiState = function(layoutWindow) {
@@ -3187,9 +3185,8 @@ console.log("peId", peId);
         treePanel: treePanel,
 
         reset: reset,
-        setGui: setGui,
         getUiState: getUiState,
-
+        setUiState: setUiState,
         onTypeClick: onTypeClick
     });
 

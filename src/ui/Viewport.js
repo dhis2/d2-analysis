@@ -143,7 +143,7 @@ Viewport = function(refs, cmp, config) {
             dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
         },
         setState: function(layout) {
-            setUiState(layout);
+            westRegionItems.setUiState(layout);
         }
     });
     uiManager.reg(westRegion, 'westRegion');
@@ -523,52 +523,7 @@ Viewport = function(refs, cmp, config) {
     uiManager.reg(centerRegion, 'centerRegion');
 
     var setUiState = function(layout) {
-        var layoutWindow = uiManager.get('viewport').getLayoutWindow(),
-            optionsWindow = uiManager.get('viewport').getOptionsWindow();
-
-        if (chartTypeToolbar) {
-            chartTypeToolbar.reset();
-        }
-
-        // clear panels
-        westRegionItems.clearDimensions(layout);
-
-        if (layout) {
-            var graphMap = layout.parentGraphMap,
-                co = dimensionConfig.get('category');
-
-            // type
-            if (chartTypeToolbar) {
-                chartTypeToolbar.setChartType(layout.type);
-            }
-
-            // panels
-            westRegionItems.setDimensions(layout);
-
-            // layout window
-            if (layoutWindow) {
-                layoutWindow.reset(true);
-                layoutWindow.setDimensions(layout);
-            }
-
-                // add assigned categories as dimension
-            if (!layoutWindow.hasDimension(co.dimensionName)) {
-                layoutWindow.addDimension({
-                    id: co.dimensionName,
-                    name: co.name
-                }, layoutWindow.dimensionStore);
-            }
-
-            // options window
-            if (optionsWindow) {
-                optionsWindow.setOptions(layout);
-            }
-        }
-        else {
-            treePanel.reset();
-            layoutWindow.reset();
-            optionsWindow.reset();
-        }
+        westRegion.setUiState(layout);
     };
 
     var getUiState = function() {

@@ -3687,6 +3687,57 @@ WestRegionAggregateItems = function(c) {
         return panels;
     };
 
+    // state
+    var setUiState = function(layout) {
+        var layoutWindow = uiManager.get('layoutWindow'),
+            optionsWindow = uiManager.get('optionsWindow'),
+            chartTypeToolbar = uiManager.get('chartTypeToolbar');
+
+        if (chartTypeToolbar) {
+            chartTypeToolbar.reset();
+        }
+
+        // clear panels
+        westRegionItems.clearDimensions(layout);
+
+        if (layout) {
+            var graphMap = layout.parentGraphMap,
+                co = dimensionConfig.get('category');
+
+            // type
+            if (chartTypeToolbar) {
+                chartTypeToolbar.setChartType(layout.type);
+            }
+
+            // panels
+            westRegionItems.setDimensions(layout);
+
+            // layout window
+            if (layoutWindow) {
+                layoutWindow.reset(true);
+                layoutWindow.setDimensions(layout);
+            }
+
+                // add assigned categories as dimension
+            if (!layoutWindow.hasDimension(co.dimensionName)) {
+                layoutWindow.addDimension({
+                    id: co.dimensionName,
+                    name: co.name
+                }, layoutWindow.dimensionStore);
+            }
+
+            // options window
+            if (optionsWindow) {
+                optionsWindow.setOptions(layout);
+            }
+        }
+        else {
+            treePanel.reset();
+            layoutWindow.reset();
+            optionsWindow.reset();
+        }
+    };
+
     // add listeners
     (function() {
         indicatorAvailableStore.on('load', function() {
