@@ -2,6 +2,7 @@ import { Record } from './api/Record.js';
 import { Dimension } from './api/Dimension.js';
 import { Axis } from './api/Axis.js';
 import { Layout } from './api/Layout.js';
+import { Period } from './api/Period';
 import { Request } from './api/Request.js';
 import { ResponseHeader } from './api/ResponseHeader.js';
 import { ResponseRow } from './api/ResponseRow.js';
@@ -63,6 +64,7 @@ export {
     Dimension,
     Axis,
     Layout,
+    Period,
     Request,
     ResponseHeader,
     ResponseRow,
@@ -125,6 +127,7 @@ export const api = {
     Dimension,
     Axis,
     Layout,
+    Period,
     Request,
     ResponseHeader,
     ResponseRow,
