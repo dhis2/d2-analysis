@@ -18,6 +18,7 @@ OptionConfig = function() {
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
+    var legendSet;
     var legendDisplayStyle;
 
     // setter
@@ -189,6 +190,21 @@ OptionConfig = function() {
         };
     };
 
+    var setLegendSet = function() {
+        legendSet = {
+            'none': {
+                index: -2,
+                id: 0,
+                name: i18nManager.get('none') || 'None'
+            },
+            'byDataItem': {
+                index: -1,
+                id: 'BY_DATA_ITEM',
+                name: i18nManager.get('by_data_item') || 'By data item'
+            }
+        };
+    };
+
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
             'fill': {
@@ -228,6 +244,7 @@ OptionConfig = function() {
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
+        setLegendSet();
         setLegendDisplayStyle();
     };
 
@@ -260,6 +277,10 @@ OptionConfig = function() {
         return key ? dataSetMetric[key] : dataSetMetric;
     };
 
+    t.getLegendSet = function(key) {
+        return key ? legendSet[key] : legendSet;
+    };
+
     t.getLegendDisplayStyle = function(key) {
         return key ? legendDisplayStyle[key] : legendDisplayStyle;
     };
@@ -286,6 +307,10 @@ OptionConfig = function() {
 
     t.getDataSetMetricRecords = function() {
         return getRecords(dataSetMetric);
+    };
+
+    t.getLegendSetRecords = function() {
+        return getRecords(legendSet);
     };
 
     t.getLegendDisplayStyleRecords = function() {

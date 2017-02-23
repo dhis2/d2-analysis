@@ -70,6 +70,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         totalColObjects = [],
         uuidDimUuidsMap = {},
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
+        legendSetByDataItem = isObject(layout.legendSet) && layout.legendSet.id === 'BY_DATA_ITEM',
         legendDisplayStyle = layout.legendDisplayStyle,
         tdCount = 0,
         htmlArray,
@@ -85,7 +86,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     getTdHtml = function(config, metaDataId) {
         var bgColor,
-            legends,
+            legends = [],
             colSpan,
             rowSpan,
             htmlValue,
@@ -94,6 +95,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty,
             isValue = isNumeric && config.type === 'value',
             cls = '',
+            response = layout.getResponse(),
             html = '',
             getHtmlValue;
 
@@ -132,10 +134,19 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         // number of cells
         tdCount = tdCount + 1;
 
-        // background color from legend set
-        if (isValue && legendSet) {
+        if (isValue) {
             var value = parseFloat(config.value);
-            legends = legendSet.legends;
+
+            if (legendSetByDataItem) {
+                if (config.dxId && response.metaData.items[config.dxId].legendSet) {
+                    var legendSetId = response.metaData.items[config.dxId].legendSet,
+                        _legendSet = appManager.getLegendSetById(legendSetId);
+
+                    legends = _legendSet.legends;
+                }
+            } else {
+                legends = legendSet ? legendSet.legends : [];
+            }
 
             for (var i = 0; i < legends.length; i++) {
                 if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
@@ -168,19 +179,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
         html += ' class="' + cls + '" ' + colSpan + rowSpan;
         html += config.title ? ' title="' + config.title + '" ' : '';
-
-        //if (bgColor && isValue) {
-            //html += 'style="color:' + bgColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
-            //html += '>';
-            //html += '<div class="legendCt">';
-            //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
-            //html += '<div class="arrowCt ' + config.cls + '">';
-            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + bgColor + '">&nbsp;</div>';
-            //html += '</div></div></div></td>';
-        //}
-        //else {
-        //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
-        //}
 
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
             if(bgColor) {
@@ -508,7 +506,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dx)
+                    dxId: rric.getDxIdByIds(response.metaData.dimensions.dx)
                 });
 
                 // map element id to dim element ids
