@@ -222,7 +222,6 @@ WestRegionTrackerItems = function(refs) {
         }
 
         peIds.forEach(function(peId) {
-console.log("peId", peId);
             var checkbox = uiManager.get(peId);
 
             if (checkbox) {
