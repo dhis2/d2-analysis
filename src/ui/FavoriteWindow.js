@@ -51,7 +51,7 @@ FavoriteWindow = function(c, action) {
         nameColWidth = fs.windowCmpWidth - fs.lastUpdatedColWidth - fs.buttonColWidth - fs.paddingColWidth - 2,
 
         storeFields = 'id,name,lastUpdated,access,title,description',
-        urlFields = 'id,displayName|rename(name),lastUpdated,access,title,description',
+        urlFields = 'id,displayName~rename(name),lastUpdated,access,title,description',
         sortField = 'name',
         sortDirection = 'asc',
 
