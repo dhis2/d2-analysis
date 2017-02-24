@@ -446,7 +446,7 @@ Response.prototype.getIdValueMap = function(layout) {
 
         idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
     });
-console.log("idValueMap", idValueMap);
+
     return this.idValueMap = idValueMap;
 };
 
