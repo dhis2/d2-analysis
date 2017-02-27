@@ -3104,6 +3104,7 @@ WestRegionTrackerItems = function(refs) {
         },
         setDimensions: function(layout) {
             accordionPanels.forEach(function(panel) {
+                panel.setDimension(layout);
             });
         },
         setThisHeight: function(mx) {
