@@ -300,9 +300,12 @@ console.log(response.getNameById(columnDimensionNames[i]));
                     }
                 }
 
+                var rowDimensionName = response.getNameById(rowDimensionNames[j]);
+                var colDimensionName = response.getNameById(columnDimensionNames[i]);
+
                 a.push(getEmptyNameTdConfig({
                     cls: 'pivot-dim-label',
-                    htmlValue: response.getNameById(rowDimensionNames[j]) + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + response.getNameById(columnDimensionNames[i])
+                    htmlValue: (rowDimensionName || '') + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + (colDimensionName || '')
                 }));
             }
 
