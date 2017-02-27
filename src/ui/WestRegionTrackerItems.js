@@ -53,8 +53,6 @@ WestRegionTrackerItems = function(refs) {
         programIndicatorStorage = {},
         dataElementStorage = {},
 
-        checkboxes = [],
-
         baseWidth = 448,
         accBaseWidth = baseWidth - 2,
         toolWidth = 36,
@@ -213,27 +211,7 @@ WestRegionTrackerItems = function(refs) {
         program.setValue(layout.program.id);
 
         // periods
-        if (layout.startDate && layout.endDate) {
-            onPeriodModeSelect('dates');
-            startDate.setValue(layout.startDate);
-            endDate.setValue(layout.endDate);
-        }
-        else {
-            onPeriodModeSelect('periods');
-        }
-
-        peIds.forEach(function(peId) {
-            var checkbox = uiManager.get(peId);
-
-            if (checkbox) {
-                checkbox.setValue(true);
-            }
-            else {
-                fixedPeriodRecords.push(peId);
-            }
-        });
-
-        fixedPeriodSelectedStore.add(fixedPeriodRecords);
+        period.setDimension(layout);
 
         // organisation units
         if (ouIds) {
@@ -989,6 +967,7 @@ WestRegionTrackerItems = function(refs) {
         cls: 'ns-accordion-first',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: dimensionConfig.get('data').objectName,
         items: [
             programStagePanel,
             dataElementAvailable,
@@ -1150,7 +1129,7 @@ WestRegionTrackerItems = function(refs) {
 
         // relative periods
     var onPeriodChange = function() {
-        var window = uiManager.get('aggregateLayoutWindow'),
+        var window = uiManager.get('viewport').getLayoutWindow(),
             peDimensionConfig = dimensionConfig.get('period');
 
         if ((period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
@@ -1664,6 +1643,7 @@ WestRegionTrackerItems = function(refs) {
         title: '<div class="ns-panel-title-period">Periods</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: dimensionConfig.get('period').objectName,
         width: accBaseWidth,
         clearDimension: function(all) {
             fixedPeriodSelectedStore.removeAll();
@@ -1674,14 +1654,22 @@ WestRegionTrackerItems = function(refs) {
             }
         },
         setDimension: function(layout) {
+            if (layout.startDate && layout.endDate) {
+                onPeriodModeSelect('dates');
+                startDate.setValue(layout.startDate);
+                endDate.setValue(layout.endDate);
+            }
+            else {
+                onPeriodModeSelect('periods');
+            }
+
             if (layout.hasDimension(this.dimension, true)) {
-                //var records = layout.getDimension(this.dimension).getRecords(null, layout.getResponse()),
                 var records = layout.getDimension(this.dimension).extendRecords(layout.getResponse()),
                     fixedRecords = [],
                     checkbox;
 
                 records.forEach(function(record) {
-                    checkbox = relativePeriod.valueComponentMap[record.id];
+                    checkbox = uiManager.get(record.id);
 
                     if (checkbox) {
                         checkbox.setValue(true);
@@ -1698,25 +1686,9 @@ WestRegionTrackerItems = function(refs) {
         },
         getDimension: function() {
             var config = {
-                    dimension: periodObjectName,
-                    items: []
-                };
-
-            fixedPeriodSelectedStore.each( function(r) {
-                config.items.push({
-                    id: r.data.id,
-                    name: r.data.name
-                });
-            });
-
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].getValue()) {
-                    config.items.push({
-                        id: checkboxes[i].relativePeriodId,
-                        name: ''
-                    });
-                }
-            }
+                dimension: periodObjectName,
+                items: periods.getRecords()
+            };
 
             return config.items.length ? config : null;
         },
@@ -1745,13 +1717,7 @@ WestRegionTrackerItems = function(refs) {
             periodMode.reset();
         },
         isRelativePeriods: function() {
-            var a = checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                if (a[i].getValue()) {
-                    return true;
-                }
-            }
-            return false;
+            return uiManager.getByGroup('relativePeriod').some(chb => chb.getValue());
         },
         resetRelativePeriods: function() {
             uiManager.getByGroup('relativePeriod').forEach(cmp => cmp.setValue(false));
@@ -2238,7 +2204,7 @@ WestRegionTrackerItems = function(refs) {
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
-        dimension: organisationUnitObjectName,
+        dimension: dimensionConfig.get('organisationUnit').objectName,
         collapsed: false,
         clearDimension: function(doClear) {
             if (doClear) {
@@ -3138,7 +3104,6 @@ WestRegionTrackerItems = function(refs) {
         },
         setDimensions: function(layout) {
             accordionPanels.forEach(function(panel) {
-                console.log("panel", panel);panel.setDimension(layout);
             });
         },
         setThisHeight: function(mx) {
