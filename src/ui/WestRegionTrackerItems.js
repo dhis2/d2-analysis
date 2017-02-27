@@ -178,6 +178,12 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var setLayout = function(layout) {
+        reset();
+
+        if (!layout) {
+            return;
+        }
+
         var idMap = layout.getDimensionNameIdsMap();
 
         var fixedPeriodRecords = [],
@@ -198,9 +204,6 @@ WestRegionTrackerItems = function(refs) {
         optionsWindow = winMap[layout.dataType];
 
         // set layout
-
-        reset();
-
         uiManager.get('dataTypeToolbar').setDataType(layout.dataType);
         uiManager.get('aggregateLayoutWindow').reset();
         uiManager.get('queryLayoutWindow').reset();
@@ -210,8 +213,6 @@ WestRegionTrackerItems = function(refs) {
         program.setValue(layout.program.id);
 
         // periods
-        period.reset();
-
         if (layout.startDate && layout.endDate) {
             onPeriodModeSelect('dates');
             startDate.setValue(layout.startDate);
@@ -2908,8 +2909,7 @@ WestRegionTrackerItems = function(refs) {
 
         dataElementSearch.hideFilter();
 
-        startDate.reset();
-        endDate.reset();
+        period.reset();
 
         toolMenu.clickHandler(toolMenu.menuValue);
 
