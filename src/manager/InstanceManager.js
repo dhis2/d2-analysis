@@ -254,7 +254,7 @@ InstanceManager.prototype.postDataStatistics = function() {
 
     var { Request } = refs.api;
 
-    var request = new Request({
+    var request = new Request(refs, {
         baseUrl: t.appManager.getApiPath() + '/dataStatistics',
         method: 'POST'
     });

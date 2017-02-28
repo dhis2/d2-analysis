@@ -2898,6 +2898,7 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var setUiState = function(layout, response) {
+        //var statusBar = uiManager.get('statusBar');
 
         // state
         //uiManager.get('downloadButton').enable();
@@ -2906,7 +2907,7 @@ WestRegionTrackerItems = function(refs) {
             //uiManager.get('shareButton').enable();
         //}
 
-        //uiManager.get('statusBar').setStatus(layout, response);
+        //statusBar.setStatus(layout, response);
 
         // set ui
         setLayout(layout);
@@ -2918,6 +2919,7 @@ WestRegionTrackerItems = function(refs) {
             aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),
             aggregateOptionsWindow = uiManager.get('aggregateOptionsWindow'),
             queryOptionsWindow = uiManager.get('queryOptionsWindow'),
+            statusBar = uiManager.get('statusBar'),
             config = {},
             map = {},
             columns = [],
@@ -3080,10 +3082,12 @@ WestRegionTrackerItems = function(refs) {
         if (dataType === dimensionConfig.dataType['individual_cases']) {
             Ext.applyIf(config, queryOptionsWindow.getOptions());
 
-            config.paging = {
-                page: uiManager.get('statusBar').getCurrentPage(),
-                pageSize: 100
-            };
+            if (statusBar) {
+                config.paging = {
+                    page: uiManager.get('statusBar').getCurrentPage(),
+                    pageSize: 100
+                };
+            }
         }
 
         return config;

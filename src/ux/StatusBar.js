@@ -3,10 +3,10 @@ import arrayMin from 'd2-utilizr/lib/arrayMin';
 export var StatusBar;
 
 StatusBar = function(refs) {
-    var dimensionConfig = refs.dimensionConfig;
+    var { instanceManager, dimensionConfig } = refs;
 
-    var aggregated_values = dimensionConfig.dataType['aggregated_values'],
-        individual_cases = dimensionConfig.dataType['individual_cases'];
+    var aggregated_values = dimensionConfig.dataType['aggregated_values'];
+    var individual_cases = dimensionConfig.dataType['individual_cases'];
 
     Ext.define('Ext.ux.toolbar.StatusBar', {
         extend: 'Ext.toolbar.Toolbar',
@@ -68,6 +68,8 @@ StatusBar = function(refs) {
                 var layout = instanceManager.getStateCurrent();
 
                 layout.paging.page = page;
+                layout.setResponse(null);
+
                 this.pageCmp.setValue(page);
                 instanceManager.getReport(layout);
             }

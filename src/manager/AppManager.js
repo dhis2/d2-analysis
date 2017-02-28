@@ -153,6 +153,18 @@ AppManager = function(refs) {
     };
 };
 
+AppManager.prototype.logVersion = function() {
+    if (console && this.manifest && this.manifest.version) {
+        var version = 'v' + this.manifest.version;
+        var name = this.manifest.name || null;
+
+        var msg = arrayClean([name, version]).join(' ');
+        var fn = console.info || console.log;
+
+        fn.call(console, msg);
+    }
+};
+
 AppManager.prototype.getPath = function() {
     var dhis = this.manifest ? this.manifest.activities.dhis : {};
 
@@ -163,6 +175,10 @@ AppManager.prototype.getManifestFullVersionNumber = function() {
     var t = this;
 
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
+};
+
+AppManager.prototype.getApiVersion = function() {
+    return this.apiVersion;
 };
 
 AppManager.prototype.getDateFormat = function() {
@@ -297,10 +313,10 @@ AppManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
-AppManager.prototype.getApiPath = function() {
+AppManager.prototype.getApiPath = function() {
     var t = this;
 
-    var version = t.getManifestFullVersionNumber() || '';
+    var version = t.getApiVersion() || '';
 
     return t.getPath() + '/api' + (version ? '/' + version : '');
 };
