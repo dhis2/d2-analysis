@@ -15,6 +15,7 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
+    var displayType;
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
@@ -126,18 +127,28 @@ OptionConfig = function() {
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
             },
-            'percent_of_row': {
-                index: 9,
-                id: 'PERCENT_OF_ROW',
-                name: i18nManager.get('percent_of_row') || '$ of row'
-            },
-            'percent_of_column': {
-                index: 10,
-                id: 'PERCENT_OF_COLUMN',
-                name: i18nManager.get('percent_of_column') || '% of column'
-            }
         };
     };
+
+    var setDisplayType = function() {
+        displayType = {
+            'value': {
+                index: 1,
+                id: 'VALUE',
+                name: i18nManager.get('value') || 'By data element'
+            },
+            'percentofrow': {
+                index: 2,
+                id: 'PERCENTROW',
+                name: i18nManager.get('percent_of_row') || '% of row'
+            },
+            'percentofcolumn': {
+                index: 3,
+                id: 'PERCENTCOLUMN',
+                name: i18nManager.get('percent_of_column') || '% of column'
+            },
+        };
+    }
 
     var setOutputType = function() {
         outputType = {
@@ -235,6 +246,7 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
+        setDisplayType();
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
@@ -256,6 +268,10 @@ OptionConfig = function() {
 
     t.getAggregationType = function(key) {
         return key ? aggregationType[key] : aggregationType;
+    };
+
+    t.getDisplayType = function(key) {
+        return key ? displayType[key] : displayType;
     };
 
     t.getOutputType = function(key) {
@@ -288,6 +304,10 @@ OptionConfig = function() {
 
     t.getAggregationTypeRecords = function() {
         return getRecords(aggregationType);
+    };
+
+    t.getDisplayTypeRecords = function() {
+        return getRecords(displayType);
     };
 
     t.getOutputTypeRecords = function() {

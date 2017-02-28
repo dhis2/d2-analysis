@@ -384,6 +384,7 @@ Layout.prototype.toPlugin = function(el) {
 
         var deleteIfFalsy = [
             'hideEmptyRows',
+            'hideEmptyColumns',
             'skipRounding',
             'showHierarchy',
             'completedOnly',
@@ -461,6 +462,10 @@ Layout.prototype.toPlugin = function(el) {
 
         if (layout.aggregationType === optionConfig.getAggregationType('def').id) {
             delete layout.aggregationType;
+        }
+
+        if (layout.displayType === optionConfig.getDisplayType('value').id) {
+            delete layout.displayType;
         }
 
         if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id) {
@@ -878,6 +883,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         // hide empty rows
         if (this.hideEmptyRows) {
             request.add('hideEmptyRows=true');
+        }
+
+        // hide empty rows
+        if (this.hideEmpryColumns) {
+            request.add('hideEmpryColumns=true');
         }
 
         // show hierarchy
