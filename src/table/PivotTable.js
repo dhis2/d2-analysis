@@ -284,7 +284,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options) {
                         }));
                     }
                 }
-console.log(response.getNameById(columnDimensionNames[i]));
+
                 a.push(getEmptyNameTdConfig({
                     cls: 'pivot-dim-label',
                     htmlValue: response.getNameById(columnDimensionNames[i]) // objectNameMap[columnDimensionNames[i]].name
