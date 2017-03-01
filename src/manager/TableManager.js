@@ -30,7 +30,8 @@ TableManager = function(c) {
     };
 
     var onColumnHeaderMouseClick = function(layout, id) {
-var sortId = getSortId(id);
+        var sortId = getSortId(id);
+
         if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
@@ -41,7 +42,7 @@ var sortId = getSortId(id);
             };
         }
 
-        instanceManager.getReport(layout, false, true);
+        instanceManager.getReport(layout);
     };
 
     var onColumnHeaderMouseOver = function(el) {

@@ -16,7 +16,6 @@ EventDataTable = function(refs, layout, response) {
     var FIXED_HEADERS = ['eventdate'];
 
     var filteredHeaders = response.getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()));
-console.log("filteredHeaders", filteredHeaders);
 
     var rows = response.rows;
     var items = response.metaData.items;

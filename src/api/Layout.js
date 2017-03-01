@@ -35,8 +35,8 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var _dataDimensionItems;
 
     // constructor
-    t.columns = (Axis(refs, c.columns)).val();
-    t.rows = (Axis(refs, c.rows)).val();
+    t.columns = (Axis(refs, c.columns)).val(true);
+    t.rows = (Axis(refs, c.rows)).val(true);
     t.filters = (Axis(refs, c.filters)).val(true);
 
         // sharing
