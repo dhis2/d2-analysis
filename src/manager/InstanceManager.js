@@ -192,7 +192,7 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     var uiManager = t.uiManager;
     var i18n = t.i18nManager.get();
 
-    var request = new Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
         method: 'DELETE',
         beforeRun: function() {
@@ -225,7 +225,7 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
 
     var appManager = t.appManager;
 
-    var request = new Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/sharing',
         type: 'json',
         success: function(r) {
@@ -289,7 +289,7 @@ InstanceManager.prototype.getInterpretationById = function(id, fn) {
     var appManager = t.appManager;
     var uiManager = t.uiManager;
 
-    var request = new Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/interpretations/' + id + '.json',
         type: 'json',
         success: function(r) {

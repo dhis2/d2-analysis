@@ -55,10 +55,8 @@ Plugin = function({ refs, VERSION, renderFn, initializeFn }) {
     };
 
     const _initializeFn = function (readyFn = _readyFn, runFn = _runFn) {
-        const appManager = refs.appManager;
-        const requestManager = refs.requestManager;
-        const init = refs.init;
-        const Request = refs.api.Request;
+        const { appManager, requestManager, init } = refs;
+        const { Request } = refs.api;
 
         appManager.manifestVersion = VERSION;
         appManager.path = t.url;
@@ -68,8 +66,8 @@ Plugin = function({ refs, VERSION, renderFn, initializeFn }) {
         $.getJSON(appManager.getPath() + '/api/me/user-account.json').done(function (userAccount) {
             appManager.userAccount = userAccount;
 
-            requestManager.add(new Request(init.legendSetsInit(refs)));
-            requestManager.add(new Request(init.dimensionsInit(refs)));
+            requestManager.add(new Request(refs, init.legendSetsInit(refs)));
+            requestManager.add(new Request(refs, init.dimensionsInit(refs)));
 
             readyFn();
 

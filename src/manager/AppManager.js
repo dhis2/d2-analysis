@@ -372,7 +372,7 @@ AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
 
     var legendSetId;
 
-    new t.refs.api.Request({
+    new t.refs.api.Request(refs, {
         type: 'json',
         baseUrl: t.getApiPath() + '/indicators.json',
         params: [
