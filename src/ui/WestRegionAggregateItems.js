@@ -2226,19 +2226,25 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_BIMONTH',
                                 boxLabel: i18n['this_bimonth'],
-                                index: 15
+                                index: 16
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_BIMONTH',
                                 boxLabel: i18n['last_bimonth'],
-                                index: 16
+                                index: 18
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_BIMONTHS',
                                 boxLabel: i18n['last_6_bimonths'],
-                                index: 17
+                                index: 19
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'BIMONTHS_THIS_YEAR',
+                                boxLabel: i18n['bimonths_this_year'],
+                                index: 20
                             }
                         ]
                     },
@@ -2256,19 +2262,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_FINANCIAL_YEAR',
                                 boxLabel: i18n['this_financial_year'],
-                                index: 24
+                                index: 28
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_FINANCIAL_YEAR',
                                 boxLabel: i18n['last_financial_year'],
-                                index: 25
+                                index: 29
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
                                 boxLabel: i18n['last_5_financial_years'],
-                                index: 26
+                                index: 30
                             }
                         ]
                     }
@@ -2318,6 +2324,12 @@ WestRegionAggregateItems = function(c) {
                                 relativePeriodId: 'LAST_52_WEEKS',
                                 boxLabel: i18n['last_52_weeks'],
                                 index: 9
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'WEEKS_THIS_YEAR',
+                                boxLabel: i18n['weeks_this_year'],
+                                index: 10
                             }
                         ]
                     },
@@ -2335,19 +2347,25 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_QUARTER',
                                 boxLabel: i18n['this_quarter'],
-                                index: 18
+                                index: 21
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_QUARTER',
                                 boxLabel: i18n['last_quarter'],
-                                index: 19
+                                index: 22
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_4_QUARTERS',
                                 boxLabel: i18n['last_4_quarters'],
-                                index: 20
+                                index: 23
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'QUARTERS_THIS_YEAR',
+                                boxLabel: i18n['quarters_this_year'],
+                                index: 24
                             }
                         ]
                     },
@@ -2365,19 +2383,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_YEAR',
                                 boxLabel: i18n['this_year'],
-                                index: 27
+                                index: 31
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_YEAR',
                                 boxLabel: i18n['last_year'],
-                                index: 28
+                                index: 32
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_YEARS',
                                 boxLabel: i18n['last_5_years'],
-                                index: 29
+                                index: 33
                             }
                         ]
                     }
@@ -2402,31 +2420,37 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_MONTH',
                                 boxLabel: i18n['this_month'],
-                                index: 10
+                                index: 11
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_MONTH',
                                 boxLabel: i18n['last_month'],
-                                index: 11
+                                index: 12
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_3_MONTHS',
                                 boxLabel: i18n['last_3_months'],
-                                index: 12
+                                index: 13
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_MONTHS',
                                 boxLabel: i18n['last_6_months'],
-                                index: 13
+                                index: 14
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_12_MONTHS',
                                 boxLabel: i18n['last_12_months'],
-                                index: 14
+                                index: 15
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'MONTHS_THIS_YEAR',
+                                boxLabel: i18n['months_this_year'],
+                                index: 16
                             }
                         ]
                     },
@@ -2444,19 +2468,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_SIX_MONTH',
                                 boxLabel: i18n['this_sixmonth'],
-                                index: 21
+                                index: 25
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_SIX_MONTH',
                                 boxLabel: i18n['last_sixmonth'],
-                                index: 22
+                                index: 26
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_2_SIXMONTHS',
                                 boxLabel: i18n['last_2_sixmonths'],
-                                index: 23
+                                index: 27
                             }
                         ]
                     }
