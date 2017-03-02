@@ -12,4 +12,3 @@ export default function(type) {
             return (item) => item;
     }
 };
-

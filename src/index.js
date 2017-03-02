@@ -40,6 +40,7 @@ import { InterpretationItem } from './ui/InterpretationItem.js';
 import { PluginItem } from './ui/PluginItem.js';
 import { AboutWindow } from './ui/AboutWindow.js';
 import { GridHeaders } from './ui/GridHeaders.js';
+import { ChartDownloadButtonItems } from './ui/ChartDownloadButtonItems.js';
 import { ChartTypeToolbar } from './ui/ChartTypeToolbar.js';
 import { IntegrationButton } from './ui/IntegrationButton.js';
 import { WestRegionAggregateItems } from './ui/WestRegionAggregateItems.js';
@@ -111,6 +112,7 @@ export {
     PluginItem,
     AboutWindow,
     GridHeaders,
+    ChartDownloadButtonItems,
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
@@ -191,6 +193,7 @@ export const ui = {
     PluginItem,
     AboutWindow,
     GridHeaders,
+    ChartDownloadButtonItems,
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
