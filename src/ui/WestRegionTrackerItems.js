@@ -196,15 +196,29 @@ WestRegionTrackerItems = function(refs) {
             winMap = {},
             optionsWindow;
 
-        winMap[dimensionConfig.dataType['aggregated_values']] = uiManager.get('aggregateOptionsWindow');
-        winMap[dimensionConfig.dataType['individual_cases']] = uiManager.get('queryOptionsWindow');
+        var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
+            aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
+            queryLayoutWindow = uiManager.get('queryLayoutWindow'),
+            aggOptionsWindow = uiManager.get('aggregateOptionsWindow'),
+            queryOptionsWindow = uiManager.get('queryOptionsWindow');
+
+        winMap[dimensionConfig.dataType['aggregated_values']] = aggOptionsWindow;
+        winMap[dimensionConfig.dataType['individual_cases']] = queryOptionsWindow;
 
         optionsWindow = winMap[layout.dataType];
 
         // set layout
-        uiManager.get('dataTypeToolbar').setDataType(layout.dataType);
-        uiManager.get('aggregateLayoutWindow').reset();
-        uiManager.get('queryLayoutWindow').reset();
+        if (dataTypeToolbar) {
+            dataTypeToolbar.setDataType(layout.dataType);
+        }
+
+        if (aggLayoutWindow) {
+            aggLayoutWindow.reset();
+        }
+
+        if (queryLayoutWindow) {
+            queryLayoutWindow.reset();
+        }
 
         // data
         programStore.add(layout.program);
@@ -990,7 +1004,9 @@ WestRegionTrackerItems = function(refs) {
             dataElementSearch.hideFilter();
         },
         getHeightValue: function() {
-            return uiManager.get('westRegion').hasScrollbar ?
+            var westRegion = uiManager.get('westRegion');
+
+            return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_indicator :
                 uiConfig.west_maxheight_accordion_indicator;
         },
@@ -1003,15 +1019,12 @@ WestRegionTrackerItems = function(refs) {
             dataElementSelected.setHeight(msHeight * 0.6 - 1);
         },
         listeners: {
-            added: function(cmp) {
-                accordionPanels.push(cmp);
-            },
             expand: function(cmp) {
                 cmp.onExpand();
             }
         }
     });
-    uiManager.reg(data, 'data');
+    accordionPanels.push(uiManager.reg(data, 'data'));
 
         // dates
     var periodMode = Ext.create('Ext.form.field.ComboBox', {
@@ -1700,7 +1713,6 @@ WestRegionTrackerItems = function(refs) {
         },
         getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
             return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_period :
@@ -1746,15 +1758,12 @@ WestRegionTrackerItems = function(refs) {
             periods
         ],
         listeners: {
-            added: function() {
-                accordionPanels.push(this);
-            },
             expand: function(cmp) {
                 cmp.onExpand();
             }
         }
     });
-    uiManager.reg(period, 'period');
+    accordionPanels.push(uiManager.reg(period, 'period'));
 
         // organisation unit
     var treePanel = Ext.create('Ext.tree.Panel', {
@@ -2351,6 +2360,13 @@ WestRegionTrackerItems = function(refs) {
 
             return config.items.length ? config : null;
         },
+        getHeightValue: function() {
+            var westRegion = uiManager.get('westRegion');
+
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_organisationunit :
+                uiConfig.west_maxheight_accordion_organisationunit;
+        },
         onExpand: function() {
             var westRegion = uiManager.get('westRegion');
             var accordion = uiManager.get('accordion');
@@ -2390,7 +2406,7 @@ WestRegionTrackerItems = function(refs) {
             }
         }
     });
-    uiManager.reg(organisationUnit, 'organisationUnit');
+    accordionPanels.push(uiManager.reg(organisationUnit, 'organisationUnit'));
 
     // dimensions
 
@@ -2783,6 +2799,13 @@ WestRegionTrackerItems = function(refs) {
 
                 return config.dimension ? config : null;
             },
+            getHeightValue: function() {
+                var westRegion = uiManager.get('westRegion');
+
+                return westRegion.hasScrollbar ?
+                    uiConfig.west_scrollbarheight_accordion_organisationunit :
+                    uiConfig.west_maxheight_accordion_organisationunit;
+            },
             onExpand: function() {
 
                 // load items
@@ -2836,7 +2859,13 @@ WestRegionTrackerItems = function(refs) {
         data,
         period,
         organisationUnit,
-        ...appManager.dimensions.map(panel => getDimensionPanel(panel, 'ns-panel-title-dimension'))
+        ...appManager.dimensions.map(panel => {
+            var panel = uiManager.reg(getDimensionPanel(panel, 'ns-panel-title-dimension'), panel.dimension);
+
+            accordionPanels.push(panel);
+
+            return panel;
+        })
     ];
 
     var getItems = function(dimensions = []) {
