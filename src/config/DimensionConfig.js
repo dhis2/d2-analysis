@@ -20,6 +20,8 @@ DimensionConfig = function() {
         'ou': 'organisationUnit'
     };
 
+    var defaultDataType = 'aggregated_values';
+
     // data type
     t.dataType = {
         'aggregated_values': 'AGGREGATED_VALUES',
@@ -166,6 +168,10 @@ DimensionConfig = function() {
         }
 
         return map;
+    };
+
+    t.getDefaultDataType = function() {
+        return t.dataType[defaultDataType];
     };
 
     t.setI18nManager = function(manager) {

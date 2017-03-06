@@ -65,7 +65,11 @@ Viewport = function(refs, cmp, config) {
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
 
+    var getChartType = () => chartTypeToolbar ? chartTypeToolbar.getChartType() : null;
+
     var dataTypeToolbar = cmp.dataTypeToolbar;
+
+    var getDataType = () => dataTypeToolbar ? dataTypeToolbar.getDataType() : null;
 
     var statusBar = cmp.statusBar;
 
@@ -140,7 +144,9 @@ Viewport = function(refs, cmp, config) {
         onScrollbar: function() {
             this.hasScrollbar = true;
 
-            dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
+            if (dataTypeToolbar) {
+                dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
+            }
         },
         setState: function(layout) {
             westRegionItems.setUiState(layout);
@@ -527,18 +533,22 @@ Viewport = function(refs, cmp, config) {
     };
 
     var getUiState = function() {
-        var layoutWindow = uiManager.get('viewport').getLayoutWindow(),
-            optionsWindow = uiManager.get('viewport').getOptionsWindow(),
+        var viewport = uiManager.get('viewport'),
             accordion = uiManager.get('accordion');
+
+        var layoutWindow = viewport.getLayoutWindow(),
+            optionsWindow = viewport.getOptionsWindow(),
+            chartType = getChartType(),
+            dataType = getDataType();
 
         var config = Object.assign({}, accordion.getUiState(layoutWindow), optionsWindow.getOptions());
 
-        if (chartTypeToolbar) {
-            config.type = chartTypeToolbar.getChartType();
+        if (chartType) {
+            config.type = chartType;
         }
 
-        if (dataTypeToolbar) {
-            config.dataType = dataTypeToolbar.getDataType();
+        if (dataType) {
+            config.dataType = chartType;
         }
 
         return config;

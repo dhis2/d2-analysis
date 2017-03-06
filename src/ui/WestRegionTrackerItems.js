@@ -805,7 +805,10 @@ WestRegionTrackerItems = function(refs) {
                 }
 
                 aggWindow.removeDimension(element.id, aggWindow.valueStore);
-                queryWindow.removeDimension(element.id);
+
+                if (queryWindow) {
+                    queryWindow.removeDimension(element.id);
+                }
             }
         };
 
@@ -894,7 +897,10 @@ WestRegionTrackerItems = function(refs) {
             store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
 
             aggWindow.addDimension(element, store, aggWindow.valueStore);
-            queryWindow.colStore.add(element);
+
+            if (queryWindow) {
+                queryWindow.colStore.add(element);
+            }
         }
 
         // favorite
@@ -2938,7 +2944,9 @@ WestRegionTrackerItems = function(refs) {
             return;
         }
 
-        var dataType = dataTypeToolbar.getDataType();
+        if (dataTypeToolbar) {
+            var dataType = dataTypeToolbar.getDataType();
+        }
 
         // dy
         map['dy'] = [{dimension: 'dy'}];
