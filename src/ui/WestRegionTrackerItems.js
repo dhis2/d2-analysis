@@ -2803,8 +2803,8 @@ WestRegionTrackerItems = function(refs) {
                 var westRegion = uiManager.get('westRegion');
 
                 return westRegion.hasScrollbar ?
-                    uiConfig.west_scrollbarheight_accordion_organisationunit :
-                    uiConfig.west_maxheight_accordion_organisationunit;
+                    uiConfig.west_scrollbarheight_accordion_group :
+                    uiConfig.west_maxheight_accordion_group;
             },
             onExpand: function() {
 
