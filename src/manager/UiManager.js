@@ -125,6 +125,10 @@ UiManager = function(refs) {
         t.get(component) && t.get(component).subscribe(fn);
     }
 
+    t.setScrollFn = function(component, fn) {
+        t.get(component) && t.get(component).setScroll(fn);
+    }
+
     t.getByGroup = function(groupName) {
         return componentGroups[groupName];
     };

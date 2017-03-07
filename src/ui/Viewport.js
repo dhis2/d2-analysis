@@ -487,6 +487,10 @@ Viewport = function(refs, cmp) {
                 fn();
             });
         },
+        setScroll: function(fn) {
+            this.onScroll = fn;
+        },
+        onScroll: Function.prototype,
         tbar: {
             defaults: {
                 height: 26
@@ -548,6 +552,11 @@ Viewport = function(refs, cmp) {
         listeners: {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
+            },
+            render: function(p) {
+                p.body.on('scroll', function(e){
+                    this.onScroll(e.target.scrollLeft, e.target.scrollTop);
+                }, p);
             }
         }
     });
