@@ -28,3 +28,7 @@ ResponseRowIdCombination.prototype.get = function() {
 ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
     return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
 };
+
+ResponseRowIdCombination.prototype.getPeIdbyIds = function(peIds) {
+  return this.ids.filter(id => arrayContains(arrayFrom(peIds), id))[0];
+};
