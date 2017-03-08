@@ -17,7 +17,7 @@ ResponseRowIdCombination = function(config) {
 
 ResponseRowIdCombination.prototype.add = function(id) {
     if (id) {
-        this.ids.push(id);
+        this.ids = this.ids.concat(id.split('-'));
     }
 };
 
