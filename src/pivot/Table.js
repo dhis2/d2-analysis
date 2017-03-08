@@ -119,7 +119,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             return str || '';
-        }
+        };
 
         if (!isObject(config)) {
             return '';
@@ -166,6 +166,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
 
         html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
+        html += 'data-period-id="' + config.peId + '" ';
         html += ' class="' + cls + '" ' + colSpan + rowSpan;
         html += config.title ? ' title="' + config.title + '" ' : '';
 
@@ -508,7 +509,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dx)
+                    dxId: rric.getDxIdByIds(response.metaData.dx),
+                    peId: rric.getPeIdbyIds(response.metaData.pe)
                 });
 
                 // map element id to dim element ids
