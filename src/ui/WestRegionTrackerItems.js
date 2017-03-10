@@ -908,7 +908,7 @@ WestRegionTrackerItems = function(refs) {
                 }
             }
 
-            store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
+            store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.getDefaultStore() : aggWindow.fixedFilterStore;
 
             aggWindow.addDimension(element, store, aggWindow.valueStore);
 
