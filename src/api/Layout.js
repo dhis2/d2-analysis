@@ -657,7 +657,7 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         }
 
         // post
-        var postRequest = new Request({
+        var postRequest = new Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'POST',
@@ -709,7 +709,7 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
         }
 
         // put
-        var putRequest = new Request({
+        var putRequest = new Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'PUT',
