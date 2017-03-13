@@ -7,7 +7,7 @@ import numberConstrain from 'd2-utilizr/lib/numberConstrain';
 
 export var Period;
 
-Period = function(refs, config) {
+Period = function(config, refs) {
     var t = this;
 
     t.id = '' + config.id;
