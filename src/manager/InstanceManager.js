@@ -152,6 +152,16 @@ InstanceManager.prototype.getById = function(id, fn) {
     var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
+        beforeRun: function() {
+            if (doMask) {
+                uiManager.mask();
+            }
+        },
+        afterRun: function() {
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+        },
         success: function(r) {
             var layout = new Layout(refs, r);
 
@@ -160,8 +170,6 @@ InstanceManager.prototype.getById = function(id, fn) {
             }
         },
         error: function(r) {
-            uiManager.unmask();
-
             if (arrayContains([403], parseInt(r.httpStatusCode))) {
                 r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
             }
@@ -217,21 +225,21 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     request.run();
 };
 
-InstanceManager.prototype.getSharingById = function(id, fn) {
+InstanceManager.prototype.getSharingById = function(id, fn) {
     var t = this,
         refs = this.getRefs();
 
-    var { Request } = refs.api;
+    var { Request } = refs.api;
 
     var appManager = t.appManager;
 
     var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/sharing',
         type: 'json',
-        success: function(r) {
+        success: function(r) {
             fn && fn(r);
         },
-        error: function() {
+        error: function() {
             t.uiManager.unmask();
         }
     });

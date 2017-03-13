@@ -223,6 +223,7 @@ FavoriteWindow = function(c, action) {
 
     saveButtonHandler = function() {
         var currentLayout = instanceManager.getStateCurrent(),
+            id = instanceManager.getStateFavoriteId(),
             name = nameTextField.getValue(),
             description = descriptionTextField.getValue();
 
@@ -242,6 +243,7 @@ FavoriteWindow = function(c, action) {
         };
 
         currentLayout.apply({
+            id: id,
             name: name,
             description: description
         });
@@ -249,8 +251,7 @@ FavoriteWindow = function(c, action) {
         if (record) {
             uiManager.confirmReplace(i18n.save_favorite, function() {
                 preXhr();
-                currentLayout.id = record.data.id;
-                currentLayout.clone().put(fn, true, true);
+                currentLayout.clone().put(record.data.id, fn, true, true);
             });
         }
         else {

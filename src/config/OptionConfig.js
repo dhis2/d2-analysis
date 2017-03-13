@@ -304,7 +304,6 @@ OptionConfig = function() {
         return map;
     };
 
-
     t.setI18nManager = function(manager) {
         i18nManager = manager;
     };

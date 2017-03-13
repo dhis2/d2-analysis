@@ -2,7 +2,7 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var Plugin;
 
-Plugin = function({ refs, VERSION, renderFn, initializeFn }) {
+Plugin = function({ refs, renderFn, initializeFn }) {
     const t = this;
 
     // public properties
@@ -58,7 +58,6 @@ Plugin = function({ refs, VERSION, renderFn, initializeFn }) {
         const { appManager, requestManager, init } = refs;
         const { Request } = refs.api;
 
-        appManager.manifestVersion = VERSION;
         appManager.path = t.url;
         appManager.setAuth(t.username && t.password ? t.username + ':' + t.password : null);
 

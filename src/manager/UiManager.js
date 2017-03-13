@@ -33,9 +33,9 @@ UiManager = function(refs) {
 
     var introHtml = '';
 
-    var updateFn = function(content, elementId) {
-        content = content || t.getIntroHtml();
+    var introFn = Function.prototype;
 
+    var updateFn = function(content, elementId) {
         var el = document.getElementById(elementId);
 
         if (elementId && el) {
@@ -43,7 +43,11 @@ UiManager = function(refs) {
             return;
         }
 
-        t.getUpdateComponent() && t.getUpdateComponent().update(content);
+        t.getUpdateComponent() && t.getUpdateComponent().update(content || t.getIntroHtml());
+
+        if (!content) {
+            introFn();
+        }
     };
 
     var updateInterpretationFn = function(interpretation, layout) {
@@ -205,6 +209,14 @@ UiManager = function(refs) {
 
     t.setIntroHtml = function(html) {
         introHtml = html;
+    };
+
+    t.setIntroFn = function(fn) {
+        introFn = fn;
+    };
+
+    t.callIntroFn = function() {
+        introFn();
     };
 
     // browser
@@ -586,9 +598,8 @@ UiManager = function(refs) {
     };
 
     // svg
-    t.submitSvgForm = function(type) {
-        var svg = Ext.query('svg'),
-            form = Ext.query('#exportForm')[0];
+    t.getSvg = function() {
+        var svg = Ext.query('svg');
 
         if (!(isArray(svg) && svg.length)) {
             alert('Browser does not support SVG');
@@ -598,8 +609,19 @@ UiManager = function(refs) {
         svg = Ext.get(svg[0]);
         svg = svg.parent().dom.innerHTML;
 
+        return svg;
+    };
+
+    t.submitSvgForm = function(type, filename) {
+        var form = Ext.query('#exportForm')[0];
+        var svg = this.getSvg();
+
+        if (!svg) {
+            return;
+        }
+
         Ext.query('#svgField')[0].value = svg;
-        Ext.query('#filenameField')[0].value = 'test';
+        Ext.query('#filenameField')[0].value = filename || 'unsaved';
 
         form.action = t.appManager.getPath() + '/api/svg.' + type;
         form.submit();

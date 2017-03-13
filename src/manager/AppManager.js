@@ -104,6 +104,7 @@ AppManager = function(refs) {
     t.dimensions = [];
     t.legendSets = [];
     t.dataApprovalLevels = [];
+    t.userFavorites = [];
 
     // transient
     t.path;
@@ -118,6 +119,7 @@ AppManager = function(refs) {
 
     // optional
     t.manifestVersion;
+    t.apiVersion;
 
     // fns
     t.getUrlParam = function(s) {

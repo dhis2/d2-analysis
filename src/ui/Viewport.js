@@ -220,6 +220,9 @@ Viewport = function(refs, cmp, config) {
                     var items = [
                         ...DownloadButtonItems(refs, layout),
                         {
+                            xtype: 'menuseparator'
+                        },
+                        {
                             xtype: 'label',
                             text: i18n.plain_data_sources,
                             style: 'padding:7px 5px 5px 7px; font-weight:bold'
@@ -369,18 +372,31 @@ Viewport = function(refs, cmp, config) {
                             iconCls: 'ns-menu-item-advanced',
                             menu: [
                                 {
-                                    text: i18n.data_value_set + ' JSON',
+                                    xtype: 'label',
+                                    text: i18n.data_value_set,
+                                    style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
+                                },
+                                {
+                                    text: 'JSON',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetJsonReq, null, true);
                                     }
                                 },
                                 {
-                                    text: i18n.data_value_set + ' XML',
+                                    text: 'XML',
                                     iconCls: 'ns-menu-item-datasource',
                                     handler: function() {
                                         uiManager.openPlainDataSource(dataValueSetXmlReq, null, true);
                                     }
+                                },
+                                {
+                                    xtype: 'menuseparator'
+                                },
+                                {
+                                    xtype: 'label',
+                                    text: i18n.other_formats,
+                                    style: 'padding:7px 18px 5px 7px; font-weight:bold; color:#333'
                                 },
                                 {
                                     text: 'JRXML',

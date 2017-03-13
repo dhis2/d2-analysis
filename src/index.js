@@ -2,6 +2,7 @@ import { Record } from './api/Record.js';
 import { Dimension } from './api/Dimension.js';
 import { Axis } from './api/Axis.js';
 import { Layout } from './api/Layout.js';
+import { Period } from './api/Period';
 import { Request } from './api/Request.js';
 import { ResponseHeader } from './api/ResponseHeader.js';
 import { ResponseRow } from './api/ResponseRow.js';
@@ -54,6 +55,7 @@ import { legendSetsInit } from './init/legendSetsInit.js';
 import { optionSetsInit } from './init/optionSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
+import { userFavoritesInit } from './init/userFavoritesInit.js';
 
 import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
@@ -74,6 +76,7 @@ export {
     Dimension,
     Axis,
     Layout,
+    Period,
     Request,
     ResponseHeader,
     ResponseRow,
@@ -126,6 +129,7 @@ export {
     optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+    userFavoritesInit,
 
     SimpleRegression,
     Plugin,
@@ -147,6 +151,7 @@ export const api = {
     Dimension,
     Axis,
     Layout,
+    Period,
     Request,
     ResponseHeader,
     ResponseRow,
@@ -209,6 +214,7 @@ export const init = {
     optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
+    userFavoritesInit
 };
 
 export const util = {

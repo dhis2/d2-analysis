@@ -1,5 +1,7 @@
-import isString from 'd2-utilizr/lib/isString';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import isArray from 'd2-utilizr/lib/isArray';
+import isString from 'd2-utilizr/lib/isString';
 
 export var ResponseRowIdCombination;
 
@@ -20,4 +22,8 @@ ResponseRowIdCombination.prototype.add = function(id) {
 
 ResponseRowIdCombination.prototype.get = function() {
     return this.ids.join('-');
+};
+
+ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
+    return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
 };

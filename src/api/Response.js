@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+>>>>>>> df6e8cd7cd171b2dac484df9769f6317978bf1ed
+import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
@@ -409,7 +418,7 @@ Response.prototype.getValueHeader = function() {
 // dep 2
 
 Response.prototype.getValueHeaderIndex = function() {
-    return this.getValueHeader().getIndex();
+    return this.getValueHeader() ? this.getValueHeader().getIndex() : null;
 };
 
 // dep 3
@@ -448,6 +457,16 @@ Response.prototype.getIdValueMap = function(layout) {
     });
 
     return this.idValueMap = idValueMap;
+};
+
+Response.prototype.getTotal = function() {
+    var valueHeaderIndex = this.getValueHeaderIndex();
+
+    if (!isNumber(valueHeaderIndex)) {
+        return;
+    }
+
+    return this.rows.reduce((total, row) => total + parseFloat(row[valueHeaderIndex]), 0);
 };
 
 // dep 4
