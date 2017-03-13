@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-=======
-import isNumber from 'd2-utilizr/lib/isNumber';
-import isObject from 'd2-utilizr/lib/isObject';
-import isString from 'd2-utilizr/lib/isString';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
->>>>>>> df6e8cd7cd171b2dac484df9769f6317978bf1ed
-import arrayClean from 'd2-utilizr/lib/arrayClean';
-import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
