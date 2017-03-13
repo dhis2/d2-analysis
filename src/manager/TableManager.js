@@ -1,5 +1,7 @@
 import isString from 'd2-utilizr/lib/isString';
 import isArray from 'd2-utilizr/lib/isArray';
+import { Period } from '../api/Period';
+import { Dimension } from '../api/Dimension';
 
 export var TableManager;
 
@@ -75,7 +77,10 @@ TableManager = function(c) {
             parentGraphMap = {},
             objects = [],
             path = appManager.getPath(),
+            dom = document.getElementById(uuid),
+            periodId = dom.getAttribute('data-period-id'),
             menu;
+
 
         var uuids = table.uuidDimUuidsMap[uuid];
 
@@ -109,7 +114,7 @@ TableManager = function(c) {
         for (var i = 0, id; i < objects.length; i++) {
             id = objects[i].id;
 
-            if (layout.parentGraphMap.hasOwnProperty(id)) {
+            if (layout.parentGraphMap && layout.parentGraphMap.hasOwnProperty(id)) {
                 parentGraphMap[id] = layout.parentGraphMap[id];
             }
         }
@@ -118,51 +123,97 @@ TableManager = function(c) {
 
         layout.toSession();
 
+        const menuItems = [
+            {
+                text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
+                iconCls: 'ns-button-icon-chart',
+                param: 'chart',
+                handler: function() {
+                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
+                },
+                listeners: {
+                    render: function() { //TODO
+                        this.getEl().on('mouseover', function() {
+                            onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
+                        });
+
+                        this.getEl().on('mouseout', function() {
+                            onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
+                        });
+                    }
+                }
+            },
+            {
+                text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
+                iconCls: 'ns-button-icon-map',
+                param: 'map',
+                disabled: true,
+                handler: function() {
+                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
+                },
+                listeners: {
+                    render: function() {
+                        this.getEl().on('mouseover', function() {
+                            onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
+                        });
+
+                        this.getEl().on('mouseout', function() {
+                            onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
+                        });
+                    }
+                }
+            }
+        ];
+
+        const period = new Period({
+            id: periodId,
+            name: response.getNameById(periodId)
+        }, layout.getRefs());
+
+        period.generateDisplayProperties();
+
+        let periodMenuItems = period.getContextMenuItemsConfig();
+
+        for (let i = 0, periodItem; i < periodMenuItems.length; ++i) {
+            periodItem = periodMenuItems[i];
+
+            if (periodItem.isSubtitle) {
+                menuItems.push({
+                    xtype: 'label',
+                    html: periodItem.text,
+                    style: periodItem.style
+                });
+            }
+
+            menuItems.push({
+                text: periodItem.text,
+                iconCls: periodItem.iconCls,
+                peReqItems: periodItem.items,
+                handler: function() {
+                    let layout = instanceManager.getStateCurrent();
+
+                    var peDimension = new Dimension({
+                        dimension: 'pe',
+                        items: this.peReqItems
+                    });
+
+                    if (layout.isPeriodInRows()) {
+                        layout.rows.replaceDimensionByName('pe', peDimension);
+                    } else {
+                        layout.columns.replaceDimensionByName('pe', peDimension);
+                    }
+
+                    instanceManager.getReport(layout, false, true, true);
+                }
+            });
+        }
+
+
         // menu
         menu = Ext.create('Ext.menu.Menu', {
             shadow: true,
             showSeparator: false,
-            items: [
-                {
-                    text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
-                    iconCls: 'ns-button-icon-chart',
-                    param: 'chart',
-                    handler: function() {
-                        sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
-                    },
-                    listeners: {
-                        render: function() { //TODO
-                            this.getEl().on('mouseover', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
-                            });
-
-                            this.getEl().on('mouseout', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
-                            });
-                        }
-                    }
-                },
-                {
-                    text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
-                    iconCls: 'ns-button-icon-map',
-                    param: 'map',
-                    disabled: true,
-                    handler: function() {
-                        sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
-                    },
-                    listeners: {
-                        render: function() {
-                            this.getEl().on('mouseover', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
-                            });
-
-                            this.getEl().on('mouseout', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
-                            });
-                        }
-                    }
-                }
-            ]
+            items: menuItems
         });
 
         menu.showAt(function() {
