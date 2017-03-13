@@ -183,6 +183,8 @@ TableManager = function(c) {
                     html: periodItem.text,
                     style: periodItem.style
                 });
+
+                continue;
             }
 
             menuItems.push({
@@ -203,6 +205,7 @@ TableManager = function(c) {
                         layout.columns.replaceDimensionByName('pe', peDimension);
                     }
 
+                    layout.setResponse(null);
                     instanceManager.getReport(layout, false, true, true);
                 }
             });
