@@ -2872,7 +2872,6 @@ WestRegionTrackerItems = function(refs) {
         return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
     };
 
-    //var accordionBody = Ext.create('Ext.panel.Panel', {
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
         activeOnTop: true,

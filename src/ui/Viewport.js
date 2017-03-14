@@ -629,7 +629,7 @@ Viewport = function(refs, cmp, config) {
                     }
                 }
                 else {
-                    westRegion.onScrollBar();
+                    westRegion.onScrollbar();
                 }
 
                 // north
