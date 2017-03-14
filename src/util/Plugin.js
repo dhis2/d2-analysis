@@ -2,7 +2,7 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var Plugin;
 
-Plugin = function({ refs, renderFn, initializeFn }) {
+Plugin = function({ refs, renderFn, initializeFn }) {
     const t = this;
 
     // public properties
