@@ -56,6 +56,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         createSubTotalCell,
         createTotalCell,
         createSubDimCell,
+        createGrandTotalCell,
         testTable = { rows: [], columns: [], total: 0 },
         allRows = [],
 
@@ -241,6 +242,15 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             htmlValue: value,
             colSpan: colspan,
             hidden: hidden,
+        }
+    }
+
+    createGrandTotalCell = function (colspan) {
+        return {
+            type: 'dimensionSubtotal',
+            cls: 'pivot-dim-total',
+            colSpan: colspan,
+            htmlValue: 'Total',
         }
     }
 
@@ -646,8 +656,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 // do column sub totals
                 if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
+                    colshift++;
                     row.values.push(createSubTotalCell(columnSubTotal, emptyTotalRow));
-                    addColumn(j + ++colshift, columnSubTotal, emptyTotalRow);
+                    addColumn(j + colshift, columnSubTotal, emptyTotalRow);
                     columnSubTotal = 0;
                 }
 
@@ -756,21 +767,14 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         // merge dim, value, total
         for (var i = 0, row; i < testTable.rows.length; i++) {
             row = [];
-            var dimTotalArray = [{
-                type: 'dimensionSubtotal',
-                cls: 'pivot-dim-total',
-                colSpan: rowAxis.dims,
-                htmlValue: 'Total',
-            }];
 
             if(doRowTotals() && i === testTable.rows.length - 1) {
-                row = row.concat(dimTotalArray);
+                row.push(createGrandTotalCell(rowAxis.dims));
             } else {
                 row = row.concat(axisAllObjects[i]);
             }
-            row = row.concat(testTable.rows[i].values);
 
-            mergedObjects.push(row);
+            mergedObjects.push(row.concat(testTable.rows[i].values));
         }
 
         // create html items
