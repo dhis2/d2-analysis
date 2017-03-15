@@ -2947,8 +2947,7 @@ WestRegionTrackerItems = function(refs) {
         setLayout(layout);
     };
 
-    var getUiState = function(layoutWindow) {
-console.log("event getUiState");
+    var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
         var panels = uiManager.get('accordion').panels,
             dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),

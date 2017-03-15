@@ -3805,6 +3805,62 @@ WestRegionAggregateItems = function(c) {
         }
     };
 
+    var getUiState = function(layoutWindow, optionsWindow) {
+        var columnDimNames = layoutWindow.colStore.getDimensionNames(),
+            rowDimNames = layoutWindow.rowStore.getDimensionNames(),
+            filterDimNames = layoutWindow.filterStore.getDimensionNames(),
+            config = optionsWindow.getOptions(),
+            dx = dimensionConfig.get('data').dimensionName,
+            co = dimensionConfig.get('category').dimensionName,
+            nameDimArrayMap = {};
+
+        config.columns = [];
+        config.rows = [];
+        config.filters = [];
+
+        // panel data
+        for (var i = 0, dim, dimName; i < westRegionItems.length; i++) {
+            dim = westRegionItems[i].getDimension();
+
+            if (dim) {
+                nameDimArrayMap[dim.dimension] = [dim];
+            }
+        }
+
+        // columns, rows, filters
+        for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
+            dimNames = nameArrays[i];
+
+            for (var j = 0, dimName, dim; j < dimNames.length; j++) {
+                dimName = dimNames[j];
+
+                if (dimName === co) {
+                    axes[i].push({
+                        dimension: co,
+                        items: []
+                    });
+                }
+                else if (dimName === dx && nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dx].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dx][k]));
+
+                        // TODO program
+                        if (nameDimArrayMap[dx][k].program) {
+                            config.program = nameDimArrayMap[dx][k].program;
+                        }
+                    }
+                }
+                else if (nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dimName].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dimName][k]));
+                    }
+                }
+            }
+        }
+
+        return config;
+    };
+
     // add listeners
     (function() {
         indicatorAvailableStore.on('load', function() {
@@ -3883,8 +3939,7 @@ WestRegionAggregateItems = function(c) {
 
         //reset: reset,
         getUiState: getUiState,
-        setUiState: setUiState,
-        onTypeClick: onTypeClick
+        setUiState: setUiState
     });
 
     return accordion;
