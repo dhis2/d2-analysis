@@ -11,6 +11,8 @@ optionSetsInit = function(refs) {
 
     return {
         baseUrl: '.',
+        type: 'ajax',
+        dataType: 'text',
         disableCaching: false,
         success: function() {
             indexedDbManager.open().done(function() {
@@ -29,7 +31,7 @@ optionSetsInit = function(refs) {
                                     });
                                 }
                                 else {
-                                    requestManager.ok(t);;
+                                    requestManager.ok(t);
                                 }
                             }
                         });

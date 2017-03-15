@@ -549,6 +549,7 @@ Viewport = function(refs, cmp, config) {
     };
 
     var getUiState = function() {
+console.log("viewport getUiState");
         var viewport = uiManager.get('viewport'),
             accordion = uiManager.get('accordion');
 
@@ -564,7 +565,7 @@ Viewport = function(refs, cmp, config) {
         }
 
         if (dataType) {
-            config.dataType = chartType;
+            config.dataType = dataType;
         }
 
         return config;
