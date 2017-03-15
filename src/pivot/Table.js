@@ -52,31 +52,26 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         getFilterHtmlArray,
         getTitle,
         getHtml,
+        recursiveReduce,
+        colAxisAllObjects = [],
+        rowAxisAllObjects = [],
+        columnDimensionNames,
+        rowDimensionNames,
+        getEmptyNameTdConfig,
+        getEmptyHtmlArray,
+
 
         createSubTotalCell,
         createTotalCell,
         createSubDimCell,
         createGrandTotalCell,
+        createEmptyCell,
         testTable = { rows: [], columns: [], total: 0 },
         allRows = [],
 
-        getUniqueFactor = function(xAxis) {
-            var unique;
-
-            if (!xAxis.xItems) {
-                return null;
-            }
-
-            unique = xAxis.xItems.unique;
-
-            if (unique) {
-                return unique.length < 2 ? 1 : (xAxis.size / unique[0].length);
-            }
-
-            return null;
-        },
-        colUniqueFactor = getUniqueFactor(colAxis),
-        rowUniqueFactor = getUniqueFactor(rowAxis),
+        getUniqueFactor,
+        colUniqueFactor,
+        rowUniqueFactor,
         valueItems = [],
         valueObjects = [],
         totalColObjects = [],
@@ -90,9 +85,61 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         idValueMap = response.getIdValueMap(layout),
         sortableIdObjects = []; //todo
 
+    getUniqueFactor = function(xAxis) {
+        var unique;
+
+        if (!xAxis.xItems) {
+            return null;
+        }
+
+        unique = xAxis.xItems.unique;
+
+        if (unique) {
+            return unique.length < 2 ? 1 : (xAxis.size / unique[0].length);
+        }
+
+        return null;
+    };
+
+    colUniqueFactor = getUniqueFactor(colAxis);
+    rowUniqueFactor = getUniqueFactor(rowAxis);
+    columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
+    rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [];
+
     getRoundedHtmlValue = function(value, dec) {
         dec = dec || 2;
         return parseFloat(roundIf(value, 2)).toString();
+    };
+
+    getEmptyNameTdConfig = function(config) {
+        config = config || {};
+
+        return getTdHtml({
+            cls: config.cls ? ' ' + config.cls : 'pivot-empty',
+            colSpan: config.colSpan ? config.colSpan : 1,
+            rowSpan: config.rowSpan ? config.rowSpan : 1,
+            htmlValue: config.htmlValue ? config.htmlValue : '&nbsp;'
+        });
+    };
+
+    getEmptyHtmlArray = function(i) {
+        var html = [],
+            isIntersectionCell = i < colAxis.dims - 1;
+
+
+        if (rowAxis.type && rowAxis.dims) {
+            for (var j = 0; j < rowAxis.dims - 1; j++) {
+                html.push(createEmptyCell('pivot-dim-label', isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : ''));
+            }
+        }
+        var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
+                response.getNameById(rowDimensionNames[j]) + 
+                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
+                response.getNameById(columnDimensionNames[i]);
+
+        html.push(createEmptyCell('pivot-dim-label', cellValue));
+
+        return html;
     };
 
     getTdHtml = function(config, metaDataId) {
@@ -212,48 +259,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return html;
     };
 
-    createSubTotalCell = function(value, empty, collapsed = false) {
-        return {
-              type: 'valueSubtotal',
-              cls: 'pivot-value-subtotal' + (empty ? ' cursor-default' : ''),
-              value: value,
-              htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
-              empty,
-              collapsed,
-        }
-    }
-
-    createTotalCell = function(value, empty, collapsed = false) {
-        return {
-            type: 'valueTotalSubgrandtotal',
-            cls: 'pivot-value-total-subgrandtotal' + (empty ? ' cursor-default' : ''),
-            value: value,
-            htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
-            empty,
-            collapsed,
-        }
-    }
-
-    createSubDimCell = function (value = '', collapsed = false, colspan = 1, hidden = false) {
-        return {
-            type: 'dimensionSubtotal',
-            cls: 'pivot-dim-subtotal cursor-default',
-            collapsed: collapsed,
-            htmlValue: value,
-            colSpan: colspan,
-            hidden: hidden,
-        }
-    }
-
-    createGrandTotalCell = function (colspan) {
-        return {
-            type: 'dimensionSubtotal',
-            cls: 'pivot-dim-total',
-            colSpan: colspan,
-            htmlValue: 'Total',
-        }
-    }
-
     var addColumn = function(position, total, empty) {
         if(!testTable.columns[position]) {
             testTable.columns.push({ values: [], total: 0, empty: 0 });
@@ -273,7 +278,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         // - parsefloat(string) is not a number
         // - string is just starting with a number
         // - string is a valid date
-        //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
+        // if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
         if (!isNumber(n) || n != str) {
             return 0;
         }
@@ -338,64 +343,114 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return layout.hideEmptyColumns && colAxis.type && rowAxis.type;
     };
 
+        createSubTotalCell = function(value, empty, collapsed = false) {
+        return {
+            type: 'valueSubtotal',
+            cls: 'pivot-value-subtotal' + (empty ? ' cursor-default' : ''),
+            htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
+            collapsed,
+            empty,
+            value,
+        };
+    };
+
+    createTotalCell = function(value, empty, collapsed = false) {
+        return {
+            type: 'valueTotalSubgrandtotal',
+            cls: 'pivot-value-total-subgrandtotal' + (empty ? ' cursor-default' : ''),
+            htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
+            collapsed,
+            empty,
+            value,
+        };
+    };
+
+    createSubDimCell = function (htmlValue = '', collapsed = false, colSpan = 1, rowSpan = 1, hidden = false) {
+        return {
+            type: 'dimensionSubtotal',
+            cls: 'pivot-dim-subtotal cursor-default',
+            collapsed,
+            colSpan,
+            hidden,
+            rowSpan,
+            htmlValue,
+        };
+    };
+
+    createGrandTotalCell = function (colSpan) {
+        return {
+            type: 'dimensionSubtotal',
+            cls: 'pivot-dim-total',
+            htmlValue: 'Total',
+            colSpan,
+        };
+    };
+
+    createEmptyCell = function (cls='pivot-empty', htmlValue='&nbsp;', colSpan = 1, rowSpan = 1)  {
+        return {
+            type: 'empty',
+            cls,
+            colSpan,
+            htmlValue,
+            rowSpan,
+        };
+    };
+
+    recursiveReduce = function(obj) {
+        if (!obj.children) {
+            obj.collapsed = true;
+
+            if (obj.parent) {
+                obj.parent.oldestSibling.children--;
+            }
+        }
+
+        if (obj.parent) {
+            recursiveReduce(obj.parent.oldestSibling);
+        }
+    };
+
+    var getColDimHtmlArray = function() {
+
+        var html = [];
+
+        for (var i = 0, dimHtml; i < colAxisAllObjects.length; i++) {
+            dimHtml = [];
+
+            for (var j = 0, obj, condoId; j < colAxisAllObjects[i].length; j++) {
+                switch(colAxisAllObjects[i][j].type) {
+                    case "dimension": {
+                        if (i === colAxis.dims - 1 && doSortableColumnHeaders()) {
+                            condoId = colAxis.ids[j];
+                        }
+                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j], condoId));
+                    } break;
+
+                    case "dimensionSubtotal": {
+                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j]));
+                    } break;
+
+                    case "dimensionTotal": {
+                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j], doSortableColumnHeaders() ? 'total' : null));
+                    } break;
+
+                    case "empty": {
+                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j]));
+                    } break;
+
+                    default: {
+                        dimHtml.push('');
+                    } break;
+                }
+            }
+
+            html.push(dimHtml);
+        }
+        return html;
+    }
+
     getColAxisHtmlArray = function() {
-        var a = [],
-            columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [],
-            rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [],
-            getFilterRow,
-            getEmptyNameTdConfig,
-            getEmptyHtmlArray;
-
-        //getFilterRow = function() {
-
-
-        getEmptyNameTdConfig = function(config) {
-            config = config || {};
-
-            return getTdHtml({
-                cls: config.cls ? ' ' + config.cls : 'pivot-empty',
-                colSpan: config.colSpan ? config.colSpan : 1,
-                rowSpan: config.rowSpan ? config.rowSpan : 1,
-                htmlValue: config.htmlValue ? config.htmlValue : '&nbsp;'
-            });
-        };
-
-        getEmptyHtmlArray = function(i) {
-            var a = [];
-
-            // if not the intersection cell
-            if (i < colAxis.dims - 1) {
-                if (rowAxis.type && rowAxis.dims) {
-                    for (var j = 0; j < rowAxis.dims - 1; j++) {
-                        a.push(getEmptyNameTdConfig({
-                            cls: 'pivot-dim-label'
-                        }));
-                    }
-                }
-
-                a.push(getEmptyNameTdConfig({
-                    cls: 'pivot-dim-label',
-                    htmlValue: response.getNameById(columnDimensionNames[i]) // objectNameMap[columnDimensionNames[i]].name
-                }));
-            }
-            else {
-                if (rowAxis.type && rowAxis.dims) {
-                    for (var j = 0; j < rowAxis.dims - 1; j++) {
-                        a.push(getEmptyNameTdConfig({
-                            cls: 'pivot-dim-label',
-                            htmlValue: response.getNameById(rowDimensionNames[j]) //(objectNameMap[rowDimensionNames[j]] || {}).name
-                        }));
-                    }
-                }
-
-                a.push(getEmptyNameTdConfig({
-                    cls: 'pivot-dim-label',
-                    htmlValue: response.getNameById(rowDimensionNames[j]) + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + response.getNameById(columnDimensionNames[i])
-                }));
-            }
-
-            return a;
-        };
+        var a = [];
 
         if (!colAxis.type) {
 
@@ -415,28 +470,24 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 a.push(dimLabelHtml);
             }
-
             return a;
         }
 
         // for each col dimension
-        for (var i = 0, dimHtml; i < colAxis.dims; i++) {
-            dimHtml = [];
+        for (var i = 0; i < colAxis.dims; i++) {
+            colAxisAllObjects.push([]);
 
             if (layout.showDimensionLabels) {
-                dimHtml = dimHtml.concat(getEmptyHtmlArray(i));
+                colAxisAllObjects[i] = colAxisAllObjects[i].concat(getEmptyHtmlArray(i))
+                console.log(colAxisAllObjects)
             }
-            else if (i === 0) {
-                dimHtml.push(colAxis.type && rowAxis.type ? getEmptyNameTdConfig({
-                    colSpan: rowAxis.dims,
-                    rowSpan: colAxis.dims
-                }) : '');
+            
+            else if (i === 0 && colAxis.type && rowAxis.type) {
+                colAxisAllObjects[i].push(createEmptyCell('pivot-empty', '&nbsp;', rowAxis.dims, colAxis.dims))
             }
 
-            for (var j = 0, obj, spanCount = 0, condoId, totalId; j < colAxis.size; j++) {
+            for (var j = 0, obj, spanCount = 0; j < colAxis.size; j++) {
                 spanCount++;
-                condoId = null;
-                totalId = null;
 
                 obj = colAxis.objects.all[i][j];
                 obj.type = 'dimension';
@@ -445,41 +496,27 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 obj.hidden = !(obj.rowSpan || obj.colSpan);
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
 
-                // sortable column headers. last dim only.
-                if (i === colAxis.dims - 1 && doSortableColumnHeaders()) {
+                colAxisAllObjects[i].push(obj);
 
-                    //condoId = colAxis.ids[j].split('-').join('');
-                    condoId = colAxis.ids[j];
-                }
-
-                dimHtml.push(getTdHtml(obj, condoId));
-
-                if (i === 0 && spanCount === colAxis.span[i] && doRowSubTotals() ) {
-                    dimHtml.push(getTdHtml({
-                        type: 'dimensionSubtotal',
-                        cls: 'pivot-dim-subtotal cursor-default',
-                        rowSpan: colAxis.dims,
-                        htmlValue: '&nbsp;'
-                    }));
-
+                if (i === 0 && spanCount === colAxis.span[i] && doRowSubTotals() ) {                    
+                    colAxisAllObjects[i].push(createSubDimCell('&nbsp;', false, 1, colAxis.dims));
                     spanCount = 0;
                 }
 
                 if (i === 0 && (j === colAxis.size - 1) && doRowTotals()) {
-                    totalId = doSortableColumnHeaders() ? 'total' : null;
-
-                    dimHtml.push(getTdHtml({
+                    var totalCell = {
                         uuid: uuid(),
                         type: 'dimensionTotal',
                         cls: 'pivot-dim-total',
                         rowSpan: colAxis.dims,
                         htmlValue: 'Total'
-                    }, totalId));
+                    }
+                    colAxisAllObjects[i].push(totalCell);
                 }
             }
-            a.push(dimHtml);
         }
-        return a;
+
+        return getColDimHtmlArray();
     };
 
     getRowHtmlArray = function() {
@@ -488,22 +525,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             mergedObjects = [],
             valueItemsCopy,
             colAxisSize = colAxis.type ? colAxis.size : 1,
-            rowAxisSize = rowAxis.type ? rowAxis.size : 1,
-            recursiveReduce;
-
-        recursiveReduce = function(obj) {
-            if (!obj.children) {
-                obj.collapsed = true;
-
-                if (obj.parent) {
-                    obj.parent.oldestSibling.children--;
-                }
-            }
-
-            if (obj.parent) {
-                recursiveReduce(obj.parent.oldestSibling);
-            }
-        };
+            rowAxisSize = rowAxis.type ? rowAxis.size : 1;
 
         // dimension
         if (rowAxis.type) {
@@ -532,12 +554,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 }]);
             }
         }
-
-
-        //axisAllObjects = [ [ dim, dim ]
-        //                   [ dim, dim ]
-        //                   [ dim, dim ]
-        //                   [ dim, dim ] ];
 
         var rowTotalValueArray = new Array(rowAxisSize).fill(0);
         var rowSubValueArray = new Array(rowAxisSize).fill(0);
@@ -616,8 +632,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     dxId: rric.getDxIdByIds(response.metaData.dx),
                 }
 
-                var emptySubRow = emptyCellsSubRowArray[j] === rowUniqueFactor,
-                    emptySubCol = colEmptyCellsSub === colUniqueFactor,
+                var emptySubRow = emptyCellsSubRowArray[j] % rowUniqueFactor === 0,
+                    emptySubCol = colEmptyCellsSub % colUniqueFactor === 0,
                     emptyTotalRow = emptyCellsTotalRowArray[j] === rowAxisSize,
                     emptyTotalCol = colEmptyCellsTotal === colAxisSize;
 
@@ -657,8 +673,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 // do column sub totals
                 if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
                     colshift++;
-                    row.values.push(createSubTotalCell(columnSubTotal, emptyTotalRow));
-                    addColumn(j + colshift, columnSubTotal, emptyTotalRow);
+                    //console.log(emptySubRow, emptySubCol, emptyTotalRow, emptyTotalCol)
+                    row.values.push(createSubTotalCell(columnSubTotal, emptySubCol));
+                    addColumn(j + colshift, columnSubTotal, emptySubCol);
                     columnSubTotal = 0;
                 }
 
@@ -708,9 +725,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             if(subValueRow.values.length > 0) {
                 testTable.rows.push(subValueRow);
                 var axisRow = [];
-                axisRow.push(createSubDimCell('&nbsp;', subValueRow.isEmpty, rowAxis.dims));
+                axisRow.push(createSubDimCell('&nbsp;', doHideEmptyRows() && subValueRow.isEmpty, rowAxis.dims));
                 for (var j = 0; j < rowAxis.dims; j++) {
-                    axisRow.push(createSubDimCell('', subValueRow.isEmpty, 1, true));
+                    axisRow.push(createSubDimCell('', doHideEmptyRows() && subValueRow.isEmpty, 1, 1, true));
                 }
                 axisAllObjects.splice(i + 1 + rowShift++, 0, axisRow);
             }
@@ -724,41 +741,44 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // display col percentages
         if(doColPercentage()) {
-          for(var i = 0; i < testTable.rows.length; i++) {
-              for (var j = 0; j < testTable.rows[i].values.length; j++) {
-                 testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.columns[j].total) * 100) + '%';
-              }
-          }
+            for(var i = 0; i < testTable.rows.length; i++) {
+                for (var j = 0; j < testTable.rows[i].values.length; j++) {
+                    testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.columns[j].total) * 100) + '%';
+                }
+            }
         }
 
         // display row percentages
         if(doRowPercentage()) {
-          for(var i = 0; i < testTable.rows.length; i++) {
-              for (var j = 0; j < testTable.rows[i].values.length; j++) {
-                 testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.rows[i].total) * 100) + '%';
-              }
-          }
+            for(var i = 0; i < testTable.rows.length; i++) {
+                for (var j = 0; j < testTable.rows[i].values.length; j++) {
+                    testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.rows[i].total) * 100) + '%';
+                }
+            }
         }
 
         // hide empty columns
         if(doHideEmptyColumns()) {
-            for(var i = 0; i < testTable.columns.length; i++) {
+            for(var i = 0, dimLeaf; i < testTable.columns.length; i++) {
                 if(testTable.columns[i].isEmpty) {
-                    for(var j = 0, dimLeaf; j < testTable.rows.length; j++) {
+                    for(var j = 0; j < testTable.rows.length; j++) {
                         testTable.rows[j].values[i].collapsed = true;
                     }
+                    dimLeaf = colAxisAllObjects[colAxis.dims-1][i];
+                    if (dimLeaf) recursiveReduce(dimLeaf);
                 }
             }
         }
 
         // hide empty rows
         if(doHideEmptyRows()) {
-            for(var i = 0; i < testTable.rows.length; i++) {
+            for(var i = 0, dimLeaf; i < testTable.rows.length; i++) {
                 if(testTable.rows[i].isEmpty) {
-                    for(var j = 0, dimLeaf; j < testTable.rows[i].values.length; j++) {
+                    for(var j = 0; j < testTable.rows[i].values.length; j++) {
                         testTable.rows[i].values[j].collapsed = true;
                     }
                     dimLeaf = axisAllObjects[i][rowAxis.dims-1];
+                    console.log(axisAllObjects);
                     recursiveReduce(dimLeaf);
                 }
             }
@@ -838,7 +858,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             cls: 'pivot-filter cursor-default',
             colSpan: getTopBarSpan(span),
             title: text,
-            htmlValue: text
+            htmlValue: text,
         }));
 
         return [row];
@@ -934,14 +954,3 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 Table.prototype.getUuidObjectMap = function() {
     return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };
-
-// if(i < colAxis.items.length && colStart >= rowAxis.items.length && i !== 0) {
-//     columns = htmlArray[i].slice(colStart - 2, colEnd + rowAxis.items.length);
-//      if(colStart > rowAxis.items.length) {
-//         columns.unshift(`<td style="min-width:${columnWidth}px!important" colspan="${colStart - rowAxis.items.length}"></td>`);
-//     }
-// }
-
-// if(i === 0 && colStart >= rowAxis.items.length) {
-//     columns.unshift(`<td style="min-width:${columnWidth}px!important" rowspan="${colAxis.items.length}" colspan="${rowAxis.items.length}">&nbsp</td>`);
-// }
