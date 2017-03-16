@@ -2725,7 +2725,8 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-    accordionPanels.push(uiManager.reg(organisationUnit, 'organisationUnit'));
+    accordionPanels.push(uiManager.reg(period, 'period'));
+
     // organisation unit
 
     var treePanel = Ext.create('Ext.tree.Panel', {
@@ -3271,7 +3272,7 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-    uiManager.reg(organisationUnit, 'organisationUnit');
+    accordionPanels.push(uiManager.reg(organisationUnit, 'organisationUnit'));
 
     // dimensions
 
