@@ -43,6 +43,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         doHideEmptyColumns,
         doSortableColumnHeaders,
         getColAxisHtmlArray,
+        getColAxisObjectArray,
         getRowHtmlArray,
         rowAxisHtmlArray,
         getColTotalHtmlArray,
@@ -343,7 +344,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return layout.hideEmptyColumns && colAxis.type && rowAxis.type;
     };
 
-        createSubTotalCell = function(value, empty, collapsed = false) {
+    createSubTotalCell = function(value, empty, collapsed = false) {
         return {
             type: 'valueSubtotal',
             cls: 'pivot-value-subtotal' + (empty ? ' cursor-default' : ''),
@@ -410,32 +411,32 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
     };
 
-    var getColDimHtmlArray = function() {
+    var getColAxisHtmlArray = function(colAxisArray) {
 
         var html = [];
 
-        for (var i = 0, dimHtml; i < colAxisAllObjects.length; i++) {
+        for (var i = 0, dimHtml; i < colAxisArray.length; i++) {
             dimHtml = [];
 
-            for (var j = 0, obj, condoId; j < colAxisAllObjects[i].length; j++) {
-                switch(colAxisAllObjects[i][j].type) {
+            for (var j = 0, obj, condoId; j < colAxisArray[i].length; j++) {
+                switch(colAxisArray[i][j].type) {
                     case "dimension": {
                         if (i === colAxis.dims - 1 && doSortableColumnHeaders()) {
                             condoId = colAxis.ids[j];
                         }
-                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j], condoId));
+                        dimHtml.push(getTdHtml(colAxisArray[i][j], condoId));
                     } break;
 
                     case "dimensionSubtotal": {
-                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j]));
+                        dimHtml.push(getTdHtml(colAxisArray[i][j]));
                     } break;
 
                     case "dimensionTotal": {
-                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j], doSortableColumnHeaders() ? 'total' : null));
+                        dimHtml.push(getTdHtml(colAxisArray[i][j], doSortableColumnHeaders() ? 'total' : null));
                     } break;
 
                     case "empty": {
-                        dimHtml.push(getTdHtml(colAxisAllObjects[i][j]));
+                        dimHtml.push(getTdHtml(colAxisArray[i][j]));
                     } break;
 
                     default: {
@@ -449,41 +450,32 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return html;
     }
 
-    getColAxisHtmlArray = function() {
-        var a = [];
+    getColAxisObjectArray = function() {
+
+        var colAxisArray = []
 
         if (!colAxis.type) {
-
             // show row dimension labels
             if (rowAxis.type && layout.showDimensionLabels) {
-                var dimLabelHtml = [];
-
-                // labels from row object names
+                colAxisArray.push([]);
+                // colAxisArray from row object names
                 for (var i = 0; i < rowDimensionNames.length; i++) {
-                    dimLabelHtml.push(getEmptyNameTdConfig({
-                        cls: 'pivot-dim-label',
-                        htmlValue: response.getNameById(rowDimensionNames[i])
-                    }));
+                    colAxisArray[i].push(createEmptyCell('pivot-dim-label', response.getNameById(rowDimensionNames[i])));
                 }
-
-                // pivot-transparent-column unnecessary
-
-                a.push(dimLabelHtml);
             }
-            return a;
+            return getColAxisHtmlArray();
         }
 
         // for each col dimension
         for (var i = 0; i < colAxis.dims; i++) {
-            colAxisAllObjects.push([]);
+            colAxisArray.push([]);
 
             if (layout.showDimensionLabels) {
-                colAxisAllObjects[i] = colAxisAllObjects[i].concat(getEmptyHtmlArray(i))
-                console.log(colAxisAllObjects)
+                colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i))
             }
             
             else if (i === 0 && colAxis.type && rowAxis.type) {
-                colAxisAllObjects[i].push(createEmptyCell('pivot-empty', '&nbsp;', rowAxis.dims, colAxis.dims))
+                colAxisArray[i].push(createEmptyCell('pivot-empty', '&nbsp;', rowAxis.dims, colAxis.dims))
             }
 
             for (var j = 0, obj, spanCount = 0; j < colAxis.size; j++) {
@@ -496,10 +488,17 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 obj.hidden = !(obj.rowSpan || obj.colSpan);
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
 
-                colAxisAllObjects[i].push(obj);
+                colAxisArray[i].push(obj);
 
-                if (i === 0 && spanCount === colAxis.span[i] && doRowSubTotals() ) {                    
-                    colAxisAllObjects[i].push(createSubDimCell('&nbsp;', false, 1, colAxis.dims));
+                if (spanCount === colAxis.span[0] && doRowSubTotals() ) {
+                    if(i === 0) {
+                        colAxisArray[i].push(createSubDimCell('&nbsp;', false, 1, colAxis.dims));
+                    }
+
+                    else {
+                        colAxisArray[i].push(createSubDimCell('', false, 1, 1, true));
+                    }
+
                     spanCount = 0;
                 }
 
@@ -511,12 +510,13 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                         rowSpan: colAxis.dims,
                         htmlValue: 'Total'
                     }
-                    colAxisAllObjects[i].push(totalCell);
+                    colAxisArray[i].push(totalCell);
                 }
             }
         }
+        console.log(colAxisArray);
 
-        return getColDimHtmlArray();
+        return colAxisArray;
     };
 
     getRowHtmlArray = function() {
@@ -673,7 +673,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 // do column sub totals
                 if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
                     colshift++;
-                    //console.log(emptySubRow, emptySubCol, emptyTotalRow, emptyTotalCol)
                     row.values.push(createSubTotalCell(columnSubTotal, emptySubCol));
                     addColumn(j + colshift, columnSubTotal, emptySubCol);
                     columnSubTotal = 0;
@@ -759,13 +758,15 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // hide empty columns
         if(doHideEmptyColumns()) {
+            
             for(var i = 0, dimLeaf; i < testTable.columns.length; i++) {
                 if(testTable.columns[i].isEmpty) {
                     for(var j = 0; j < testTable.rows.length; j++) {
                         testTable.rows[j].values[i].collapsed = true;
                     }
                     dimLeaf = colAxisAllObjects[colAxis.dims-1][i];
-                    if (dimLeaf) recursiveReduce(dimLeaf);
+                    if (colAxisAllObjects[0][i].rowSpan === colAxis.dims) colAxisAllObjects[0][i].collapsed = true;
+                    recursiveReduce(dimLeaf);
                 }
             }
         }
@@ -778,7 +779,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                         testTable.rows[i].values[j].collapsed = true;
                     }
                     dimLeaf = axisAllObjects[i][rowAxis.dims-1];
-                    console.log(axisAllObjects);
                     recursiveReduce(dimLeaf);
                 }
             }
@@ -924,15 +924,18 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     // get html
     (function() {
-        var colAxisHtmlArray = getColAxisHtmlArray();
-        var filterRowColSpan = (colAxisHtmlArray[0] || []).length;
-        var rowDims = rowAxis.dims || 0;
+        colAxisAllObjects = getColAxisObjectArray();
+        rowAxisAllObjects = [];
+        var rowAxisHtmlArray = getRowHtmlArray(),
+            colAxisHtmlArray = getColAxisHtmlArray(colAxisAllObjects),
+            filterRowColSpan = (colAxisHtmlArray[0] || []).length,
+            rowDims = rowAxis.dims || 0;
 
         htmlArray = arrayClean([].concat(
             options.skipTitle ? [] : getTitle(filterRowColSpan) || [],
             getFilterHtmlArray(filterRowColSpan) || [],
             colAxisHtmlArray || [],
-            getRowHtmlArray() || []
+            rowAxisHtmlArray || []
         ));
     }());
 
