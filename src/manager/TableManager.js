@@ -81,7 +81,6 @@ TableManager = function(c) {
             periodId = dom.getAttribute('data-period-id'),
             menu;
 
-
         var uuids = table.uuidDimUuidsMap[uuid];
 
         // modify layout dimension items based on uuid objects
@@ -271,7 +270,7 @@ TableManager = function(c) {
             if (uuidDimUuidsMap.hasOwnProperty(key)) {
                 valueEl = Ext.get(key);
 
-                if (valueEl && parseFloat(valueEl.dom.textContent)) {
+                if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
                     valueEl.dom.onValueMouseClick = onValueMouseClick;
                     valueEl.dom.onValueMouseOver = onValueMouseOver;
                     valueEl.dom.onValueMouseOut = onValueMouseOut;
