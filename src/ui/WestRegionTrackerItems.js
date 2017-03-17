@@ -2368,12 +2368,7 @@ WestRegionTrackerItems = function(refs) {
                 uiConfig.west_maxheight_accordion_organisationunit;
         },
         onExpand: function() {
-            var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
-
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_organisationunit : uiConfig.west_maxheight_accordion_organisationunit;
-
-            accordion.setThisHeight(accordionHeight);
+            accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
@@ -3194,6 +3189,6 @@ WestRegionTrackerItems = function(refs) {
         setUiState: setUiState,
         onTypeClick: onTypeClick
     });
-
+console.log("accordion", accordion);
     return accordion;
 };

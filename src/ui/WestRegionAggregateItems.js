@@ -44,7 +44,12 @@ WestRegionAggregateItems = function(c) {
 
         dimensionPanelMap = {},
         accordionPanels = [],
-        periodCheckboxes = [];
+        periodCheckboxes = [],
+
+        baseWidth = uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        accBaseWidth = baseWidth - 2 - 8;
+        //toolWidth = 36,
+        //nextButtonWidth = 62;
 
     // stores
 
@@ -837,7 +842,7 @@ WestRegionAggregateItems = function(c) {
     var dataType = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         //emptyText: i18n.data_type,
@@ -863,7 +868,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -980,7 +985,7 @@ WestRegionAggregateItems = function(c) {
     var indicatorGroup = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px; margin-top:0px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_indicator_group'],
@@ -1006,10 +1011,10 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-
+console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.west_fieldset_width - uiConfig.west_width_padding);
     var indicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: indicatorAvailableStore,
@@ -1059,7 +1064,7 @@ WestRegionAggregateItems = function(c) {
 
     var indicatorSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1200,7 +1205,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataElementAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         isPending: false,
@@ -1252,7 +1257,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataElementSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1297,7 +1302,7 @@ WestRegionAggregateItems = function(c) {
     var dataElementGroup = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 90,
+        width: accBaseWidth - 90,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_data_element_group'],
@@ -1445,7 +1450,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataSetAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: dataSetAvailableStore,
@@ -1495,7 +1500,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataSetSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1540,7 +1545,7 @@ WestRegionAggregateItems = function(c) {
     var dataSetMetric = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px; margin-top:0px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_indicator_group'],
@@ -1615,7 +1620,7 @@ WestRegionAggregateItems = function(c) {
     var eventDataItemProgram = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_program,
@@ -1704,7 +1709,7 @@ WestRegionAggregateItems = function(c) {
 
     var eventDataItemAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: eventDataItemAvailableStore,
@@ -1754,7 +1759,7 @@ WestRegionAggregateItems = function(c) {
 
     var eventDataItemSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1842,7 +1847,7 @@ WestRegionAggregateItems = function(c) {
     var programIndicatorProgram = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_program,
@@ -1931,7 +1936,7 @@ WestRegionAggregateItems = function(c) {
 
     var programIndicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: programIndicatorAvailableStore,
@@ -1981,7 +1986,7 @@ WestRegionAggregateItems = function(c) {
 
     var programIndicatorSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -2101,13 +2106,15 @@ WestRegionAggregateItems = function(c) {
                 dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
             }
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_indicator : uiConfig.west_maxheight_accordion_indicator;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_indicator :
+                uiConfig.west_maxheight_accordion_indicator;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight([indicatorAvailable, indicatorSelected], this, uiConfig.west_fill_accordion_indicator);
             uiManager.msSetHeight([dataElementAvailable, dataElementSelected], this, uiConfig.west_fill_accordion_dataelement);
@@ -2468,7 +2475,7 @@ WestRegionAggregateItems = function(c) {
 
     var fixedPeriodAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         height: 180,
         valueField: 'id',
         displayField: 'name',
@@ -2508,7 +2515,7 @@ WestRegionAggregateItems = function(c) {
 
     var fixedPeriodSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         height: 180,
         valueField: 'id',
         displayField: 'name',
@@ -2565,7 +2572,7 @@ WestRegionAggregateItems = function(c) {
     var periodType = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 62 - 62 - 2,
+        width: accBaseWidth - 62 - 62 - 2,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_period_type,
@@ -2643,13 +2650,15 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_period : uiConfig.west_maxheight_accordion_period;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_period :
+                uiConfig.west_maxheight_accordion_period;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight(
                 [fixedPeriodAvailable, fixedPeriodSelected],
@@ -2732,7 +2741,7 @@ WestRegionAggregateItems = function(c) {
     var treePanel = Ext.create('Ext.tree.Panel', {
         cls: 'ns-tree',
         style: 'border-top: 1px solid #ddd; padding-top: 1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         displayField: 'name',
         rootVisible: false,
         autoScroll: true,
@@ -2966,7 +2975,7 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-combo',
         multiSelect: true,
         style: 'margin-bottom:0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+        width: accBaseWidth - 37,
         valueField: 'level',
         displayField: 'name',
         emptyText: i18n.select_organisation_unit_levels,
@@ -2979,7 +2988,7 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-combo',
         multiSelect: true,
         style: 'margin-bottom:0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+        width: accBaseWidth - 37,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_organisation_unit_groups,
@@ -3233,13 +3242,15 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_organisationunit : uiConfig.west_maxheight_accordion_organisationunit;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_organisationunit :
+                uiConfig.west_maxheight_accordion_organisationunit;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
@@ -3251,7 +3262,7 @@ WestRegionAggregateItems = function(c) {
                 items: [
                     toolPanel,
                     {
-                        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+                        width: accBaseWidth - 37,
                         layout: 'column',
                         bodyStyle: 'border:0 none',
                         items: [
@@ -3522,7 +3533,7 @@ WestRegionAggregateItems = function(c) {
 
         available = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-left',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             store: availableStore,
@@ -3569,7 +3580,7 @@ WestRegionAggregateItems = function(c) {
 
         selected = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-right',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             ddReorder: true,
@@ -3820,8 +3831,8 @@ WestRegionAggregateItems = function(c) {
         config.filters = [];
 
         // panel data
-        for (var i = 0, dim, dimName; i < westRegionItems.length; i++) {
-            dim = westRegionItems[i].getDimension();
+        for (var i = 0, dim, dimName; i < accordionPanels.length; i++) {
+            dim = accordionPanels[i].getDimension();
 
             if (dim) {
                 nameDimArrayMap[dim.dimension] = [dim];
@@ -3896,24 +3907,41 @@ WestRegionAggregateItems = function(c) {
                 panel.setDimension(layout);
             });
         },
+        //setThisHeight: function(mx) {
+            //mx = mx || this.getExpandedPanel().getHeightValue();
+
+            //var settingsHeight = 41;
+
+            //var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
+                //accordionHeight = uiManager.get('westRegion').getHeight() - settingsHeight - uiConfig.west_fill,
+                //accordionBodyHeight;
+//console.log("containerHeight, accordionHeight", containerHeight, accordionHeight);
+            //if (uiManager.get('westRegion').hasScrollbar) {
+                //accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
+            //}
+            //else {
+                //accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - uiConfig.west_fill;
+            //}
+
+            //this.setHeight(accordionHeight);
+            //accordionBody.setHeight(accordionBodyHeight);
+        //},
         setThisHeight: function(mx) {
-            mx = mx || this.getExpandedPanel().getHeightValue();
+            var westRegion = uiManager.get('westRegion'),
+                panelHeight = this.panels.length * 28,
+                height;
 
-            var settingsHeight = 41;
-
-            var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                accordionHeight = uiManager.get('westRegion').getHeight() - settingsHeight - uiConfig.west_fill,
-                accordionBodyHeight;
-
-            if (uiManager.get('westRegion').hasScrollbar) {
-                accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
+            if (westRegion.hasScrollbar) {
+                height = panelHeight + mx;
+                this.setHeight(westRegion.getHeight() - 2);
+                accordionBody.setHeight(height - 2);
             }
             else {
-                accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - uiConfig.west_fill;
+                height = westRegion.getHeight() - uiConfig.west_fill;
+                mx += panelHeight;
+                accordion.setHeight((height > mx ? mx : height) - 2);
+                accordionBody.setHeight((height > mx ? mx : height) - 4);
             }
-
-            this.setHeight(accordionHeight);
-            accordionBody.setHeight(accordionBodyHeight);
         },
         getExpandedPanel: function() {
             for (var i = 0, panel; i < this.panels.length; i++) {
@@ -3942,6 +3970,6 @@ WestRegionAggregateItems = function(c) {
         getUiState: getUiState,
         setUiState: setUiState
     });
-
+console.log("accordion", accordion);
     return accordion;
 };

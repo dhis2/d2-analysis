@@ -132,6 +132,9 @@ Viewport = function(refs, cmp, config) {
     //});
     //uiManager.reg(accordion, 'accordion');
 
+console.log("westR width", uiConfig.west_width);
+console.log("uiManager.getScrollbarSize().width", uiManager.getScrollbarSize().width);
+
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
         preventHeader: true,
@@ -621,6 +624,11 @@ Viewport = function(refs, cmp, config) {
                     tabHeight = 28,
                     minPeriodHeight = 380;
 
+console.log("viewportHeight", viewportHeight);
+console.log("numberOfTabs * tabHeight + minPeriodHeight", numberOfTabs * tabHeight + minPeriodHeight);
+console.log("numberOfTabs", numberOfTabs);
+console.log("tabHeight", tabHeight);
+console.log("minPeriodHeight", minPeriodHeight);
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
                         accordion.setAutoScroll(false);
@@ -629,6 +637,7 @@ Viewport = function(refs, cmp, config) {
                     }
                 }
                 else {
+                        westRegion.setWidth(uiConfig.west_width);
                     westRegion.onScrollbar();
                 }
 
