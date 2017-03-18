@@ -14,7 +14,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 export var PivotTable;
 
-PivotTable = function(refs, layout, response, colAxis, rowAxis, options) {
+PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     var t = this;
 
     var { appManager, uiManager, dimensionConfig, optionConfig } = refs;

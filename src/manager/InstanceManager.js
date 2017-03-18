@@ -369,7 +369,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
             reqMap.data.done(function(res) {
                 res.metaData = md.metaData;
 
-                layout.setResponse(new Response(res));
+                layout.setResponse(new Response(refs, res));
 
                 _fn();
             });
