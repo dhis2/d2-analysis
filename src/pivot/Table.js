@@ -502,19 +502,26 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     spanCount = 0;
                 }
 
-                if (i === 0 && (j === colAxis.size - 1) && doRowTotals()) {
-                    var totalCell = {
-                        uuid: uuid(),
-                        type: 'dimensionTotal',
-                        cls: 'pivot-dim-total',
-                        rowSpan: colAxis.dims,
-                        htmlValue: 'Total'
+                if ((j === colAxis.size - 1) && doRowTotals()) {
+                    var totalCell;
+                    if(i === 0) {
+                        totalCell = {
+                            uuid: uuid(),
+                            type: 'dimensionTotal',
+                            cls: 'pivot-dim-total',
+                            rowSpan: colAxis.dims,
+                            htmlValue: 'Total'
+                        }
                     }
+
+                    else {
+                        totalCell = createSubDimCell('', false, 1, 1, true);
+                    }
+                    
                     colAxisArray[i].push(totalCell);
                 }
             }
         }
-        console.log(colAxisArray);
 
         return colAxisArray;
     };
@@ -672,7 +679,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 // do column sub totals
                 if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                    colshift++;
+                    colshift += 1;
                     row.values.push(createSubTotalCell(columnSubTotal, emptySubCol));
                     addColumn(j + colshift, columnSubTotal, emptySubCol);
                     columnSubTotal = 0;
@@ -692,8 +699,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     }
 
                     if(j === colAxisSize - 1 && doColTotals()) {
+                        colshift += 1;
                         totalValueRow.values.push(createTotalCell(grandTotalRowValues, emptyTotalCol));
-                        addColumn(j + ++colshift, grandTotalRowValues, emptyTotalCol)
+                        addColumn(j + colshift, grandTotalRowValues, emptyTotalCol)
                     }
 
                     if (doSortableColumnHeaders()) {
@@ -728,7 +736,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 for (var j = 0; j < rowAxis.dims; j++) {
                     axisRow.push(createSubDimCell('', doHideEmptyRows() && subValueRow.isEmpty, 1, 1, true));
                 }
-                axisAllObjects.splice(i + 1 + rowShift++, 0, axisRow);
+                axisAllObjects.splice(i + 1 + rowShift, 0, axisRow);
+                rowShift += 1;
             }
 
             // push total value row
@@ -758,15 +767,14 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // hide empty columns
         if(doHideEmptyColumns()) {
-            
             for(var i = 0, dimLeaf; i < testTable.columns.length; i++) {
                 if(testTable.columns[i].isEmpty) {
                     for(var j = 0; j < testTable.rows.length; j++) {
                         testTable.rows[j].values[i].collapsed = true;
                     }
-                    dimLeaf = colAxisAllObjects[colAxis.dims-1][i];
-                    if (colAxisAllObjects[0][i].rowSpan === colAxis.dims) colAxisAllObjects[0][i].collapsed = true;
+                    dimLeaf = colAxisAllObjects[colAxis.dims-1][i + rowAxis.dims];
                     recursiveReduce(dimLeaf);
+                    colAxisAllObjects[0][i + rowAxis.dims].collapsed = true;
                 }
             }
         }
