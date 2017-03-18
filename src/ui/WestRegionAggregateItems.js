@@ -47,9 +47,7 @@ WestRegionAggregateItems = function(c) {
         periodCheckboxes = [],
 
         baseWidth = uiConfig.west_fieldset_width - uiConfig.west_width_padding,
-        accBaseWidth = baseWidth - 2 - 8;
-        //toolWidth = 36,
-        //nextButtonWidth = 62;
+        accBaseWidth = baseWidth;
 
     // stores
 
@@ -3970,6 +3968,6 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
         getUiState: getUiState,
         setUiState: setUiState
     });
-console.log("accordion", accordion);
+
     return accordion;
 };

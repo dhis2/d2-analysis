@@ -132,9 +132,6 @@ Viewport = function(refs, cmp, config) {
     //});
     //uiManager.reg(accordion, 'accordion');
 
-console.log("westR width", uiConfig.west_width);
-console.log("uiManager.getScrollbarSize().width", uiManager.getScrollbarSize().width);
-
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
         preventHeader: true,
@@ -632,12 +629,11 @@ console.log("minPeriodHeight", minPeriodHeight);
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
                         accordion.setAutoScroll(false);
-                        westRegion.setWidth(uiConfig.west_width);
+                        //westRegion.setWidth(uiConfig.west_width + 100);
                         accordion.doLayout();
                     }
                 }
                 else {
-                        westRegion.setWidth(uiConfig.west_width);
                     westRegion.onScrollbar();
                 }
 
