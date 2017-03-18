@@ -983,7 +983,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var data = Ext.create('Ext.panel.Panel', {
-        title: '<div class="ns-panel-title-data">Data</div>',
+        title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
         cls: 'ns-accordion-first',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,

@@ -2050,6 +2050,8 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
 
     var data = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
+        cls: 'ns-accordion-first',
+        bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         dimension: dataObjectName,
         updateStoreFilters: function() {
