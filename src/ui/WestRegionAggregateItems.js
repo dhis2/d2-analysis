@@ -3777,7 +3777,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
         }
 
         // clear panels
-        westRegionItems.clearDimensions(layout);
+        accordion.clearDimensions(layout);
 
         if (layout) {
             var graphMap = layout.parentGraphMap,
@@ -3789,7 +3789,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
             }
 
             // panels
-            westRegionItems.setDimensions(layout);
+            accordion.setDimensions(layout);
 
             // layout window
             if (layoutWindow) {
@@ -3890,7 +3890,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
     }());
 
     var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        bodyStyle: 'border-style:none; border-top:1px solid #e1e1e1; padding:1px; padding-bottom:0; overflow-y:scroll;',
         accordionBody: accordionBody,
         items: accordionBody,
         panels: accordionPanels,

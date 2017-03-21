@@ -128,7 +128,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     return layout;
 };
 
-InstanceManager.prototype.getById = function(id, fn) {
+InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
     var t = this,
         refs = t.getRefs();
 

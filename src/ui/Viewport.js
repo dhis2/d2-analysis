@@ -621,11 +621,6 @@ Viewport = function(refs, cmp, config) {
                     tabHeight = 28,
                     minPeriodHeight = 380;
 
-console.log("viewportHeight", viewportHeight);
-console.log("numberOfTabs * tabHeight + minPeriodHeight", numberOfTabs * tabHeight + minPeriodHeight);
-console.log("numberOfTabs", numberOfTabs);
-console.log("tabHeight", tabHeight);
-console.log("minPeriodHeight", minPeriodHeight);
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
                         accordion.setAutoScroll(false);
@@ -644,6 +639,7 @@ console.log("minPeriodHeight", minPeriodHeight);
 
                 // expand to make sure treepanel is rendered
                 uiManager.get('organisationUnit').expand();
+                uiManager.get('data').expand();
 
                 // look for url params
                 var id = appManager.getUrlParam('id'),
