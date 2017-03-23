@@ -719,7 +719,7 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-
+window.dss = dataSelectedStore;
     var periodTypeStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: periodConfig.getPeriodTypeRecords()
@@ -2066,7 +2066,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
                 dimension: dataObjectName,
                 items: []
             };
-
+console.log("dataSelectedStore", dataSelectedStore, dataSelectedStore.getRange().length);
             dataSelectedStore.each( function(r) {
                 config.items.push({
                     id: r.data.id,
@@ -3833,16 +3833,22 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
         // panel data
         for (var i = 0, dim, dimName; i < accordionPanels.length; i++) {
             dim = accordionPanels[i].getDimension();
+console.log(accordionPanels[i].title, dim);
 
             if (dim) {
                 nameDimArrayMap[dim.dimension] = [dim];
             }
         }
-
+console.log("accordionPanels", accordionPanels);
+console.log("columnDimNames", columnDimNames);
+console.log("rowDimNames", rowDimNames);
+console.log("filterDimNames", filterDimNames);
+console.log("nameDimArrayMap", nameDimArrayMap);
         // columns, rows, filters
         for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
             dimNames = nameArrays[i];
 
+console.log("loop: dimNames", dimNames);
             for (var j = 0, dimName, dim; j < dimNames.length; j++) {
                 dimName = dimNames[j];
 
@@ -3869,7 +3875,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
                 }
             }
         }
-
+console.log("getUiState config", config);
         return config;
     };
 

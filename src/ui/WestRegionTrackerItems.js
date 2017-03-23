@@ -3189,6 +3189,6 @@ WestRegionTrackerItems = function(refs) {
         setUiState: setUiState,
         onTypeClick: onTypeClick
     });
-console.log("accordion", accordion);
+
     return accordion;
 };
