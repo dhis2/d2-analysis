@@ -864,51 +864,6 @@ window.dss = dataSelectedStore;
         }
     });
 
-    var dataSelected = Ext.create('Ext.ux.form.MultiSelect', {
-        cls: 'ns-toolbar-multiselect-right',
-        width: accBaseWidth / 2,
-        valueField: 'id',
-        displayField: 'name',
-        ddReorder: true,
-        store: dataSelectedStore,
-        tbar: [
-            {
-                xtype: 'button',
-                text: 'test',
-                //iconCls: 'ns-button-icon-arrowleftdouble',
-                iconCls: 'ns-button-icon-map',
-                width: 22,
-                handler: function() {
-                    dataSelectedStore.removeAll();
-                    data.updateStoreFilters();
-                }
-            },
-            {
-                xtype: 'button',
-                icon: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    dataSelectedStore.removeByIds(dataSelected.getValue());
-                    data.updateStoreFilters();
-                }
-            },
-            '->',
-            {
-                xtype: 'label',
-                text: i18n['selected'],
-                cls: 'ns-toolbar-multiselect-right-label'
-            }
-        ],
-        listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function() {
-                    dataSelectedStore.removeByIds(dataSelected.getValue());
-                    data.updateStoreFilters();
-                }, this);
-            }
-        }
-    });
-
     // indicator
     var indicatorLabel = Ext.create('Ext.form.Label', {
         text: i18n['available'],
@@ -1009,7 +964,7 @@ window.dss = dataSelectedStore;
             }
         }
     });
-console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.west_fieldset_width - uiConfig.west_width_padding);
+
     var indicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
         width: accBaseWidth / 2,
@@ -2066,7 +2021,7 @@ console.log(uiConfig.west_fieldset_width, uiConfig.west_width_padding, uiConfig.
                 dimension: dataObjectName,
                 items: []
             };
-console.log("dataSelectedStore", dataSelectedStore, dataSelectedStore.getRange().length);
+
             dataSelectedStore.each( function(r) {
                 config.items.push({
                     id: r.data.id,
@@ -3833,22 +3788,16 @@ console.log("dataSelectedStore", dataSelectedStore, dataSelectedStore.getRange()
         // panel data
         for (var i = 0, dim, dimName; i < accordionPanels.length; i++) {
             dim = accordionPanels[i].getDimension();
-console.log(accordionPanels[i].title, dim);
 
             if (dim) {
                 nameDimArrayMap[dim.dimension] = [dim];
             }
         }
-console.log("accordionPanels", accordionPanels);
-console.log("columnDimNames", columnDimNames);
-console.log("rowDimNames", rowDimNames);
-console.log("filterDimNames", filterDimNames);
-console.log("nameDimArrayMap", nameDimArrayMap);
+
         // columns, rows, filters
         for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
             dimNames = nameArrays[i];
 
-console.log("loop: dimNames", dimNames);
             for (var j = 0, dimName, dim; j < dimNames.length; j++) {
                 dimName = dimNames[j];
 
@@ -3875,7 +3824,7 @@ console.log("loop: dimNames", dimNames);
                 }
             }
         }
-console.log("getUiState config", config);
+
         return config;
     };
 
