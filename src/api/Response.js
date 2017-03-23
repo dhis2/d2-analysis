@@ -18,7 +18,7 @@ export var Response;
 
 Response = function(refs, config) {
     var t = this;
-console.log("refs", refs);
+
     config = isObject(config) ? config : {};
 
     var { appManager, indexedDbManager, i18nManager } = refs;
