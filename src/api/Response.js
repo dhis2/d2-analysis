@@ -47,15 +47,15 @@ console.log("refs", refs);
         'eventdate'
     ];
 
-                                //DIMENSIONS      ITEMS    -> SAMLE OPP       PREFIX
+                                //DIMENSIONS      ITEMS    -> COLLECT         PREFIX
 
-//- required                        V               V           nei             nei
+//- required                        V               V           no             no
 
-//- legendSet                       V               V           nei             nei
-//- !dimensions                     x               x           ja              ja
+//- legendSet                       V               V           no             no
+//- !dimensions                     x               x           yes            yes
 
-//- optionset, !dimensions          x               x           ja              ja
-//- optionset                       V               x           nei             ja
+//- optionset, !dimensions          x               x           yes            yes
+//- optionset                       V               x           no             yes
 
     // functions
     var isPrefixHeader = (header, dimensions) => {
