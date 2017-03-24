@@ -12,23 +12,22 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
 
-import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
+export var PivotTable;
 
-export var Table;
+PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
+    var t = this;
 
-Table = function(layout, response, colAxis, rowAxis, options) {
-    var t = this,
-        klass = Table,
+    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
 
-        appManager = klass.appManager,
-        uiManager = klass.uiManager,
-        dimensionConfig = klass.dimensionConfig,
-        optionConfig = klass.optionConfig;
+    var { ResponseRowIdCombination } = refs.api;
+
+    var { unclickable } = options;
 
     options = options || {};
 
     // init
-    var getRoundedHtmlValue,
+    var getHtmlValue,
+        getRoundedHtmlValue,
         getTdHtml,
         getValue,
         roundIf,
@@ -78,49 +77,43 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         idValueMap = response.getIdValueMap(layout),
         sortableIdObjects = []; //todo
 
+    getHtmlValue = function(config, isValue) {
+        if (config.collapsed) {
+            return '';
+        }
+
+        var str = config.htmlValue,
+            n = parseFloat(config.htmlValue);
+
+        if (isValue) {
+            if (isBoolean(str)) {
+                return str;
+            }
+
+            //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
+            if (!isNumber(n) || n != str) {
+                return str;
+            }
+
+            return n;
+        }
+
+        return str || '';
+    };
+
     getRoundedHtmlValue = function(value, dec) {
         dec = dec || 2;
         return parseFloat(roundIf(value, 2)).toString();
     };
 
     getTdHtml = function(config, metaDataId) {
-        var bgColor,
-            legends,
-            colSpan,
-            rowSpan,
-            htmlValue,
-            displayDensity,
-            fontSize,
-            isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty,
-            isValue = isNumeric && config.type === 'value',
-            cls = '',
-            html = '',
-            getHtmlValue;
+        var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
 
-        getHtmlValue = function(config) {
-            var str = config.htmlValue,
-                n = parseFloat(config.htmlValue);
+        var isValue = isNumeric && config.type === 'value';
 
-            if (config.collapsed) {
-                return '';
-            }
+        var legendColor = isValue && legendSet ? appManager.getLegendColorByValue(legendSet.id, parseFloat(config.value)) : null;
 
-            if (isValue) {
-                if (isBoolean(str)) {
-                    return str;
-                }
-
-                //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
-                if (!isNumber(n) || n != str) {
-                    return str;
-                }
-
-                return n;
-            }
-
-            return str || '';
-        }
-
+        // validation
         if (!isObject(config)) {
             return '';
         }
@@ -129,83 +122,81 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             return '';
         }
 
-        // number of cells
+        // count number of cells
         tdCount = tdCount + 1;
 
-        // background color from legend set
-        if (isValue && legendSet) {
-            var value = parseFloat(config.value);
-            legends = legendSet.legends;
+        var attributes = [];
+        var cls = [];
+        var style = [];
 
-            for (var i = 0; i < legends.length; i++) {
-                if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
-                    bgColor = legends[i].color;
-                }
-            }
-        }
+        // html value
+        var htmlValue = getHtmlValue(config, isValue);
+        var ppHtmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
 
-        colSpan = config.colSpan ? 'colspan="' + config.colSpan + '" ' : '';
-        rowSpan = config.rowSpan ? 'rowspan="' + config.rowSpan + '" ' : '';
-        htmlValue = getHtmlValue(config);
-        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
+        // cls
+        cls.push(...(config.cls ? config.cls.split(' ') : []));
+        cls.push(config.hidden ? 'td-hidden' : null);
+        cls.push(config.collapsed ? 'td-collapsed' : null);
+        cls.push(isValue && !unclickable ? 'pointer' : null);
+        cls.push(isString(metaDataId) ? 'td-sortable' : null);
 
-        cls += config.hidden ? ' td-hidden' : '';
-        cls += config.collapsed ? ' td-collapsed' : '';
-        cls += isValue ? ' pointer' : '';
-        //cls += bgColor ? ' legend' : (config.cls ? ' ' + config.cls : '');
-        cls += config.cls ? ' ' + config.cls : '';
-
-        // if sorting
         if (isString(metaDataId)) {
-            cls += ' td-sortable';
-
             sortableIdObjects.push({
                 id: metaDataId,
                 uuid: config.uuid
             });
         }
 
-        html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
-        html += ' class="' + cls + '" ' + colSpan + rowSpan;
-        html += config.title ? ' title="' + config.title + '" ' : '';
+        // style
+        if (legendColor && isValue) {
+            var color;
+            var backgroundColor;
 
-        //if (bgColor && isValue) {
-            //html += 'style="color:' + bgColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
+            if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
+                color = legendColor;
+            }
+            else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
+                color = uiManager.isColorBright(uiManager.hexToRgb(legendColor)) ? 'black' : 'white';
+                backgroundColor = legendColor;
+            }
+
+            style.push(color ? ('color: ' + color) : null);
+            style.push(backgroundColor ? ('background-color: ' + backgroundColor) : null);
+        }
+
+        // attributes
+        cls = arrayClean(cls);
+        style = arrayClean(style);
+
+        attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
+        attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
+        attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
+        attributes.push(config.colSpan ? 'colspan="' + config.colSpan + '"' : null);
+        attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
+        attributes.push(config.title ? 'title="' + config.title + '"' : null);
+
+        //if (legendColor && isValue) {
+            //html += 'style="color:' + legendColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
             //html += '>';
             //html += '<div class="legendCt">';
             //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
             //html += '<div class="arrowCt ' + config.cls + '">';
-            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + bgColor + '">&nbsp;</div>';
+            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + legendColor + '">&nbsp;</div>';
             //html += '</div></div></div></td>';
         //}
         //else {
-        //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+        //    html += 'style="' + (legendColor && isValue ? 'color:' + legendColor + '; ' : '') + '">' + htmlValue + '</td>';
         //}
 
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
-            if(bgColor) {
-                var rgb = uiManager.hexToRgb(bgColor),
-                    color = uiManager.isColorBright(rgb) ? 'black' : 'white';
-
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
-            } else {
-                html += 'style="' + (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
-            }
-        }
-
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
-        }
-
-        return html;
+        return '<td ' + arrayClean(attributes).join(' ') + '>' + ppHtmlValue + '</td>';
     };
 
     getValue = function(str) {
-        var n = parseFloat(str);
-
         if (isBoolean(str)) {
             return 1;
         }
+
+        var n = parseFloat(str);
 
         // return string if
         // - parsefloat(string) is not a number
@@ -262,10 +253,13 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [],
             getFilterRow,
             getEmptyNameTdConfig,
-            getEmptyHtmlArray;
+            getEmptyHtmlArray,
+            ignoreResponseHeaders = appManager.ignoreResponseHeaders;
+
+        columnDimensionNames = columnDimensionNames.filter(name => !arrayContains(ignoreResponseHeaders, name));
+        rowDimensionNames = rowDimensionNames.filter(name => !arrayContains(ignoreResponseHeaders, name));
 
         //getFilterRow = function() {
-
 
         getEmptyNameTdConfig = function(config) {
             config = config || {};
@@ -306,9 +300,12 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     }
                 }
 
+                var rowDimensionName = response.getNameById(rowDimensionNames[j]);
+                var colDimensionName = response.getNameById(columnDimensionNames[i]);
+
                 a.push(getEmptyNameTdConfig({
                     cls: 'pivot-dim-label',
-                    htmlValue: response.getNameById(rowDimensionNames[j]) + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + response.getNameById(columnDimensionNames[i])
+                    htmlValue: (rowDimensionName || '') + (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + (colDimensionName || '')
                 }));
             }
 
@@ -467,7 +464,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             valueObjectsRow = [];
 
             for (var j = 0, rric, value, responseValue, htmlValue, empty, _uuid, uuids; j < colAxisSize; j++) {
-                rric = new ResponseRowIdCombination();
+                rric = new ResponseRowIdCombination(refs);
                 empty = false;
                 uuids = [];
 
@@ -540,7 +537,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 // add row totals to idValueMap to make sorting on totals possible
                 if (doSortableColumnHeaders()) {
-                    var totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]),
+                    var totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]),
                         isEmpty = !arrayContains(empty, false);
 
                     idValueMap[totalIdComb.get()] = isEmpty ? null : total;
@@ -671,31 +668,33 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 tmpValueObjects.push([]);
             }
 
-            for (var i = 0; i < xValueObjects[0].length; i++) {
-                for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
-                    item = xValueObjects[j][i];
-                    tmpValueObjects[tmpCount++].push(item);
-                    subTotal += item.value;
-                    empty.push(!!item.empty);
-                    rowCount++;
+            if (xValueObjects.length) {
+                for (var i = 0; i < xValueObjects[0].length; i++) {
+                    for (var j = 0, rowCount = 0, tmpCount = 0, subTotal = 0, empty = [], collapsed, item; j < xValueObjects.length; j++) {
+                        item = xValueObjects[j][i];
+                        tmpValueObjects[tmpCount++].push(item);
+                        subTotal += item.value;
+                        empty.push(!!item.empty);
+                        rowCount++;
 
-                    if (axisAllObjects[j][0].root) {
-                        collapsed = !!axisAllObjects[j][0].collapsed;
-                    }
+                        if (axisAllObjects[j][0].root) {
+                            collapsed = !!axisAllObjects[j][0].collapsed;
+                        }
 
-                    if (!isArray(axisAllObjects[j+1]) || axisAllObjects[j+1][0].root) {
-                        var isEmpty = !arrayContains(empty, false);
+                        if (!isArray(axisAllObjects[j+1]) || axisAllObjects[j+1][0].root) {
+                            var isEmpty = !arrayContains(empty, false);
 
-                        tmpValueObjects[tmpCount++].push({
-                            type: item.type === 'value' ? 'valueSubtotal' : 'valueSubtotalTotal',
-                            value: subTotal,
-                            htmlValue: isEmpty ? '&nbsp;' : getRoundedHtmlValue(subTotal),
-                            collapsed: collapsed,
-                            cls: (item.type === 'value' ? 'pivot-value-subtotal' : 'pivot-value-subtotal-total') + (isEmpty ? ' cursor-default' : '')
-                        });
-                        rowCount = 0;
-                        subTotal = 0;
-                        empty = [];
+                            tmpValueObjects[tmpCount++].push({
+                                type: item.type === 'value' ? 'valueSubtotal' : 'valueSubtotalTotal',
+                                value: subTotal,
+                                htmlValue: isEmpty ? '&nbsp;' : getRoundedHtmlValue(subTotal),
+                                collapsed: collapsed,
+                                cls: (item.type === 'value' ? 'pivot-value-subtotal' : 'pivot-value-subtotal-total') + (isEmpty ? ' cursor-default' : '')
+                            });
+                            rowCount = 0;
+                            subTotal = 0;
+                            empty = [];
+                        }
                     }
                 }
             }
@@ -936,7 +935,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return [row];
     };
 
-    getHtml = function() {
+    getHtml = function(htmlArray) {
         var cls = 'pivot user-select',
             table;
 
@@ -980,6 +979,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     t.tdCount = tdCount;
 };
 
-Table.prototype.getUuidObjectMap = function() {
+PivotTable.prototype.getUuidObjectMap = function() {
     return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };

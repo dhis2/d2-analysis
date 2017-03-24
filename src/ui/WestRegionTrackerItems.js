@@ -2,6 +2,7 @@ import clone from 'd2-utilizr/lib/clone';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import isArray from 'd2-utilizr/lib/isArray';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
@@ -11,12 +12,12 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var WestRegionTrackerItems;
 
-WestRegionTrackerItems = function(c) {
+WestRegionTrackerItems = function(refs) {
     var t = this,
-        uiManager = c.uiManager,
-        instanceManager = c.instanceManager,
-        appManager = c.appManager,
-        i18nManager = c.i18nManager,
+        uiManager = refs.uiManager,
+        instanceManager = refs.instanceManager,
+        appManager = refs.appManager,
+        i18nManager = refs.i18nManager,
         sessionStorageManager = refs.sessionStorageManager,
         calendarManager = refs.calendarManager,
         dimensionConfig = refs.dimensionConfig,
@@ -45,8 +46,14 @@ WestRegionTrackerItems = function(c) {
         dimensionPanelMap = {},
         dimensionIdAvailableStoreMap = {},
         dimensionIdSelectedStoreMap = {},
+        accordionPanels = [],
 
-        baseWidth = 446,
+        stageStorage = {},
+        attributeStorage = {},
+        programIndicatorStorage = {},
+        dataElementStorage = {},
+
+        baseWidth = 448,
         accBaseWidth = baseWidth - 2,
         toolWidth = 36,
         nextButtonWidth = 62;
@@ -57,7 +64,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -98,12 +105,10 @@ WestRegionTrackerItems = function(c) {
             direction: 'ASC'
         }],
         onLoadData: function() {
-
-            // layout window
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
 
             this.each(function(record) {
-                if (arrayContains(dimensionConfig.valueType['numericTypes'], record.data.valueType)) {
+                if (arrayContains(dimensionConfig.valueType['numeric_types'], record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
@@ -111,11 +116,11 @@ WestRegionTrackerItems = function(c) {
             //this.toggleProgramIndicators();
         },
         toggleProgramIndicators: function(type) {
-            type = type || uiManager.get('dataTypeToolbar').getType();
+            type = type || uiManager.get('dataTypeToolbar').getDataType();
 
             this.clearFilter();
 
-            if (type === finalsDataTypeConf.aggregated_values) {
+            if (type === dimensionConfig.dataType['aggregated_values']) {
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
@@ -127,7 +132,7 @@ WestRegionTrackerItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/api/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
+            url: encodeURI(apiPath + '/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&paging=false'),
             reader: {
                 type: 'json',
                 root: 'organisationUnitGroups'
@@ -171,11 +176,17 @@ WestRegionTrackerItems = function(c) {
     };
 
     var setLayout = function(layout) {
-        var recMap = layout.getDimensionNameRecordIdsMap();
+        reset();
+
+        if (!layout) {
+            return;
+        }
+
+        var idMap = layout.getDimensionNameIdsMap();
 
         var fixedPeriodRecords = [],
-            peRecords = recMap[periodObjectName] || [],
-            ouRecords = recMap[organisationUnitObjectName] || [],
+            peIds = idMap[periodObjectName] || [],
+            ouIds = idMap[organisationUnitObjectName] || [],
             graphMap = layout.parentGraphMap,
             isOu = false,
             isOuc = false,
@@ -185,65 +196,56 @@ WestRegionTrackerItems = function(c) {
             winMap = {},
             optionsWindow;
 
-        winMap[dimensionConfig.dataType['aggregated_values']] = uiManager.get('aggregateOptionsWindow');
-        winMap[dimensionConfig.dataType['individual_cases']] = uiManager.get('queryOptionsWindow');
+        var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
+            aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
+            queryLayoutWindow = uiManager.get('queryLayoutWindow'),
+            aggOptionsWindow = uiManager.get('aggregateOptionsWindow'),
+            queryOptionsWindow = uiManager.get('queryOptionsWindow');
+
+        winMap[dimensionConfig.dataType['aggregated_values']] = aggOptionsWindow;
+        winMap[dimensionConfig.dataType['individual_cases']] = queryOptionsWindow;
 
         optionsWindow = winMap[layout.dataType];
 
         // set layout
+        if (dataTypeToolbar) {
+            dataTypeToolbar.setDataType(layout.dataType);
+        }
 
-        reset();
+        if (aggLayoutWindow) {
+            aggLayoutWindow.reset();
+        }
 
-        uiManager.get('typeToolbar').setType(layout.dataType);
-        uiManager.get('aggregateLayoutWindow').reset();
-        uiManager.get('queryLayoutWindow').reset();
+        if (queryLayoutWindow) {
+            queryLayoutWindow.reset();
+        }
 
         // data
         programStore.add(layout.program);
         program.setValue(layout.program.id);
 
         // periods
-        period.reset();
-
-        if (layout.startDate && layout.endDate) {
-            onPeriodModeSelect('dates');
-            startDate.setValue(layout.startDate);
-            endDate.setValue(layout.endDate);
-        }
-        else {
-            onPeriodModeSelect('periods');
-        }
-
-        peRecords.forEach(function(peRecord) {
-            var checkbox = relativePeriodCmpMap[peRecord.id];
-
-            if (checkbox) {
-                checkbox.setValue(true);
-            }
-            else {
-                fixedPeriodRecords.push(peRecord);
-            }
-        });
-
-        fixedPeriodSelectedStore.add(fixedPeriodRecords);
+        period.setDimension(layout);
 
         // organisation units
-        if (ouRecords) {
-            for (var i = 0; i < ouRecords.length; i++) {
-                if (ouRecords[i].id === 'USER_ORGUNIT') {
+        if (ouIds) {
+            for (var i = 0, ouId; i < ouIds.length; i++) {
+                ouId = ouIds[i];
+
+                if (ouId === 'USER_ORGUNIT') {
                     isOu = true;
                 }
-                else if (ouRecords[i].id === 'USER_ORGUNIT_CHILDREN') {
+                else if (ouId === 'USER_ORGUNIT_CHILDREN') {
                     isOuc = true;
                 }
-                else if (ouRecords[i].id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                else if (ouId === 'USER_ORGUNIT_GRANDCHILDREN') {
                     isOugc = true;
                 }
-                else if (ouRecords[i].id.substr(0,5) === 'LEVEL') {
+                else if (ouId.substr(0,5) === 'LEVEL') {
                     levels.push(parseInt(ouRecords[i].id.split('-')[1]));
                 }
-                else if (ouRecords[i].id.substr(0,8) === 'OU_GROUP') {
-                    groups.push(ouRecords[i].id.split('-')[1]);
+                else if (ouId.substr(0,8) === 'OU_GROUP') {
+                    groups.push(ouId.split('-')[1]);
                 }
             }
 
@@ -337,7 +339,7 @@ WestRegionTrackerItems = function(c) {
         stage.clearValue();
         dataElementsByStageStore.removeAll();
         dataElementSelected.removeAllDataElements(true);
-        ns.app.aggregateLayoutWindow.value.resetData();
+        uiManager.get('aggregateLayoutWindow').value.resetData();
 
         getCategories = function(categoryCombo) {
             if (!(isObject(categoryCombo) && isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
@@ -366,6 +368,7 @@ WestRegionTrackerItems = function(c) {
         };
 
         load = function(stages, categories) {
+            var stageId;
 
             // categories
             if (categories) {
@@ -483,7 +486,7 @@ WestRegionTrackerItems = function(c) {
     var onStageSelect = function(stageId, layout) {
         if (!layout) {
             dataElementSelected.removeAllDataElements(true);
-            ns.app.aggregateLayoutWindow.value.resetData();
+            uiManager.get('aggregateLayoutWindow').value.resetData();
         }
 
         dataElementSearch.enable();
@@ -569,7 +572,7 @@ WestRegionTrackerItems = function(c) {
         height: 22,
         cls: 'ns-button-icon',
         disabled: true,
-        style: 'background: url(images/search_14.png) 3px 3px no-repeat',
+        style: 'background: url(./src/images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             dataElementLabel.hide();
             this.hide();
@@ -651,7 +654,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowdown.png',
+                icon: './src/images/arrowdown.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -662,7 +665,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowdowndouble.png',
+                icon: './src/images/arrowdowndouble.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -698,7 +701,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowupdouble.png',
+                icon: './src/images/arrowupdouble.png',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -754,7 +757,7 @@ WestRegionTrackerItems = function(c) {
             for (var i = 0, item; i < len; i++) {
                 item = items[i];
 
-                if (type === finalsDataTypeConf.aggregated_values && item.isProgramIndicator) {
+                if (type === dimensionConfig.dataType['aggregated_values'] && item.isProgramIndicator) {
                     item.disable();
                 }
                 else {
@@ -765,7 +768,9 @@ WestRegionTrackerItems = function(c) {
     });
 
     var addUxFromDataElement = function(element, index) {
-        var getUxType,
+        var aggWindow = uiManager.get('aggregateLayoutWindow'),
+            queryWindow = uiManager.get('queryLayoutWindow'),
+            getUxType,
             ux;
 
         index = index || dataElementSelected.items.items.length;
@@ -774,26 +779,26 @@ WestRegionTrackerItems = function(c) {
             var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
-                return 'Ext.ux.panel.OrganisationUnitGroupSetContainer';
+                return 'Ext.ux.container.GroupSetContainer';
             }
 
-            if (arrayContains(valueTypes['numericTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementIntegerContainer';
+            if (arrayContains(valueTypes['numeric_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementIntegerContainer';
             }
 
-            if (arrayContains(valueTypes['textTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementStringContainer';
+            if (arrayContains(valueTypes['text_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementStringContainer';
             }
 
-            if (arrayContains(valueTypes['dateTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementDateContainer';
+            if (arrayContains(valueTypes['date_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementDateContainer';
             }
 
-            if (arrayContains(valueTypes['booleanTypes'], element.valueType)) {
-                return 'Ext.ux.panel.DataElementBooleanContainer';
+            if (arrayContains(valueTypes['boolean_types'], element.valueType)) {
+                return 'Ext.ux.container.DataElementBooleanContainer';
             }
 
-            return 'Ext.ux.panel.DataElementIntegerContainer';
+            return 'Ext.ux.container.DataElementIntegerContainer';
         };
 
         // add
@@ -813,8 +818,11 @@ WestRegionTrackerItems = function(c) {
                     dataElementsByStageStore.sort();
                 }
 
-                ns.app.aggregateLayoutWindow.removeDimension(element.id, ns.app.aggregateLayoutWindow.valueStore);
-                ns.app.queryLayoutWindow.removeDimension(element.id);
+                aggWindow.removeDimension(element.id, aggWindow.valueStore);
+
+                if (queryWindow) {
+                    queryWindow.removeDimension(element.id);
+                }
             }
         };
 
@@ -865,7 +873,7 @@ WestRegionTrackerItems = function(c) {
             element = dataElements[i];
             allElements.push(element);
 
-            if (arrayContains(dimensionConfig.valueType['numericTypes'], element.valueType) && element.filter) {
+            if (arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) && element.filter) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
 
@@ -874,7 +882,8 @@ WestRegionTrackerItems = function(c) {
                     a.shift();
 
                     for (var j = 1, newElement; j < numberOfElements; j++) {
-                        newElement = Ext.clone(element);
+                        //newElement = Ext.clone(element);
+                        newElement = Object.assign({}, element);
                         newElement.filter = a.shift();
                         newElement.filter += ':' + a.shift();
 
@@ -899,53 +908,56 @@ WestRegionTrackerItems = function(c) {
                 }
             }
 
-            store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.rowStore : aggWindow.fixedFilterStore;
+            store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.getDefaultStore() : aggWindow.fixedFilterStore;
 
-            aggWindow.addDimension(element, store, valueStore);
-            queryWindow.colStore.add(element);
+            aggWindow.addDimension(element, store, aggWindow.valueStore);
+
+            if (queryWindow) {
+                queryWindow.colStore.add(element);
+            }
         }
 
         // favorite
-        if (layout && layout.dataType === finalsDataTypeConf.aggregated_values) {
+        if (layout && layout.dataType === dimensionConfig.dataType['aggregated_values']) {
 
             aggWindow.reset(true, true);
 
             // start end dates
             if (layout.startDate && layout.endDate) {
-                aggWindow.fixedFilterStore.add({id: dimConf.startEndDate.value, name: dimConf.startEndDate.name});
+                aggWindow.fixedFilterStore.add({
+                    id: dimensionConfig.get('startEndDate').value,
+                    name: dimensionConfig.get('startEndDate').name
+                });
             }
 
             // columns
             if (layout.columns) {
                 for (var i = 0, record, dim; i < layout.columns.length; i++) {
-                    dim = layout.columns[i];
+                    dim = Object.assign({}, layout.columns[i]);
                     record = recordMap[dim.dimension];
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), aggWindow.colStore, null, true);
-                    aggWindow.colStore.add(record || extendDim(Ext.clone(dim)));
+                    aggWindow.colStore.add(record || extendDim(dim));
                 }
             }
 
             // rows
             if (layout.rows) {
                 for (var i = 0, record, dim; i < layout.rows.length; i++) {
-                    dim = layout.rows[i];
+                    dim = Object.assign({}, layout.rows[i]);
                     record = recordMap[dim.dimension];
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), aggWindow.rowStore, null, true);
-                    aggWindow.rowStore.add(record || extendDim(Ext.clone(dim)));
+                    aggWindow.rowStore.add(record || extendDim(dim));
                 }
             }
 
             // filters
             if (layout.filters) {
                 for (var i = 0, store, record, dim; i < layout.filters.length; i++) {
-                    dim = layout.filters[i];
+                    dim = Object.assign({}, layout.filters[i]);
                     record = recordMap[dim.dimension];
                     store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.filterStore : aggWindow.fixedFilterStore;
 
-                    //aggWindow.addDimension(record || extendDim(Ext.clone(dim)), store, null, true);
-                    store.add(record || extendDim(Ext.clone(dim)));
+                    store.add(record || extendDim(dim));
                 }
             }
 
@@ -971,17 +983,30 @@ WestRegionTrackerItems = function(c) {
     });
 
     var data = Ext.create('Ext.panel.Panel', {
-        title: '<div class="ns-panel-title-data">Data</div>',
+        title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
         cls: 'ns-accordion-first',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: dimensionConfig.get('data').objectName,
         items: [
             programStagePanel,
             dataElementAvailable,
             dataElementSelected
         ],
+        setDimension: setLayout,
+        clearDimension: function() {
+            program.clearValue();
+            stage.clearValue();
+
+            dataElementsByStageStore.removeAll();
+            dataElementSelected.removeAll();
+
+            dataElementSearch.hideFilter();
+        },
         getHeightValue: function() {
-            return ns.app.westRegion.hasScrollbar ?
+            var westRegion = uiManager.get('westRegion');
+
+            return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_indicator :
                 uiConfig.west_maxheight_accordion_indicator;
         },
@@ -994,14 +1019,12 @@ WestRegionTrackerItems = function(c) {
             dataElementSelected.setHeight(msHeight * 0.6 - 1);
         },
         listeners: {
-            added: function(cmp) {
-                accordionPanels.push(cmp);
-            },
             expand: function(cmp) {
                 cmp.onExpand();
             }
         }
     });
+    accordionPanels.push(uiManager.reg(data, 'data'));
 
         // dates
     var periodMode = Ext.create('Ext.form.field.ComboBox', {
@@ -1039,15 +1062,23 @@ WestRegionTrackerItems = function(c) {
             startEndDate.show();
             periods.hide();
 
-            aggregateLayoutWindow.addDimension({id: dimConf.startEndDate.value, name: dimConf.startEndDate.name}, aggregateLayoutWindow.fixedFilterStore);
-            aggregateLayoutWindow.removeDimension(dimConf.period.dimensionName);
+            aggregateLayoutWindow.addDimension({
+                id: dimensionConfig.get('startEndDate').value,
+                name: dimensionConfig.get('startEndDate').name
+            }, aggregateLayoutWindow.fixedFilterStore);
+
+            aggregateLayoutWindow.removeDimension(dimensionConfig.get('period').dimensionName);
         }
         else if (mode === 'periods') {
             startEndDate.hide();
             periods.show();
 
-            aggregateLayoutWindow.addDimension({id: dimConf.period.dimensionName, name: dimConf.period.name}, aggregateLayoutWindow.colStore);
-            aggregateLayoutWindow.removeDimension(dimConf.startEndDate.value);
+            aggregateLayoutWindow.addDimension({
+                id: dimensionConfig.get('period').dimensionName,
+                name: dimensionConfig.get('period').name
+            }, aggregateLayoutWindow.colStore);
+
+            aggregateLayoutWindow.removeDimension(dimensionConfig.get('startEndDate').value);
         }
     };
 
@@ -1117,7 +1148,7 @@ WestRegionTrackerItems = function(c) {
 
         // relative periods
     var onPeriodChange = function() {
-        var window = uiManager.get('aggregateLayoutWindow'),
+        var window = uiManager.get('viewport').getLayoutWindow(),
             peDimensionConfig = dimensionConfig.get('period');
 
         if ((period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
@@ -1446,7 +1477,7 @@ WestRegionTrackerItems = function(c) {
             '->',
             {
                 xtype: 'button',
-                icon: 'images/arrowright.png',
+                icon: './src/images/arrowright.png',
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1455,7 +1486,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowrightdouble.png',
+                icon: './src/images/arrowrightdouble.png',
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
@@ -1486,7 +1517,7 @@ WestRegionTrackerItems = function(c) {
             ' ',
             {
                 xtype: 'button',
-                icon: 'images/arrowleftdouble.png',
+                icon: './src/images/arrowleftdouble.png',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1495,7 +1526,7 @@ WestRegionTrackerItems = function(c) {
             },
             {
                 xtype: 'button',
-                icon: 'images/arrowleft.png',
+                icon: './src/images/arrowleft.png',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1600,23 +1631,17 @@ WestRegionTrackerItems = function(c) {
     var periods = Ext.create('Ext.container.Container', {
         bodyStyle: 'border-style:none',
         getRecords: function() {
-            var map = relativePeriodCmpMap,
-                selectedPeriods = [],
-                records = [];
+            var selectedRecords = [],
+                records;
 
             fixedPeriodSelectedStore.each( function(r) {
-                selectedPeriods.push(r.data.id);
+                selectedRecords.push({id: r.data.id});
             });
 
-            for (var i = 0; i < selectedPeriods.length; i++) {
-                records.push({id: selectedPeriods[i]});
-            }
-
-            for (var rp in map) {
-                if (map.hasOwnProperty(rp) && map[rp].getValue()) {
-                    records.push({id: map[rp].relativePeriodId});
-                }
-            }
+            records = [
+                ...selectedRecords,
+                ...uiManager.getByGroup('relativePeriod').filter(cmp => cmp.getValue()).map(cmp => ({id: cmp.relativePeriodId }))
+            ];
 
             return records.length ? records : null;
         },
@@ -1637,10 +1662,57 @@ WestRegionTrackerItems = function(c) {
         title: '<div class="ns-panel-title-period">Periods</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: dimensionConfig.get('period').objectName,
         width: accBaseWidth,
+        clearDimension: function(all) {
+            fixedPeriodSelectedStore.removeAll();
+            period.resetRelativePeriods();
+
+            if (!all) {
+                relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
+            }
+        },
+        setDimension: function(layout) {
+            if (layout.startDate && layout.endDate) {
+                onPeriodModeSelect('dates');
+                startDate.setValue(layout.startDate);
+                endDate.setValue(layout.endDate);
+            }
+            else {
+                onPeriodModeSelect('periods');
+            }
+
+            if (layout.hasDimension(this.dimension, true)) {
+                var records = layout.getDimension(this.dimension).extendRecords(layout.getResponse()),
+                    fixedRecords = [],
+                    checkbox;
+
+                records.forEach(function(record) {
+                    checkbox = uiManager.get(record.id);
+
+                    if (checkbox) {
+                        checkbox.setValue(true);
+                    }
+                    else {
+                        fixedRecords.push(record);
+                    }
+                });
+
+                fixedPeriodSelectedStore.add(fixedRecords);
+
+                uiManager.msFilterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
+            }
+        },
+        getDimension: function() {
+            var config = {
+                dimension: periodObjectName,
+                items: periods.getRecords()
+            };
+
+            return config.items.length ? config : null;
+        },
         getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
             return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_period :
@@ -1663,37 +1735,7 @@ WestRegionTrackerItems = function(c) {
             periodMode.reset();
         },
         isRelativePeriods: function() {
-            var a = checkboxes;
-            for (var i = 0; i < a.length; i++) {
-                if (a[i].getValue()) {
-                    return true;
-                }
-            }
-            return false;
-        },
-        getDimension: function() {
-            var config = {
-                    dimension: dimConf.period.objectName,
-                    items: []
-                };
-
-            fixedPeriodSelectedStore.each( function(r) {
-                config.items.push({
-                    id: r.data.id,
-                    name: r.data.name
-                });
-            });
-
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].getValue()) {
-                    config.items.push({
-                        id: checkboxes[i].relativePeriodId,
-                        name: ''
-                    });
-                }
-            }
-
-            return config.items.length ? config : null;
+            return uiManager.getByGroup('relativePeriod').some(chb => chb.getValue());
         },
         resetRelativePeriods: function() {
             uiManager.getByGroup('relativePeriod').forEach(cmp => cmp.setValue(false));
@@ -1716,14 +1758,12 @@ WestRegionTrackerItems = function(c) {
             periods
         ],
         listeners: {
-            added: function() {
-                accordionPanels.push(this);
-            },
             expand: function(cmp) {
                 cmp.onExpand();
             }
         }
     });
+    accordionPanels.push(uiManager.reg(period, 'period'));
 
         // organisation unit
     var treePanel = Ext.create('Ext.tree.Panel', {
@@ -1758,7 +1798,7 @@ WestRegionTrackerItems = function(c) {
         multipleSelectIf: function(map, doUpdate) {
             this.recordsToSelect = arrayClean(this.recordsToSelect);
 
-            if (this.recordsToSelect.length === ns.core.support.prototype.object.getLength(map)) {
+            if (this.recordsToSelect.length === Object.keys(map).length) {
                 this.getSelectionModel().select(this.recordsToSelect);
                 this.recordsToSelect = [];
                 this.isPending = false;
@@ -1770,15 +1810,17 @@ WestRegionTrackerItems = function(c) {
         },
         multipleExpand: function(id, map, doUpdate) {
             var that = this,
-                rootId = ns.core.conf.finals.root.id,
+                rootId = appManager.rootNodeId,
                 path = map[id];
 
             if (path.substr(0, rootId.length + 1) !== ('/' + rootId)) {
                 path = '/' + rootId + path;
             }
 
+            var record;
+
             that.expandPath(path, 'id', '/', function() {
-                record = Ext.clone(that.getRootNode().findChild('id', id, true));
+                record = Object.assign({}, that.getRootNode().findChild('id', id, true));
                 that.recordsToSelect.push(record);
                 that.multipleSelectIf(map, doUpdate);
             });
@@ -1815,7 +1857,8 @@ WestRegionTrackerItems = function(c) {
             return map;
         },
         selectGraphMap: function(map, update) {
-            if (!ns.core.support.prototype.object.getLength(map)) {
+            //if (!ns.core.support.prototype.object.getLength(map)) {
+            if (!Object.keys(map).length) {
                 return;
             }
 
@@ -1875,7 +1918,7 @@ WestRegionTrackerItems = function(c) {
         getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
-                    dimension: dimensionConfig.dimensions.organisationUnit.objectName,
+                    dimension: organisationUnitObjectName,
                     items: []
                 };
 
@@ -1982,7 +2025,7 @@ WestRegionTrackerItems = function(c) {
                     v.menu.add({
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
-                        icon: 'images/node-select-child.png',
+                        icon: './src/images/node-select-child.png',
                         handler: function() {
                             r.expand(false, function() {
                                 v.getSelectionModel().select(r.childNodes, true);
@@ -2176,64 +2219,216 @@ WestRegionTrackerItems = function(c) {
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
-        items: [
-            {
-                layout: 'column',
-                bodyStyle: 'border:0 none;',
-                style: 'padding-bottom:1px',
-                items: [
-                    toolPanel,
-                    organisationUnitPanel
-                ]
-            },
-            treePanel
-        ],
+        dimension: dimensionConfig.get('organisationUnit').objectName,
+        collapsed: false,
+        clearDimension: function(doClear) {
+            if (doClear) {
+                treePanel.reset();
+
+                userOrganisationUnit.setValue(false);
+                userOrganisationUnitChildren.setValue(false);
+                userOrganisationUnitGrandChildren.setValue(false);
+            }
+        },
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
+                var dimension = layout.getDimension(this.dimension, true),
+                    parentGraphMap = layout.parentGraphMap;
+
+                var records = dimension.getRecords(),
+                    ids = [],
+                    levels = [],
+                    groups = [],
+                    isOu,
+                    isOuc,
+                    isOugc;
+
+                records.forEach(function(record) {
+                    if (record.id === 'USER_ORGUNIT') {
+                        isOu = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
+                        isOuc = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                        isOugc = true;
+                    }
+                    else if (record.id.substr(0,5) === 'LEVEL') {
+                        levels.push(parseInt(record.id.split('-')[1]));
+                    }
+                    else if (record.id === 'OU_GROUP') {
+                        groups.push(record.id.split('-')[1]);
+                    }
+                    else {
+                        ids.push(record.id);
+                    }
+                });
+
+                if (levels.length) {
+                    toolMenu.clickHandler('level');
+                    organisationUnitLevel.setValue(levels);
+                }
+                else if (groups.length) {
+                    toolMenu.clickHandler('group');
+                    organisationUnitGroup.setValue(groups);
+                }
+                else {
+                    toolMenu.clickHandler('orgunit');
+                    userOrganisationUnit.setValue(isOu);
+                    userOrganisationUnitChildren.setValue(isOuc);
+                    userOrganisationUnitGrandChildren.setValue(isOugc);
+                }
+
+                if (!(isOu || isOuc || isOugc)) {
+                    if (isObject(parentGraphMap)) {
+                        treePanel.selectGraphMap(parentGraphMap);
+                    }
+                }
+            }
+            else {
+                this.clearDimension(true);
+            }
+        },
+        getDimension: function() {
+            var r = treePanel.getSelectionModel().getSelection(),
+                config = {
+                    dimension: organisationUnitObjectName,
+                    items: []
+                };
+
+            if (toolMenu.menuValue === 'orgunit') {
+                if (userOrganisationUnit.getValue() || userOrganisationUnitChildren.getValue() || userOrganisationUnitGrandChildren.getValue()) {
+                    if (userOrganisationUnit.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_CHILDREN',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitGrandChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_GRANDCHILDREN',
+                            name: ''
+                        });
+                    }
+                }
+                else {
+                    for (var i = 0; i < r.length; i++) {
+                        config.items.push({id: r[i].data.id});
+                    }
+                }
+            }
+            else if (toolMenu.menuValue === 'level') {
+                var levels = organisationUnitLevel.getValue();
+
+                for (var i = 0; i < levels.length; i++) {
+                    config.items.push({
+                        id: 'LEVEL-' + levels[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+            else if (toolMenu.menuValue === 'group') {
+                var groupIds = organisationUnitGroup.getValue();
+
+                for (var i = 0; i < groupIds.length; i++) {
+                    config.items.push({
+                        id: 'OU_GROUP-' + groupIds[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+
+            return config.items.length ? config : null;
+        },
         getHeightValue: function() {
-            return ns.app.westRegion.hasScrollbar ?
+            var westRegion = uiManager.get('westRegion');
+
+            return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_organisationunit :
                 uiConfig.west_maxheight_accordion_organisationunit;
         },
         onExpand: function() {
-            accordion.setThisHeight(this.getHeightValue());
+            accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
-        listeners: {
-            added: function(cmp) {
-                accordionPanels.push(cmp);
+        items: [
+            {
+                layout: 'column',
+                bodyStyle: 'border:0 none',
+                style: 'padding-bottom:1px',
+                items: [
+                    toolPanel,
+                    {
+                        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+                        layout: 'column',
+                        bodyStyle: 'border:0 none',
+                        items: [
+                            userOrganisationUnit,
+                            userOrganisationUnitChildren,
+                            userOrganisationUnitGrandChildren,
+                            organisationUnitLevel,
+                            organisationUnitGroup
+                        ]
+                    }
+                ]
             },
-            expand: function(cmp) {
-                cmp.onExpand();
+            treePanel
+        ],
+        listeners: {
+            expand: function(p) {
+                p.onExpand();
             }
         }
     });
+    accordionPanels.push(uiManager.reg(organisationUnit, 'organisationUnit'));
 
     // dimensions
 
     var getDimensionPanel = function(dimension, iconCls) {
-        var	onSelect,
+        var onSelect,
             availableStore,
             selectedStore,
+            dataLabel,
+            dataSearch,
+            dataFilter,
+            selectedAll,
             available,
             selected,
+            onSelectAll,
             panel,
 
             createPanel,
             getPanels;
 
         onSelect = function() {
-            var aggWin = ns.app.aggregateLayoutWindow,
-                queryWin = ns.app.queryLayoutWindow;
+            var win = uiManager.get('layoutWindow');
 
-            if (selectedStore.getRange().length) {
-                aggWin.addDimension({id: dimension.id, name: dimension.name}, aggWin.rowStore);
-                queryWin.addDimension({id: dimension.id, name: dimension.name}, queryWin.colStore);
+            if (selectedStore.getRange().length || selectedAll.getValue()) {
+                win.addDimension({id: dimension.id, name: dimension.name});
             }
-            else if (!selectedStore.getRange().length && aggWin.hasDimension(dimension.id)) {
-                aggWin.removeDimension(dimension.id);
-            }
-            else if (!selectedStore.getRange().length && queryWin.hasDimension(dimension.id)) {
-                queryWin.removeDimension(dimension.id);
+            else if (win.hasDimension(dimension.id)) {
+                win.removeDimension(dimension.id);
             }
         };
 
@@ -2248,46 +2443,96 @@ WestRegionTrackerItems = function(c) {
                 this.lastPage = null;
                 this.nextPage = 1;
                 this.isPending = false;
-                //indicatorSearch.hideFilter();
+                dataSearch.hideFilter();
             },
-            loadPage: function(filter, append) {
-                var store = this,
-                    path;
+            storage: {},
+            addToStorage: function(dimensionId, filter, data) {
+                filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
-                filter = filter || null;
-
-                if (!append) {
-                    this.lastPage = null;
-                    this.nextPage = 1;
-                }
-
-                if (store.nextPage === store.lastPage) {
+                if (!dimensionId) {
                     return;
                 }
 
-                path = '/organisationUnitGroups.json?fields=id,' + displayPropertyUrl + '&filter=organisationUnitGroupSet.id:eq:' + dimension.id + (filter ? '&filter=name:ilike:' + filter : '');
+                if (!this.storage.hasOwnProperty(dimensionId)) {
+                    this.storage[dimensionId] = {};
+                }
 
-                store.isPending = true;
-
-                Ext.Ajax.request({
-                    url: appManager.getApiPath() + path,
-                    params: {
-                        page: store.nextPage,
-                        pageSize: 50
-                    },
-                    failure: function() {
-                        store.isPending = false;
-                    },
-                    success: function(r) {
-                        var response = Ext.decode(r.responseText),
-                            data = response.organisationUnitGroups || [],
-                            pager = response.pager;
-
-                        store.loadStore(data, pager, append);
-                    }
-                });
+                if (!this.storage[dimensionId][filter]) {
+                    this.storage[dimensionId][filter] = data;
+                }
             },
-            loadStore: function(data, pager, append) {
+            getFromStorage: function(dimensionId, filter) {
+                filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
+
+                if (this.storage.hasOwnProperty(dimensionId)) {
+                    if (this.storage[dimensionId].hasOwnProperty(filter)) {
+                        return this.storage[dimensionId][filter];
+                    }
+                }
+
+                return;
+            },
+            loadPage: function(filter, append, noPaging, fn) {
+                var store = this,
+                    params = {},
+                    url,
+                    cacheData;
+
+                filter = filter || dataFilter.getValue() || null;
+
+                // check session cache
+                cacheData = store.getFromStorage(dimension.id, filter);
+
+                if (!append && cacheData) {
+                    store.loadStore(cacheData, {}, append, fn);
+                }
+                else {
+                    if (!append) {
+                        this.lastPage = null;
+                        this.nextPage = 1;
+                    }
+
+                    if (store.nextPage === store.lastPage) {
+                        return;
+                    }
+
+                    url = '/dimensions/' + dimension.id + '/items.json?fields=id,' + displayPropertyUrl + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
+
+                    if (noPaging) {
+                        params.paging = false;
+                    }
+                    else {
+                        params.page = store.nextPage;
+                        params.pageSize = 50;
+                    }
+
+                    store.isPending = true;
+                    uiManager.mask(available.boundList);
+
+                    Ext.Ajax.request({
+                        url: encodeURI(apiPath + url),
+                        method: 'GET',
+                        params: params,
+                        success: function(r) {
+                            var response = Ext.decode(r.responseText),
+                                data = response.items || [],
+                                pager = response.pager;
+
+                            // add to session cache
+                            store.addToStorage(dimension.id, filter, data);
+
+                            store.loadStore(data, pager, append, fn);
+                        },
+                        callback: function() {
+                            store.isPending = false;
+                            uiManager.unmask(available.boundList);
+                        }
+                    });
+                }
+            },
+            loadStore: function(data, pager, append, fn) {
+                pager = pager || {};
+
                 this.loadData(data, append);
                 this.lastPage = this.nextPage;
 
@@ -2296,7 +2541,12 @@ WestRegionTrackerItems = function(c) {
                 }
 
                 this.isPending = false;
+
                 uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+
+                if (fn) {
+                    fn();
+                }
             },
             sortStore: function() {
                 this.sort('name', 'ASC');
@@ -2319,22 +2569,100 @@ WestRegionTrackerItems = function(c) {
             }
         });
 
+        dataLabel = Ext.create('Ext.form.Label', {
+            text: i18n.available,
+            cls: 'ns-toolbar-multiselect-left-label',
+            style: 'margin-right:5px'
+        });
+
+        dataSearch = Ext.create('Ext.button.Button', {
+            width: 22,
+            height: 22,
+            cls: 'ns-button-icon',
+            iconCls: 'ns-button-icon-search',
+            showFilter: function() {
+                dataLabel.hide();
+                this.hide();
+                dataFilter.show();
+                dataFilter.reset();
+            },
+            hideFilter: function() {
+                dataLabel.show();
+                this.show();
+                dataFilter.hide();
+                dataFilter.reset();
+            },
+            handler: function() {
+                this.showFilter();
+            }
+        });
+
+        dataFilter = Ext.create('Ext.form.field.Trigger', {
+            cls: 'ns-trigger-filter',
+            emptyText: 'Filter available..',
+            height: 22,
+            hidden: true,
+            enableKeyEvents: true,
+            fieldStyle: 'height:22px; border-right:0 none',
+            style: 'height:22px',
+            onTriggerClick: function() {
+                this.reset();
+                this.onKeyUpHandler();
+
+                dataSearch.hideFilter();
+            },
+            onKeyUpHandler: function() {
+                var value = this.getValue(),
+                    store = availableStore;
+
+                if (isString(value) || isNumber(value)) {
+                    store.loadPage(value, false, true);
+                }
+            },
+            listeners: {
+                keyup: {
+                    fn: function(cmp) {
+                        cmp.onKeyUpHandler();
+                    },
+                    buffer: 100
+                },
+                show: function(cmp) {
+                    cmp.focus(false, 50);
+                },
+                focus: function(cmp) {
+                    cmp.addCls('ns-trigger-filter-focused');
+                },
+                blur: function(cmp) {
+                    cmp.removeCls('ns-trigger-filter-focused');
+                }
+            }
+        });
+
+        selectedAll = Ext.create('Ext.form.field.Checkbox', {
+            cls: 'ns-checkbox',
+            style: 'margin-left: 2px; margin-right: 5px',
+            boxLabel: 'All',
+            listeners: {
+                change: function(chb, newVal) {
+                    onSelectAll(newVal);
+                }
+            }
+        });
+
         available = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-left',
-            width: accBaseWidth / 2,
+            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
             valueField: 'id',
             displayField: 'name',
             store: availableStore,
             tbar: [
-                {
-                    xtype: 'label',
-                    text: i18n.available,
-                    cls: 'ns-toolbar-multiselect-left-label'
-                },
+                dataLabel,
+                dataSearch,
+                dataFilter,
                 '->',
                 {
                     xtype: 'button',
-                    icon: 'images/arrowright.png',
+                    iconCls: 'ns-button-icon-arrowright',
                     width: 22,
                     handler: function() {
                         uiManager.msSelect(available, selected);
@@ -2342,10 +2670,12 @@ WestRegionTrackerItems = function(c) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowrightdouble.png',
+                    iconCls: 'ns-button-icon-arrowrightdouble',
                     width: 22,
                     handler: function() {
-                        uiManager.msSelectAll(available, selected);
+                        availableStore.loadPage(null, null, true, function() {
+                            uiManager.msSelectAll(available, selected);
+                        });
                     }
                 }
             ],
@@ -2354,7 +2684,7 @@ WestRegionTrackerItems = function(c) {
                     var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
                     el.addEventListener('scroll', function(e) {
-                        if (isScrolled(e) && !availableStore.isPending) {
+                        if (uiManager.isScrolled(e) && !availableStore.isPending) {
                             availableStore.loadPage(null, true);
                         }
                     });
@@ -2368,7 +2698,7 @@ WestRegionTrackerItems = function(c) {
 
         selected = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-right',
-            width: accBaseWidth / 2,
+            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
             valueField: 'id',
             displayField: 'name',
             ddReorder: true,
@@ -2376,7 +2706,7 @@ WestRegionTrackerItems = function(c) {
             tbar: [
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleftdouble.png',
+                    iconCls: 'ns-button-icon-arrowleftdouble',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselectAll(available, selected);
@@ -2384,7 +2714,7 @@ WestRegionTrackerItems = function(c) {
                 },
                 {
                     xtype: 'button',
-                    icon: 'images/arrowleft.png',
+                    iconCls: 'ns-button-icon-arrowleft',
                     width: 22,
                     handler: function() {
                         uiManager.msUnselect(available, selected);
@@ -2395,7 +2725,8 @@ WestRegionTrackerItems = function(c) {
                     xtype: 'label',
                     text: i18n.selected,
                     cls: 'ns-toolbar-multiselect-right-label'
-                }
+                },
+                selectedAll
             ],
             listeners: {
                 afterrender: function() {
@@ -2406,54 +2737,95 @@ WestRegionTrackerItems = function(c) {
             }
         });
 
-        dimensionIdAvailableStoreMap[dimension.id] = availableStore;
-        dimensionIdSelectedStoreMap[dimension.id] = selectedStore;
+        onSelectAll = function(value) {
+            if (available.boundList && selected.boundList) {
+                if (value) {
+                    available.boundList.disable();
+                    selected.boundList.disable();
+                }
+                else {
+                    available.boundList.enable();
+                    selected.boundList.enable();
+                }
+            }
 
-        //availableStore.on('load', function() {
-            //uiManager.msFilterAvailable(available, selected);
-        //});
+            onSelect();
+        };
 
-        panel = {
-            itemId: dimension.itemId,
-            xtype: 'panel',
+        panel = Ext.create('Ext.panel.Panel', {
             title: '<div class="' + iconCls + '">' + dimension.name + '</div>',
             hideCollapseTool: true,
+            dimension: dimension.id,
             availableStore: availableStore,
             selectedStore: selectedStore,
-            getDimension: function() {
-                var config = {
-                    dimension: dimension.id,
-                    items: []
-                };
-
-                selectedStore.each( function(r) {
-                    config.items.push({id: r.data.id});
-                });
-
-                return config.items.length ? config : null;
+            selectedAll: selectedAll,
+            clearDimension: function() {
+                availableStore.reset();
+                selectedStore.removeAll();
+                selectedAll.setValue(false);
             },
-            getHeightValue: function() {
-                return ns.app.westRegion.hasScrollbar ?
-                    uiConfig.west_scrollbarheight_accordion_indicator :
-                    uiConfig.west_maxheight_accordion_indicator;
-            },
-            onExpand: function() {
-                if (!availableStore.isLoaded) {
-                    if (isArray(dimension.items) && dimension.items.length) {
-                        availableStore.loadData(dimension.items);
-                        availableStore.isLoaded = true;
+            setDimension: function(layout) {
+                if (layout.hasDimension(this.dimension, true)) {
+                    var records = layout.getDimension(this.dimension).getRecords();
+
+                    if (records.length) {
+                        selectedStore.add(records);
+                        uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
                     }
                     else {
-                        availableStore.loadPage();
+                        selectedAll.setValue(true);
                     }
                 }
+            },
+            getDimension: function() {
+                var config = {};
 
-                accordion.setThisHeight(this.getHeightValue());
+                if (dimension.id) {
+                    config.dimension = dimension.id;
+                }
+
+                if (selectedStore.getRange().length) {
+                    config.items = [];
+
+                    selectedStore.each(function(r) {
+                        config.items.push({id: r.data.id});
+                    });
+                }
+
+                return config.dimension ? config : null;
+            },
+            getHeightValue: function() {
+                var westRegion = uiManager.get('westRegion');
+
+                return westRegion.hasScrollbar ?
+                    uiConfig.west_scrollbarheight_accordion_group :
+                    uiConfig.west_maxheight_accordion_group;
+            },
+            onExpand: function() {
+
+                // load items
+                if (!availableStore.isLoaded) {
+                    availableStore.loadPage();
+                }
+
+                // enable/disable ui
+                if (selectedAll.getValue()) {
+                    available.boundList.disable();
+                    selected.boundList.disable();
+                }
+
+                // set height
+                var westRegion = uiManager.get('westRegion');
+                var accordion = uiManager.get('accordion');
+
+                var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_group : uiConfig.west_maxheight_accordion_group;
+
+                accordion.setThisHeight(accordionHeight);
 
                 uiManager.msSetHeight(
                     [available, selected],
                     this,
-                    uiConfig.west_fill_accordion_dataset
+                    uiConfig.west_fill_accordion_group
                 );
             },
             items: [
@@ -2468,14 +2840,11 @@ WestRegionTrackerItems = function(c) {
                 }
             ],
             listeners: {
-                added: function() {
-                    accordionPanels.push(this);
-                },
                 expand: function(p) {
                     p.onExpand();
                 }
             }
-        };
+        });
 
         return panel;
     };
@@ -2485,14 +2854,19 @@ WestRegionTrackerItems = function(c) {
         data,
         period,
         organisationUnit,
-        ...appManager.dimensions.map(panel => getDimensionPanel(panel, 'ns-panel-title-dimension'))
+        ...appManager.dimensions.map(panel => {
+            var panel = uiManager.reg(getDimensionPanel(panel, 'ns-panel-title-dimension'), panel.dimension);
+
+            accordionPanels.push(panel);
+
+            return panel;
+        })
     ];
 
     var getItems = function(dimensions = []) {
         return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
     };
 
-    //var accordionBody = Ext.create('Ext.panel.Panel', {
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
         activeOnTop: true,
@@ -2530,8 +2904,7 @@ WestRegionTrackerItems = function(c) {
 
         dataElementSearch.hideFilter();
 
-        startDate.reset();
-        endDate.reset();
+        period.reset();
 
         toolMenu.clickHandler(toolMenu.menuValue);
 
@@ -2553,28 +2926,30 @@ WestRegionTrackerItems = function(c) {
         //}
     };
 
-    var setGui = function(layout, response, updateGui) {
+    var setUiState = function(layout, response) {
+        //var statusBar = uiManager.get('statusBar');
 
         // state
-        ns.app.downloadButton.enable();
+        //uiManager.get('downloadButton').enable();
 
-        if (layout.id) {
-            ns.app.shareButton.enable();
-        }
+        //if (layout.id) {
+            //uiManager.get('shareButton').enable();
+        //}
 
-        ns.app.statusBar.setStatus(layout, response);
+        //statusBar.setStatus(layout, response);
 
-        // set gui
-        if (updateGui) {
-            setLayout(layout);
-        }
+        // set ui
+        setLayout(layout);
     };
 
-    var getView = function(config) {
-        var panels = ns.app.accordion.panels,
-            view = {},
-            dataType = ns.app.typeToolbar.getType(),
-            layoutWindow = ns.app.viewport.getLayoutWindow(dataType),
+    var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
+        var panels = uiManager.get('accordion').panels,
+            dataTypeToolbar = uiManager.get('dataTypeToolbar'),
+            aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),
+            aggregateOptionsWindow = uiManager.get('aggregateOptionsWindow'),
+            queryOptionsWindow = uiManager.get('queryOptionsWindow'),
+            statusBar = uiManager.get('statusBar'),
+            config = {},
             map = {},
             columns = [],
             rows = [],
@@ -2585,12 +2960,15 @@ WestRegionTrackerItems = function(c) {
             data,
             a;
 
-        view.dataType = dataType;
-        view.program = program.getRecord();
-        view.programStage = stage.getRecord();
+        config.program = program.getRecord();
+        config.programStage = stage.getRecord();
 
-        if (!(view.dataType && view.program && view.programStage)) {
+        if (!(config.program && config.programStage)) {
             return;
+        }
+
+        if (dataTypeToolbar) {
+            var dataType = dataTypeToolbar.getDataType();
         }
 
         // dy
@@ -2598,10 +2976,10 @@ WestRegionTrackerItems = function(c) {
 
         // pe
         if (periodMode.getValue() === 'dates') {
-            view.startDate = startDate.getSubmitValue();
-            view.endDate = endDate.getSubmitValue();
+            config.startDate = startDate.getSubmitValue();
+            config.endDate = endDate.getSubmitValue();
 
-            if (!(view.startDate && view.endDate)) {
+            if (!(config.startDate && config.endDate)) {
                 return;
             }
 
@@ -2707,28 +3085,43 @@ WestRegionTrackerItems = function(c) {
         }
 
         if (columns.length) {
-            view.columns = columns;
+            config.columns = columns;
         }
         if (rows.length) {
-            view.rows = rows;
+            config.rows = rows;
         }
         if (filters.length) {
-            view.filters = filters;
+            config.filters = filters;
         }
 
         // value, aggregation type
-        Ext.apply(view, layoutWindow.getValueConfig());
+        Ext.apply(config, layoutWindow.getValueConfig());
 
-        return view;
-    };
+        if (dataType === dimensionConfig.dataType['aggregated_values']) {
+            Ext.applyIf(config, aggregateOptionsWindow.getOptions());
+            Ext.applyIf(config, aggregateLayoutWindow.getOptions());
 
-    var validateView = function(view) {
-        if (!(isArray(view.rows) && view.rows.length && isString(view.rows[0].dimension) && isArray(view.rows[0].items) && view.rows[0].items.length)) {
-            ns.alert('No organisation units selected');
-            return false;
+            // if order and limit -> sort
+            if (config.sortOrder && config.topLimit) {
+                config.sorting = {
+                    id: 1,
+                    direction: config.sortOrder == 1 ? 'DESC' : 'ASC'
+                };
+            }
         }
 
-        return view;
+        if (dataType === dimensionConfig.dataType['individual_cases']) {
+            Ext.applyIf(config, queryOptionsWindow.getOptions());
+
+            if (statusBar) {
+                config.paging = {
+                    page: uiManager.get('statusBar').getCurrentPage(),
+                    pageSize: 100
+                };
+            }
+        }
+
+        return config;
     };
 
     var accordion = Ext.create('Ext.panel.Panel', {
@@ -2739,19 +3132,26 @@ WestRegionTrackerItems = function(c) {
         expandInitPanels: function() {
             organisationUnit.expand();
         },
-        map: layer ? layer.map : null,
-        layer: layer ? layer : null,
-        menu: layer ? layer.menu : null,
+        clearDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.clearDimension(!!layout);
+            });
+        },
+        setDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.setDimension(layout);
+            });
+        },
         setThisHeight: function(mx) {
             mx = mx || this.getExpandedPanel().getHeightValue();
 
             var settingsHeight = 41;
 
             var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                accordionHeight = ns.app.westRegion.getHeight() - settingsHeight - uiConfig.west_fill,
+                accordionHeight = uiManager.get('westRegion').getHeight() - settingsHeight - uiConfig.west_fill,
                 accordionBodyHeight;
 
-            if (ns.app.westRegion.hasScrollbar) {
+            if (uiManager.get('westRegion').hasScrollbar) {
                 accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
             }
             else {
@@ -2776,22 +3176,19 @@ WestRegionTrackerItems = function(c) {
         getParentGraphMap: function() {
             return treePanel.getParentGraphMap();
         },
+        getUxArray: function(id) {
+            return dataElementSelected.getUxArrayById(id);
+        },
 
         accordionBody: accordionBody,
         panels: accordionPanels,
         treePanel: treePanel,
 
         reset: reset,
-        setGui: setGui,
-        getView: getView,
-
-        onTypeClick: onTypeClick,
-
-        getUxArray: function(id) {
-            return dataElementSelected.getUxArrayById(id);
-        }
+        getUiState: getUiState,
+        setUiState: setUiState,
+        onTypeClick: onTypeClick
     });
-    uiManager.reg(accordion, 'accordion');
 
     return accordion;
 };

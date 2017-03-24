@@ -8,6 +8,7 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
 export var AppManager;
 
@@ -23,14 +24,6 @@ AppManager = function(refs) {
     t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
 
-    t.valueTypes = {
-        'numeric': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE'],
-        'text': ['TEXT','LONG_TEXT','LETTER','PHONE_NUMBER','EMAIL'],
-        'boolean': ['BOOLEAN','TRUE_ONLY'],
-        'date': ['DATE','DATETIME'],
-        'aggregate': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE','BOOLEAN','TRUE_ONLY']
-    };
-
     t.defaultRequestHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -39,8 +32,8 @@ AppManager = function(refs) {
     t.defaultAnalysisFields = [
         '*',
         'interpretations[*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]]',
-        'columns[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
-        'rows[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
+        'columns[dimension,filter,legendSet[id],items[dimensionItem|rename(id),dimensionItemType,$]]',
+        'rows[dimension,filter,legendSet[id],items[dimensionItem|rename(id),dimensionItemType,$]]',
         'filters[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
         'access',
         'userGroupAccesses',
@@ -80,6 +73,18 @@ AppManager = function(refs) {
         'USER_ORGUNIT',
         'USER_ORGUNIT_CHILDREN',
         'USER_ORGUNIT_GRANDCHILDREN'
+    ];
+
+    t.ignoreResponseHeaders = [
+        'dy',
+        'value',
+        'psi',
+        'ps',
+        'eventdate',
+        'longitude',
+        'latitude',
+        'ouname',
+        'oucode'
     ];
 
     // uninitialized
@@ -150,12 +155,12 @@ AppManager = function(refs) {
     };
 };
 
-AppManager.prototype.logVersion = function() {
-    if (console && this.manifest && this.manifest.version) {
+AppManager.prototype.logVersion = function() {
+    if (console && this.manifest && this.manifest.version) {
         var version = 'v' + this.manifest.version;
         var name = this.manifest.name || null;
 
-        var msg = arrayClean(['Loading:', name, version]).join(' ');
+        var msg = arrayClean([name, version]).join(' ');
         var fn = console.info || console.log;
 
         fn.call(console, msg);
@@ -174,7 +179,7 @@ AppManager.prototype.getManifestFullVersionNumber = function() {
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
 };
 
-AppManager.prototype.getApiVersion = function() {
+AppManager.prototype.getApiVersion = function() {
     return this.apiVersion;
 };
 
@@ -204,10 +209,6 @@ AppManager.prototype.getAnalyticsDisplayProperty = function() {
     }
 
     return this.analyticsDisplayProperty = (this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
-};
-
-AppManager.prototype.getValueTypesByType = function(type) {
-    return this.valueTypes[type];
 };
 
 AppManager.prototype.getRootNodes = function() {
@@ -266,6 +267,15 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
 };
 
+AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
+    var t = this;
+
+    t.ignoreResponseHeaders = arrayUnique([
+        ...(append ? t.ignoreResponseHeaders : []),
+        ...headers
+    ]);
+};
+
 AppManager.prototype.setAuth = function(auth) {
     var J = 'jQuery' in window ? window['jQuery'] : undefined;
     var E = 'Ext' in window ? window['Ext'] : undefined;
@@ -305,7 +315,7 @@ AppManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
-AppManager.prototype.getApiPath = function() {
+AppManager.prototype.getApiPath = function() {
     var t = this;
 
     var version = t.getApiVersion() || '';
@@ -364,7 +374,7 @@ AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
 
     var legendSetId;
 
-    new t.refs.api.Request({
+    new t.refs.api.Request(refs, {
         type: 'json',
         baseUrl: t.getApiPath() + '/indicators.json',
         params: [

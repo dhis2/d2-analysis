@@ -8,19 +8,18 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import clone from 'd2-utilizr/lib/clone';
 
-import {Record} from '../api/Record.js';
-import {Dimension} from '../api/Dimension.js';
-import {Axis} from '../api/Axis.js';
 import {FavoriteWindow} from './FavoriteWindow.js';
 import {InterpretationItem} from './InterpretationItem.js';
 import {PluginItem} from './PluginItem.js';
 import {FavoriteButton} from './FavoriteButton.js';
 import {EmbedButton} from './EmbedButton.js';
 import {EastRegion} from './EastRegion.js';
+import {LayoutButton} from './LayoutButton.js';
+import {OptionsButton} from './OptionsButton.js';
 
 export var Viewport;
 
-Viewport = function(refs, cmp) {
+Viewport = function(refs, cmp, config) {
     var uiManager = refs.uiManager,
         appManager = refs.appManager,
         i18nManager = refs.i18nManager,
@@ -66,7 +65,20 @@ Viewport = function(refs, cmp) {
 
     var chartTypeToolbar = cmp.chartTypeToolbar;
 
+    var getChartType = () => chartTypeToolbar ? chartTypeToolbar.getChartType() : null;
+
+    var dataTypeToolbar = cmp.dataTypeToolbar;
+
+    var getDataType = () => dataTypeToolbar ? dataTypeToolbar.getDataType() : null;
+
+    var statusBar = cmp.statusBar;
+
     var favoriteButton = uiManager.reg(FavoriteButton(refs), 'favoriteButton');
+
+    var layoutButton = uiManager.reg(LayoutButton(refs), 'layoutButton');
+
+    var optionsButton = uiManager.reg(OptionsButton(refs), 'optionsButton');
+
     var embedButton = uiManager.reg(EmbedButton(refs), 'embedButton', 'onCurrent');
 
     var integrationButtons = cmp.integrationButtons;
@@ -75,50 +87,50 @@ Viewport = function(refs, cmp) {
 
     // viewport
 
-    var accordionBody = Ext.create('Ext.panel.Panel', {
-        layout: 'accordion',
-        activeOnTop: true,
-        cls: 'ns-accordion',
-        bodyStyle: 'border:0 none; margin-bottom:2px',
-        height: 700,
-        dimensionPanels: null,
-        items: westRegionItems
-    });
-    uiManager.reg(accordionBody, 'accordionBody');
+    //var accordionBody = Ext.create('Ext.panel.Panel', {
+        //layout: 'accordion',
+        //activeOnTop: true,
+        //cls: 'ns-accordion',
+        //bodyStyle: 'border:0 none; margin-bottom:2px',
+        //height: 700,
+        //dimensionPanels: null,
+        //items: westRegionItems
+    //});
+    //uiManager.reg(accordionBody, 'accordionBody');
 
-    var accordion = Ext.create('Ext.panel.Panel', {
-        bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
-        items: accordionBody,
-        setThisHeight: function(mx) {
-            var panelHeight = westRegionItems.length * 28,
-                height;
+    //var accordion = Ext.create('Ext.panel.Panel', {
+        //bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        //items: accordionBody,
+        //setThisHeight: function(mx) {
+            //var panelHeight = westRegionItems.length * 28,
+                //height;
 
-            if (westRegion.hasScrollbar) {
-                height = panelHeight + mx;
-                this.setHeight(westRegion.getHeight() - 2);
-                accordionBody.setHeight(height - 2);
-            }
-            else {
-                height = westRegion.getHeight() - uiConfig.west_fill;
-                mx += panelHeight;
-                accordion.setHeight((height > mx ? mx : height) - 2);
-                accordionBody.setHeight((height > mx ? mx : height) - 4);
-            }
-        },
-        getExpandedPanel: function() {
-            for (var i = 0, panel; i < westRegionItems.length; i++) {
-                if (!westRegionItems[i].collapsed) {
-                    return westRegionItems[i];
-                }
-            }
+            //if (westRegion.hasScrollbar) {
+                //height = panelHeight + mx;
+                //this.setHeight(westRegion.getHeight() - 2);
+                //accordionBody.setHeight(height - 2);
+            //}
+            //else {
+                //height = westRegion.getHeight() - uiConfig.west_fill;
+                //mx += panelHeight;
+                //accordion.setHeight((height > mx ? mx : height) - 2);
+                //accordionBody.setHeight((height > mx ? mx : height) - 4);
+            //}
+        //},
+        //getExpandedPanel: function() {
+            //for (var i = 0, panel; i < westRegionItems.length; i++) {
+                //if (!westRegionItems[i].collapsed) {
+                    //return westRegionItems[i];
+                //}
+            //}
 
-            return null;
-        },
-        getFirstPanel: function() {
-            return accordionBody.items.items[0];
-        }
-    });
-    uiManager.reg(accordion, 'accordion');
+            //return null;
+        //},
+        //getFirstPanel: function() {
+            //return accordionBody.items.items[0];
+        //}
+    //});
+    //uiManager.reg(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',
@@ -126,10 +138,18 @@ Viewport = function(refs, cmp) {
         collapsible: true,
         collapseMode: 'mini',
         border: false,
+        hasScrollbar: false,
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
-        items: arrayClean([chartTypeToolbar, accordion]),
+        items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
+        onScrollbar: function() {
+            this.hasScrollbar = true;
+
+            if (dataTypeToolbar) {
+                dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
+            }
+        },
         setState: function(layout) {
-            setUiState(layout);
+            westRegionItems.setUiState(layout);
         }
     });
     uiManager.reg(westRegion, 'westRegion');
@@ -175,26 +195,6 @@ Viewport = function(refs, cmp) {
         }
     });
     uiManager.reg(updateButton, 'updateButton');
-
-    var layoutButton = Ext.create('Ext.button.Button', {
-        text: i18n.layout,
-        menu: {},
-        handler: function() {
-            var name = 'layoutWindow';
-            (uiManager.get(name) || uiManager.reg(LayoutWindow(c), name)).show();
-        }
-    });
-    uiManager.reg(layoutButton, 'layoutButton');
-
-    var optionsButton = Ext.create('Ext.button.Button', {
-        text: i18n.options,
-        menu: {},
-        handler: function() {
-            var name = 'optionsWindow';
-            (uiManager.get(name) || uiManager.reg(OptionsWindow(c), name)).show();
-        }
-    });
-    uiManager.reg(optionsButton, 'optionsButton');
 
     var downloadButton = Ext.create('Ext.button.Button', {
         text: i18n.download,
@@ -535,6 +535,7 @@ Viewport = function(refs, cmp) {
                 }
             ]
         },
+        bbar: statusBar,
         listeners: {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
@@ -544,117 +545,26 @@ Viewport = function(refs, cmp) {
     uiManager.reg(centerRegion, 'centerRegion');
 
     var setUiState = function(layout) {
-        var layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow');
-
-        if (chartTypeToolbar) {
-            chartTypeToolbar.reset();
-        }
-
-        // clear panels
-        westRegionItems.forEach(function(panel) {
-            panel.clearDimension(!!layout);
-        });
-
-        if (layout) {
-            var graphMap = layout.parentGraphMap,
-                co = dimensionConfig.get('category');
-
-            // type
-            if (chartTypeToolbar) {
-                chartTypeToolbar.setChartType(layout.type);
-            }
-
-            // panels
-            westRegionItems.forEach(function(panel) {
-                panel.setDimension(layout);
-            });
-
-            // layout window
-            if (layoutWindow) {
-                layoutWindow.reset(true);
-                layoutWindow.setDimensions(layout);
-            }
-
-                // add assigned categories as dimension
-            if (!layoutWindow.hasDimension(co.dimensionName)) {
-                layoutWindow.addDimension({
-                    id: co.dimensionName,
-                    name: co.name
-                }, layoutWindow.dimensionStore);
-            }
-
-            // options window
-            if (optionsWindow) {
-                optionsWindow.setOptions(layout);
-            }
-        }
-        else {
-            treePanel.reset();
-            layoutWindow.reset();
-            optionsWindow.reset();
-        }
+        westRegion.setUiState(layout);
     };
 
     var getUiState = function() {
-        var layoutWindow = uiManager.get('layoutWindow'),
-            optionsWindow = uiManager.get('optionsWindow');
+        var viewport = uiManager.get('viewport'),
+            accordion = uiManager.get('accordion');
 
-        var columnDimNames = layoutWindow.colStore.getDimensionNames(),
-            rowDimNames = layoutWindow.rowStore.getDimensionNames(),
-            filterDimNames = layoutWindow.filterStore.getDimensionNames(),
-            config = optionsWindow.getOptions(),
-            dx = dimensionConfig.get('data').dimensionName,
-            co = dimensionConfig.get('category').dimensionName,
-            nameDimArrayMap = {};
+        var layoutWindow = viewport.getLayoutWindow(),
+            optionsWindow = viewport.getOptionsWindow(),
+            chartType = getChartType(),
+            dataType = getDataType();
 
-        //todo fixme charts
-        if (chartTypeToolbar) {
-            config.type = chartTypeToolbar.getChartType();
+        var config = Object.assign({}, accordion.getUiState(layoutWindow, optionsWindow), optionsWindow.getOptions());
+
+        if (chartType) {
+            config.type = chartType;
         }
 
-        config.columns = [];
-        config.rows = [];
-        config.filters = [];
-
-        // panel data
-        for (var i = 0, dim, dimName; i < westRegionItems.length; i++) {
-            dim = westRegionItems[i].getDimension();
-
-            if (dim) {
-                nameDimArrayMap[dim.dimension] = [dim];
-            }
-        }
-
-        // columns, rows, filters
-        for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
-            dimNames = nameArrays[i];
-
-            for (var j = 0, dimName, dim; j < dimNames.length; j++) {
-                dimName = dimNames[j];
-
-                if (dimName === co) {
-                    axes[i].push({
-                        dimension: co,
-                        items: []
-                    });
-                }
-                else if (dimName === dx && nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
-                    for (var k = 0; k < nameDimArrayMap[dx].length; k++) {
-                        axes[i].push(Ext.clone(nameDimArrayMap[dx][k]));
-
-                        // TODO program
-                        if (nameDimArrayMap[dx][k].program) {
-                            config.program = nameDimArrayMap[dx][k].program;
-                        }
-                    }
-                }
-                else if (nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
-                    for (var k = 0; k < nameDimArrayMap[dimName].length; k++) {
-                        axes[i].push(Ext.clone(nameDimArrayMap[dimName][k]));
-                    }
-                }
-            }
+        if (dataType) {
+            config.dataType = dataType;
         }
 
         return config;
@@ -669,12 +579,15 @@ Viewport = function(refs, cmp) {
         centerRegion: centerRegion,
         northRegion: northRegion,
         items: arrayClean([eastRegion, westRegion, centerRegion, northRegion]),
+        getLayoutWindow: null,
+        getOptionsWindow: null,
+        ...config,
         listeners: {
             afterrender: function() {
 
                 // west resize
                 westRegion.on('resize', function() {
-                    var panel = accordion.getExpandedPanel();
+                    var panel = westRegionItems.getExpandedPanel();
 
                     if (panel) {
                         panel.onExpand();
@@ -711,12 +624,12 @@ Viewport = function(refs, cmp) {
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
                         accordion.setAutoScroll(false);
-                        westRegion.setWidth(uiConfig.west_width);
+                        //westRegion.setWidth(uiConfig.west_width + 100);
                         accordion.doLayout();
                     }
                 }
                 else {
-                    westRegion.hasScrollbar = true;
+                    westRegion.onScrollbar();
                 }
 
                 // north
@@ -724,7 +637,8 @@ Viewport = function(refs, cmp) {
                     northRegion.setLogoWidth(centerRegion.getPosition()[0]);
                 }
 
-                // expand first panel
+                // expand to make sure treepanel is rendered
+                uiManager.get('organisationUnit').expand();
                 uiManager.get('data').expand();
 
                 // look for url params

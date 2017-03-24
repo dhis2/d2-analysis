@@ -474,7 +474,7 @@ UiManager = function(refs) {
         };
     };
 
-    // confirm
+    // dialogue
     t.confirmUnsaved = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 

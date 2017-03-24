@@ -1,6 +1,6 @@
 export var dimensionsInit;
 
-dimensionsInit = function(c) {
+dimensionsInit = function(c, extraParams = []) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,
@@ -14,7 +14,7 @@ dimensionsInit = function(c) {
         params: [
             'fields=id,' + displayPropertyUrl,
             'paging=false'
-        ],
+        ].concat(extraParams),
         success: function(r) {
             appManager.addDimensions(r.dimensions);
             dimensionConfig.add(r.dimensions);

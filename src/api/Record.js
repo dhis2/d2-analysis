@@ -3,9 +3,8 @@ import isObject from 'd2-utilizr/lib/isObject';
 
 export var Record;
 
-Record = function(config) {
+Record = function(refs, config) {
     var t = this;
-    t.klass = Record;
 
     config = isObject(config) ? config : {};
 
@@ -37,9 +36,7 @@ Record.prototype.val = function(noError) {
 };
 
 Record.prototype.setName = function(name, response) {
-    var t = this;
-
-    t.name = t.name || name || (response ? response.metaData.names[t.id] : undefined);
+    this.name = name || (this.id && response ? response.getNameById(this.id) : null) || this.name;
 };
 
 Record.prototype.toPlugin = function() {

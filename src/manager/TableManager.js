@@ -9,26 +9,40 @@ TableManager = function(c) {
     var appManager = c.appManager,
         instanceManager = c.instanceManager,
         uiManager = c.uiManager,
-        sessionStorageManager = c.sessionStorageManager;
+        sessionStorageManager = c.sessionStorageManager,
+        dimensionConfig = c.dimensionConfig;
 
     var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
     };
 
+    var sortIdMap = {
+        'pe': 'eventdate',
+        'ou': 'ouname'
+    };
+
+    var getSortId = function(id, type) {
+        if (type === dimensionConfig.dataType['aggregated_values']) {
+            return id;
+        }
+
+        return sortIdMap[id] || id;
+    };
+
     var onColumnHeaderMouseClick = function(layout, id) {
-        if (layout.sorting && layout.sorting.id === id) {
+        var sortId = getSortId(id);
+
+        if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
             layout.sorting = {
-                id: id,
+                id: getSortId(id, layout.dataType),
                 direction: 'DESC'
             };
         }
 
-        uiManager.mask();
-
-        instanceManager.getReport(layout, false, true);
+        instanceManager.getReport(layout);
     };
 
     var onColumnHeaderMouseOver = function(el) {
@@ -49,7 +63,6 @@ TableManager = function(c) {
 
     t.setColumnHeaderMouseHandlers = function(layout, table) {
         var elObjects = table.sortableIdObjects,
-            idValueMap = table.idValueMap,
             dom;
 
         elObjects.forEach(function(item) {
@@ -100,7 +113,7 @@ TableManager = function(c) {
 
                 dimension.add({
                     id: obj.id,
-                    name: response.metaData.names[obj.id]
+                    name: response.getNameById(obj.id)
                 });
             }
         }
