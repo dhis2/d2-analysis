@@ -3884,12 +3884,12 @@ window.dss = dataSelectedStore;
         setThisHeight: function(mx) {
             var westRegion = uiManager.get('westRegion'),
                 panelHeight = this.panels.length * 28,
-                chartTypeHeight = 41,
+                chartTypeToolbarHeight = westRegion.hasChartTypeToolbar ? 45 : 0,
                 height;
 
             if (westRegion.hasScrollbar) {
                 height = panelHeight + mx;
-                this.setHeight(westRegion.getHeight() - 2);
+                this.setHeight(westRegion.getHeight() - chartTypeToolbarHeight - 2);
                 accordionBody.setHeight(height - 2);
             }
             else {

@@ -139,6 +139,9 @@ Viewport = function(refs, cmp, config) {
         collapseMode: 'mini',
         border: false,
         hasScrollbar: false,
+        hasChartTypeToolbar: function() {
+            return !!chartTypeToolbar;
+        },
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
         onScrollbar: function() {
