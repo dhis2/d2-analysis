@@ -208,8 +208,10 @@ TableAxis = function(layout, response, type) {
                 // tmp oldest uuid
                 oldestObj = obj;
             }
-
-            obj.oldestSibling = oldestObj;
+            
+            if(obj.uuid !== oldestObj.uuid && !obj.root) {
+                obj.oldestSibling = oldestObj;
+            }
 
             if (++doorCount === aFloorSpan[i]) {
                 doorCount = 0;
@@ -262,7 +264,11 @@ TableAxis = function(layout, response, type) {
             // get the uuid of the oldest sibling
             while (obj.parent) {
                 obj = obj.parent;
-                parentUuids.push(obj.oldestSibling.uuid);
+                if(!obj.root && obj.oldestSibling) {
+                    parentUuids.push(obj.oldestSibling.uuid);
+                } else {
+                    parentUuids.push(obj.uuid);
+                }
             }
 
             // add parent uuids to leaf

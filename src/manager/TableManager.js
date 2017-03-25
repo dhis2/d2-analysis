@@ -69,9 +69,6 @@ TableManager = function(c) {
         });
     };
 
-    t.setScrollHandlers = function(layout, table) {
-    }
-
     var onValueMouseClick = function(layout, table, uuid) {
         var uuidObjectMap = table.getUuidObjectMap(),
             response = layout.getResponse(),
