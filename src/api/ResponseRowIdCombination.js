@@ -16,7 +16,7 @@ ResponseRowIdCombination = function(refs, config) {
 
 ResponseRowIdCombination.prototype.add = function(id) {
     if (id) {
-        this.ids.push(id);
+        this.ids = this.ids.concat(id.split('-'));
     }
 };
 
@@ -26,4 +26,8 @@ ResponseRowIdCombination.prototype.get = function() {
 
 ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
     return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
+};
+
+ResponseRowIdCombination.prototype.getPeIdbyIds = function(peIds) {
+  return this.ids.filter(id => arrayContains(arrayFrom(peIds), id))[0];
 };

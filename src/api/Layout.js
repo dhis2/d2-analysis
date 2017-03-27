@@ -623,6 +623,10 @@ Layout.prototype.toPost = function() {
     t.toPostSuper();
 };
 
+Layout.prototype.isPeriodInRows = function() {
+    return this.rows.getDimensionNames().indexOf('pe') !== -1;
+};
+
 // dep 4
 
 Layout.prototype.toPut = function() {

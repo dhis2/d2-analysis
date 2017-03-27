@@ -142,5 +142,13 @@ Axis = function(refs, config) {
         });
     };
 
+    t.replaceDimensionByName = function(dimensionName, dimension) {
+        for (let i = 0; i < this.length; ++i) {
+            if (this[i].dimension === dimensionName) {
+                this[i] = dimension;
+            }
+        }
+    };
+
     return t;
 };
