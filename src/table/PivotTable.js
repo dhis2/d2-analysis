@@ -108,9 +108,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     getTdHtml = function(config, metaDataId) {
         var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
-
         var isValue = isNumeric && config.type === 'value';
-
         var legendColor = isValue && legendSet ? appManager.getLegendColorByValue(legendSet.id, parseFloat(config.value)) : null;
 
         // validation
@@ -168,6 +166,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls = arrayClean(cls);
         style = arrayClean(style);
 
+        attributes.push('data-period-id="' + config.peId + '"');
         attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
         attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
         attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
@@ -505,7 +504,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dx)
+                    dxId: rric.getDxIdByIds(response.metaData.dimensions.dx),
+                    peId: rric.getPeIdbyIds(response.metaData.dimensions.pe)
                 });
 
                 // map element id to dim element ids
