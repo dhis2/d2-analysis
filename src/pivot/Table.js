@@ -62,11 +62,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         doSortableColumnHeaders,
 
         // cell creation
-        createSubTotalCell,
-        createTotalCell,
         createSubDimCell,
         createGrandTotalCell,
-        createPaddingCell,
         createEmptyCell,
         createCell,
 
@@ -146,7 +143,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         if (rowAxis.type && rowAxis.dims) {
             for (var j = 0; j < rowAxis.dims - 1; j++) {
-                html.push(createEmptyCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '', 'pivot-dim-label', {}));
+                html.push(createCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '', 'pivot-dim-label', 'empty', {}));
             }
         }
         
@@ -155,7 +152,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
                 response.getNameById(columnDimensionNames[i]);
 
-        html.push(createEmptyCell(cellValue, 'pivot-dim-label', {}));
+        html.push(createCell(cellValue, 'pivot-dim-label', 'empty', {}));
 
         return html;
     };
@@ -377,107 +374,27 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return layout.showDimensionLabels;
     }
 
+    //TODO: have all cell creation go through this function
+    createCell = function(value, cls, type, {cursor=false, collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, title, width, height, sort, noBreak, inherit}) {
+            var cell = {}
 
-    // TODO: merge cell creation functions
+            cell.value = value ? value : '';
+            cell.cls = cls;
+            cell.cls += (empty ? ' cursor-default' : '');
+            if(numeric) {
+                cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
+            } else {
+                cell.htmlValue = value ? value : '';
+            }
+            cell.colSpan = colSpan;
+            cell.rowSpan = rowSpan;
+            cell.empty = empty;
+            cell.hidden = hidden;
+            cell.width = width;
+            cell.height = height;
 
-    createSubTotalCell = function(value, {cls='', collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
-        return {
-            type: 'valueSubtotal',
-            cls: 'pivot-value-subtotal' + (empty ? ' cursor-default' : ''),
-            htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
-            collapsed,
-            empty,
-            value,
-            colSpan,
-            rowSpan,
-            hidden,
-        };
-    };
-
-    createTotalCell = function(value, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
-        return {
-            type: 'valueTotalSubgrandtotal',
-            cls: 'pivot-value-total-subgrandtotal' + (empty ? ' cursor-default' : ''),
-            htmlValue: empty ? '&nbsp;' : getRoundedHtmlValue(value),
-            collapsed,
-            empty,
-            value,
-            colSpan,
-            rowSpan,
-            hidden,
-        };
-    };
-
-    createSubDimCell = function(value, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
-        return {
-            type: 'dimensionSubtotal',
-            cls: 'pivot-dim-subtotal cursor-default',
-            htmlValue: value,
-            value,
-            collapsed,
-            colSpan,
-            hidden,
-            rowSpan,
-            hidden,
-        };
-    };
-
-    createGrandTotalCell = function(value, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
-        return {
-            type: 'dimensionSubtotal',
-            cls: 'pivot-dim-total',
-            htmlValue: value,
-            collapsed,
-            colSpan,
-            hidden,
-            rowSpan,
-            hidden,
-        };
-    };
-
-    createEmptyCell = function(value, cls, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
-        return {
-            type: 'empty',
-            htmlValue: value,
-            cls,
-            colSpan,
-            rowSpan,
-            hidden,
-        };
-    };
-
-    createPaddingCell = function(value, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false, width, height}) {
-        return {
-            type: 'padding',
-            width,
-            height,
-            colSpan
-        };
-    };
-
-    // TODO: have cell creation go through this function
-    // createCell = function(value, cls, type, {cursor=false, collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, title='', width, height, sort, noBreak, inherit}) {
-    //         var cell = inherit ? inherit : {};
-
-    //         cell.value = value;
-    //         cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
-    //         cell.cls = cls + (cursor && empty ? 'default-cursor' : '');
-    //         cell.uuid = generateUuid ? uuid() : null;
-    //         cell.dxId = dxId;
-    //         cell.uuids = uuids
-    //         cell.type = type;
-    //         cell.title = title;
-    //         cell.noBreak = noBreak;
-    //         cell.hidden = hidden;
-    //         cell.colSpan = colspan;
-    //         cell.rowSpan = rowSpan;
-    //         cell.width = width;
-    //         cell.height = height;
-    //         cell.sort = sort;
-    //         cell.empty = empty;
-
-    //         return cell;
-    // }
+            return cell;
+    }
 
     recursiveReduce = function(obj) {
         if (!obj.children) {
@@ -516,10 +433,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if(doColSubTotals() && (i + 1) % rowUniqueFactor === 0) {
                     var axisRow = [];
-                    axisRow.push(createSubDimCell('&nbsp;', {colSpan: rowAxis.dims}));
+                    axisRow.push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims, empty: true}));
 
                     for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createSubDimCell('', {hidden: true}));
+                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {hidden: true}));
                     }
                     
                     rowAxisArray.push(axisRow);
@@ -527,9 +444,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if(doColTotals() && i === rowAxis.size - 1) {
                     var axisRow = [];
-                    axisRow.push(createGrandTotalCell("Total", {colSpan: rowAxis.dims}));
+                    axisRow.push(createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims}));
                     for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createSubDimCell('', {hidden: true}));
+                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {hidden: true}));
                     }
                     rowAxisArray.push(axisRow);
                 }
@@ -555,7 +472,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 colAxisArray.push([]);
                 // colAxisArray from row object names
                 for (var i = 0; i < rowDimensionNames.length; i++) {
-                    colAxisArray[i].push(createEmptyCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label',  {}));
+                    colAxisArray[i].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
                 }
             }
             return colAxisArray;
@@ -571,10 +488,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             
             else if (colAxis.type && rowAxis.type) {
                 if(i === 0) {
-                    colAxisArray[i].push(createEmptyCell('&nbsp;', 'pivot-empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
-                    for (var j = 0; j < rowAxis.dims - 1; j++) colAxisArray[i].push(createEmptyCell('', 'pivot-empty', {hidden: true}));
+                    colAxisArray[i].push(createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
+                    for (var j = 0; j < rowAxis.dims - 1; j++) colAxisArray[i].push(createCell('', 'pivot-empty', 'empty', {hidden: true}));
                 } else {
-                    for (var j = 0; j < rowAxis.dims; j++) colAxisArray[i].push(createEmptyCell('', 'pivot-empty', {hidden: true}));
+                    for (var j = 0; j < rowAxis.dims; j++) colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true}));
                 }
             }
 
@@ -593,11 +510,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if (spanCount === colAxis.span[0] && doRowSubTotals() ) {
                     if(i === 0) {
-                        colAxisArray[i].push(createSubDimCell('&nbsp;', {rowSpan: colAxis.dims}));
+                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {rowSpan: colAxis.dims}));
                     }
 
                     else {
-                        colAxisArray[i].push(createSubDimCell('', {hidden: true}));
+                        colAxisArray[i].push(createCell(null, 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {hidden: true}));
                     }
 
                     spanCount = 0;
@@ -618,7 +535,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     }
 
                     else {
-                        totalCell = createSubDimCell('', {hidden: true});
+                        totalCell = createCell(null, 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {hidden: true});
                     }
                     
                     colAxisArray[i].push(totalCell);
@@ -733,15 +650,15 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     rowTotal += rowSubValueArray[j];
 
                     subValueRow.total += rowSubValueArray[j];
-                    subValueRow.values.push(createSubTotalCell(rowSubValueArray[j], {empty: emptySubRow}));
+                    subValueRow.values.push(createCell(rowSubValueArray[j], 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubRow, numeric: true}));
 
                     if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        subValueRow.values.push(createSubTotalCell(rowSubTotal, {empty: emptySubCol}));
+                        subValueRow.values.push(createCell(rowSubTotal, 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubCol, numeric: true}));
                         rowSubTotal = 0;
                     }
 
                     if(j === colAxisSize - 1 && doRowTotals()) {
-                        subValueRow.values.push(createTotalCell(rowTotal, {empty: emptyTotalCol}));
+                        subValueRow.values.push(createCell(rowTotal, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol, numeric: true}));
                         rowTotal = 0;
                     }
 
@@ -751,7 +668,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 // do column sub totals
                 if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
                     colshift += 1;
-                    row.values.push(createSubTotalCell(columnSubTotal, {empty: emptySubCol}));
+                    row.values.push(createCell(columnSubTotal, 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubCol, numeric: true}));
                     addColumn(j + colshift, columnSubTotal, emptySubCol);
                     columnSubTotal = 0;
                 }
@@ -761,16 +678,16 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     grandTotalRowValues += rowTotalValueArray[j];
                     grandTotalRowSubValues += rowTotalValueArray[j];
 
-                    totalValueRow.values.push(createTotalCell(rowTotalValueArray[j], {empty: emptyTotalRow}));
+                    totalValueRow.values.push(createCell(rowTotalValueArray[j], 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalRow, numeric: true}));
 
                     if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        totalValueRow.values.push(createTotalCell(grandTotalRowSubValues, {empty: emptySubCol}));
+                        totalValueRow.values.push(createCell(grandTotalRowSubValues, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptySubCol, numeric: true}));
                         grandTotalRowSubValues = 0;
                     }
 
                     if(j === colAxisSize - 1 && doRowTotals()) {
                         colshift += 1;
-                        totalValueRow.values.push(createTotalCell(grandTotalRowValues, {empty: emptyTotalCol && emptyTotalRow}));
+                        totalValueRow.values.push(createCell(grandTotalRowValues, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol && emptyTotalRow, numeric: true}));
                         addColumn(j + colshift, grandTotalRowValues, emptyTotalCol)
                     }
 
@@ -784,7 +701,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 // do column totals
                 if(j === colAxisSize - 1 && doRowTotals()) {
-                    row.values.push(createTotalCell(row.total, {empty: emptyTotalCol}));
+                    row.values.push(createCell(row.total, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol, numeric: true}));
                 }
 
                 valueTable.total += value;
@@ -806,7 +723,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             // push total value row
             if(doColTotals() && totalValueRow.values.length > 0) {
                 totalValueRow.total = valueTable.total;
-                console.log(totalValueRow);
                 valueTable.rows.push(totalValueRow);
             }
         }
@@ -1032,23 +948,23 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
             // add left pad to table to start of array
             if(colStart > 0) {
-                table[i].unshift(createPaddingCell('', {width: leftPad}));
+                table[i].unshift(createCell('', '', 'padding', {width: leftPad}));
             }
 
             // add right pad to table to end of array
             if(rightPad > 0) {
-                table[i].push(createPaddingCell('', {width: rightPad}));
+                table[i].push(createCell('', '', 'padding', {width: rightPad}));
             }
         }
 
         // add top pad to table to start of array
         if(rowStart > 0) {
-            table.unshift([createPaddingCell('', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
+            table.unshift([createCell('', '', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
         // add bottom pad to table to end of array
         if(botPad > 0) {
-            table.push([createPaddingCell('', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
+            table.push([createCell('', '', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
         htmlArray = arrayClean([].concat(
@@ -1070,8 +986,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // build value table
         valueAllObjects = getValueObjectArray();
-
-        console.log(valueAllObjects);
 
         // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
