@@ -3884,7 +3884,7 @@ window.dss = dataSelectedStore;
         setThisHeight: function(mx) {
             var westRegion = uiManager.get('westRegion'),
                 panelHeight = this.panels.length * 28,
-                chartTypeToolbarHeight = westRegion.hasChartTypeToolbar ? 45 : 0,
+                chartTypeToolbarHeight = westRegion.hasChartTypeToolbar() ? 45 : 0,
                 height;
 
             if (westRegion.hasScrollbar) {
