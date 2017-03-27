@@ -949,7 +949,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                         table[0][j] = clone(table[0][j]);
                         table[0][j].hidden = false;
                         table[0][j].rowSpan = counter + 1;
-                        console.log(table[0][j].rowSpan);
                     }
                 }
             }
@@ -959,23 +958,23 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
             // add left pad to table to start of array
             if(colStart > 0) {
-                table[i].unshift(createCell('', '', 'padding', {width: leftPad}));
+                table[i].unshift(createCell('', 'pivot-padding', 'padding', {width: leftPad}));
             }
 
             // add right pad to table to end of array
             if(rightPad > 0) {
-                table[i].push(createCell('', '', 'padding', {width: rightPad}));
+                table[i].push(createCell('', 'pivot-padding', 'padding', {width: rightPad}));
             }
         }
 
         // add top pad to table to start of array
         if(rowStart > 0) {
-            table.unshift([createCell('', '', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
+            table.unshift([createCell('', 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
         // add bottom pad to table to end of array
         if(botPad > 0) {
-            table.push([createCell('', '', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
+            table.push([createCell('', 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
         htmlArray = arrayClean([].concat(
