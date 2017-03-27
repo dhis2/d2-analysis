@@ -62,9 +62,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         doSortableColumnHeaders,
 
         // cell creation
-        createSubDimCell,
-        createGrandTotalCell,
-        createEmptyCell,
         createCell,
 
         // utils
@@ -436,7 +433,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     axisRow.push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims, empty: true}));
 
                     for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {hidden: true}));
+                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - j, hidden: true}));
                     }
                     
                     rowAxisArray.push(axisRow);
@@ -444,9 +441,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if(doColTotals() && i === rowAxis.size - 1) {
                     var axisRow = [];
-                    axisRow.push(createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims}));
+                    axisRow.push(createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims, empty: true}));
                     for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {hidden: true}));
+                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - j, hidden: true}));
                     }
                     rowAxisArray.push(axisRow);
                 }
@@ -491,7 +488,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     colAxisArray[i].push(createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
                     for (var j = 0; j < rowAxis.dims - 1; j++) colAxisArray[i].push(createCell('', 'pivot-empty', 'empty', {hidden: true}));
                 } else {
-                    for (var j = 0; j < rowAxis.dims; j++) colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true}));
+                    for (var j = 1; j <= rowAxis.dims; j++) colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true, colSpan: rowAxis.dims, rowSpan: colAxis.dims - j}));
                 }
             }
 
@@ -510,11 +507,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if (spanCount === colAxis.span[0] && doRowSubTotals() ) {
                     if(i === 0) {
-                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {rowSpan: colAxis.dims}));
+                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {rowSpan: colAxis.dims, empty: true}));
                     }
 
                     else {
-                        colAxisArray[i].push(createCell(null, 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {hidden: true}));
+                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {rowSpan: colAxis.dims - i, empty: true, hidden: true}));
                     }
 
                     spanCount = 0;
@@ -908,9 +905,21 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             if(colStart < rowAxis.dims && table[i][0].colSpan > 1) {
                 table[i] = table[i].slice(0, colEnd);
                 table[i][0] = clone(table[i][0]);
-                table[i][0].colSpan = rowAxis.dims - colStart;
+                table[i][0].colSpan = rowAxis.dims - colStart;  
+                if(i === 0 && table[i][0].hidden) {
+                    table[i][0].hidden = false;
+                }
             } else {
                 table[i] = table[i].slice(colStart, colEnd);
+            }
+
+            if(rowStart < colAxis.dims) {
+                for (var j = 0; j < table[0].length; j++) {
+                    if(table[0][j].hidden && table[0][j].type !== 'dimension' && j > rowAxis.dims + 1) {
+                        table[0][j] = clone(table[0][j]);
+                        table[0][j].hidden = false;
+                    }
+                }
             }
 
             // resize colspan of col axis
@@ -920,6 +929,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     counter++;
                     next = table[i][counter];
                 }
+
                 // clone object to not modify original object
                 table[i][0] = clone(table[i][0]);
                 table[i][0].hidden = false;
@@ -930,19 +940,20 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             if(rowStart >= colAxis.dims) {
                 for(let j=0; j < rowAxis.dims; j++) {
                     if(table[0][j].children > 1 && table[0][j].hidden) {
-                        let counter = 1, next = table[colAxis.dims - 1 + counter][j];
-                        while(next && table[colAxis.dims - 1][j].id === next.id) {
+                        let counter = 0, next = table[colAxis.dims - 1 + counter][j];
+                        while(next && table[counter][j].id === next.id) {
                             counter++;
                             next = table[colAxis.dims - 1 + counter][j];
                         }
                         // clone object to not modify original object
                         table[0][j] = clone(table[0][j]);
                         table[0][j].hidden = false;
-                        table[0][j].rowSpan = counter;
+                        table[0][j].rowSpan = counter + 1;
+                        console.log(table[0][j].rowSpan);
                     }
                 }
             }
-            
+
             // resize row to keep table size consistent
             resizeRow(table[i], colEnd - colStart);
 
