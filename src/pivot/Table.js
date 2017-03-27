@@ -28,12 +28,28 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     options = options || {};
 
-    // init
-    var getRoundedHtmlValue,
+    // inititalize global variables/functions
+    
+    // global functions
+
+        // table builder
+    let getEmptyHtmlArray,
+        getRoundedHtmlValue,
         getTdHtml,
-        getValue,
-        roundIf,
-        getNumberOfDecimals,
+        getTableHtml,
+        getColAxisObjectArray,
+        getRowAxisObjectArray,
+        getValueObjectArray,
+        getTopBarSpan,
+        getFilterHtmlArray,
+        getTitle,
+        getHtml,
+        renderTable,
+        combineTable,
+        resizeRow,
+        addColumn,
+
+        // table options
         doColTotals,
         doRowTotals,
         doColSubTotals,
@@ -44,41 +60,50 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         doHideEmptyColumns,
         doShowDimensionLabels, 
         doSortableColumnHeaders,
-        getColAxisObjectArray,
-        getRowAxisObjectArray,
-        getValueObjectArray,
-        getTopBarSpan,
-        getFilterHtmlArray,
-        getTitle,
-        getHtml,
-        recursiveReduce,
-        colAxisAllObjects = [],
-        rowAxisAllObjects = [],
-        valueAllObjects = [],
-        columnDimensionNames,
-        rowDimensionNames,
-        getEmptyHtmlArray,
 
+        // cell creation
         createSubTotalCell,
         createTotalCell,
         createSubDimCell,
         createGrandTotalCell,
         createPaddingCell,
         createEmptyCell,
-        testTable = { rows: [], columns: [], total: 0 },
-        setScrollPosition,
-        setViewportSize,
-        combineTable,
-        completeTableObjects,
 
+        // utils
+        getValue,
+        roundIf,
+        getNumberOfDecimals,
+        recursiveReduce,
         getUniqueFactor,
-        colUniqueFactor,
+        tableLogger,
+
+    // global variables
+
+        // table holders
+        testTable = { rows: [], columns: [], total: 0 },
+        completeTableObjects,
+        valueAllObjects = [],
+        htmlArray,
+
+        // row axis
+        rowAxisAllObjects = [],
         rowUniqueFactor,
+        rowDimensionNames,
+
+        // col axis
+        colAxisAllObjects = [],
+        columnDimensionNames,
+        colUniqueFactor,
+
+        // uid
         uuidDimUuidsMap = {},
+
+        // legend set
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
         legendDisplayStyle = layout.legendDisplayStyle,
+
+        // utils
         tdCount = 0,
-        htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
         objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout),
@@ -100,6 +125,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return null;
     };
 
+    tableLogger = function(table, colStart, colEnd, rowStart, rowEnd) {
+        console.log(`colstart: ${colStart} colend: ${colEnd}`);
+        console.log(`rowstart: ${rowStart} rowend: ${rowEnd}`);
+    }
+
     colUniqueFactor = getUniqueFactor(colAxis);
     rowUniqueFactor = getUniqueFactor(rowAxis);
     columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
@@ -115,9 +145,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         if (rowAxis.type && rowAxis.dims) {
             for (var j = 0; j < rowAxis.dims - 1; j++) {
-                html.push(createEmptyCell('pivot-dim-label', isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : ''));
+                html.push(createEmptyCell('pivot-dim-label', !isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : ''));
             }
         }
+        
         var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
                 response.getNameById(rowDimensionNames[j]) + 
                 (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
@@ -231,20 +262,33 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             if(bgColor) {
                 var rgb = uiManager.hexToRgb(bgColor),
                     color = uiManager.isColorBright(rgb) ? 'black' : 'white';
-                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') + (config.width ? 'min-width:' + config.width + 'px!important;' : '') + (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
+                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') + 
+                                    (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
+                                    (config.height ? 'height:' + config.height + 'px!important;' : '') + 
+                                    (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
+                                    (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
             } else {
-                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') + (config.width ? 'min-width:' + config.width + 'px!important;' : '') +  (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') +
+                                    (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
+                                    (config.height ? 'height:' + config.height + 'px!important;' : '') + 
+                                    (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
+                                    (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
             }
         }
 
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') + (config.width ? 'min-width:' + config.width + 'px!important;' : '') + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+            html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') +
+                                (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
+                                (config.height ? 'height:' + config.height + 'px!important;' : '') + 
+                                (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
+                                (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
         }
 
         return html;
     };
 
-    var addColumn = function(position, total, empty) {
+    // TODO: rename to something more usefull
+    addColumn = function(position, total, empty) {
         if(!testTable.columns[position]) {
             testTable.columns.push({ values: [], total: 0, empty: 0 });
         }
@@ -391,7 +435,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         };
     };
 
-    createPaddingCell = function (width='0', colSpan=1, height='', cls='pivot-empty', htmlValue='&nbsp;', rowSpan = 1) {
+    createPaddingCell = function (width='', height='', colSpan=1, cls='pivot-empty', htmlValue='&nbsp;', rowSpan = 1) {
         return {
             type: 'padding',
             width,
@@ -404,12 +448,12 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         if (!obj.children) {
             obj.collapsed = true;
 
-            if (obj.parent) {
+            if (obj.parent && obj.parent.oldestSibling) {
                 obj.parent.oldestSibling.children--;
             }
         }
 
-        if (obj.parent) {
+        if (obj.parent && obj.parent.oldestSibling) {
             recursiveReduce(obj.parent.oldestSibling);
         }
     };
@@ -679,8 +723,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 }
 
                 // do row totals
-                if(i === rowAxisSize - 1 && doRowTotals()) {
-
+                if(i === rowAxisSize - 1 && doColTotals()) {
                     grandTotalRowValues += rowTotalValueArray[j];
                     grandTotalRowSubValues += rowTotalValueArray[j];
 
@@ -691,7 +734,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                         grandTotalRowSubValues = 0;
                     }
 
-                    if(j === colAxisSize - 1 && doColTotals()) {
+                    if(j === colAxisSize - 1 && doRowTotals()) {
                         colshift += 1;
                         totalValueRow.values.push(createTotalCell(grandTotalRowValues, emptyTotalCol));
                         addColumn(j + colshift, grandTotalRowValues, emptyTotalCol)
@@ -706,7 +749,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 }
 
                 // do column totals
-                if(j === colAxisSize - 1 && doColTotals()) {
+                if(j === colAxisSize - 1 && doRowTotals()) {
                     row.values.push(createTotalCell(row.total, emptyTotalCol));
                 }
 
@@ -727,14 +770,13 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             // push total value row
-            if(totalValueRow.values.length > 0) {
+            if(doRowTotals() && totalValueRow.values.length > 0) {
                 totalValueRow.total = testTable.total;
                 testTable.rows.push(totalValueRow);
             }
         }
         
-
-        // display col percentages
+        // display col percentages TODO: Split into own function
         if(doColPercentage()) {
             for(var i = 0; i < testTable.rows.length; i++) {
                 for (var j = 0; j < testTable.rows[i].values.length; j++) {
@@ -743,7 +785,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        // display row percentages
+        // display row percentages TODO: Split into own function
         if(doRowPercentage()) {
             for(var i = 0; i < testTable.rows.length; i++) {
                 for (var j = 0; j < testTable.rows[i].values.length; j++) {
@@ -752,7 +794,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        // hide empty columns
+        // hide empty columns TODO: Split into own function
         if(doHideEmptyColumns()) {
             for(var i = 0, dimLeaf; i < testTable.columns.length; i++) {
                 if(testTable.columns[i].isEmpty) {
@@ -768,7 +810,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        // hide empty rows
+        // hide empty rows TODO: Split into own function
         if(doHideEmptyRows()) {
             for(var i = 0, dimLeaf; i < testTable.rows.length; i++) {
                 if(testTable.rows[i].isEmpty) {
@@ -793,43 +835,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         return valueObjects;
     };
-
-    var arrayContainsValue = function(array, prop, value) {
-        for(let i = 0; i < array.lenth; i++) {
-            if(array[prop] === value) return true;
-        }
-        return false;
-    }
-
-    var arraySumProp = function(array, prop) {
-        var sum;
-        for(let i = 0; i < array.lenth; i++) {
-            sum += array[prop];
-        }
-    }
-
-    var hideCellDirection = function(axisObjects, valueObjects, vertical, horizontal) {
-        for(var i = 0, dimLeaf; i < vertical; i++) {
-            if(arrayContainsValue(valueObjects[i], 'empty', true)) {
-                for(var j = 0; j < horizontal; j++) {
-                    valueObjects[j][i].collapsed = true;
-                }
-                dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
-                if (dimLeaf) {
-                    recursiveReduce(dimLeaf);
-                    axisObjects[0][i + rowAxis.dims].collapsed = true;
-                }
-            }
-        }
-    }
-
-    var convertCellDirectionPercentage = function(valueObjects, vertical, horizontal) {
-        for(var i = 0; i < vertical; i++) {
-            for (var j = 0; j < horizontalh; j++) {
-                valueObjects[i][j].htmlValue = getRoundedHtmlValue((valueObjects[i][j].value / testTable.columns[j].total) * 100) + '%';
-            }
-        }
-    }
 
     getTopBarSpan = function(span) {
         var rowDims = rowAxis.dims || 0;
@@ -892,7 +897,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return colAxisComb.concat(combinedTable);
     };
 
-    var getTableHtml = function(combiTable) {
+    getTableHtml = function(combiTable) {
         const html = [];
         for (let i=0; i < combiTable.length; i++) {
             for (var j=0, htmlRow=[]; j < combiTable[i].length; j++) {
@@ -919,26 +924,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return table += '</table>';
     };
 
-    const countRowColspan = function(table) {
-        for(var i = 0; i < table.length; i++) {
-            var colspanCounter = 0;
-            for(var j = 0; j < table[i].length; j++) {
-                if(!table[i][j].hidden) colspanCounter += table[i][j].colSpan ? table[i][j].colSpan : 1;
-            }
-        }
-    }
-
-    Array.prototype.move = function (old_index, new_index) {
-        if (new_index >= this.length) {
-            var k = new_index - this.length;
-            while ((k--) + 1) {
-                this.push(undefined);
-            }
-        }
-        this.splice(new_index, 0, this.splice(old_index, 1)[0]);
-    };
-
-    var resizeRow = function(row, maxColSpan) {
+    resizeRow = function(row, maxColSpan) {
         var colSpanCounter = 0;
         for (var i = 0; i < row.length; i++) {
             var currentCell = row[i];
@@ -952,19 +938,23 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }        
     }
 
-    var renderTable = function(rowStart = 0, colStart = 0) {
+    renderTable = function(rowStart=0, colStart=0, cellWidth=120, cellHeight=23) {
 
-        let cellWidth = 120, cellHeight = 20,
-              rowEnd = Math.floor((document.body.clientHeight / cellHeight) + rowStart),
+        const rowEnd = Math.floor((document.body.clientHeight / cellHeight) + rowStart),
               colEnd = Math.floor((document.body.clientWidth / cellWidth) + colStart),
+              topPad = rowStart * cellHeight,
+              botPad = (completeTableObjects.length - rowEnd) * cellHeight,
               table = completeTableObjects.slice(rowStart, rowEnd);
-        console.log(`colstart: ${colStart} colend: ${colEnd}`)
-        
-        for(var i = 0; i < table.length; i++) {
-            var colspanCounter = 0,
-                rightPad = (completeTableObjects[i].length - colEnd) * cellWidth,
-                leftPad = colStart * cellWidth;
+      
+        for(let i = 0, rightPad, leftPad; i < table.length; i++) {
+            
+            // define amount of right padding to simulate scrolling
+            rightPad = (completeTableObjects[i].length - colEnd) * cellWidth;
 
+            // define amount of left padding to simulate scrolling
+            leftPad = colStart * cellWidth;
+
+            // slice viewable column cells
             if(colStart < rowAxis.dims && table[i][0].colSpan > 1) {
                 table[i] = table[i].slice(0, colEnd);
                 table[i][0] = clone(table[i][0]);
@@ -973,31 +963,59 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 table[i] = table[i].slice(colStart, colEnd);
             }
 
+            // resize colspan of col axis
             if(i < colAxis.dims && table[i][0].children > 1 && table[i][0].hidden) {
-                var counter = 1, next = table[i][counter];
+                let counter = 1, next = table[i][counter];
                 while(next && table[i][0].id === next.id) {
                     counter++;
                     next = table[i][counter];
                 }
+                // clone object to not modify original object
                 table[i][0] = clone(table[i][0]);
                 table[i][0].hidden = false;
                 table[i][0].colSpan = counter;
+            }
+
+            // resize rowspan of row axis TODO: Find a better way to do this
+            if(rowStart >= colAxis.dims && colStart > rowAxis.dims) {
+                for(let j=0; j < rowAxis.dims; j++) {
+                    if(table[0][j].children > 1 && table[0][j].hidden) {
+                        let counter = 1, next = table[colAxis.dims - 1 + counter][j];
+                        while(next && table[colAxis.dims - 1][j].id === next.id) {
+                            counter++;
+                            next = table[colAxis.dims - 1 + counter][j];
+                        }
+                        // clone object to not modify original object
+                        table[0][j] = clone(table[0][j]);
+                        table[0][j].hidden = false;
+                        table[0][j].rowSpan = counter;
+                    }
+                }
             }
             
             // resize row to keep table size consistent
             resizeRow(table[i], colEnd - colStart);
 
-            // add padding cells
+            // add left pad to table to start of array
             if(colStart > 0) {
-                table[i].unshift(createPaddingCell(leftPad));
+                table[i].unshift(createPaddingCell(leftPad, cellHeight));
             }
 
+            // add right pad to table to end of array
             if(rightPad > 0) {
-                table[i].push(createPaddingCell(rightPad));
+                table[i].push(createPaddingCell(rightPad, cellHeight));
             }
         }
 
-        countRowColspan(table);
+        // add top pad to table to start of array
+        if(rowStart > 0) {
+            table.unshift([createPaddingCell(cellWidth, topPad, (colEnd - colStart) + 1)]);
+        }
+
+        // add bottom pad to table to end of array
+        if(botPad > 0) {
+            table.push([createPaddingCell(cellWidth, botPad, (colEnd - colStart) + 1)]);
+        }
 
         htmlArray = arrayClean([].concat(
             // options.skipTitle ? [] : getTitle(table[0].length) || [],
@@ -1032,8 +1050,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     t.rowAxis = rowAxis;
     t.tdCount = tdCount;
     t.table = testTable;
-    t.setScrollPosition = setScrollPosition;
-    t.setViepowerSize = setViewportSize;
 };
 
 Table.prototype.getUuidObjectMap = function() {
