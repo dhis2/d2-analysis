@@ -81,7 +81,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     // global variables
 
         // table holders
-        testTable = { rows: [], columns: [], total: 0 },
+        valueTable = { rows: [], columns: [], total: 0 },
         completeTableObjects,
         valueAllObjects = [],
         htmlArray,
@@ -290,11 +290,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     // TODO: rename to something more usefull
     addColumn = function(position, total, empty) {
-        if(!testTable.columns[position]) {
-            testTable.columns.push({ values: [], total: 0, empty: 0 });
+        if(!valueTable.columns[position]) {
+            valueTable.columns.push({ values: [], total: 0, empty: 0 });
         }
-        testTable.columns[position].total += total;
-        testTable.columns[position].isEmpty = empty;
+        valueTable.columns[position].total += total;
+        valueTable.columns[position].isEmpty = empty;
     }
 
     getValue = function(str) {
@@ -378,6 +378,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }
 
 
+    // TODO: merge cell creation functions
+
     createSubTotalCell = function(value, {cls='', collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
         return {
             type: 'valueSubtotal',
@@ -432,7 +434,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             hidden,
         };
     };
-    console.log(1);
+
     createEmptyCell = function(value, cls, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUid=false}) {
         return {
             type: 'empty',
@@ -454,20 +456,27 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     };
 
     // TODO: have cell creation go through this function
-    // createCell = function(value, cls, type, {cursor=false, collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, title='', width, height, sort, noBreak}) {
-    //         return {
-    //             cls: cls + (empty && cursor ? ' cursor-default' : ''),
-    //             uuid: generateUuid ? uuid() : null,
-    //             title,
-    //             sort,
-    //             noBreak,
-    //             type,
-    //             collapsed,
-    //             colSpan,
-    //             hidden,
-    //             rowSpan,
-    //             hidden,
-    //         }
+    // createCell = function(value, cls, type, {cursor=false, collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, title='', width, height, sort, noBreak, inherit}) {
+    //         var cell = inherit ? inherit : {};
+
+    //         cell.value = value;
+    //         cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    //         cell.cls = cls + (cursor && empty ? 'default-cursor' : '');
+    //         cell.uuid = generateUuid ? uuid() : null;
+    //         cell.dxId = dxId;
+    //         cell.uuids = uuids
+    //         cell.type = type;
+    //         cell.title = title;
+    //         cell.noBreak = noBreak;
+    //         cell.hidden = hidden;
+    //         cell.colSpan = colspan;
+    //         cell.rowSpan = rowSpan;
+    //         cell.width = width;
+    //         cell.height = height;
+    //         cell.sort = sort;
+    //         cell.empty = empty;
+
+    //         return cell;
     // }
 
     recursiveReduce = function(obj) {
@@ -519,11 +528,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 if(doColTotals() && i === rowAxis.size - 1) {
                     var axisRow = [];
                     axisRow.push(createGrandTotalCell("Total", {colSpan: rowAxis.dims}));
-
                     for(var j = 1; j < rowAxis.dims; j++) {
                         axisRow.push(createSubDimCell('', {hidden: true}));
                     }
-
                     rowAxisArray.push(axisRow);
                 }
             }
@@ -622,6 +629,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return colAxisArray;
     };
 
+    // TODO: find a better way to count empty/totals
     getValueObjectArray = function() {
         var valueObjects = [],
             colAxisSize = colAxis.type ? colAxis.size : 1,
@@ -653,8 +661,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 empty = false;
                 uuids = [];
 
-                if(!testTable.columns[j + colshift]) {
-                    testTable.columns.push({ values: [], total: 0, empty: 0 });
+                if(!valueTable.columns[j + colshift]) {
+                    valueTable.columns.push({ values: [], total: 0, empty: 0 });
                 }
 
                 // meta data uid
@@ -715,8 +723,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 rowTotalValueArray[j] += cell.value;
                 columnSubTotal += cell.value;
 
-                testTable.columns[j + colshift].total += cell.value;
-                testTable.columns[j + colshift].isEmpty = emptyTotalRow;
+                valueTable.columns[j + colshift].total += cell.value;
+                valueTable.columns[j + colshift].isEmpty = emptyTotalRow;
 
                 // do row sub totals
                 if((i + 1) % rowUniqueFactor === 0 && doColSubTotals()) {
@@ -762,7 +770,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                     if(j === colAxisSize - 1 && doRowTotals()) {
                         colshift += 1;
-                        totalValueRow.values.push(createTotalCell(grandTotalRowValues, {empty: emptyTotalCol}));
+                        totalValueRow.values.push(createTotalCell(grandTotalRowValues, {empty: emptyTotalCol && emptyTotalRow}));
                         addColumn(j + colshift, grandTotalRowValues, emptyTotalCol)
                     }
 
@@ -779,7 +787,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     row.values.push(createTotalCell(row.total, {empty: emptyTotalCol}));
                 }
 
-                testTable.total += value;
+                valueTable.total += value;
                 row.isEmpty = emptyTotalCol;
                 subValueRow.isEmpty = emptyTotalCol;
 
@@ -788,44 +796,45 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             // push value row
-            testTable.rows.push(row);
+            valueTable.rows.push(row);
 
             // push sub value row
             if(subValueRow.values.length > 0) {
-                testTable.rows.push(subValueRow);
+                valueTable.rows.push(subValueRow);
             }
 
             // push total value row
             if(doColTotals() && totalValueRow.values.length > 0) {
-                totalValueRow.total = testTable.total;
-                testTable.rows.push(totalValueRow);
+                totalValueRow.total = valueTable.total;
+                console.log(totalValueRow);
+                valueTable.rows.push(totalValueRow);
             }
         }
         
         // display col percentages TODO: Split into own function
         if(doColPercentage()) {
-            for(var i = 0; i < testTable.rows.length; i++) {
-                for (var j = 0; j < testTable.rows[i].values.length; j++) {
-                    testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.columns[j].total) * 100) + '%';
+            for(var i = 0; i < valueTable.rows.length; i++) {
+                for (var j = 0; j < valueTable.rows[i].values.length; j++) {
+                    valueTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((valueTable.rows[i].values[j].value / valueTable.columns[j].total) * 100) + '%';
                 }
             }
         }
 
         // display row percentages TODO: Split into own function
         if(doRowPercentage()) {
-            for(var i = 0; i < testTable.rows.length; i++) {
-                for (var j = 0; j < testTable.rows[i].values.length; j++) {
-                    testTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((testTable.rows[i].values[j].value / testTable.rows[i].total) * 100) + '%';
+            for(var i = 0; i < valueTable.rows.length; i++) {
+                for (var j = 0; j < valueTable.rows[i].values.length; j++) {
+                    valueTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((valueTable.rows[i].values[j].value / valueTable.rows[i].total) * 100) + '%';
                 }
             }
         }
 
         // hide empty columns TODO: Split into own function
         if(doHideEmptyColumns()) {
-            for(var i = 0, dimLeaf; i < testTable.columns.length; i++) {
-                if(testTable.columns[i].isEmpty) {
-                    for(var j = 0; j < testTable.rows.length; j++) {
-                        testTable.rows[j].values[i].collapsed = true;
+            for(var i = 0, dimLeaf; i < valueTable.columns.length; i++) {
+                if(valueTable.columns[i].isEmpty) {
+                    for(var j = 0; j < valueTable.rows.length; j++) {
+                        valueTable.rows[j].values[i].collapsed = true;
                     }
                     dimLeaf = colAxisAllObjects[colAxis.dims-1][i + rowAxis.dims];
                     if (dimLeaf) {
@@ -838,10 +847,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // hide empty rows TODO: Split into own function
         if(doHideEmptyRows()) {
-            for(var i = 0, dimLeaf; i < testTable.rows.length; i++) {
-                if(testTable.rows[i].isEmpty) {
-                    for(var j = 0; j < testTable.rows[i].values.length; j++) {
-                        testTable.rows[i].values[j].collapsed = true;
+            for(var i = 0, dimLeaf; i < valueTable.rows.length; i++) {
+                if(valueTable.rows[i].isEmpty) {
+                    for(var j = 0; j < valueTable.rows[i].values.length; j++) {
+                        valueTable.rows[i].values[j].collapsed = true;
                     }
                     dimLeaf = rowAxisAllObjects[i][rowAxis.dims-1];
                     if (dimLeaf) {
@@ -852,9 +861,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        for(var i = 0; i < testTable.rows.length; i++) {
-            for(var j = 0, valueRow = []; j < testTable.rows[i].values.length; j++) {
-                valueRow.push(testTable.rows[i].values[j]);
+        for(var i = 0; i < valueTable.rows.length; i++) {
+            for(var j = 0, valueRow = []; j < valueTable.rows[i].values.length; j++) {
+                valueRow.push(valueTable.rows[i].values[j]);
             }
             valueObjects.push(valueRow);
         }
@@ -901,8 +910,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             return;
         }
 
-        var text = layout.title;
-        var row = [];
+        var text = layout.title, row = [];
 
         row.push(getTdHtml({
             type: 'filter',
@@ -1063,6 +1071,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         // build value table
         valueAllObjects = getValueObjectArray();
 
+        console.log(valueAllObjects);
+
         // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
 
@@ -1083,7 +1093,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     t.colAxis = colAxis;
     t.rowAxis = rowAxis;
     t.tdCount = tdCount;
-    t.table = testTable;
+    t.table = valueTable;
 };
 
 Table.prototype.getUuidObjectMap = function() {
