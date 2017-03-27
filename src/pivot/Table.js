@@ -874,6 +874,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return table += '</table>';
     };
 
+    // resize row to colspan
     resizeRow = function(row, maxColSpan) {
         var colSpanCounter = 0;
         for (var i = 0; i < row.length; i++) {
@@ -986,8 +987,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         // create html array
         htmlArray = arrayClean([].concat(
-            options.skipTitle ? [] : getTitle(table[0].length) || [],
-            getFilterHtmlArray(table[0].length) || [],
+            // options.skipTitle ? [] : getTitle(table[0].length) || [],
+            // getFilterHtmlArray(table[0].length) || [],
             getTableHtml(table)
         ));
 
