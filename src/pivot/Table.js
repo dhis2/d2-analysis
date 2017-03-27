@@ -938,7 +938,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }        
     }
 
-    renderTable = function(rowStart=0, colStart=0, cellWidth=120, cellHeight=23) {
+    renderTable = function(rowStart=0, colStart=0, cellWidth=120, cellHeight=25) {
 
         const rowEnd = Math.floor((document.body.clientHeight / cellHeight) + rowStart),
               colEnd = Math.floor((document.body.clientWidth / cellWidth) + colStart),
@@ -977,7 +977,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             // resize rowspan of row axis TODO: Find a better way to do this
-            if(rowStart >= colAxis.dims && colStart > rowAxis.dims) {
+            if(rowStart >= colAxis.dims) {
                 for(let j=0; j < rowAxis.dims; j++) {
                     if(table[0][j].children > 1 && table[0][j].hidden) {
                         let counter = 1, next = table[colAxis.dims - 1 + counter][j];

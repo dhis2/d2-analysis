@@ -490,6 +490,9 @@ Viewport = function(refs, cmp) {
         setScroll: function(fn) {
             this.onScroll = fn;
         },
+        scrollTo: function(x, y) {
+            this.body.scrollTo(x, y);
+        },
         onScroll: Function.prototype,
         tbar: {
             defaults: {
