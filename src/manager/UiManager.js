@@ -127,7 +127,6 @@ UiManager = function(refs) {
 
     t.setScrollFn = function(component, fn) {
         t.get(component) && t.get(component).setScroll(fn);
-        console.log(t.get(component));
     }
 
     t.scrollTo = function(component, x, y) {
