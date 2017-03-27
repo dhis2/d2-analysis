@@ -321,6 +321,7 @@ OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
     var t = this;
 
     var separator = t.getDigitGroupSeparatorIdMap()[id];
+
     return separator ? separator.value : '';
 };
 

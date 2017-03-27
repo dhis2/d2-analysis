@@ -2,9 +2,8 @@ import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var ResponseRow;
 
-ResponseRow = function(config) {
+ResponseRow = function(refs, config) {
     var t = arrayFrom(config);
-    t.klass = ResponseRow;
 
     t.getAt = function(index) {
         return this[index];

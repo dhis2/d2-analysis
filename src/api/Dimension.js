@@ -5,30 +5,32 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
-import {Record} from './Record.js';
-
 var REQUIRED_DIMENSIONS = ['dx', 'pe', 'ou'];
 
 export var Dimension;
 
-Dimension = function(config) {
+Dimension = function(refs, config) {
     var t = this;
-
-    t.klass = Dimension;
 
     config = isObject(config) ? config : {};
     config.items = arrayFrom(config.items);
+
+    var { Record } = refs.api;
 
     // constructor
     t.dimension = config.dimension;
 
     t.items = config.items.map(function(record) {
-        return (new Record(record)).val();
+        return (new Record(refs, record)).val();
     });
 
     if (config.sorted) {
         t.sorted = config.sorted;
     }
+
+    t.getRefs = function() {
+        return refs;
+    };
 };
 
 Dimension.prototype.log = function(text, noError) {
@@ -46,8 +48,8 @@ Dimension.prototype.val = function(noError) {
     }
 
     // warning
-    if (!this.items.length && this.dimension !== 'co') {
-        this.log('(Dimension) No items', noError);
+    if (!this.items.length && !arrayContains(['co', 'dy', 'longitude', 'latitude'], this.dimension)) { //todo use centralised keys
+        //this.log('(Dimension) No items', noError);
         //return null;
     }
 
@@ -55,7 +57,12 @@ Dimension.prototype.val = function(noError) {
 };
 
 Dimension.prototype.add = function(recordConfig) {
-    var record = (new Record(recordConfig)).val();
+    var t = this,
+        refs = t.getRefs();
+
+    var { Record } = refs.api;
+
+    var record = (new Record(refs, recordConfig)).val();
 
     if (record) {
         this.items.push(record);

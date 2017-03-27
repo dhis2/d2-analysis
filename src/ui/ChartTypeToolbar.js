@@ -1,21 +1,21 @@
 export var ChartTypeToolbar;
 
-ChartTypeToolbar = function(c) {
-    var appManager = c.appManager,
-        uiManager = c.uiManager,
-        instanceManager = c.instanceManager,
+ChartTypeToolbar = function(refs) {
+    var appManager = refs.appManager,
+        uiManager = refs.uiManager,
+        instanceManager = refs.instanceManager,
 
-        i18n = c.i18nManager.get(),
-        dimensionConfig = c.dimensionConfig,
+        i18n = refs.i18nManager.get(),
+        dimensionConfig = refs.dimensionConfig,
 
         confData = dimensionConfig.get('data'),
         confPeriod = dimensionConfig.get('period'),
         confOrganisationUnit = dimensionConfig.get('organisationUnit'),
         confCategory = dimensionConfig.get('category'),
 
-        chartConf = c.chartConfig,
+        chartConf = refs.chartConfig,
 
-        i18n = c.i18nManager.get(),
+        i18n = refs.i18nManager.get(),
 
         buttons = [];
 

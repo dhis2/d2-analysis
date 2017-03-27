@@ -3,17 +3,17 @@ import isNumeric from 'd2-utilizr/lib/isNumeric';
 
 export var ResponseHeader;
 
-ResponseHeader = function(config) {
+ResponseHeader = function(refs, config, extraConfig) {
     var t = this;
-    t.klass = ResponseHeader;
+
+    t.isPrefix = false;
+    t.isCollect = false;
+    t.index;
 
     config = isObject(config) ? config : {};
 
     // constructor
-    $.extend(this, config);
-
-    // uninitialized
-    t.index;
+    Object.assign(t, config, extraConfig);
 };
 
 ResponseHeader.prototype.setIndex = function(index) {

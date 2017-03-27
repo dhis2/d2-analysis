@@ -5,9 +5,8 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var ResponseRowIdCombination;
 
-ResponseRowIdCombination = function(config) {
+ResponseRowIdCombination = function(refs, config) {
     var t = this;
-    t.klass = ResponseRowIdCombination;
 
     config = isArray(config) ? config : (isString(config) ? config.split('-') : null);
 
