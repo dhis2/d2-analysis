@@ -490,7 +490,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     rowAxisArray.push(axisRow);
                 }
 
-                if(doRowTotals() && i === rowAxis.size - 1) {
+                if(doColTotals() && i === rowAxis.size - 1) {
                     var axisRow = [];
                     axisRow.push(createGrandTotalCell(rowAxis.dims));
 
@@ -770,7 +770,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             // push total value row
-            if(doRowTotals() && totalValueRow.values.length > 0) {
+            if(doColTotals() && totalValueRow.values.length > 0) {
                 totalValueRow.total = testTable.total;
                 testTable.rows.push(totalValueRow);
             }
@@ -1028,11 +1028,19 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     // get html
     (function() {
+        // build col axis
         colAxisAllObjects = getColAxisObjectArray();
+
+        // build row axis
         rowAxisAllObjects = getRowAxisObjectArray();
+
+        // build value table
         valueAllObjects = getValueObjectArray();
+
+        // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
 
+        // render html
         renderTable();
     }());
     
