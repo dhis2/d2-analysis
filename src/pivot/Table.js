@@ -964,7 +964,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
 
             // resize colspan of col axis
-            if(i < colAxis.dims && table[i][0].children > 1 && table[i][0].hidden) {
+            if(i < colAxis.dims && table[i][0].children > 1 && table[i][0].hidden && rowStart < colAxis.dims) {
                 let counter = 1, next = table[i][counter];
                 while(next && table[i][0].id === next.id) {
                     counter++;
