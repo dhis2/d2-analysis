@@ -375,20 +375,23 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     createCell = function(value, cls, type, {cursor=false, collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, title, width, height, sort, noBreak, inherit}) {
             var cell = {}
 
-            cell.value = value ? value : '';
+            cell.uuids = generateUuid ? uuids() : null;
+
             cell.cls = cls;
+            cell.value = value ? value : '';
             cell.cls += (empty ? ' cursor-default' : '');
-            if(numeric) {
-                cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
-            } else {
-                cell.htmlValue = value ? value : '';
-            }
             cell.colSpan = colSpan;
             cell.rowSpan = rowSpan;
             cell.empty = empty;
             cell.hidden = hidden;
             cell.width = width;
             cell.height = height;
+
+            if(numeric) {
+                cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
+            } else {
+                cell.htmlValue = value ? value : '';
+            }
 
             return cell;
     }
@@ -892,7 +895,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
               topPad = rowStart * cellHeight,
               botPad = (completeTableObjects.length - rowEnd) * cellHeight,
               table = completeTableObjects.slice(rowStart, rowEnd);
+
+        // TODO: use fixed array instead of slice?
       
+        // loop through each row of table
         for(let i = 0, rightPad, leftPad; i < table.length; i++) {
             
             // define amount of right padding to simulate scrolling
@@ -913,6 +919,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 table[i] = table[i].slice(colStart, colEnd);
             }
 
+            // deal with top left empty cell
             if(rowStart < colAxis.dims) {
                 for (var j = 0; j < table[0].length; j++) {
                     if(table[0][j].hidden && table[0][j].type !== 'dimension' && j > rowAxis.dims + 1) {
@@ -958,31 +965,33 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
             // add left pad to table to start of array
             if(colStart > 0) {
-                table[i].unshift(createCell('', 'pivot-padding', 'padding', {width: leftPad}));
+                table[i].unshift(createCell(null, 'pivot-padding', 'padding', {width: leftPad}));
             }
 
             // add right pad to table to end of array
             if(rightPad > 0) {
-                table[i].push(createCell('', 'pivot-padding', 'padding', {width: rightPad}));
+                table[i].push(createCell(null, 'pivot-padding', 'padding', {width: rightPad}));
             }
         }
 
         // add top pad to table to start of array
         if(rowStart > 0) {
-            table.unshift([createCell('', 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
+            table.unshift([createCell(null, 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
         // add bottom pad to table to end of array
         if(botPad > 0) {
-            table.push([createCell('', 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
+            table.push([createCell(null, 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
         }
 
+        // create html array
         htmlArray = arrayClean([].concat(
-            // options.skipTitle ? [] : getTitle(table[0].length) || [],
-            // getFilterHtmlArray(table[0].length) || [],
+            options.skipTitle ? [] : getTitle(table[0].length) || [],
+            getFilterHtmlArray(table[0].length) || [],
             getTableHtml(table)
         ));
 
+        // turn html array into html string;
         return getHtml();
     };
 
