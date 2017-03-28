@@ -22,7 +22,7 @@ DimensionConfig = function() {
 
     // setter
     var setDimensions = function() {
-        dimensions = Object.assign(dimensions, {
+        dimensions = Ext.apply(dimensions, {
             data: {
                 value: 'data',
                 name: i18nManager.get('data') || 'Data',
