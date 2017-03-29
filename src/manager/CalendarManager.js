@@ -4,7 +4,7 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var CalendarManager;
 
-CalendarManager = function(config) {
+CalendarManager = function(refs, config) {
     var t = this;
 
     config = isObject(config) ? config : {};

@@ -6,7 +6,7 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var RequestManager;
 
-RequestManager = function(config) {
+RequestManager = function(refs, config) {
     var t = this;
 
     config = isObject(config) ? config : {};
