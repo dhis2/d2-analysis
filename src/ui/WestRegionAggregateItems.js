@@ -1549,7 +1549,7 @@ window.dss = dataSelectedStore;
             url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem|rename(id),name,valueType&paging=false'),
             disableCaching: false,
             success: function(r) {
-                var types = appManager.getValueTypesByType('aggregate'),
+                var types = dimensionConfig.valueType['aggregate_aggregatable_types'],
                     elements = Ext.decode(r.responseText).programDataElements.filter(function(item) {
                         return arrayContains(types, (item || {}).valueType);
                     });
