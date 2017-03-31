@@ -15,10 +15,18 @@ export default function({ layout, i18n }) {
         enableKeyEvents: true,
         currentValue: '',
         value: layout.name,
+        setEventChangeHandler: function (handler) {
+            this.eventChangeHandler = handler;
+        },
         setEventKeyUpHandler: function(handler) {
             this.eventKeyUpHandler = handler;
         },
         listeners: {
+            change: function (cmp, e) {
+                if (this.eventChangeHandler) {
+                    this.eventChangeHandler(cmp, e);
+                }
+            },
             keyup: function(cmp, e) {
                 if (e.keyCode === 13 && this.eventKeyUpHandler) {
                     this.eventKeyUpHandler(cmp, e);

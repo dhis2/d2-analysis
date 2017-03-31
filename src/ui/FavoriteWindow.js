@@ -216,15 +216,24 @@ FavoriteWindow = function(c, action) {
 
     saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
+        // DHIS2-1147: avoid server conflict error when name value is not set
+        disabled: true,
+        xable: function () {
+            this.setDisabled(! nameTextField.getValue());
+        },
         handler: function() {
             saveButtonHandler();
         }
     });
 
     saveButtonHandler = function() {
+        var name = nameTextField.getValue();
+
+        // DHIS2-1147: avoid submitting when no name is available
+        if (! name) { return; }
+
         var currentLayout = instanceManager.getStateCurrent(),
             id = instanceManager.getStateFavoriteId(),
-            name = nameTextField.getValue(),
             description = descriptionTextField.getValue();
 
         var record = favoriteStore.get('name', name);
@@ -630,6 +639,8 @@ FavoriteWindow = function(c, action) {
     });
 
     nameTextField.setEventKeyUpHandler(saveButtonHandler);
+    // DHIS2-1147: enable Save button on name value change
+    nameTextField.setEventChangeHandler(function () { saveButton.xable() });
 
     return favoriteWindow;
 };
