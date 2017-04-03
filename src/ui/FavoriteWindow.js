@@ -255,7 +255,7 @@ FavoriteWindow = function(c, action) {
             id: id,
             name: name,
             description: description
-        });
+        }, ['id', 'name', 'description']);
 
         if (record) {
             uiManager.confirmReplace(i18n.save_favorite, function() {

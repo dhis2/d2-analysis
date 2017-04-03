@@ -652,16 +652,20 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         uiManager.mask();
     }
 
-    instanceManager.getSharingById(t.id, function(sharing) {
+    // "Save as" mode, t.id is present, copy settings from original
+    if (t.id) {
+        instanceManager.getSharingById(t.id, function(sharing) {
+            // set sharing
+            if (isObject(sharing) && isObject(sharing.object)) {
+                t.setSharing(sharing.object);
+            }
+        });
+    }
+
         t.toPost();
 
-        // set sharing
-        if (isObject(sharing) && isObject(sharing.object)) {
-            t.setSharing(sharing.object);
-        }
-
         // post
-        var postRequest = new Request(refs, {
+        var postRequest = new refs.api.Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'POST',
@@ -684,7 +688,7 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         });
 
         postRequest.run();
-    });
+//    });
 };
 
 Layout.prototype.put = function(id, fn, doMask, doUnmask) {
@@ -713,7 +717,7 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
         }
 
         // put
-        var putRequest = new Request(refs, {
+        var putRequest = new refs.api.Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'PUT',
