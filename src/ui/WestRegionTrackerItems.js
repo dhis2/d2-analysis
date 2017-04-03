@@ -1642,7 +1642,7 @@ WestRegionTrackerItems = function(refs) {
                 ...selectedRecords,
                 ...uiManager.getByGroup('relativePeriod').filter(cmp => cmp.getValue()).map(cmp => ({id: cmp.relativePeriodId }))
             ];
-
+console.log("records", records);
             return records.length ? records : null;
         },
         getDimension: function() {
@@ -2957,8 +2957,7 @@ WestRegionTrackerItems = function(refs) {
             values = [],
             addAxisDimension,
             store,
-            data,
-            a;
+            data;
 
         config.program = program.getRecord();
         config.programStage = stage.getRecord();
@@ -3047,7 +3046,7 @@ WestRegionTrackerItems = function(refs) {
             data = store.snapshot || store.data;
 
             data.each(function(item) {
-                addAxisDimension(map[item.data.id] || [], columns);
+                addAxisDimension(map[item.data.id || item.data.dimensionName] || [], columns);
             });
         }
 
@@ -3058,7 +3057,7 @@ WestRegionTrackerItems = function(refs) {
             data = store.snapshot || store.data;
 
             data.each(function(item) {
-                addAxisDimension(map[item.data.id] || [], rows);
+                addAxisDimension(map[item.data.id || item.data.dimensionName] || [], rows);
             });
         }
 
@@ -3069,7 +3068,7 @@ WestRegionTrackerItems = function(refs) {
             data = store.snapshot || store.data;
 
             data.each(function(item) {
-                addAxisDimension(map[item.data.id] || [], filters);
+                addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
             });
         }
 
@@ -3080,7 +3079,7 @@ WestRegionTrackerItems = function(refs) {
             data = store.snapshot || store.data;
 
             data.each(function(item) {
-                addAxisDimension(map[item.data.id] || [], filters);
+                addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
             });
         }
 
