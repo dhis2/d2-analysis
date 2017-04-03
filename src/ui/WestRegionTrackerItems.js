@@ -2854,10 +2854,10 @@ WestRegionTrackerItems = function(refs) {
         data,
         period,
         organisationUnit,
-        ...appManager.dimensions.map(panel => {
-            var panel = uiManager.reg(getDimensionPanel(panel, 'ns-panel-title-dimension'), panel.dimension);
+        ...appManager.dimensions.map(dimension => {
+            var panel = getDimensionPanel(dimension, 'ns-panel-title-dimension');
 
-            accordionPanels.push(panel);
+            accordionPanels.push(uiManager.reg(panel, panel.dimension));
 
             return panel;
         })
