@@ -200,7 +200,9 @@ AppManager.prototype.getDisplayProperty = function() {
         return this.displayProperty;
     }
 
-    return this.displayProperty = this.displayPropertyMap[(this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
+    var keyAnalysisDisplayProperty = this.userAccount && this.userAccount.settings ? this.userAccount.settings.keyAnalysisDisplayProperty : null;
+
+    return this.displayProperty = this.displayPropertyMap[(keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
 };
 
 AppManager.prototype.getAnalyticsDisplayProperty = function() {
@@ -208,7 +210,9 @@ AppManager.prototype.getAnalyticsDisplayProperty = function() {
         return this.analyticsDisplayProperty;
     }
 
-    return this.analyticsDisplayProperty = (this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
+    var keyAnalysisDisplayProperty = this.userAccount && this.userAccount.settings ? this.userAccount.settings.keyAnalysisDisplayProperty : null;
+
+    return this.analyticsDisplayProperty = (keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
 };
 
 AppManager.prototype.getRootNodes = function() {

@@ -2,7 +2,7 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var Plugin;
 
-Plugin = function({ refs, renderFn, initializeFn }) {
+Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
     const t = this;
 
     // public properties
@@ -65,8 +65,8 @@ Plugin = function({ refs, renderFn, initializeFn }) {
         $.getJSON(appManager.getPath() + '/api/me/user-account.json').done(function (userAccount) {
             appManager.userAccount = userAccount;
 
-            requestManager.add(new Request(refs, init.legendSetsInit(refs)));
-            requestManager.add(new Request(refs, init.dimensionsInit(refs)));
+            // inits
+            inits.forEach(initFn => requestManager.add(new Request(refs, initFn(refs))));
 
             readyFn();
 
