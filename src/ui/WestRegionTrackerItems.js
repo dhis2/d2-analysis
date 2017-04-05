@@ -571,8 +571,8 @@ WestRegionTrackerItems = function(refs) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
+        iconCls: 'ns-button-icon-dataitemsearch',
         disabled: true,
-        style: 'background: url(./src/images/search_14.png) 3px 3px no-repeat',
         showFilter: function() {
             dataElementLabel.hide();
             this.hide();
@@ -665,7 +665,7 @@ WestRegionTrackerItems = function(refs) {
             }
             //{
                 //xtype: 'button',
-                //icon: './src/images/arrowdowndouble.png',
+                //iconCls: './src/images/arrowdowndouble.png',
                 //width: 22,
                 //height: 22,
                 //handler: function() {
