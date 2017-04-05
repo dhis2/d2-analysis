@@ -216,18 +216,26 @@ FavoriteWindow = function(c, action) {
 
     saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
+        // DHIS2-1147: avoid server conflict error when name value is not set
+        disabled: true,
+        xable: function () {
+            this.setDisabled(! nameTextField.getValue());
+        },
         handler: function() {
             saveButtonHandler();
         }
     });
 
     saveButtonHandler = function() {
+        var name = nameTextField.getValue();
+
+        // DHIS2-1147: avoid submitting when no name is available
+        if (! name) { return; }
+
         var currentLayout = instanceManager.getStateCurrent(),
             id = instanceManager.getStateFavoriteId(),
-            name = nameTextField.getValue(),
             description = descriptionTextField.getValue();
 
-        var record = favoriteStore.get('name', name);
 
         var preXhr = function() {
             favoriteWindow.destroy();
@@ -246,18 +254,29 @@ FavoriteWindow = function(c, action) {
             id: id,
             name: name,
             description: description
+        }, ['id', 'name', 'description']);
+
+        // search for a favorite with the same name
+        // and ask confirmation for replacing it
+        var request = new c.api.Request(c, {
+            baseUrl: `${apiPath}/${apiEndpoint}.json?fields=id&filter=displayName:eq:${name}`,
+            type: 'ajax',
+            method: 'GET',
+            success: function (obj, success, r) {
+                if (obj && obj.pager.total > 0 && obj[apiEndpoint].length) {
+                    uiManager.confirmReplace(i18n.save_favorite, function() {
+                        preXhr();
+                        currentLayout.clone().put(obj[apiEndpoint][0].id, fn, true, true);
+                    });
+                }
+                else {
+                    preXhr();
+                    currentLayout.clone().post(fn, true, true);
+                }
+            }
         });
 
-        if (record) {
-            uiManager.confirmReplace(i18n.save_favorite, function() {
-                preXhr();
-                currentLayout.clone().put(record.data.id, fn, true, true);
-            });
-        }
-        else {
-            preXhr();
-            currentLayout.clone().post(fn, true, true);
-        }
+        request.run();
     };
 
     prevButton = Ext.create('Ext.button.Button', {
@@ -630,6 +649,8 @@ FavoriteWindow = function(c, action) {
     });
 
     nameTextField.setEventKeyUpHandler(saveButtonHandler);
+    // DHIS2-1147: enable Save button on name value change
+    nameTextField.setEventChangeHandler(function () { saveButton.xable() });
 
     return favoriteWindow;
 };
