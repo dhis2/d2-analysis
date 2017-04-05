@@ -719,7 +719,7 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-window.dss = dataSelectedStore;
+
     var periodTypeStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: periodConfig.getPeriodTypeRecords()
