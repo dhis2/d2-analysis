@@ -654,7 +654,7 @@ WestRegionTrackerItems = function(refs) {
             '->',
             {
                 xtype: 'button',
-                icon: './src/images/arrowdown.png',
+                iconCls: 'ns-button-icon-arrowdown',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -662,18 +662,18 @@ WestRegionTrackerItems = function(refs) {
                         selectDataElements(dataElementAvailable.getValue());
                     }
                 }
-            },
-            {
-                xtype: 'button',
-                icon: './src/images/arrowdowndouble.png',
-                width: 22,
-                height: 22,
-                handler: function() {
-                    if (dataElementsByStageStore.getRange().length) {
-                        selectDataElements(dataElementsByStageStore.getRange());
-                    }
-                }
             }
+            //{
+                //xtype: 'button',
+                //icon: './src/images/arrowdowndouble.png',
+                //width: 22,
+                //height: 22,
+                //handler: function() {
+                    //if (dataElementsByStageStore.getRange().length) {
+                        //selectDataElements(dataElementsByStageStore.getRange());
+                    //}
+                //}
+            //}
         ],
         listeners: {
             afterrender: function(ms) {
@@ -701,7 +701,7 @@ WestRegionTrackerItems = function(refs) {
             '->',
             {
                 xtype: 'button',
-                icon: './src/images/arrowupdouble.png',
+                iconCls: 'ns-button-icon-arrowupdouble',
                 width: 22,
                 height: 22,
                 handler: function() {
@@ -1477,7 +1477,7 @@ WestRegionTrackerItems = function(refs) {
             '->',
             {
                 xtype: 'button',
-                icon: './src/images/arrowright.png',
+                iconCls: 'ns-button-icon-arrowright',
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1486,7 +1486,7 @@ WestRegionTrackerItems = function(refs) {
             },
             {
                 xtype: 'button',
-                icon: './src/images/arrowrightdouble.png',
+                iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
@@ -1517,7 +1517,7 @@ WestRegionTrackerItems = function(refs) {
             ' ',
             {
                 xtype: 'button',
-                icon: './src/images/arrowleftdouble.png',
+                iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1526,7 +1526,7 @@ WestRegionTrackerItems = function(refs) {
             },
             {
                 xtype: 'button',
-                icon: './src/images/arrowleft.png',
+                iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
@@ -1642,7 +1642,7 @@ WestRegionTrackerItems = function(refs) {
                 ...selectedRecords,
                 ...uiManager.getByGroup('relativePeriod').filter(cmp => cmp.getValue()).map(cmp => ({id: cmp.relativePeriodId }))
             ];
-console.log("records", records);
+
             return records.length ? records : null;
         },
         getDimension: function() {
@@ -2025,7 +2025,7 @@ console.log("records", records);
                     v.menu.add({
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
-                        icon: './src/images/node-select-child.png',
+                        iconCls: 'ns-button-icon-nodeselectchild',
                         handler: function() {
                             r.expand(false, function() {
                                 v.getSelectionModel().select(r.childNodes, true);
@@ -2380,7 +2380,7 @@ console.log("records", records);
                 items: [
                     toolPanel,
                     {
-                        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+                        width: accBaseWidth - 37,
                         layout: 'column',
                         bodyStyle: 'border:0 none',
                         items: [
