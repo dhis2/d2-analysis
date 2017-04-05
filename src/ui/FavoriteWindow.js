@@ -236,7 +236,6 @@ FavoriteWindow = function(c, action) {
             id = instanceManager.getStateFavoriteId(),
             description = descriptionTextField.getValue();
 
-        var record = favoriteStore.get('name', name);
 
         var preXhr = function() {
             favoriteWindow.destroy();
@@ -257,16 +256,27 @@ FavoriteWindow = function(c, action) {
             description: description
         }, ['id', 'name', 'description']);
 
-        if (record) {
-            uiManager.confirmReplace(i18n.save_favorite, function() {
-                preXhr();
-                currentLayout.clone().put(record.data.id, fn, true, true);
-            });
-        }
-        else {
-            preXhr();
-            currentLayout.clone().post(fn, true, true);
-        }
+        // search for a favorite with the same name
+        // and ask confirmation for replacing it
+        var request = new c.api.Request(c, {
+            baseUrl: `${apiPath}/${apiEndpoint}.json?fields=id&filter=displayName:eq:${name}`,
+            type: 'ajax',
+            method: 'GET',
+            success: function (obj, success, r) {
+                if (obj && obj.pager.total > 0 && obj[apiEndpoint].length) {
+                    uiManager.confirmReplace(i18n.save_favorite, function() {
+                        preXhr();
+                        currentLayout.clone().put(obj[apiEndpoint][0].id, fn, true, true);
+                    });
+                }
+                else {
+                    preXhr();
+                    currentLayout.clone().post(fn, true, true);
+                }
+            }
+        });
+
+        request.run();
     };
 
     prevButton = Ext.create('Ext.button.Button', {
