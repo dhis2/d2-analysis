@@ -571,7 +571,7 @@ WestRegionTrackerItems = function(refs) {
         width: 22,
         height: 22,
         cls: 'ns-button-icon',
-        iconCls: 'ns-button-icon-dataitemsearch',
+        iconCls: 'ns-button-icon-search',
         disabled: true,
         showFilter: function() {
             dataElementLabel.hide();
