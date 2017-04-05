@@ -2651,7 +2651,7 @@ WestRegionTrackerItems = function(refs) {
 
         available = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-left',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             store: availableStore,
@@ -2698,7 +2698,7 @@ WestRegionTrackerItems = function(refs) {
 
         selected = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-right',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             ddReorder: true,
