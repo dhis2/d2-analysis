@@ -1669,10 +1669,14 @@ WestRegionTrackerItems = function(refs) {
             period.resetRelativePeriods();
 
             if (!all) {
-                relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
+                uiManager.get(appManager.getRelativePeriod()).setValue(true);
             }
         },
         setDimension: function(layout) {
+            if (!layout) {
+                return;
+            }
+
             if (layout.startDate && layout.endDate) {
                 onPeriodModeSelect('dates');
                 startDate.setValue(layout.startDate);
@@ -2422,7 +2426,7 @@ WestRegionTrackerItems = function(refs) {
             getPanels;
 
         onSelect = function() {
-            var win = uiManager.get('layoutWindow');
+            var win = uiManager.get('viewport').getLayoutWindow();
 
             if (selectedStore.getRange().length || selectedAll.getValue()) {
                 win.addDimension({id: dimension.id, name: dimension.name});
@@ -2938,7 +2942,8 @@ WestRegionTrackerItems = function(refs) {
 
         //statusBar.setStatus(layout, response);
 
-        // set ui
+        accordion.clearDimensions(layout);
+
         setLayout(layout);
     };
 
