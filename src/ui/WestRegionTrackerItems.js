@@ -398,9 +398,9 @@ WestRegionTrackerItems = function(refs) {
                 url: [
                     appManager.getApiPath() + '/programs.json',
                     '?filter=id:eq:' + programId,
-                    '&fields=programStages[id,displayName|rename(name)]',
+                    '&fields=programStages[id,displayName~rename(name)]',
                     ',programIndicators[id,' + displayPropertyUrl + ']',
-                    ',programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName|rename(name)],legendSet[id,displayName|rename(name)]]]',
+                    ',programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSet[id,displayName~rename(name)]]]',
                     ',categoryCombo[id,' + displayPropertyUrl + ',categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]',
                     '&paging=false'
                 ].join(''),
@@ -533,7 +533,7 @@ WestRegionTrackerItems = function(refs) {
         }
         else {
             Ext.Ajax.request({
-                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName|rename(name)],legendSet|rename(storageLegendSet)[id,displayName|rename(name)]]]',
+                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName~rename(name)],legendSet~rename(storageLegendSet)[id,displayName~rename(name)]]]',
                 success: function(r) {
                     var objects = Ext.decode(r.responseText).programStages,
                         types = dimensionConfig.valueType['tracker_aggregatable_types'],
@@ -1877,7 +1877,7 @@ WestRegionTrackerItems = function(refs) {
                 format: 'json',
                 noCache: false,
                 extraParams: {
-                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
+                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty~rename(hasChildren)&paging=false'
                 },
                 url: appManager.getApiPath() + '/organisationUnits',
                 reader: {

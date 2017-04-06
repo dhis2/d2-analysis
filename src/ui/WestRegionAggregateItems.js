@@ -102,7 +102,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/indicators.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -175,7 +175,7 @@ WestRegionAggregateItems = function(c) {
         fields: ['id', 'name', 'index'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false'),
+            url: encodeURI(apiPath + '/indicatorGroups.json?fields=id,displayName~rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'indicatorGroups'
@@ -274,7 +274,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElements.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = '&filter=domainType:eq:AGGREGATE' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -312,7 +312,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElementOperands.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -446,7 +446,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataSets.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -619,7 +619,7 @@ WestRegionAggregateItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/programs.json?fields=id,displayName|rename(name)&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?fields=id,displayName~rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -1546,7 +1546,7 @@ WestRegionAggregateItems = function(c) {
         }
 
         Ext.Ajax.request({
-            url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem|rename(id),name,valueType&paging=false'),
+            url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem~rename(id),name,valueType&paging=false'),
             disableCaching: false,
             success: function(r) {
                 var types = dimensionConfig.valueType['aggregate_aggregatable_types'],
@@ -1555,7 +1555,7 @@ WestRegionAggregateItems = function(c) {
                     });
 
                 Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + displayPropertyUrl + '|rename(name),valueType]&paging=false'),
+                    url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem~rename(id),' + displayPropertyUrl + '~rename(name),valueType]&paging=false'),
                     disableCaching: false,
                     success: function(r) {
                         var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
@@ -1785,7 +1785,7 @@ WestRegionAggregateItems = function(c) {
         }
 
         Ext.Ajax.request({
-            url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + displayPropertyUrl + ']&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem~rename(id),' + displayPropertyUrl + ']&paging=false'),
             disableCaching: false,
             success: function(r) {
                 var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
@@ -2799,7 +2799,7 @@ WestRegionAggregateItems = function(c) {
                 format: 'json',
                 noCache: false,
                 extraParams: {
-                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
+                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty~rename(hasChildren)&paging=false'
                 },
                 url: apiPath + '/organisationUnits',
                 reader: {
