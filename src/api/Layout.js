@@ -546,7 +546,7 @@ Layout.prototype.sort = function(table) {
     var t = this,
         refs = t.getRefs();
 
-    var { Dimension, ResponseRowIdCombination } = refs.api;
+    var { Record, Dimension, ResponseRowIdCombination } = refs.api;
 
     var id = this.sorting.id,
         direction = this.sorting.direction,
@@ -579,10 +579,8 @@ Layout.prototype.sort = function(table) {
     arraySort(records, direction, 'sortingId');
 
     // dimension
-    dimension.items = records;
+    dimension.items = records.map(record => new Record(refs, record));
     dimension.sorted = true;
-
-    dimension = new Dimension(refs, dimension);
 
     this.sorting.id = id;
 };
