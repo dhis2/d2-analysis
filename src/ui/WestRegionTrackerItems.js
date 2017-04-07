@@ -176,7 +176,7 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var setLayout = function(layout) {
-        reset();
+        accordion.clearDimensions(layout);
 
         if (!layout) {
             return;
@@ -1665,8 +1665,11 @@ WestRegionTrackerItems = function(refs) {
         dimension: dimensionConfig.get('period').objectName,
         width: accBaseWidth,
         clearDimension: function(all) {
-            fixedPeriodSelectedStore.removeAll();
-            period.resetRelativePeriods();
+            this.resetFixedPeriods();
+            this.resetRelativePeriods();
+            this.resetStartEndDates();
+
+            periodMode.reset();
 
             if (!all) {
                 uiManager.get(appManager.getRelativePeriod()).setValue(true);
@@ -2225,13 +2228,20 @@ WestRegionTrackerItems = function(refs) {
         hideCollapseTool: true,
         dimension: dimensionConfig.get('organisationUnit').objectName,
         collapsed: false,
-        clearDimension: function(doClear) {
+        clearDimension: function(doClear, skipTree) {
             if (doClear) {
-                treePanel.reset();
+                toolMenu.clickHandler(toolMenu.menuValue);
+
+                if (!skipTree) {
+                    treePanel.reset();
+                }
 
                 userOrganisationUnit.setValue(false);
                 userOrganisationUnitChildren.setValue(false);
                 userOrganisationUnitGrandChildren.setValue(false);
+
+                organisationUnitLevel.clearValue();
+                organisationUnitGroup.clearValue();
             }
         },
         setDimension: function(layout) {
@@ -2897,39 +2907,6 @@ WestRegionTrackerItems = function(refs) {
 
     // functions
 
-    var reset = function(skipTree) {
-
-        // components
-        program.clearValue();
-        stage.clearValue();
-
-        dataElementsByStageStore.removeAll();
-        dataElementSelected.removeAll();
-
-        dataElementSearch.hideFilter();
-
-        period.reset();
-
-        toolMenu.clickHandler(toolMenu.menuValue);
-
-        if (!skipTree) {
-            treePanel.reset();
-        }
-
-        userOrganisationUnit.setValue(false);
-        userOrganisationUnitChildren.setValue(false);
-        userOrganisationUnitGrandChildren.setValue(false);
-
-        organisationUnitLevel.clearValue();
-        organisationUnitGroup.clearValue();
-
-        // layer options
-        //if (layer.labelWindow) {
-            //layer.labelWindow.destroy();
-            //layer.labelWindow = null;
-        //}
-    };
-
     var setUiState = function(layout, response) {
         //var statusBar = uiManager.get('statusBar');
 
@@ -2941,8 +2918,6 @@ WestRegionTrackerItems = function(refs) {
         //}
 
         //statusBar.setStatus(layout, response);
-
-        accordion.clearDimensions(layout);
 
         setLayout(layout);
     };
@@ -3188,7 +3163,6 @@ WestRegionTrackerItems = function(refs) {
         panels: accordionPanels,
         treePanel: treePanel,
 
-        reset: reset,
         getUiState: getUiState,
         setUiState: setUiState,
         onTypeClick: onTypeClick

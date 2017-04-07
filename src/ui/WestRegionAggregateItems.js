@@ -3862,25 +3862,6 @@ WestRegionAggregateItems = function(c) {
                 panel.setDimension(layout);
             });
         },
-        //setThisHeight: function(mx) {
-            //mx = mx || this.getExpandedPanel().getHeightValue();
-
-            //var settingsHeight = 41;
-
-            //var containerHeight = settingsHeight + (accordionBody.items.items.length * 28) + mx,
-                //accordionHeight = uiManager.get('westRegion').getHeight() - settingsHeight - uiConfig.west_fill,
-                //accordionBodyHeight;
-//console.log("containerHeight, accordionHeight", containerHeight, accordionHeight);
-            //if (uiManager.get('westRegion').hasScrollbar) {
-                //accordionBodyHeight = containerHeight - settingsHeight - uiConfig.west_fill;
-            //}
-            //else {
-                //accordionBodyHeight = (accordionHeight > containerHeight ? containerHeight : accordionHeight) - uiConfig.west_fill;
-            //}
-
-            //this.setHeight(accordionHeight);
-            //accordionBody.setHeight(accordionBodyHeight);
-        //},
         setThisHeight: function(mx) {
             var westRegion = uiManager.get('westRegion'),
                 panelHeight = this.panels.length * 28,
