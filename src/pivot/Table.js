@@ -911,7 +911,7 @@ Table = function(layout, response, colAxis, rowAxis) {
     };
 
     getHtml = function() {
-        var cls = 'pivot',
+        var cls = 'pivot user-select',
             table;
 
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
