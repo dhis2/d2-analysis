@@ -369,7 +369,13 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
             reqMap.data.done(function(res) {
                 res.metaData = md.metaData;
 
-                layout.setResponse(new Response(refs, res));
+                let response = new Response(refs, res);
+
+                if (layout.showHierarchy === true) {
+                    response.sortOrganizationUnitsHierarchy();
+                }
+
+                layout.setResponse(response);
 
                 _fn();
             });
