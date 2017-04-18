@@ -203,6 +203,41 @@ Response = function(refs, config) {
     };
 };
 
+Response.prototype.sortOrganizationUnitsHierarchy = function() {
+    let organizationUnits = this.metaData.dimensions.ou;
+
+    for (let i = 0; i < organizationUnits.length; ++i) {
+        let organizationUnit = organizationUnits[i],
+            hierarchyPrefix = this.metaData.ouHierarchy[organizationUnit],
+            hierarchyIds = [organizationUnit],
+            hierarchyNames = [];
+
+        hierarchyPrefix.split('/').reverse().forEach(ouId => {
+            hierarchyIds.unshift(ouId);
+        });
+
+        hierarchyIds.map(ouId => {
+            hierarchyNames.push(this.metaData.items[ouId].name);
+        });
+
+        organizationUnits[i] = {
+            id: organizationUnit,
+            fullName: hierarchyNames.join(' / ')
+        };
+    }
+
+    organizationUnits.sort((a, b) => {
+        if (a.fullName < b.fullName) return -1;
+        if (a.fullName > b.fullName) return 1;
+
+        return 0;
+    });
+
+    this.metaData.dimensions.ou = organizationUnits.map(ou => {
+        return ou.id;
+    });
+};
+
 Response.prototype.clone = function() {
     var t = this,
         refs = t.getRefs();
