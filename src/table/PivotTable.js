@@ -431,7 +431,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 for (var j = 0, obj, newObj; j < rowAxis.dims; j++) {
                     obj = rowAxis.objects.all[j][i];
                     obj.type = 'dimension';
-                    obj.cls = 'pivot-dim td-nobreak' + (layout.showHierarchy ? ' align-left' : '');
+                    obj.cls = 'pivot-dim td-nobreak' + (obj.isOrganizationUnit && layout.showHierarchy ? ' align-left' : '');
                     obj.noBreak = true;
                     obj.hidden = !(obj.rowSpan || obj.colSpan);
                     obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
