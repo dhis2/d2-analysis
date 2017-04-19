@@ -379,6 +379,10 @@ Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
 
+Response.prototype.getOrganizationUnitsIds = function() {
+    return this.metaData.dimensions.ou;
+};
+
 // dep 1
 
 Response.prototype.getHeaderNameByIndex = function(index) {
