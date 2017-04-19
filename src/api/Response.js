@@ -203,6 +203,36 @@ Response = function(refs, config) {
     };
 };
 
+Response.prototype.sortOrganisationUnitsHierarchy = function() {
+    let organisationUnits = this.metaData.dimensions.ou;
+
+    for (let i = 0; i < organisationUnits.length; ++i) {
+        let organisationUnit = organisationUnits[i],
+            hierarchyPrefix = this.metaData.ouHierarchy[organisationUnit],
+            hierarchyIds = [organisationUnit],
+            hierarchyNames = [];
+
+        hierarchyPrefix.split('/').reverse().forEach(ouId => {
+            hierarchyIds.unshift(ouId);
+        });
+
+        hierarchyIds.map(ouId => {
+            hierarchyNames.push(this.metaData.items[ouId].name);
+        });
+
+        organisationUnits[i] = {
+            id: organisationUnit,
+            fullName: hierarchyNames.join(' / ')
+        };
+    }
+
+    arraySort(organisationUnits, null, 'fullName');
+
+    this.metaData.dimensions.ou = organisationUnits.map(ou => {
+        return ou.id;
+    });
+};
+
 Response.prototype.clone = function() {
     var t = this,
         refs = t.getRefs();
@@ -242,7 +272,6 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
 
     if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
-        a.shift();
 
         a.forEach(function(id) {
             name += (isHtml ? '<span class="text-weak">' : '') + items[id].name + (isHtml ? '</span>' : '') + ' / ';
@@ -348,6 +377,10 @@ Response.prototype.printResponseCSV = function() {
 
 Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
+};
+
+Response.prototype.getOrganisationUnitsIds = function() {
+    return this.metaData.dimensions.ou;
 };
 
 // dep 1
