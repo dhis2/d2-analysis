@@ -162,7 +162,7 @@ PivotTableAxis = function(refs, layout, response, type) {
                 uuid: uuid(),
                 dim: i,
                 axis: type,
-                isOrganizationUnit: response.getOrganizationUnitsIds().find(ou => ou === aaAllFloorIds[i][j]) !== undefined
+                isOrganisationUnit: response.getOrganisationUnitsIds().find(ou => ou === aaAllFloorIds[i][j]) !== undefined
             };
 
             // leaf?

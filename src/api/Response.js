@@ -203,13 +203,13 @@ Response = function(refs, config) {
     };
 };
 
-Response.prototype.sortOrganizationUnitsHierarchy = function() {
-    let organizationUnits = this.metaData.dimensions.ou;
+Response.prototype.sortOrganisationUnitsHierarchy = function() {
+    let organisationUnits = this.metaData.dimensions.ou;
 
-    for (let i = 0; i < organizationUnits.length; ++i) {
-        let organizationUnit = organizationUnits[i],
-            hierarchyPrefix = this.metaData.ouHierarchy[organizationUnit],
-            hierarchyIds = [organizationUnit],
+    for (let i = 0; i < organisationUnits.length; ++i) {
+        let organisationUnit = organisationUnits[i],
+            hierarchyPrefix = this.metaData.ouHierarchy[organisationUnit],
+            hierarchyIds = [organisationUnit],
             hierarchyNames = [];
 
         hierarchyPrefix.split('/').reverse().forEach(ouId => {
@@ -220,15 +220,15 @@ Response.prototype.sortOrganizationUnitsHierarchy = function() {
             hierarchyNames.push(this.metaData.items[ouId].name);
         });
 
-        organizationUnits[i] = {
-            id: organizationUnit,
+        organisationUnits[i] = {
+            id: organisationUnit,
             fullName: hierarchyNames.join(' / ')
         };
     }
 
-    arraySort(organizationUnits, null, 'fullName');
+    arraySort(organisationUnits, null, 'fullName');
 
-    this.metaData.dimensions.ou = organizationUnits.map(ou => {
+    this.metaData.dimensions.ou = organisationUnits.map(ou => {
         return ou.id;
     });
 };
@@ -379,7 +379,7 @@ Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
 
-Response.prototype.getOrganizationUnitsIds = function() {
+Response.prototype.getOrganisationUnitsIds = function() {
     return this.metaData.dimensions.ou;
 };
 

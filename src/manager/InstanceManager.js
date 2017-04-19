@@ -372,7 +372,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
                 let response = new Response(refs, res);
 
                 if (layout.showHierarchy === true) {
-                    response.sortOrganizationUnitsHierarchy();
+                    response.sortOrganisationUnitsHierarchy();
                 }
 
                 layout.setResponse(response);
