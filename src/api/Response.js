@@ -272,7 +272,6 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
 
     if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
-        a.shift();
 
         a.forEach(function(id) {
             name += (isHtml ? '<span class="text-weak">' : '') + items[id].name + (isHtml ? '</span>' : '') + ' / ';
