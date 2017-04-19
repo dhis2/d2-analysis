@@ -533,7 +533,7 @@ WestRegionTrackerItems = function(refs) {
         }
         else {
             Ext.Ajax.request({
-                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName~rename(name)],legendSet~rename(storageLegendSet)[id,displayName~rename(name)]]]',
+                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                 success: function(r) {
                     var objects = Ext.decode(r.responseText).programStages,
                         types = dimensionConfig.valueType['tracker_aggregatable_types'],

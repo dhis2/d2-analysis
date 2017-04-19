@@ -1,6 +1,7 @@
 import arrayDifference from 'd2-utilizr/lib/arrayDifference';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
+import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 
@@ -304,18 +305,16 @@ DataElementIntegerContainer = function(refs) {
                             name: 'No range set'
                         });
 
-                        var de = container.dataElement;
+                        var legendSetRecords = container.dataElement.legendSets || container.dataElement.storageLegendSets;
 
-                        if (de.legendSet || de.storageLegendSet) {
-                            var id = de.legendSet ? de.legendSet.id : (de.storageLegendSet ? de.storageLegendSet.id : null),
-                                legendSet = appManager.getLegendSetById(id);
+                        if (isArray(legendSetRecords) && legendSetRecords.length) {
 
-                            if (isObject(legendSet)) {
-                                cb.store.add(legendSet);
+                            // add legendsets to store
+                            cb.store.add(legendSetRecords.map(record => appManager.getLegendSetById(record.id)).filter(legendSet => isObject(legendSet)));
 
-                                cb.setValue(legendSet.id);
-                                container.onRangeSetSelect(legendSet.id);
-                            }
+                            // select first legendset
+                            cb.setValue(legendSetRecords[0].id);
+                            container.onRangeSetSelect(legendSetRecords[0].id);
                         }
 
                         cb.setPendingValue();
