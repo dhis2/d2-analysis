@@ -172,7 +172,7 @@ Request.prototype.run = function(config) {
         return;
     }
 
-    if (this.type === 'json') {
+    if (t.type === 'json') {
         return $.getJSON(url, success).error(error).complete(complete);
     }
     else {

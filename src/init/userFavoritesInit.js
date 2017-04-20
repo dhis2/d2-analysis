@@ -8,7 +8,7 @@ userFavoritesInit = function(refs, pageSize = 10) {
         instanceManager = refs.instanceManager;
 
     var apiPath = appManager.getApiPath(),
-        username = appManager.userAccount.username,
+        username = appManager.userAccount.userCredentials.username,
         eventType = instanceManager.dataStatisticsEventType;
 
     return {

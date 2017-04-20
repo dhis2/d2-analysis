@@ -62,17 +62,24 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
         appManager.setAuth(t.username && t.password ? t.username + ':' + t.password : null);
 
         // user account
-        $.getJSON(appManager.getPath() + '/api/me/user-account.json').done(function (userAccount) {
-            appManager.userAccount = userAccount;
+        new Request(refs, {
+            baseUrl: appManager.getApiPath() + '/me.json',
+            type: 'json',
+            param: [
+                'fields=id,firstName,surname,userCredentials[username],settings'
+            ],
+            success: function (response) {
+                appManager.userAccount = response;
 
-            // inits
-            inits.forEach(initFn => requestManager.add(new Request(refs, initFn(refs))));
+                // inits
+                inits.forEach(initFn => requestManager.add(new Request(refs, initFn(refs))));
 
-            readyFn();
+                readyFn();
 
-            requestManager.set(runFn);
-            requestManager.run();
-        });
+                requestManager.set(runFn);
+                requestManager.run();
+            }
+        }).run();
     };
 };
 
