@@ -221,7 +221,7 @@ Viewport = function(refs, cmp, config) {
                     var dataValueSetXmlReq = layout.req('/analytics/dataValueSet', 'xml', null, null, true);
 
                     var items = [
-                        ...DownloadButtonItems(refs, layout),
+                        ...DownloadButtonItems(refs),
                         {
                             xtype: 'menuseparator'
                         },

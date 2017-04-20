@@ -1,12 +1,12 @@
 export var ChartDownloadButtonItems;
 
-ChartDownloadButtonItems = function(refs, filename) {
+ChartDownloadButtonItems = function(refs) {
     var uiManager = refs.uiManager,
         instanceManager = refs.instanceManager,
         i18n = refs.i18nManager.get();
 
     var getFilename = function() {
-        return filename || instanceManager.getStateFavoriteName() || instanceManager.getStateCurrent().title;
+        return instanceManager.getStateFavoriteName() || instanceManager.getStateCurrent().title || i18n.untitled;
     };
 
     return [
