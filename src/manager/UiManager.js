@@ -1,6 +1,7 @@
-import isString from 'd2-utilizr/lib/isString';
-import isObject from 'd2-utilizr/lib/isObject';
 import isArray from 'd2-utilizr/lib/isArray';
+import isFunction from 'd2-utilizr/lib/isFunction';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 import {ConfirmWindow} from '../ui/ConfirmWindow';
@@ -598,7 +599,7 @@ UiManager = function(refs) {
     };
 
     // svg
-    t.getSvg = function() {
+    t.getSvg = function() {
         var svg = Ext.query('svg');
 
         if (!(isArray(svg) && svg.length)) {
@@ -612,16 +613,18 @@ UiManager = function(refs) {
         return svg;
     };
 
-    t.submitSvgForm = function(type, filename) {
+    t.submitSvgForm = function(type, filename) {
         var form = Ext.query('#exportForm')[0];
-        var svg = this.getSvg();
+        var chart = this.get('chart');
 
-        if (!svg) {
+        var svg = chart && isFunction(chart.getSVGForExport) ? chart.getSVGForExport() : this.getSvg();
+
+        if (!svg) {
             return;
         }
 
         Ext.query('#svgField')[0].value = svg;
-        Ext.query('#filenameField')[0].value = filename || 'unsaved';
+        Ext.query('#filenameField')[0].value = filename || 'Untitled';
 
         form.action = t.appManager.getPath() + '/api/svg.' + type;
         form.submit();
