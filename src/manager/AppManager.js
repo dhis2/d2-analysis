@@ -155,6 +155,87 @@ AppManager = function(refs) {
     };
 };
 
+AppManager.prototype.init = function (callback) {
+    const t = this;
+
+    // manifest
+    const manifestReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: 'manifest.webapp',
+            type: 'json',
+            success: function (response) {
+                t.manifest = response;
+                t.env = process.env.NODE_ENV;
+                t.setAuth();
+                t.logVersion();
+
+                systemInfoReq();
+            }
+        }).run();
+    };
+
+    // system info
+    const systemInfoReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/system/info.json',
+            type: 'json',
+            success: function (response) {
+                t.systemInfo = response;
+                t.path = response.contextPath;
+
+                systemSettingsReq();
+            }
+        }).run();
+    };
+
+    // system settings
+    const systemSettingsReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/systemSettings.json',
+            type: 'json',
+            params: [
+                'key=keyCalendar',
+                'key=keyDateFormat',
+                'key=keyAnalysisRelativePeriod',
+                'key=keyHideUnapprovedDataInAnalytics',
+                'key=keyAnalysisDigitGroupSeparator',
+            ],
+            success: function (response) {
+                t.systemSettings = response;
+
+                userAccountReq();
+            }
+        }).run();
+    };
+
+    // user account
+    const userAccountReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/me.json',
+            type: 'json',
+            params: [
+                'fields=id,firstName,surname,userCredentials[username],settings',
+            ],
+            success: function (response) {
+                t.userAccount = response;
+
+                const calendarManager = t.refs.calendarManager;
+
+                calendarManager.setBaseUrl(t.getPath());
+                calendarManager.setDateFormat(t.getDateFormat());
+                calendarManager.init(t.systemSettings.keyCalendar);
+
+                // allow for other code to be executed after all the init stuff is done
+                if (callback) {
+                    callback();
+                }
+            }
+        }).run();
+    };
+
+    manifestReq();
+};
+
 AppManager.prototype.logVersion = function() {
     if (console && this.manifest && this.manifest.version) {
         var version = 'v' + this.manifest.version;
