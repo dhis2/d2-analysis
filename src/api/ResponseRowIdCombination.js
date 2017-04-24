@@ -24,6 +24,10 @@ ResponseRowIdCombination.prototype.get = function() {
     return this.ids.join('-');
 };
 
+ResponseRowIdCombination.prototype.getNames = function(response) {
+    return this.ids.map(id => response.getNameById(id));
+};
+
 ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
     return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
 };

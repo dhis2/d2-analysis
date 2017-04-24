@@ -4,7 +4,7 @@ import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
 
-import {ConfirmWindow} from '../ui/ConfirmWindow';
+import { ConfirmWindow } from '../ui/ConfirmWindow';
 
 export var UiManager;
 
@@ -492,6 +492,10 @@ UiManager = function(refs) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
+    };
+
+    t.confirmCustom = function(title, msg, btnText, fn) {
+        ConfirmWindow(refs, title, msg, btnText, fn).show();
     };
 
     // redirect

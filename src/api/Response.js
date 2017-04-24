@@ -6,8 +6,10 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
+import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
+import isNumber from 'd2-utilizr/lib/isNumber';
 import isNumeric from 'd2-utilizr/lib/isNumeric';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
@@ -491,6 +493,27 @@ Response.prototype.getTotal = function() {
     }
 
     return this.rows.reduce((total, row) => total + parseFloat(row[valueHeaderIndex]), 0);
+};
+
+Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
+    limit = isNumeric(limit) ? parseInt(limit) : 10;
+    isTop = isBoolean(isTop) ? isTop : true;
+    isBottom = isBoolean(isBottom) ? isBottom : true;
+
+    var valueHeaderIndex = this.getValueHeaderIndex();
+
+    var filteredRows = this.rows.filter(row => isNumeric(row[valueHeaderIndex]));
+
+    arraySort(filteredRows, 'DESC', valueHeaderIndex);
+
+    var len = filteredRows.length;
+
+    var limitedRows = [
+        ...(isTop ? filteredRows.slice(0, limit) : []),
+        ...(isBottom ? filteredRows.slice(len - limit, len) : [])
+    ];
+
+    return limitedRows;
 };
 
 // dep 4

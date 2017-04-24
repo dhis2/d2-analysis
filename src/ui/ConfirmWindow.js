@@ -1,14 +1,15 @@
 export var ConfirmWindow;
 
-ConfirmWindow = function(c, title, msg, btnText, fn) {
-    var i18n = c.i18nManager.get();
+ConfirmWindow = function(refs, title, msg, btnText, fn) {
+    var i18n = refs.i18nManager.get();
 
     var confirmButtonText = btnText || 'OK';
     var cancelButtonText = i18n.cancel || 'Cancel';
 
     var buttonBorderRadius = '2px';
-    var buttonWidth = 72;
+    var buttonWidth = btnText ? null : 72;
     var buttonHeight = 29;
+    var buttonTextPadding = '3px';
 
     var defaults = {
         bodyStyle: 'background:#fff; border:0 none'
@@ -18,7 +19,7 @@ ConfirmWindow = function(c, title, msg, btnText, fn) {
         xtype: 'button',
         width: buttonWidth,
         height: buttonHeight,
-        text: '<span style="color:#fff; font-weight:bold">' + confirmButtonText + '</span>',
+        text: '<span style="color:#fff; font-weight:bold; padding:0 ' + buttonTextPadding + ';">' + confirmButtonText + '</span>',
         style: 'border-color:#3079ed; background:#619dff; border-radius:' + buttonBorderRadius,
         handler: function() {
             fn && fn();
@@ -30,21 +31,21 @@ ConfirmWindow = function(c, title, msg, btnText, fn) {
         xtype: 'button',
         width: buttonWidth,
         height: buttonHeight,
-        text: '<span style="color:#555; font-weight:bold">' + cancelButtonText + '</span>',
+        text: '<span style="color:#555; font-weight:bold; padding:0 ' + buttonTextPadding + ';">' + cancelButtonText + '</span>',
         style: 'border-color:#ccc; border-radius:' + buttonBorderRadius,
         handler: function() {
             window.destroy();
         }
     });
 
-    var window = Ext.create('Ext.window.Window', {
+    var window = Ext.create('Ext.window.Window', {
         bodyStyle: 'background:#fff; padding:30px 60px 26px 42px',
-        defaults: defaults,
+        defaults: defaults,
         modal: true,
         preventHeader: true,
         resizable: false,
         closeable: false,
-        items: [
+        items: [
             {
                 html: title,
                 bodyStyle: 'padding:0; border:0 none; font-size:16px',
