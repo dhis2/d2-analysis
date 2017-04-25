@@ -972,11 +972,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     };
 
     combineTable = function(rowAxisComb, colAxisComb, values) {
-        const combinedTable = [];
+        const table = [];
         for (let i = 0; i < values.length; i++) {
-            combinedTable.push(rowAxisComb[i].concat(values[i]));
+            table.push(rowAxisComb[i].concat(values[i]));
         }
-        return colAxisComb.concat(combinedTable);
+        return colAxisComb.concat(table);
     };
 
     getTableHtml = function(combiTable) {
@@ -1035,16 +1035,20 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             return getHtml(htmlArray);
         }  
 
-        const rowEnd = Math.min(Math.floor((document.body.clientHeight / cellHeight) + rowStart), getTableRowSize()),
+        const rowEnd = Math.min(Math.floor((document.body.clientHeight / cellHeight) + rowStart), rowAxis.size,
               colEnd = Math.min(Math.floor((document.body.clientWidth / cellWidth) + colStart), colAxis.size),
               topPad = rowStart * cellHeight,
               botPad = (rowAxis.size - rowEnd) * cellHeight;
 
 
         // combine axes with value table
-        const table = combineTable(getRowAxisObjectArray(), getColAxisObjectArray(Math.max(0, colStart - rowAxis.dims), colEnd), getValueObjectArray(Math.max(0, colStart - rowAxis.dims), rowStart, colEnd, rowEnd));
-        // loop through each row of table
+        const table = combineTable(
+            getRowAxisObjectArray(),
+            getColAxisObjectArray(Math.max(0, colStart - rowAxis.dims), colEnd),
+            getValueObjectArray(Math.max(0, colStart - rowAxis.dims), rowStart, colEnd, rowEnd)
+        );
 
+        // loop through each row of table
         for(let i = 0, rightPad, leftPad; i < table.length; i++) {
             
             // define amount of right padding to simulate scrolling
