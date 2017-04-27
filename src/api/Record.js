@@ -36,7 +36,7 @@ Record.prototype.val = function(noError) {
 };
 
 Record.prototype.setName = function(name, response) {
-    this.name = name || (this.id && response ? response.getNameById(this.id) : null) || this.name;
+    this.name = name || this.name || (this.id && response ? response.getNameById(this.id) : null);
 };
 
 Record.prototype.toPlugin = function() {
