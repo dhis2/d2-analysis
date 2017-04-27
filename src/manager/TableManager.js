@@ -218,7 +218,7 @@ TableManager = function(c) {
 
                     layout.setResponse(null);
 
-                    instanceManager.getReport(layout, false, true, true);
+                    instanceManager.getReport(layout, false, false, true);
                 }
             });
         }
