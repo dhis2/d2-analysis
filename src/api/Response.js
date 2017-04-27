@@ -287,6 +287,10 @@ Response.prototype.getIdsByDimensionName = function(dimensionName) {
     return this.metaData.dimensions ? this.metaData.dimensions[dimensionName] || [] : [];
 };
 
+Response.prototype.addMetaDataItems = function(items) {
+    this.metaData.items = Object.assign(this.metaData.items, items)
+};
+
 Response.prototype.addOuHierarchyDimensions = function() {
     var t = this;
 

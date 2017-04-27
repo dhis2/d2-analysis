@@ -155,7 +155,7 @@ AppManager = function(refs) {
     };
 };
 
-AppManager.prototype.init = function (callback) {
+AppManager.prototype.init = function(callbackFn) {
     const t = this;
 
     // manifest
@@ -226,8 +226,8 @@ AppManager.prototype.init = function (callback) {
                 calendarManager.init(t.systemSettings.keyCalendar);
 
                 // allow for other code to be executed after all the init stuff is done
-                if (callback) {
-                    callback();
+                if (callbackFn) {
+                    callbackFn();
                 }
             }
         }).run();
