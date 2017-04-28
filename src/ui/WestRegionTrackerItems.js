@@ -200,7 +200,8 @@ WestRegionTrackerItems = function(refs) {
             aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
             queryLayoutWindow = uiManager.get('queryLayoutWindow'),
             aggOptionsWindow = uiManager.get('aggregateOptionsWindow'),
-            queryOptionsWindow = uiManager.get('queryOptionsWindow');
+            queryOptionsWindow = uiManager.get('queryOptionsWindow'),
+            chartTypeToolbar = uiManager.get('chartTypeToolbar');
 
         winMap[dimensionConfig.dataType['aggregated_values']] = aggOptionsWindow;
         winMap[dimensionConfig.dataType['individual_cases']] = queryOptionsWindow;
@@ -218,6 +219,12 @@ WestRegionTrackerItems = function(refs) {
 
         if (queryLayoutWindow) {
             queryLayoutWindow.reset();
+        }
+
+        if (chartTypeToolbar) {
+            chartTypeToolbar.reset();
+
+            chartTypeToolbar.setChartType(layout.type);
         }
 
         // data
