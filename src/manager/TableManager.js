@@ -137,46 +137,53 @@ TableManager = function(c) {
 
         const menuItems = [
             {
-                text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
-                iconCls: 'ns-button-icon-chart',
-                param: 'chart',
-                handler: function() {
-                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
-                },
-                listeners: {
-                    render: function() { //TODO
-                        this.getEl().on('mouseover', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
-                        });
+                text: 'Open selection as...',
+                iconCls: 'ns-menu-item-datasource',
+                menu: [
+                    {
+                        text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
+                        iconCls: 'ns-button-icon-chart',
+                        param: 'chart',
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() { //TODO
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
+                                });
 
-                        this.getEl().on('mouseout', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
-                        });
-                    }
-                }
-            },
-            {
-                text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
-                iconCls: 'ns-button-icon-map',
-                param: 'map',
-                disabled: true,
-                handler: function() {
-                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
-                },
-                listeners: {
-                    render: function() {
-                        this.getEl().on('mouseover', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
-                        });
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
+                                });
+                            }
+                        }
+                    },
+                    {
+                        text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
+                        iconCls: 'ns-button-icon-map',
+                        param: 'map',
+                        disabled: true,
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() {
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
+                                });
 
-                        this.getEl().on('mouseout', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
-                        });
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
+                                });
+                            }
+                        }
                     }
-                }
+                ]
             }
         ];
 
+        const periodMenuItems = [];
         const period = new Period({
             id: periodId,
             name: response.getNameById(periodId)
@@ -184,13 +191,13 @@ TableManager = function(c) {
 
         period.generateDisplayProperties();
 
-        let periodMenuItems = period.getContextMenuItemsConfig();
+        const periods = period.getContextMenuItemsConfig();
 
-        for (let i = 0, periodItem; i < periodMenuItems.length; ++i) {
-            periodItem = periodMenuItems[i];
+        for (let i = 0, periodItem; i < periods.length; ++i) {
+            periodItem = periods[i];
 
             if (periodItem.isSubtitle) {
-                menuItems.push({
+                periodMenuItems.push({
                     xtype: 'label',
                     html: periodItem.text,
                     style: periodItem.style
@@ -199,7 +206,7 @@ TableManager = function(c) {
                 continue;
             }
 
-            menuItems.push({
+            periodMenuItems.push({
                 text: periodItem.text,
                 iconCls: periodItem.iconCls,
                 peReqItems: periodItem.items,
@@ -222,6 +229,12 @@ TableManager = function(c) {
                 }
             });
         }
+
+        menuItems.push({
+            text: 'Period drill down...',
+            iconCls: 'ns-menu-item-datasource',
+            menu: periodMenuItems
+        });
 
 
         // menu
