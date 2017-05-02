@@ -2276,7 +2276,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + (getSuffix(periods) ? 'parent years' :  p.year) + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
