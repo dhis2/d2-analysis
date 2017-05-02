@@ -430,7 +430,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
             cell.uuid = generateUuid ? uuid() : null;
 
-            value = Math.max(0, value);
+            if(numeric) value = Math.max(0, value);
 
             cell.cls = cls;
             cell.value = value ? value : '';
@@ -525,8 +525,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     };
 
     getRowAxisObjectArray = function(rowStart=0, rowEnd, columnStart=0, columnEnd) {
-
-        // if(columnStart > rowAxis.dims) return [];
         
         rowStart = Math.max(0, rowStart - colAxis.dims);
         
@@ -553,7 +551,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 }
 
                 if(doColTotals() && y === getTableRowSize() - 1) {
-                    if (j === 0) rowAxisArray[i][j] = createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims - x, empty: true});
+                    if (j === 0) rowAxisArray[i][j] = createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims - x});
                     else         rowAxisArray[i][j] = createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - x, hidden: true})
                     continue;
                 }
@@ -575,8 +573,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     obj.rowSpan = obj.oldestSibling.rowSpan - ((doColSubTotals() ? y - Math.floor(y / (rowUniqueFactor + 1)) : y) % obj.oldestSibling.rowSpan);
                 }
 
-                // if(rowSpanCounter === maxRowSpan) obj.hidden = true;
-
                 if(obj.rowSpan && rowSpanCounter + obj.rowSpan > maxRowSpan && !obj.hidden) {
                     obj.rowSpan = Math.max(maxRowSpan - rowSpanCounter, 1);
                 }
@@ -591,7 +587,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return rowAxisArray;
     }
 
-    getColAxisObjectArray = function(columnStart=0, columnEnd, rowStart=0, rowEnd) {
+    getColAxisObjectArray = function(columnStart=0, columnEnd, rowStart=0) {
         if (!colAxis.type) return getDimensionColArray();
 
         const colAxisArray = new Array(colAxis.dims - Math.min(rowStart, colAxis.dims)),
@@ -601,9 +597,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
             colAxisArray[i] = new Array(columnStart < rowAxis.dims ? columnEnd + (rowAxis.dims - columnStart) : columnEnd + rowAxis.dims - columnStart);
 
-            if (layout.showDimensionLabels && columnStart === 0) {
-                colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i));
-            }
+            // if (layout.showDimensionLabels && columnStart === 0) {
+            //     colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i));
+            // }
             
             for (var j = 0, x = columnStart, colSpanCounter = 0, colPos, obj; j < colAxisArray[i].length; j++, x++) {
 
@@ -667,6 +663,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         const matrix = createMatrix(rows, columns);
         typeMatrix = createMatrix(rows, columns);
+        
+        console.log(matrix);
 
         for (var i = 0, rowShift=0; i < rowAxis.size; i++) {
             for (var j = 0, columnShift=0, rric, empty, value, responseValue; j < colAxis.size; j++) {
@@ -685,9 +683,9 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     value = 0;
                     empty = true;
                 }
-
-                if (doRowSubTotals() && i % rowUniqueFactor === 0 && i !== 0 && j === 0) rowShift += 1;
-                if (doColSubTotals() && j % colUniqueFactor === 0 && j !== 0) columnShift += 1;
+                
+                if (doColSubTotals() && i % rowUniqueFactor === 0 && i !== 0 && j === 0) rowShift += 1;
+                if (doRowSubTotals() && j % colUniqueFactor === 0 && j !== 0) columnShift += 1;
 
                 if(doColSubTotals() && doRowSubTotals()) {
                     matrix[i + rowShift + (rowUniqueFactor - (i % rowUniqueFactor))][j + columnShift + (colUniqueFactor - (j % colUniqueFactor))] += value;
@@ -801,7 +799,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 if (doSortableColumnHeaders()) {
                     totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[y]]);
-                    idValueMap[totalIdComb.get()] = emptyTotalRow ? null : cellCounter['totalRowAllCells' + x];
+                    // idValueMap[totalIdComb.get()] = false ? null : cellCounter['totalRowAllCells' + x];
                 }
 
                 table[i][j] = cell;
