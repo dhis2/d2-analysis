@@ -96,6 +96,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         currentEndColumn,
         currentStartRow,
         currentEndRow,
+        currentTable,
 
         // row axis
         rowUniqueFactor,
@@ -489,22 +490,21 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
     }
 
-    changeToColPercentage = function(valueTable) {
-        for(var i = 0; i < valueTable.rows.length; i++) {
-            for (var j = 0; j < valueTable.rows[i].values.length; j++) {
-                if(!valueTable.rows[i].values[j].empty) {
-                    valueTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((valueTable.rows[i].values[j].value / valueTable.columns[j].total) * 100) + '%';
+    changeToColPercentage = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!table[i][j].empty) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / valueMatrix[getTableRowSize() - 1][j]) * 100) + '%';
                 }
-                
             }
         }
     }
 
-    changeToRowPercentage = function(valueTable) {
-        for(var i = 0; i < valueTable.rows.length; i++) {
-            for (var j = 0; j < valueTable.rows[i].values.length; j++) {
-                if(!valueTable.rows[i].values[j].empty) {
-                    valueTable.rows[i].values[j].htmlValue = getRoundedHtmlValue((valueTable.rows[i].values[j].value / valueTable.rows[i].total) * 100) + '%';
+    changeToRowPercentage = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!table[i][j].empty) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / valueMatrix[i][getTableColumnSize() - 1]) * 100) + '%';
                 }    
             }
         }
@@ -713,17 +713,17 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 }
 
                 if(doRowTotals() && doColTotals()) {
-                    matrix[getTableRowSize() - 1][ getTableColumnSize() - 1] = value;
+                    matrix[getTableRowSize() - 1][ getTableColumnSize() - 1] += value;
                     typeMatrix[getTableRowSize() - 1][ getTableColumnSize() - 1] = 6;
                 }
 
                 if(doRowTotals()) {
-                    matrix[getTableRowSize() - 1][j + columnShift] = value;
+                    matrix[getTableRowSize() - 1][j + columnShift] += value;
                     typeMatrix[getTableRowSize() - 1][j + columnShift] = 5;
                 }
 
                 if(doColTotals()) {
-                    matrix[i + rowShift][getTableColumnSize() - 1] = value;
+                    matrix[i + rowShift][getTableColumnSize() - 1] += value;
                     typeMatrix[i + rowShift][getTableColumnSize() - 1] = 4;
                 }
 
@@ -808,15 +808,15 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        // // do row percentages
-        // if(doRowPercentage()) {
-        //     changeToRowPercentage(table);
-        // }
+        // do row percentages
+        if(doRowPercentage()) {
+            changeToRowPercentage(table);
+        }
 
-        // // do column percentages
-        // if(doColPercentage()) {
-        //     changeToColPercentage(table);
-        // }
+        // do column percentages
+        if(doColPercentage()) {
+            changeToColPercentage(table);
+        }
 
         // // hide empty columns
         // if(doHideEmptyColumns()) {
@@ -999,6 +999,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             // getFilterHtmlArray(table[0].length) || [],
             getTableHtml(table)
         ));
+
+        // currentTable = table;
 
         // turn html array into html string;
         return getHtml(htmlArray);
