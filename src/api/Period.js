@@ -1379,6 +1379,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1475,6 +1476,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Daily'
             });
 
@@ -1508,6 +1510,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1599,6 +1602,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Weekly'
             });
 
@@ -1617,6 +1621,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1644,6 +1649,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1738,6 +1744,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Monthly'
             });
 
@@ -1756,6 +1763,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1792,6 +1800,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1875,6 +1884,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Bi-monthly'
             });
 
@@ -1894,6 +1904,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1942,6 +1953,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2002,6 +2014,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Quarterly'
             });
 
@@ -2021,6 +2034,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2078,6 +2092,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2139,6 +2154,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'SixMonthly'
             });
 
@@ -2158,6 +2174,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2216,6 +2233,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2266,6 +2284,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'SixMonthly'
             });
 
@@ -2285,6 +2304,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2350,6 +2370,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2389,6 +2410,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Yearly'
             });
 
@@ -2401,6 +2423,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2482,6 +2505,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2510,6 +2534,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial October'
             });
 
@@ -2529,6 +2554,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2619,6 +2645,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2636,6 +2663,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial July'
             });
 
@@ -2655,6 +2683,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2754,6 +2783,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial April'
             });
 
@@ -2773,6 +2803,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 

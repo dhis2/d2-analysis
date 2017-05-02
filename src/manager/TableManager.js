@@ -231,7 +231,7 @@ TableManager = function(c) {
         }
 
         menuItems.push({
-            text: 'Period drill down...',
+            text: 'Period drill down/up...',
             iconCls: 'ns-menu-item-datasource',
             menu: periodMenuItems
         });
