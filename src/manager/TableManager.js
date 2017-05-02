@@ -92,6 +92,7 @@ TableManager = function(c) {
             path = appManager.getPath(),
             dom = document.getElementById(uuid),
             periodId = dom.getAttribute('data-period-id'),
+            i18n = layout.getRefs().i18nManager.get(),
             menu;
 
         var uuids = table.uuidDimUuidsMap[uuid];
@@ -137,11 +138,11 @@ TableManager = function(c) {
 
         const menuItems = [
             {
-                text: 'Open selection as...',
+                text: i18n.open_selection_as,
                 iconCls: 'ns-menu-item-datasource',
                 menu: [
                     {
-                        text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
+                        text: i18n.open_selection_as_chart,
                         iconCls: 'ns-button-icon-chart',
                         param: 'chart',
                         handler: function() {
@@ -160,7 +161,7 @@ TableManager = function(c) {
                         }
                     },
                     {
-                        text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
+                        text: i18n.open_selection_as_map,
                         iconCls: 'ns-button-icon-map',
                         param: 'map',
                         disabled: true,
@@ -231,7 +232,7 @@ TableManager = function(c) {
         }
 
         menuItems.push({
-            text: 'Period drill down/up...',
+            text: i18n.period_drill_down_up,
             iconCls: 'ns-menu-item-datasource',
             menu: periodMenuItems
         });
