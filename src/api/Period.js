@@ -1379,6 +1379,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1386,7 +1387,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('FinancialApril'),
-                    text: 'Show parent <span class="name">financial April</span>',
+                    text: 'Show <span class="name">financial April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1395,7 +1396,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('FinancialJuly'),
-                    text: 'Show parent <span class="name">financial July</span>',
+                    text: 'Show <span class="name">financial July ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1404,7 +1405,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('FinancialOct'),
-                    text: 'Show parent <span class="name">financial October</span>',
+                    text: 'Show <span class="name">financial October ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1413,7 +1414,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('Yearly'),
-                    text: 'Show parent <span class="name">year</span>',
+                    text: 'Show <span class="name">year ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1422,7 +1423,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('SixMonthlyApril'),
-                    text: 'Show parent <span class="name">six-month April</span>',
+                    text: 'Show <span class="name">six-month April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1431,7 +1432,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('SixMonthly'),
-                    text: 'Show parent <span class="name">six-month</span>',
+                    text: 'Show <span class="name">six-month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1440,7 +1441,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('Quarterly'),
-                    text: 'Show parent <span class="name">quarter</span>',
+                    text: 'Show <span class="name">quarter ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1449,7 +1450,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('BiMonthly'),
-                    text: 'Show parent <span class="name">bi-month</span>',
+                    text: 'Show <span class="name">bi-month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1458,7 +1459,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('Monthly'),
-                    text: 'Show parent <span class="name">month</span>',
+                    text: 'Show <span class="name">month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1467,7 +1468,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByDay('Weekly'),
-                    text: 'Show parent <span class="name">week</span>',
+                    text: 'Show <span class="name">week ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1475,6 +1476,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Daily'
             });
 
@@ -1508,6 +1510,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1515,7 +1518,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('FinancialApril'),
-                    text: 'Show parent <span class="name">financial April</span>',
+                    text: 'Show <span class="name">financial April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1524,7 +1527,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('FinancialJuly'),
-                    text: 'Show parent <span class="name">financial July</span>',
+                    text: 'Show <span class="name">financial July ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1535,7 +1538,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1544,7 +1547,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('Yearly'),
-                    text: 'Show parent <span class="name">year</span>',
+                    text: 'Show <span class="name">' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1553,7 +1556,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('SixMonthlyApril'),
-                    text: 'Show parent <span class="name">six-month April</span>',
+                    text: 'Show <span class="name">six-month April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1562,7 +1565,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('SixMonthly'),
-                    text: 'Show parent <span class="name">six-month</span>',
+                    text: 'Show <span class="name">six-month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1571,7 +1574,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('Quarterly'),
-                    text: 'Show parent <span class="name">quarter</span>',
+                    text: 'Show <span class="name">quarter ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1580,7 +1583,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('BiMonthly'),
-                    text: 'Show parent <span class="name">bi-month</span>',
+                    text: 'Show <span class="name">bi-month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1591,7 +1594,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">month' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">month' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1599,6 +1602,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Weekly'
             });
 
@@ -1617,6 +1621,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1644,6 +1649,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1653,7 +1659,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1664,7 +1670,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial July' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1675,7 +1681,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1686,7 +1692,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">year' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">year' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1697,7 +1703,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">six-month April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">six-month April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1708,7 +1714,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">six-month' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">six-month' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1719,7 +1725,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">quarter' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">quarter' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1730,7 +1736,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">bi-month' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">bi-month' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1738,6 +1744,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Monthly'
             });
 
@@ -1756,6 +1763,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1792,6 +1800,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1801,7 +1810,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1812,7 +1821,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial July' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1823,7 +1832,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1834,7 +1843,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">year' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1845,7 +1854,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">six-month April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">six-month April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1856,7 +1865,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">six-month' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">six-month' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1867,7 +1876,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">quarter' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">quarter' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1875,6 +1884,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Bi-monthly'
             });
 
@@ -1894,6 +1904,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -1942,6 +1953,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -1949,7 +1961,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('FinancialApril'),
-                    text: 'Show parent <span class="name">financial April</span>',
+                    text: 'Show <span class="name">financial April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1958,7 +1970,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('FinancialJuly'),
-                    text: 'Show parent <span class="name">financial July</span>',
+                    text: 'Show <span class="name">financial July ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1967,7 +1979,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('FinancialOct'),
-                    text: 'Show parent <span class="name">financial October</span>',
+                    text: 'Show <span class="name">financial October ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1976,7 +1988,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('Yearly'),
-                    text: 'Show parent <span class="name">year</span>',
+                    text: 'Show <span class="name">' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1985,7 +1997,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('SixMonthlyApril'),
-                    text: 'Show parent <span class="name">six-month April</span>',
+                    text: 'Show <span class="name">six-month April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1994,7 +2006,7 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByQuarter('SixMonthly'),
-                    text: 'Show parent <span class="name">six-month</span>',
+                    text: 'Show <span class="name">six-month ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2002,6 +2014,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Quarterly'
             });
 
@@ -2021,6 +2034,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2078,6 +2092,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2087,7 +2102,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April</span>',
+                    text: 'Show <span class="name">financial April ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2098,7 +2113,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July</span>',
+                    text: 'Show <span class="name">financial July ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2109,7 +2124,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2120,7 +2135,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">year' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">year' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2131,7 +2146,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">six-month April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">six-month April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2139,6 +2154,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'SixMonthly'
             });
 
@@ -2158,6 +2174,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2216,6 +2233,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2225,7 +2243,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April</span>',
+                    text: 'Show <span class="name">financial Apri ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2236,7 +2254,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial July' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2247,7 +2265,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2258,7 +2276,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">year' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">' + (getSuffix(periods) ? 'parent years' :  p.year) + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2266,6 +2284,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'SixMonthly'
             });
 
@@ -2285,6 +2304,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2350,6 +2370,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2359,7 +2380,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2370,7 +2391,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial July' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2381,7 +2402,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial October' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2389,6 +2410,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Yearly'
             });
 
@@ -2401,6 +2423,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2482,6 +2505,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2491,7 +2515,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2502,7 +2526,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial July' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial July' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2510,6 +2534,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial October'
             });
 
@@ -2529,6 +2554,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2619,6 +2645,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill up
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill up'
             });
 
@@ -2628,7 +2655,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show parent <span class="name">financial April' + getSuffix(periods) + '</span>',
+                    text: 'Show <span class="name">financial April' + getSuffix(periods) + ' ' + p.year + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2636,6 +2663,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial July'
             });
 
@@ -2655,6 +2683,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
@@ -2754,6 +2783,7 @@ Period.prototype.generateDisplayProperties = function() {
             // same level
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Financial April'
             });
 
@@ -2773,6 +2803,7 @@ Period.prototype.generateDisplayProperties = function() {
             // drill down
             items.push({
                 isSubtitle: true,
+                style: 'padding: 5px 5px 5px 10px; font-size: 110%; font-weight:bold',
                 text: 'Drill down'
             });
 
