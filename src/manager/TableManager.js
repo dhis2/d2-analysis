@@ -92,6 +92,7 @@ TableManager = function(c) {
             path = appManager.getPath(),
             dom = document.getElementById(uuid),
             periodId = dom.getAttribute('data-period-id'),
+            i18n = layout.getRefs().i18nManager.get(),
             menu;
 
         var uuids = table.uuidDimUuidsMap[uuid];
@@ -137,46 +138,53 @@ TableManager = function(c) {
 
         const menuItems = [
             {
-                text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
-                iconCls: 'ns-button-icon-chart',
-                param: 'chart',
-                handler: function() {
-                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
-                },
-                listeners: {
-                    render: function() { //TODO
-                        this.getEl().on('mouseover', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
-                        });
+                text: i18n.open_selection_as,
+                iconCls: 'ns-menu-item-datasource',
+                menu: [
+                    {
+                        text: i18n.open_selection_as_chart,
+                        iconCls: 'ns-button-icon-chart',
+                        param: 'chart',
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() { //TODO
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
+                                });
 
-                        this.getEl().on('mouseout', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
-                        });
-                    }
-                }
-            },
-            {
-                text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
-                iconCls: 'ns-button-icon-map',
-                param: 'map',
-                disabled: true,
-                handler: function() {
-                    sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
-                },
-                listeners: {
-                    render: function() {
-                        this.getEl().on('mouseover', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
-                        });
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
+                                });
+                            }
+                        }
+                    },
+                    {
+                        text: i18n.open_selection_as_map,
+                        iconCls: 'ns-button-icon-map',
+                        param: 'map',
+                        disabled: true,
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() {
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
+                                });
 
-                        this.getEl().on('mouseout', function() {
-                            onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
-                        });
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
+                                });
+                            }
+                        }
                     }
-                }
+                ]
             }
         ];
 
+        const periodMenuItems = [];
         const period = new Period({
             id: periodId,
             name: response.getNameById(periodId)
@@ -184,13 +192,13 @@ TableManager = function(c) {
 
         period.generateDisplayProperties();
 
-        let periodMenuItems = period.getContextMenuItemsConfig();
+        const periods = period.getContextMenuItemsConfig();
 
-        for (let i = 0, periodItem; i < periodMenuItems.length; ++i) {
-            periodItem = periodMenuItems[i];
+        for (let i = 0, periodItem; i < periods.length; ++i) {
+            periodItem = periods[i];
 
             if (periodItem.isSubtitle) {
-                menuItems.push({
+                periodMenuItems.push({
                     xtype: 'label',
                     html: periodItem.text,
                     style: periodItem.style
@@ -199,17 +207,14 @@ TableManager = function(c) {
                 continue;
             }
 
-            menuItems.push({
+            periodMenuItems.push({
                 text: periodItem.text,
                 iconCls: periodItem.iconCls,
                 peReqItems: periodItem.items,
                 handler: function() {
-                    let layout = instanceManager.getStateCurrent();
-
-                    var peDimension = new Dimension(layout.getRefs(), {
-                        dimension: 'pe',
-                        items: this.peReqItems
-                    });
+                    const layout = instanceManager.getStateCurrent();
+                    const uiManager = layout.getRefs().uiManager;
+                    const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
 
                     if (layout.isPeriodInRows()) {
                         layout.rows.replaceDimensionByName('pe', peDimension);
@@ -217,11 +222,20 @@ TableManager = function(c) {
                         layout.columns.replaceDimensionByName('pe', peDimension);
                     }
 
+                    uiManager.get('westRegion').setState(layout);
+
                     layout.setResponse(null);
-                    instanceManager.getReport(layout, false, true, true);
+
+                    instanceManager.getReport(layout, false, false, true);
                 }
             });
         }
+
+        menuItems.push({
+            text: i18n.period_drill_down_up,
+            iconCls: 'ns-menu-item-datasource',
+            menu: periodMenuItems
+        });
 
 
         // menu
