@@ -14,4 +14,4 @@ export {
     ShowValuesCheckbox
 };
 
-export default ShowValuesCheckbox
+export default ShowValuesCheckbox;

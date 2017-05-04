@@ -28,4 +28,4 @@ export {
     AggregationTypeSelect
 };
 
-export default AggregationTypeSelect
+export default AggregationTypeSelect;

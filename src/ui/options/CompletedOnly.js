@@ -13,4 +13,4 @@ export {
     CompletedOnlyCheckbox
 };
 
-export default CompletedOnlyCheckbox
+export default CompletedOnlyCheckbox;

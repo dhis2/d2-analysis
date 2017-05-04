@@ -91,4 +91,4 @@ export {
     AxisContainer
 };
 
-export default AxisContainer
+export default AxisContainer;

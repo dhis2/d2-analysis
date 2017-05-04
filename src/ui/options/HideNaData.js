@@ -13,4 +13,4 @@ export {
     HideNaDataCheckbox
 };
 
-export default HideNaDataCheckbox
+export default HideNaDataCheckbox;

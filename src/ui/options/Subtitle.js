@@ -42,4 +42,4 @@ export {
     SubtitleContainer
 };
 
-export default SubtitleContainer
+export default SubtitleContainer;

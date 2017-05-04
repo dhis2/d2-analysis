@@ -13,4 +13,4 @@ export {
     CumulativeValuesCheckbox
 };
 
-export default CumulativeValuesCheckbox
+export default CumulativeValuesCheckbox;

@@ -49,4 +49,4 @@ export {
     TargetLineContainer
 };
 
-export default TargetLineContainer
+export default TargetLineContainer;

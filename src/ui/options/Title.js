@@ -5,7 +5,8 @@ const TitleContainer = function (refs) {
 
     const container = Ext.create('Ext.container.Container', {
         layout: 'column',
-        bodyStyle: 'border:0 none; padding-bottom:1px',
+        style: 'margin-bottom:1px',
+        bodyStyle: 'border:0 none',
     });
 
     container.hideTitleCheckbox = Ext.create('Ext.form.field.Checkbox', {
@@ -42,4 +43,4 @@ export {
     TitleContainer
 };
 
-export default TitleContainer
+export default TitleContainer;

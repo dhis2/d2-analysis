@@ -30,4 +30,4 @@ export {
     SortOrderSelect
 };
 
-export default SortOrderSelect
+export default SortOrderSelect;

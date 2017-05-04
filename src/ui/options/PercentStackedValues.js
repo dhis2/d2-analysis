@@ -13,4 +13,4 @@ export {
     PercentStackedValuesCheckbox
 };
 
-export default PercentStackedValuesCheckbox
+export default PercentStackedValuesCheckbox;

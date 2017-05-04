@@ -32,4 +32,4 @@ export {
     HideEmptyRowItemsSelect
 };
 
-export default HideEmptyRowItemsSelect
+export default HideEmptyRowItemsSelect;

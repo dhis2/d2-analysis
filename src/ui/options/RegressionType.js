@@ -29,4 +29,4 @@ export {
     RegressionTypeSelect
 };
 
-export default RegressionTypeSelect
+export default RegressionTypeSelect;

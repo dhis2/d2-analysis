@@ -13,4 +13,4 @@ export {
     HideLegendCheckbox
 };
 
-export default HideLegendCheckbox
+export default HideLegendCheckbox;
