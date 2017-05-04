@@ -3718,6 +3718,18 @@ WestRegionAggregateItems = function(c) {
 
             this.toBeRemoved = [];
         },
+        getExpandedPanel: function() {
+            var expandedPanel;
+
+            this.items.each(function(panel) {
+                if (!panel.collapsed) {
+                    expandedPanel = panel;
+                    return false;
+                }
+            });
+
+            return expandedPanel;
+        },
         items: defaultItems
     });
 
@@ -3881,13 +3893,7 @@ WestRegionAggregateItems = function(c) {
             }
         },
         getExpandedPanel: function() {
-            for (var i = 0, panel; i < this.panels.length; i++) {
-                if (!this.panels[i].collapsed) {
-                    return this.panels[i];
-                }
-            }
-
-            return null;
+            return accordionBody.getExpandedPanel();
         },
         getFirstPanel: function() {
             return this.panels[0];

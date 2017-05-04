@@ -374,9 +374,9 @@ WestRegionTrackerItems = function(refs) {
             return cats;
         };
 
-        load = function(stages, categories) {
+        load = function(stages, categories, categoryOptionGroupSets) {
             var stageId;
-
+console.log("categories", categories);
             // categories
             if (categories) {
                 accordionBody.addItems(categories);
@@ -2909,6 +2909,18 @@ WestRegionTrackerItems = function(refs) {
 
             this.toBeRemoved = [];
         },
+        getExpandedPanel: function() {
+            var expandedPanel;
+
+            this.items.each(function(panel) {
+                if (!panel.collapsed) {
+                    expandedPanel = panel;
+                    return false;
+                }
+            });
+
+            return expandedPanel;
+        },
         items: defaultItems
     });
 
@@ -3148,13 +3160,7 @@ WestRegionTrackerItems = function(refs) {
             accordionBody.setHeight(accordionBodyHeight);
         },
         getExpandedPanel: function() {
-            for (var i = 0, panel; i < this.panels.length; i++) {
-                if (!this.panels[i].collapsed) {
-                    return this.panels[i];
-                }
-            }
-
-            return null;
+            return accordionBody.getExpandedPanel();
         },
         getFirstPanel: function() {
             return this.panels[0];
