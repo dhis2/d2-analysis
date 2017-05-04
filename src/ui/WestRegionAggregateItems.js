@@ -3705,16 +3705,16 @@ WestRegionAggregateItems = function(c) {
         height: 700,
         toBeRemoved: [],
         addItems: function(dimensions) {
-            this.removeItems();
-            this.add(getItems(dimensions));
-            this.toBeRemoved = dimensions.map(dimension => dimension.itemId);
+            this.toBeRemoved = this.add(getItems(dimensions));
 
             accordion.setThisHeight();
         },
         removeItems: function() {
-            this.toBeRemoved.forEach(id => {
+            this.toBeRemoved.map(item => isString(item) ? item : item.id).forEach(id => {
                 accordionBody.remove(id);
             });
+
+            accordion.setThisHeight();
 
             this.toBeRemoved = [];
         },
