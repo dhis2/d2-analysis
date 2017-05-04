@@ -4207,11 +4207,14 @@ Viewport = function(refs, cmp) {
                 }
             });
         },
-        setSidePanelsUIState: function(interpretationId){
+        setSidePanelsUIState: function(favoriteId, interpretationId){
             // If there is an interpretation loaded, collapse left panel and expand right panel
             if (interpretationId){
                 eastRegionButton.toggleCollapsePanel();
                 westRegionButton.toggleCollapsePanel();
+                if (favoriteId && interpretationId == "new") {
+                    eastRegion.openInterpretationWindow(favoriteId);
+                }
             }
         },
         tbar: {
@@ -4445,7 +4448,7 @@ Viewport = function(refs, cmp) {
                     layout;
 
                 if (id) {
-                    if (interpretationId) {
+                    if (interpretationId && interpretationId != "new") {
                         instanceManager.getById(id, function(layout) {
                             instanceManager.getInterpretationById(interpretationId, function(interpretation) {
                                 uiManager.updateInterpretation(interpretation, layout);
@@ -4465,7 +4468,7 @@ Viewport = function(refs, cmp) {
                 }
 
                 // Show/Collapse right and left panel
-                centerRegion.setSidePanelsUIState(interpretationId);
+                centerRegion.setSidePanelsUIState(id, interpretationId);
 
                 var initEl = document.getElementById('init');
                 initEl.parentNode.removeChild(initEl);
