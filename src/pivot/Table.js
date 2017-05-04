@@ -701,9 +701,12 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 obj.height = doDynamicTableUpdate() ? cellHeight : null,
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
 
+                if(j === 0 && i === 0) console.log(colPos, obj);
+
+
                 if(obj.hidden && Math.max(0, x - rowAxis.dims) === Math.max(0, columnStart - rowAxis.dims)) {
                     obj.hidden = false;
-                    obj.colSpan = obj.oldestSibling.colSpan - (Math.max(0, x - rowAxis.dims) % obj.oldestSibling.colSpan);
+                    obj.colSpan = obj.oldestSibling.colSpan - ((doColSubTotals() ? Math.max(0, x - rowAxis.dims) -  Math.floor(Math.max(0, x - rowAxis.dims) / (colUniqueFactor + 1)) : Math.max(0, x - rowAxis.dims)) % obj.oldestSibling.colSpan);
                 }
 
                 if(colSpanCounter === maxColSpan) obj.hidden = true;
@@ -906,6 +909,18 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return html;
     };
 
+
+
+
+
+
+
+
+
+
+
+
+
     const getSingleRowAxisRow = function(y, columnStart) {
         const row = [];
         for(var i = 0, x = columnStart, rowPos, obj; x < rowAxis.dims; i++, x++) {
@@ -993,9 +1008,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }
 
     const deleteColumn = function(table, index) {
-        for(var i = 0; i < table.length; i++) {
-            table[i].splice(index, 1);
-        }
+        for (var i = 1; i < table.length - 1; i++) table[i].splice(index, 1);
     }
 
     const insertRow = function(table, item, index) {
@@ -1003,118 +1016,100 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }
 
     const insertColumn = function(table, item, index) {
-        for(var i = 0; i < table.length; i++) {
-            if(item[i]) table[i].splice(index, 0, item[i][0]);
+        for (var i = 0; i < table.length - 2; i++) {
+            table[i + 1].splice(index, 0, item[i][0]);
         }
     }
 
-    //TODO: Implement helper functions
-    const appendColumn      = function() {};
-    const prependColumn     = function() { };
-    const appendRow         = function() { };
-    const preprendRow       = function() { };
+    const getTableRow = function(columnStart, columnEnd, rowIndex) {
 
-    const getTableRow = function(columnStart, columnEnd, rowStart) {
-        if (rowStart < colAxis.dims) return getColAxisObjectArray(columnStart, columnEnd, rowStart)[0];
-        const row = [];
-        if (columnStart < rowAxis.dims) row.concat(getSingleRowAxisRow(rowStart, columnStart));
-        return row.concat(getValueObjectRow(currentRowStart - rowAxis.dims, 0, currentColumnEnd));
+        let includeRowAxis = columnStart < rowAxis.dims,
+            paddingLeft = createCell(null, 'pivot-padding', 'padding', {width: columnStart * cellWidth, hidden: columnStart <= 0}),
+            paddingRight = createCell(null, 'pivot-padding', 'padding', {width: (colAxis.size - columnEnd) * cellWidth, hidden: (colAxis.size - columnEnd) * cellWidth <= 0}); 
+
+        rowIndex = Math.max(0, rowIndex - colAxis.dims);
+        columnStart = Math.max(0, columnStart - rowAxis.dims);
+        // columnEnd = Math.max(0, columnEnd + rowAxis.dims);
+
+        if (rowIndex < colAxis.dims) return getColAxisObjectArray(columnStart, columnEnd, rowIndex)[0];
+        let row = [paddingLeft];
+        if (includeRowAxis) row = row.concat(getSingleRowAxisRow(rowIndex, columnStart));
+        row = row.concat(getValueObjectRow(rowIndex, columnStart, columnEnd - columnStart));
+        row.push(paddingRight);
+        return row;
     };
 
-    const getTableColumn = function(columnStart, columnEnd, rowStart, rowEnd) {
-        if (colStart < rowAxis.dims) return getColAxisObjectArray(columnStart, columnEnd, rowStart)[0];
-        const column = [];
-        if (rowStart < colAxis.dims) column.concat()
-        return column.concat();
-    };
+    const getTableColumn = function(rowStart, rowEnd, columnIndex) { 
+        rowStart = Math.max(0, rowStart - colAxis.dims);
+        columnIndex = Math.max(0, columnIndex - 1);
+        // rowEnd = Math.max(0, rowEnd + colAxis.dims);
 
+        if (columnIndex < rowAxis.dims) return getColAxisObjectArray(columnIndex, 0, rowStart).concat(getRowAxisObjectArray(rowStart, rowEnd, columnIndex));
+        let column = [];
+        if (rowStart < colAxis.dims) column = column.concat(getColumnAxisColumn(rowStart, columnIndex));
+        column = column.concat(getValueObjectColumn(rowStart, columnIndex, rowEnd - rowStart));
+        return column;
+    };
 
     const updateTable = function(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd) {
-
-        if(currentColumnStart === 0) for(var i = 0; i < table[1].length; i++) table[i][0].hidden = true;
-        if(currentRowStart === 0) currentTable[0][0].hidden = true;
-
-        // row axis column comes into view from the left
-        if(previousColumnStart > currentColumnStart && currentColumnStart < colAxis.dims) {
-            insertColumn(
-                currentTable,
-                getColAxisObjectArray(currentColumnStart, 0, currentRowStart).concat(getRowAxisObjectArray(currentRowStart, currentRowEnd, currentColumnStart)),
-                tableColStart
-            );
-        }
-
-        // column goes out of view from the right
-        if(previousColumnEnd > currentColumnEnd) {
-            deleteColumn(currentTable, tableColEnd);
-        }
-
+        // console.log(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
         // value column comes into view from the left
-        if(previousColumnStart > currentColumnStart  && currentColumnStart >= colAxis.dims) {
-            insertColumn(
-                currentTable,
-                getColumnAxisColumn(currentRowStart, currentColumnStart).concat(getValueObjectColumn(Math.max(0, currentRowStart - colAxis.dims), Math.max(currentColumnEnd - rowAxis.dims), currentRowEnd - Math.max(0, currentRowStart - colAxis.dims))),
-                tableColStart
-            );
+        if (previousColumnStart > currentColumnStart) {
+            // console.log(1)
+            insertColumn(currentTable, getTableColumn(currentRowStart, currentRowEnd, currentColumnStart), 1);
         }
 
         // column goes out of view from the left
-        if(previousColumnStart < currentColumnStart) {
-            deleteColumn(currentTable, tableColStart);
+        if (previousColumnStart < currentColumnStart) {
+            // console.log(2)
+            deleteColumn(currentTable, 1);
         } 
-
+        
         // value column comes into view from the right
-        if(previousColumnEnd < currentColumnEnd) {
-            insertColumn(
-                currentTable,
-                getColumnAxisColumn(currentRowStart, currentColumnEnd).concat(getValueObjectColumn(Math.max(0, currentRowStart - colAxis.dims), Math.max(currentColumnEnd - rowAxis.dims), currentRowEnd - Math.max(0, currentRowStart - colAxis.dims))),
-                tableColEnd
-            );
+        if (previousColumnEnd < currentColumnEnd) {
+            // console.log(3)
+            insertColumn(currentTable, getTableColumn(currentRowStart, currentRowEnd, currentColumnEnd), currentTable[1].length - 1);
         }
 
-        // ROWS 
+        // column goes out of view from the right
+        if (previousColumnEnd > currentColumnEnd) {
+            // console.log(4)
+            deleteColumn(currentTable, currentTable[1].length - 2);
+        }
 
         // column axis row comes into view from the top
-        if(previousRowStart > currentRowStart && currentRowStart < colAxis.dims) {
-            insertRow(
-                currentTable,
-                getTableRow(currentColumnStart, currentColumnEnd, currentRowStart),
-                tableRowStart
-            );
-        }
-
-        // row goes out of view from the bottom
-        if(previousRowEnd > currentRowEnd) {
-            deleteRow(currentTable, tableRowEnd);
-        }
-
-        // value row comes into view from the top
-        if(previousRowStart > currentRowStart && currentRowStart >= colAxis.dims) {
-            insertRow(
-                currentTable,
-                getSingleRowAxisRow(Math.max(currentRowStart - colAxis.dims), currentColumnStart).concat(getValueObjectRow(currentRowStart - rowAxis.dims, 0, currentColumnEnd)),
-                tableRowStart
-            );
+        if (previousRowStart > currentRowStart) {
+            // console.log(5)
+            insertRow(currentTable, getTableRow(currentColumnStart, currentColumnEnd, currentRowStart), 1);
         }
 
         // row goues of out of view from the top
-        if(previousRowStart < currentRowStart) {
-            deleteRow(currentTable, tableRowStart);
+        if (previousRowStart < currentRowStart) {
+            // console.log(6)
+            deleteRow(currentTable, 1);
         }
 
         // row comes into view from the bottom
-        if(previousRowEnd < currentRowEnd) {
-            insertRow(
-                currentTable,
-                getSingleRowAxisRow(Math.max(0, currentRowEnd - colAxis.dims), currentColumnStart).concat(getValueObjectRow(Math.max(0, currentRowEnd - colAxis.dims), 0, currentColumnEnd - Math.max(0, currentColumnStart - rowAxis.dims))),
-                tableRowEnd
-            );
+        if (previousRowEnd < currentRowEnd) {
+            // console.log(7)
+            insertRow(currentTable, getTableRow(currentColumnStart, currentColumnEnd, currentRowEnd), currentTable.length - 1);
         }
+
+        // row goes out of view from the bottom
+        if (previousRowEnd > currentRowEnd) {
+            // console.log(8)
+            deleteRow(currentTable, currentTable.length - 2);
+        }
+
+        // console.log(currentTable);
 
         previousRowStart = currentRowStart;
         previousRowEnd = currentRowEnd;
         previousColumnStart = currentColumnStart;
         previousColumnEnd = currentColumnEnd;
     }
+
+    let doOnce = true;
 
     renderTable = function(rowStart=0, colStart=0) {
 
@@ -1125,35 +1120,27 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             // declare padding to simulate scroll
             topPad = rowStart * cellHeight,
             botPad = (getTableRowSize() - rowEnd) * cellHeight,
-            rightPad = (colAxis.size - colEnd) * cellWidth,
+            rightPad = (getTableColumnSize() - colEnd) * cellWidth,
             leftPad = colStart * cellWidth,
 
             // build table
             table = buildTable(colStart, colEnd, rowStart, rowEnd);
 
-        // loop through each row of table
         for(let i = 0; i < table.length; i++) {
-
-            // add left pad to table to start of array
-            if(colStart > 0) {
-                table[i].unshift(createCell(null, 'pivot-padding', 'padding', {width: leftPad}));
-            }
-
-            // add right pad to table to end of array
-            if(rightPad > 0) {
-                table[i].push(createCell(null, 'pivot-padding', 'padding', {width: rightPad}));
-            }
+            table[i].unshift(createCell(null, 'pivot-padding', 'padding', {width: leftPad, hidden: colStart <= 0}));
+            table[i].push(createCell(null, 'pivot-padding', 'padding', {width: rightPad, hidden: rightPad <= 0}));
         }
 
-        // add top pad to table to start of array
-        if(rowStart > 0) {
-            table.unshift([createCell(null, 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
+        table.unshift([createCell(null, 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1, hidden: rowStart <= 0})]);
+        table.push([createCell(null, 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1, hidden: botPad <= 0})]);
+        
+        if(doOnce) {
+            currentTable = clone(table);
+            doOnce = false;
         }
 
-        // add bottom pad to table to end of array
-        if(botPad > 0) {
-            table.push([createCell(null, 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
-        }
+        // updateTable(colStart, colEnd, rowStart, rowEnd);
+
 
         // create html array
         var htmlArray = arrayClean([].concat(
