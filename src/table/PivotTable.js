@@ -505,7 +505,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     empty: empty,
                     uuids: uuids,
                     dxId: rric.getDxIdByIds(response.metaData.dimensions.dx),
-                    peId: rric.getPeIdbyIds(response.metaData.dimensions.pe)
+                    peId: rric.getPeIdByIds(response.metaData.dimensions.pe)
                 });
 
                 // map element id to dim element ids
