@@ -656,20 +656,26 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         maxColSpan = maxColSpan ? maxColSpan : columnEnd - columnStart + rowAxis.dims;
 
-        for (var i = 0, y = rowStart; i < colAxisArray.length; i++, y++) {;
+        for (var i = 0, y = rowStart, dimLabelArray; i < colAxisArray.length; i++, y++) {;
 
             colAxisArray[i] = new Array(columnStart < rowAxis.dims ? columnEnd + (rowAxis.dims - columnStart) : columnEnd + rowAxis.dims - columnStart);
 
-            // if (layout.showDimensionLabels && columnStart === 0) {
-            //     colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i));
-            // }
+            if (layout.showDimensionLabels && columnStart < rowAxis.dims && y < colAxis.dims) {
+                dimLabelArray = getEmptyHtmlArray(y);
+            }
             
             for (var j = 0, x = columnStart, colSpanCounter = 0, colPos, obj; j < colAxisArray[i].length; j++, x++) {
 
                 // create left corner cell
-                if(x < rowAxis.dims) {
+                if(x < rowAxis.dims && !layout.showDimensionLabels) {
                     if (i === 0) colAxisArray[i][j] = createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims - x, rowSpan: colAxis.dims - y, hidden: x !== columnStart});
                     else         colAxisArray[i][j] = createCell(null, 'pivot-empty', 'empty', {hidden: true, colSpan: rowAxis.dims, rowSpan: colAxis.dims - x});
+                    colSpanCounter++;
+                    continue;
+                }
+
+                if(x < rowAxis.dims && layout.showDimensionLabels) {
+                    colAxisArray[i][j] = dimLabelArray[x];
                     colSpanCounter++;
                     continue;
                 }
@@ -700,9 +706,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 obj.width = doDynamicTableUpdate() ? cellWidth : null,
                 obj.height = doDynamicTableUpdate() ? cellHeight : null,
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
-
-                if(j === 0 && i === 0) console.log(colPos, obj);
-
 
                 if(obj.hidden && Math.max(0, x - rowAxis.dims) === Math.max(0, columnStart - rowAxis.dims)) {
                     obj.hidden = false;
@@ -815,25 +818,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
 
-        // do row percentages
-        if(doRowPercentage()) {
-            changeToRowPercentage(table);
-        }
-
-        // do column percentages
-        if(doColPercentage()) {
-            changeToColPercentage(table);
-        }
-
-        // // hide empty columns
-        // if(doHideEmptyColumns()) {
-        //     hideEmptyColumns(table, colAxisAllObjects);
-        // }
-
-        // // hide empty rows
-        // if(doHideEmptyRows()) {
-        //     hideEmptyRows(table, rowAxisAllObjects);
-        // }
+        if (doRowPercentage()) changeToRowPercentage(table);
+        if (doColPercentage()) changeToColPercentage(table);
 
         return table;
     }
