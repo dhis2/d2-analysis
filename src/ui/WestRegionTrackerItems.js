@@ -382,16 +382,16 @@ WestRegionTrackerItems = function(refs) {
             var dimensions = [];
 
             // categories
-            dimensions.push(...getCategories(program.categoryCombo));
+            dimensions = dimensions.concat(getCategories(program.categoryCombo) || []);
 
             // categoryOptionGroupSets
             if (program.categoryCombo.name !== DEFAULT) {
-                dimensions.push(...appManager.categoryOptionGroupSets.filter(groupSet => groupSet.dataDimensionType === ATTRIBUTE));
+                dimensions = dimensions.concat(appManager.categoryOptionGroupSets.filter(groupSet => groupSet.dataDimensionType === ATTRIBUTE) || []);
             }
 
             // remove and add dynamic program related dimensions
             accordionBody.removeItems();
-            accordionBody.addItems(dimensions);
+            accordionBody.addItems(arrayClean(dimensions));
 
             // stages
             stage.enable();
