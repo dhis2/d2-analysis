@@ -508,6 +508,8 @@ Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
 
     var filteredRows = this.rows.filter(row => isNumeric(row[valueHeaderIndex]));
 
+    filteredRows.forEach(row => row.toFloat(valueHeaderIndex));
+
     arraySort(filteredRows, 'DESC', valueHeaderIndex);
 
     var len = filteredRows.length;

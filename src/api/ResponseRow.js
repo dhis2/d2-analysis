@@ -21,6 +21,10 @@ ResponseRow = function(refs, config) {
         return t.idCombination.getNames(response);
     };
 
+    t.toFloat = function(index) {
+        t[index] = parseFloat(t[index]);
+    };
+
     t.getRowHtml = function(response, trClass, tdClass) {
         trClass = trClass ? ' class="' + trClass + '"' : '';
         tdClass = tdClass ? ' class="' + tdClass + '"' : '';
