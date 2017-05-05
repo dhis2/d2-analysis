@@ -1,6 +1,6 @@
-export var dimensionsInit;
+export var categoryOptionGroupSetsInit;
 
-dimensionsInit = function(c, extraParams = []) {
+categoryOptionGroupSetsInit = function(c, extraParams = []) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,
@@ -10,14 +10,13 @@ dimensionsInit = function(c, extraParams = []) {
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
 
     return {
-        baseUrl: apiPath + '/dimensions.json',
+        baseUrl: apiPath + '/categoryOptionGroupSets.json',
         params: [
-            'fields=id,' + displayPropertyUrl + ',dimensionType',
+            'fields=id,' + displayPropertyUrl + ',dataDimensionType',
             'paging=false'
         ].concat(extraParams),
         success: function(r) {
-            appManager.addDimensions(r.dimensions);
-            dimensionConfig.add(r.dimensions);
+            appManager.addCategoryOptionGroupSets(r.categoryOptionGroupSets);
 
             requestManager.ok(this);
         }

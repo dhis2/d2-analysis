@@ -56,6 +56,7 @@ import { optionSetsInit } from './init/optionSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 import { userFavoritesInit } from './init/userFavoritesInit.js';
+import { categoryOptionGroupSetsInit } from './init/categoryOptionGroupSetsInit.js';
 
 import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
@@ -130,6 +131,7 @@ export {
     dimensionsInit,
     dataApprovalLevelsInit,
     userFavoritesInit,
+    categoryOptionGroupSetsInit,
 
     SimpleRegression,
     Plugin,
@@ -214,7 +216,8 @@ export const init = {
     optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
-    userFavoritesInit
+    userFavoritesInit,
+    categoryOptionGroupSetsInit,
 };
 
 export const util = {

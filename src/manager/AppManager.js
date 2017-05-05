@@ -102,6 +102,8 @@ AppManager = function(refs) {
     t.rootNodes = [];
     t.organisationUnitLevels = [];
     t.dimensions = [];
+    t.categoryOptionGroupSets = [];
+    t.dimensions = [];
     t.legendSets = [];
     t.dataApprovalLevels = [];
     t.userFavorites = [];
@@ -344,6 +346,12 @@ AppManager.prototype.addDimensions = function(param) {
     this.dimensions = arrayClean(this.dimensions.concat(arrayFrom(param)));
 
     arraySort(this.dimensions, 'ASC', 'name');
+};
+
+AppManager.prototype.addCategoryOptionGroupSets = function(param) {
+    this.categoryOptionGroupSets = arrayClean(this.categoryOptionGroupSets.concat(arrayFrom(param)));
+
+    arraySort(this.categoryOptionGroupSets, 'ASC', 'name');
 };
 
 AppManager.prototype.addDataApprovalLevels = function(param) {

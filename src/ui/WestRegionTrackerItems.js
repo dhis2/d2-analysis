@@ -48,6 +48,7 @@ WestRegionTrackerItems = function(refs) {
         dimensionIdSelectedStoreMap = {},
         accordionPanels = [],
 
+        programStorage = {},
         stageStorage = {},
         attributeStorage = {},
         programIndicatorStorage = {},
@@ -374,16 +375,23 @@ WestRegionTrackerItems = function(refs) {
             return cats;
         };
 
-        load = function(stages, categories, categoryOptionGroupSets) {
-            var stageId;
+        load = function(program) {
+            var stages = program.programStages;
+            var DEFAULT = 'default';
+            var ATTRIBUTE = 'ATTRIBUTE';
+            var dimensions = [];
 
-            // program related dimensions
-            accordionBody.removeItems();
-console.log("remove");
             // categories
-            if (categories) {
-                accordionBody.addItems(categories);
+            dimensions.push(...getCategories(program.categoryCombo));
+
+            // categoryOptionGroupSets
+            if (program.categoryCombo.name !== DEFAULT) {
+                dimensions.push(...appManager.categoryOptionGroupSets.filter(groupSet => groupSet.dataDimensionType === ATTRIBUTE));
             }
+
+            // remove and add dynamic program related dimensions
+            accordionBody.removeItems();
+            accordionBody.addItems(dimensions);
 
             // stages
             stage.enable();
@@ -392,7 +400,7 @@ console.log("remove");
             stagesByProgramStore.removeAll();
             stagesByProgramStore.loadData(stages);
 
-            stageId = (layout ? layout.programStage.id : null) || (stages.length === 1 ? stages[0].id : null);
+            var stageId = (layout ? layout.programStage.id : null) || (stages.length === 1 ? stages[0].id : null);
 
             if (stageId) {
                 stage.setValue(stageId);
@@ -400,67 +408,55 @@ console.log("remove");
             }
         };
 
-        if (stageStorage.hasOwnProperty(programId)) {
-            load(stageStorage[programId]);
+        if (programStorage[programId]) {
+            load(programStorage[programId]);
         }
         else {
-            Ext.Ajax.request({
-                url: [
-                    appManager.getApiPath() + '/programs.json',
-                    '?filter=id:eq:' + programId,
-                    '&fields=programStages[id,displayName~rename(name)]',
-                    ',programIndicators[id,' + displayPropertyUrl + ']',
-                    ',programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSet[id,displayName~rename(name)]]]',
-                    ',categoryCombo[id,' + displayPropertyUrl + ',categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]',
-                    '&paging=false'
-                ].join(''),
+            new api.Request(refs, {
+                baseUrl: appManager.getApiPath() + '/programs.json',
+                type: 'json',
+                params: [
+                    'filter=id:eq:' + programId,
+                    [
+                        'fields=programStages[id,displayName~rename(name)]',
+                        'programIndicators[id,' + displayPropertyUrl + ']',
+                        'programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSet[id,displayName~rename(name)]]]',
+                        'categoryCombo[id,' + displayPropertyUrl + ',categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]'
+                    ].join(''),
+                    'paging=false'
+                ],
                 success: function(r) {
-                    var program = Ext.decode(r.responseText).programs[0],
-                        stages,
-                        attributes,
-                        programIndicators,
-                        categoryCombo,
-                        stageId;
+                    var program = r.programs[0];
 
                     if (!program) {
                         return;
                     }
 
-                    stages = program.programStages;
-                    attributes = arrayPluck(program.programTrackedEntityAttributes, 'trackedEntityAttribute');
-                    programIndicators = program.programIndicators;
-                    categoryCombo = program.categoryCombo;
-
-                    // filter confidential, mark as attribute
-                    attributes.filter(function(item) {
-                        item.isAttribute = true;
-                        return !item.confidential;
+                    // program stages
+                    program.programStages.forEach(stage => {
+                        stage.isProgramStage = true;
                     });
 
-                    // attributes cache
-                    if (isArray(attributes) && attributes.length) {
-                        attributeStorage[programId] = attributes;
-                    }
+                    // attributes
+                    program.attributes = arrayPluck(program.programTrackedEntityAttributes, 'trackedEntityAttribute').filter(attribute => {
+                        attribute.isAttribute = true;
+                        return !attribute.confidential;
+                    });
 
                     // mark as program indicator
-                    programIndicators.forEach(function(item) {
+                    program.programIndicators.forEach(function(item) {
                         item.isProgramIndicator = true;
                     });
 
-                    // program indicator cache
-                    if (isArray(programIndicators) && programIndicators.length) {
-                        programIndicatorStorage[programId] = programIndicators;
-                    }
+                    if (isArray(program.programStages) && program.programStages.length) {
 
-                    if (isArray(stages) && stages.length) {
+                        // program cache
+                        programStorage[programId] = program;
 
-                        // stages cache
-                        stageStorage[programId] = stages;
-
-                        load(stages, getCategories(categoryCombo));
+                        load(program);
                     }
                 }
-            });
+            }).run();
         }
     };
 
