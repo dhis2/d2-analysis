@@ -338,8 +338,8 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var onProgramSelect = function(programId, layout) {
-        var load,
-            getCategories;
+        var DEFAULT = 'default';
+        var ATTRIBUTE = 'ATTRIBUTE';
 
         programId = layout ? layout.program.id : programId;
 
@@ -349,36 +349,22 @@ WestRegionTrackerItems = function(refs) {
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
 
-        getCategories = function(categoryCombo) {
+        var getCategories = function(categoryCombo) {
             if (!(isObject(categoryCombo) && isArray(categoryCombo.categories) && categoryCombo.categories.length)) {
                 return;
             }
 
-            var cats = categoryCombo.categories;
+            return arraySort(categoryCombo.categories.filter(c => c.name !== DEFAULT).forEach(c => {
+                c.items = c.categoryOptions;
 
-            if (cats.length === 1 && cats[0].name === 'default') {
-                return;
-            }
-
-            // sort categories
-            arraySort(cats);
-
-            // sort category options
-            cats.forEach(cat => {
-                cat.items = cat.categoryOptions;
-
-                if (isArray(cat.items)) {
-                    arraySort(cat.items);
+                if (isArray(c.items)) {
+                    arraySort(c.items);
                 }
-            });
-
-            return cats;
+            }));
         };
 
-        load = function(program) {
+        var load = function(program) {
             var stages = program.programStages;
-            var DEFAULT = 'default';
-            var ATTRIBUTE = 'ATTRIBUTE';
             var dimensions = [];
 
             // categories
