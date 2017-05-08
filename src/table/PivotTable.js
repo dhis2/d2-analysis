@@ -70,6 +70,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         uuidDimUuidsMap = {},
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
         legendDisplayStyle = layout.legendDisplayStyle,
+        legendDisplayStrategy = layout.legendDisplayStrategy,
         tdCount = 0,
         htmlArray,
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
@@ -109,7 +110,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     getTdHtml = function(config, metaDataId) {
         var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
         var isValue = isNumeric && config.type === 'value';
-        var legendColor = isValue && legendSet ? appManager.getLegendColorByValue(legendSet.id, parseFloat(config.value)) : null;
+        var bgColor;
+        var legends = [];
 
         // validation
         if (!isObject(config)) {
@@ -145,21 +147,40 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             });
         }
 
-        // style
-        if (legendColor && isValue) {
-            var color;
-            var backgroundColor;
+        if (isValue) {
+            var value = parseFloat(config.value);
 
-            if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-                color = legendColor;
-            }
-            else if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
-                color = uiManager.isColorBright(uiManager.hexToRgb(legendColor)) ? 'black' : 'white';
-                backgroundColor = legendColor;
+            if (legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id) {
+                if (config.dxId && response.metaData.items[config.dxId].legendSet) {
+                    var legendSetId = response.metaData.items[config.dxId].legendSet,
+                        _legendSet = appManager.getLegendSetById(legendSetId);
+
+                    legends = _legendSet.legends;
+                }
+            } else {
+                legends = legendSet ? legendSet.legends || [] : [];
             }
 
-            style.push(color ? ('color: ' + color + ';') : null);
-            style.push(backgroundColor ? ('background-color: ' + backgroundColor + ';') : null);
+            for (var i = 0; i < legends.length; i++) {
+                if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
+                    bgColor = legends[i].color;
+                }
+            }
+        }
+
+        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
+            if(bgColor) {
+                var rgb = uiManager.hexToRgb(bgColor),
+                    color = uiManager.isColorBright(rgb) ? 'black' : 'white';
+
+                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '');
+            } else {
+                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; ' : '');
+            }
+        }
+
+        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
+            style.push(bgColor && isValue ? 'color:' + bgColor + '; ' : '');
         }
 
         // attributes
