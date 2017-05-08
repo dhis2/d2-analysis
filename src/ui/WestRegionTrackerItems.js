@@ -107,25 +107,13 @@ WestRegionTrackerItems = function(refs) {
         }],
         onLoadData: function() {
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
+            var numericValueTypes = dimensionConfig.valueType['numeric_types'];
 
             this.each(function(record) {
-                if (arrayContains(dimensionConfig.valueType['numeric_types'], record.data.valueType)) {
+                if (record.data.isProgramIndicator || arrayContains(numericValueTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
-
-            //this.toggleProgramIndicators();
-        },
-        toggleProgramIndicators: function(type) {
-            type = type || uiManager.get('dataTypeToolbar').getDataType();
-
-            this.clearFilter();
-
-            if (type === dimensionConfig.dataType['aggregated_values']) {
-                this.filterBy(function(record) {
-                    return !record.data.isProgramIndicator;
-                });
-            }
         }
     });
 
@@ -165,16 +153,6 @@ WestRegionTrackerItems = function(refs) {
     });
 
     // components
-
-        // data element
-    var onTypeClick = function(type) {
-
-        // available
-        dataElementsByStageStore.toggleProgramIndicators(type);
-
-        // selected
-        dataElementSelected.toggleProgramIndicators(type);
-    };
 
     var setLayout = function(layout) {
         accordion.clearDimensions(layout);
@@ -363,15 +341,15 @@ WestRegionTrackerItems = function(refs) {
             }));
         };
 
-        var load = function(program) {
-            var stages = program.programStages;
+        var load = function(_program) {
+            var stages = _program.programStages;
             var dimensions = [];
 
             // categories
-            dimensions = dimensions.concat(getCategories(program.categoryCombo) || []);
+            dimensions = dimensions.concat(getCategories(_program.categoryCombo) || []);
 
             // categoryOptionGroupSets
-            if (program.categoryCombo.name !== DEFAULT) {
+            if (_program.categoryCombo.name !== DEFAULT) {
                 dimensions = dimensions.concat(appManager.categoryOptionGroupSets.filter(groupSet => groupSet.dataDimensionType === ATTRIBUTE) || []);
             }
 
@@ -412,34 +390,34 @@ WestRegionTrackerItems = function(refs) {
                     'paging=false'
                 ],
                 success: function(r) {
-                    var program = r.programs[0];
+                    var _program = r.programs[0];
 
-                    if (!program) {
+                    if (!_program) {
                         return;
                     }
 
                     // program stages
-                    program.programStages.forEach(stage => {
+                    _program.programStages.forEach(stage => {
                         stage.isProgramStage = true;
                     });
 
                     // attributes
-                    program.attributes = arrayPluck(program.programTrackedEntityAttributes, 'trackedEntityAttribute').filter(attribute => {
+                    _program.attributes = arrayPluck(_program.programTrackedEntityAttributes, 'trackedEntityAttribute').filter(attribute => {
                         attribute.isAttribute = true;
                         return !attribute.confidential;
                     });
 
                     // mark as program indicator
-                    program.programIndicators.forEach(function(item) {
+                    _program.programIndicators.forEach(function(item) {
                         item.isProgramIndicator = true;
                     });
 
-                    if (isArray(program.programStages) && program.programStages.length) {
+                    if (isArray(_program.programStages) && _program.programStages.length) {
 
                         // program cache
-                        programStorage[programId] = program;
+                        programStorage[programId] = _program;
 
-                        load(program);
+                        load(_program);
                     }
                 }
             }).run();
@@ -488,21 +466,21 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var loadDataElements = function(stageId, layout) {
-        var programId = layout ? layout.program.id : (program.getValue() || null),
-            load;
+        var programId = layout ? layout.program.id : (program.getValue() || null);
+
+        var _program = programStorage[programId];
+
+        var dataItems = arrayClean([].concat(_program.attributes || [], _program.programIndicators || []));
 
         stageId = stageId || layout.programStage.id;
 
-        load = function(dataElements) {
-            var attributes = attributeStorage[programId],
-                programIndicators = programIndicatorStorage[programId],
-                data = arrayClean([].concat(attributes || [], programIndicators || [], dataElements || []));
-
+        var load = function(dataElements) {
+            var data = arrayClean(dataItems.concat(dataElements || []));
+console.log("data", data);
             dataElementsByStageStore.loadData(data);
             dataElementsByStageStore.onLoadData();
 
             if (layout) {
-                //var dataDimensions = ns.core.service.layout.getDataDimensionsFromLayout(layout),
                 var dataDimensions = layout ? layout.getDimensions().filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)) : [],
                     records = [];
 
@@ -524,32 +502,36 @@ WestRegionTrackerItems = function(refs) {
             load(dataElementStorage[stageId]);
         }
         else {
-            Ext.Ajax.request({
-                url: appManager.getApiPath() + '/programStages.json?filter=id:eq:' + stageId + '&fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+            new api.Request(refs, {
+                baseUrl: appManager.getApiPath() + '/programStages.json',
+                type: 'json',
+                params: [
+                    'filter=id:eq:' + stageId,
+                    'fields=programStageDataElements[dataElement[id,' + displayPropertyUrl + ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+                    'paging=false'
+                ],
                 success: function(r) {
-                    var objects = Ext.decode(r.responseText).programStages,
-                        types = dimensionConfig.valueType['tracker_aggregatable_types'],
-                        dataElements;
+                    var stages = r.programStages,
+                        types = dimensionConfig.valueType['tracker_aggregatable_types'];
 
-                    if (!objects.length) {
+                    if (!stages.length) {
                         load();
                         return;
                     }
-
-                    dataElements = arrayPluck(objects[0].programStageDataElements, 'dataElement');
-
+console.log("stages[0].programStageDataElements", stages[0].programStageDataElements);
                     // filter non-aggregatable types
-                    dataElements.filter(function(item) {
-                        item.isDataElement = true;
-                        return arrayContains(types, item.valueType);
+                    var dataElements = arrayPluck(stages[0].programStageDataElements, 'dataElement').filter(dataElement => {
+                        dataElement.isDataElement = true;
+                        return arrayContains(types, dataElement.valueType);
                     });
 
+console.log("dataElements", dataElements);
                     // data elements cache
                     dataElementStorage[stageId] = dataElements;
 
                     load(dataElements);
                 }
-            });
+            }).run();
         }
     };
 
@@ -741,33 +723,17 @@ WestRegionTrackerItems = function(refs) {
             for (var i = 0; i < len; i++) {
                 items[0].removeDataElement(reset);
             }
-        },
-        toggleProgramIndicators: function(type) {
-            var items = this.items.items,
-                len = items.length;
-
-            for (var i = 0, item; i < len; i++) {
-                item = items[i];
-
-                if (type === dimensionConfig.dataType['aggregated_values'] && item.isProgramIndicator) {
-                    item.disable();
-                }
-                else {
-                    item.enable();
-                }
-            }
         }
     });
 
     var addUxFromDataElement = function(element, index) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
-            queryWindow = uiManager.get('queryLayoutWindow'),
-            getUxType,
-            ux;
+            queryWindow = uiManager.get('queryLayoutWindow');
 
+console.log("element", element);
         index = index || dataElementSelected.items.items.length;
 
-        getUxType = function(element) {
+        var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
@@ -794,12 +760,13 @@ WestRegionTrackerItems = function(refs) {
         };
 
         // add
-        ux = dataElementSelected.insert(index, Ext.create(getUxType(element), {
+        var ux = dataElementSelected.insert(index, Ext.create(getUxType(element), {
             dataElement: element
         }));
 
         ux.isAttribute = element.isAttribute;
         ux.isProgramIndicator = element.isProgramIndicator;
+        ux.isDataElement = element.isDataElement;
 
         ux.removeDataElement = function(reset) {
             dataElementSelected.remove(ux);
@@ -899,9 +866,11 @@ WestRegionTrackerItems = function(refs) {
                     ux.setRecord(element);
                 }
             }
-
+console.log("element",element);
+console.log("ux",ux);
             store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.getDefaultStore() : aggWindow.fixedFilterStore;
 
+console.log("store",store);
             aggWindow.addDimension(element, store, aggWindow.valueStore);
 
             if (queryWindow) {
@@ -3162,8 +3131,7 @@ WestRegionTrackerItems = function(refs) {
         treePanel: treePanel,
 
         getUiState: getUiState,
-        setUiState: setUiState,
-        onTypeClick: onTypeClick
+        setUiState: setUiState
     });
 
     return accordion;
