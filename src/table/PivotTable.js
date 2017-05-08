@@ -158,8 +158,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 backgroundColor = legendColor;
             }
 
-            style.push(color ? ('color: ' + color) : null);
-            style.push(backgroundColor ? ('background-color: ' + backgroundColor) : null);
+            style.push(color ? ('color: ' + color + ';') : null);
+            style.push(backgroundColor ? ('background-color: ' + backgroundColor + ';') : null);
         }
 
         // attributes
