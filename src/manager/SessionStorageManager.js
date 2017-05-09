@@ -1,6 +1,6 @@
 export var SessionStorageManager;
 
-SessionStorageManager = function() {
+SessionStorageManager = function(refs) {
     var t = this;
 
     // constants

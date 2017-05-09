@@ -3,20 +3,20 @@ import isArray from 'd2-utilizr/lib/isArray';
 import isObject from 'd2-utilizr/lib/isObject';
 import isFunction from 'd2-utilizr/lib/isFunction';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
+import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var Request;
 
-Request = function(config) {
+Request = function(refs, config) {
     var t = this;
-    t.klass = Request;
 
     config = isObject(config) ? config : {};
 
     // constructor
     t.method = isString(config.method) ? config.method : 'GET';
-    t.headers = isObject(config.headers) ? config.headers : t.klass.appManager.defaultRequestHeaders;
+    t.headers = isObject(config.headers) ? config.headers : refs.appManager.defaultRequestHeaders;
     t.dataType = isString(config.dataType) ? config.dataType : 'json';
     t.contentType = isString(config.contentType) ? config.contentType : null;
     t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
@@ -143,9 +143,9 @@ Request.prototype.setComplete = function(fn) {
 };
 
 Request.prototype.url = function(extraParams) {
-    extraParams = arrayFrom(extraParams);
+    var params = arrayClean([].concat(this.params, arrayFrom(extraParams)));
 
-    return this.baseUrl + '?' + ([].concat(this.params, arrayFrom(extraParams))).join('&');
+    return this.baseUrl + (params.length ? '?' + params.join('&') : '');
 };
 
 // dep 1
@@ -172,7 +172,7 @@ Request.prototype.run = function(config) {
         return;
     }
 
-    if (this.type === 'json') {
+    if (t.type === 'json') {
         return $.getJSON(url, success).error(error).complete(complete);
     }
     else {

@@ -20,6 +20,7 @@ OptionConfig = function() {
     var dataApprovalLevel;
     var dataSetMetric;
     var legendDisplayStyle;
+    var legendDisplayStrategy;
 
     // setter
     var setDisplayDensity = function() {
@@ -225,6 +226,21 @@ OptionConfig = function() {
         };
     };
 
+    var setLegendDisplayStrategy = function() {
+        legendDisplayStrategy = {
+            'fixed': {
+                index: 0,
+                id: 'FIXED',
+                name: i18nManager.get('fixed') || 'Fixed'
+            },
+            'by_data_item': {
+                index: 1,
+                id: 'BY_DATA_ITEM',
+                name: i18nManager.get('by_data_item') || 'By data item'
+            }
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -251,6 +267,7 @@ OptionConfig = function() {
         setDataApprovalLevel();
         setDataSetMetric();
         setLegendDisplayStyle();
+        setLegendDisplayStrategy();
     };
 
     // prototype
@@ -290,6 +307,10 @@ OptionConfig = function() {
         return key ? legendDisplayStyle[key] : legendDisplayStyle;
     };
 
+    t.getLegendDisplayStrategy = function(key) {
+        return key ? legendDisplayStrategy[key] : legendDisplayStrategy;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -322,6 +343,10 @@ OptionConfig = function() {
         return getRecords(legendDisplayStyle);
     };
 
+    t.getLegendDisplayStrategyRecords = function() {
+        return getRecords(legendDisplayStrategy);
+    };
+
     t.getDigitGroupSeparatorIdMap = function() {
         var map = {};
 
@@ -351,6 +376,7 @@ OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
     var t = this;
 
     var separator = t.getDigitGroupSeparatorIdMap()[id];
+
     return separator ? separator.value : '';
 };
 

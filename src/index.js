@@ -10,8 +10,9 @@ import { ResponseRowIdCombination } from './api/ResponseRowIdCombination.js';
 import { Response } from './api/Response.js';
 import { Sorting } from './api/Sorting.js';
 
-import { TableAxis } from './pivot/TableAxis.js';
-import { Table } from './pivot/Table.js';
+import { PivotTableAxis } from './table/PivotTableAxis.js';
+import { PivotTable } from './table/PivotTable.js';
+import { EventDataTable } from './table/EventDataTable.js';
 
 import { AppManager } from './manager/AppManager.js';
 import { DateManager } from './manager/DateManager.js';
@@ -19,6 +20,7 @@ import { CalendarManager } from './manager/CalendarManager.js';
 import { I18nManager } from './manager/I18nManager.js';
 import { RequestManager } from './manager/RequestManager.js';
 import { SessionStorageManager } from './manager/SessionStorageManager.js';
+import { IndexedDbManager } from './manager/IndexedDbManager.js';
 import { UiManager } from './manager/UiManager.js';
 import { InstanceManager } from './manager/InstanceManager.js';
 import { TableManager } from './manager/TableManager.js';
@@ -39,6 +41,7 @@ import { InterpretationItem } from './ui/InterpretationItem.js';
 import { PluginItem } from './ui/PluginItem.js';
 import { AboutWindow } from './ui/AboutWindow.js';
 import { GridHeaders } from './ui/GridHeaders.js';
+import { ChartDownloadButtonItems } from './ui/ChartDownloadButtonItems.js';
 import { ChartTypeToolbar } from './ui/ChartTypeToolbar.js';
 import { IntegrationButton } from './ui/IntegrationButton.js';
 import { WestRegionAggregateItems } from './ui/WestRegionAggregateItems.js';
@@ -49,15 +52,25 @@ import { authViewUnapprovedDataInit } from './init/authViewUnapprovedDataInit.js
 import { rootNodesInit } from './init/rootNodesInit.js';
 import { organisationUnitLevelsInit } from './init/organisationUnitLevelsInit.js';
 import { legendSetsInit } from './init/legendSetsInit.js';
+import { optionSetsInit } from './init/optionSetsInit.js';
 import { dimensionsInit } from './init/dimensionsInit.js';
 import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 import { userFavoritesInit } from './init/userFavoritesInit.js';
+import { categoryOptionGroupSetsInit } from './init/categoryOptionGroupSetsInit.js';
 
 import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
 
 import { extOverrides } from './override/extOverrides.js';
 import { extChartOverrides } from './override/extChartOverrides.js';
+
+import { DataElementBooleanContainer } from './ux/DataElementBooleanContainer.js';
+import { DataElementDateContainer } from './ux/DataElementDateContainer.js';
+import { DataElementIntegerContainer } from './ux/DataElementIntegerContainer.js';
+import { DataElementStringContainer } from './ux/DataElementStringContainer.js';
+import { GroupSetContainer } from './ux/GroupSetContainer.js';
+import { LimitContainer } from './ux/LimitContainer.js';
+import { StatusBar } from './ux/StatusBar.js';
 
 export {
     Record,
@@ -72,8 +85,9 @@ export {
     Response,
     Sorting,
 
-    TableAxis,
-    Table,
+    PivotTableAxis,
+    PivotTable,
+    EventDataTable,
 
     AppManager,
     DateManager,
@@ -81,6 +95,7 @@ export {
     I18nManager,
     RequestManager,
     SessionStorageManager,
+    IndexedDbManager,
     UiManager,
     InstanceManager,
     TableManager,
@@ -101,6 +116,7 @@ export {
     PluginItem,
     AboutWindow,
     GridHeaders,
+    ChartDownloadButtonItems,
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
@@ -111,15 +127,25 @@ export {
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,
+    optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
     userFavoritesInit,
+    categoryOptionGroupSetsInit,
 
     SimpleRegression,
     Plugin,
 
     extOverrides,
     extChartOverrides,
+
+    DataElementBooleanContainer,
+    DataElementDateContainer,
+    DataElementIntegerContainer,
+    DataElementStringContainer,
+    GroupSetContainer,
+    LimitContainer,
+    StatusBar,
 };
 
 export const api = {
@@ -136,9 +162,10 @@ export const api = {
     Sorting,
 };
 
-export const pivot = {
-    TableAxis,
-    Table,
+export const table = {
+    PivotTableAxis,
+    PivotTable,
+    EventDataTable,
 };
 
 export const manager = {
@@ -148,6 +175,7 @@ export const manager = {
     I18nManager,
     RequestManager,
     SessionStorageManager,
+    IndexedDbManager,
     UiManager,
     InstanceManager,
     TableManager,
@@ -172,6 +200,7 @@ export const ui = {
     PluginItem,
     AboutWindow,
     GridHeaders,
+    ChartDownloadButtonItems,
     ChartTypeToolbar,
     IntegrationButton,
     WestRegionAggregateItems,
@@ -184,9 +213,11 @@ export const init = {
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,
+    optionSetsInit,
     dimensionsInit,
     dataApprovalLevelsInit,
-    userFavoritesInit
+    userFavoritesInit,
+    categoryOptionGroupSetsInit,
 };
 
 export const util = {
@@ -197,4 +228,14 @@ export const util = {
 export const override = {
     extOverrides,
     extChartOverrides,
+};
+
+export const ux = {
+    DataElementBooleanContainer,
+    DataElementDateContainer,
+    DataElementIntegerContainer,
+    DataElementStringContainer,
+    GroupSetContainer,
+    LimitContainer,
+    StatusBar,
 };

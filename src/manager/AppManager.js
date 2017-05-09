@@ -8,6 +8,7 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 
 export var AppManager;
 
@@ -23,14 +24,6 @@ AppManager = function(refs) {
     t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
 
-    t.valueTypes = {
-        'numeric': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE'],
-        'text': ['TEXT','LONG_TEXT','LETTER','PHONE_NUMBER','EMAIL'],
-        'boolean': ['BOOLEAN','TRUE_ONLY'],
-        'date': ['DATE','DATETIME'],
-        'aggregate': ['NUMBER','UNIT_INTERVAL','PERCENTAGE','INTEGER','INTEGER_POSITIVE','INTEGER_NEGATIVE','INTEGER_ZERO_OR_POSITIVE','BOOLEAN','TRUE_ONLY']
-    };
-
     t.defaultRequestHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -39,9 +32,9 @@ AppManager = function(refs) {
     t.defaultAnalysisFields = [
         '*',
         'interpretations[*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]]',
-        'columns[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
-        'rows[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
-        'filters[dimension,filter,items[dimensionItem|rename(id),dimensionItemType,$]]',
+        'columns[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'rows[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'filters[dimension,filter,items[dimensionItem~rename(id),dimensionItemType,$]]',
         'access',
         'userGroupAccesses',
         'publicAccess',
@@ -82,6 +75,18 @@ AppManager = function(refs) {
         'USER_ORGUNIT_GRANDCHILDREN'
     ];
 
+    t.ignoreResponseHeaders = [
+        'dy',
+        'value',
+        'psi',
+        'ps',
+        'eventdate',
+        'longitude',
+        'latitude',
+        'ouname',
+        'oucode'
+    ];
+
     // uninitialized
     t.appName;
     t.sessionName;
@@ -96,6 +101,8 @@ AppManager = function(refs) {
 
     t.rootNodes = [];
     t.organisationUnitLevels = [];
+    t.dimensions = [];
+    t.categoryOptionGroupSets = [];
     t.dimensions = [];
     t.legendSets = [];
     t.dataApprovalLevels = [];
@@ -150,12 +157,93 @@ AppManager = function(refs) {
     };
 };
 
-AppManager.prototype.logVersion = function() {
-    if (console && this.manifest && this.manifest.version) {
+AppManager.prototype.init = function(callbackFn) {
+    const t = this;
+
+    // manifest
+    const manifestReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: 'manifest.webapp',
+            type: 'json',
+            success: function (response) {
+                t.manifest = response;
+                t.env = process.env.NODE_ENV;
+                t.setAuth();
+                t.logVersion();
+
+                systemInfoReq();
+            }
+        }).run();
+    };
+
+    // system info
+    const systemInfoReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/system/info.json',
+            type: 'json',
+            success: function (response) {
+                t.systemInfo = response;
+                t.path = response.contextPath;
+
+                systemSettingsReq();
+            }
+        }).run();
+    };
+
+    // system settings
+    const systemSettingsReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/systemSettings.json',
+            type: 'json',
+            params: [
+                'key=keyCalendar',
+                'key=keyDateFormat',
+                'key=keyAnalysisRelativePeriod',
+                'key=keyHideUnapprovedDataInAnalytics',
+                'key=keyAnalysisDigitGroupSeparator',
+            ],
+            success: function (response) {
+                t.systemSettings = response;
+
+                userAccountReq();
+            }
+        }).run();
+    };
+
+    // user account
+    const userAccountReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/me.json',
+            type: 'json',
+            params: [
+                'fields=id,firstName,surname,userCredentials[username],settings',
+            ],
+            success: function (response) {
+                t.userAccount = response;
+
+                const calendarManager = t.refs.calendarManager;
+
+                calendarManager.setBaseUrl(t.getPath());
+                calendarManager.setDateFormat(t.getDateFormat());
+                calendarManager.init(t.systemSettings.keyCalendar);
+
+                // allow for other code to be executed after all the init stuff is done
+                if (callbackFn) {
+                    callbackFn();
+                }
+            }
+        }).run();
+    };
+
+    manifestReq();
+};
+
+AppManager.prototype.logVersion = function() {
+    if (console && this.manifest && this.manifest.version) {
         var version = 'v' + this.manifest.version;
         var name = this.manifest.name || null;
 
-        var msg = arrayClean(['Loading:', name, version]).join(' ');
+        var msg = arrayClean([name, version]).join(' ');
         var fn = console.info || console.log;
 
         fn.call(console, msg);
@@ -174,7 +262,7 @@ AppManager.prototype.getManifestFullVersionNumber = function() {
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
 };
 
-AppManager.prototype.getApiVersion = function() {
+AppManager.prototype.getApiVersion = function() {
     return this.apiVersion;
 };
 
@@ -195,7 +283,9 @@ AppManager.prototype.getDisplayProperty = function() {
         return this.displayProperty;
     }
 
-    return this.displayProperty = this.displayPropertyMap[(this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
+    var keyAnalysisDisplayProperty = this.userAccount && this.userAccount.settings ? this.userAccount.settings.keyAnalysisDisplayProperty : null;
+
+    return this.displayProperty = this.displayPropertyMap[(keyAnalysisDisplayProperty || this.defaultDisplayProperty)];
 };
 
 AppManager.prototype.getAnalyticsDisplayProperty = function() {
@@ -203,11 +293,9 @@ AppManager.prototype.getAnalyticsDisplayProperty = function() {
         return this.analyticsDisplayProperty;
     }
 
-    return this.analyticsDisplayProperty = (this.userAccount.settings.keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
-};
+    var keyAnalysisDisplayProperty = this.userAccount && this.userAccount.settings ? this.userAccount.settings.keyAnalysisDisplayProperty : null;
 
-AppManager.prototype.getValueTypesByType = function(type) {
-    return this.valueTypes[type];
+    return this.analyticsDisplayProperty = (keyAnalysisDisplayProperty || this.defaultAnalyticsDisplayProperty).toUpperCase();
 };
 
 AppManager.prototype.getRootNodes = function() {
@@ -260,10 +348,25 @@ AppManager.prototype.addDimensions = function(param) {
     arraySort(this.dimensions, 'ASC', 'name');
 };
 
+AppManager.prototype.addCategoryOptionGroupSets = function(param) {
+    this.categoryOptionGroupSets = arrayClean(this.categoryOptionGroupSets.concat(arrayFrom(param)));
+
+    arraySort(this.categoryOptionGroupSets, 'ASC', 'name');
+};
+
 AppManager.prototype.addDataApprovalLevels = function(param) {
     this.dataApprovalLevels = arrayClean(this.dataApprovalLevels.concat(arrayFrom(param)));
 
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
+};
+
+AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
+    var t = this;
+
+    t.ignoreResponseHeaders = arrayUnique([
+        ...(append ? t.ignoreResponseHeaders : []),
+        ...headers
+    ]);
 };
 
 AppManager.prototype.setAuth = function(auth) {
@@ -305,7 +408,7 @@ AppManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
-AppManager.prototype.getApiPath = function() {
+AppManager.prototype.getApiPath = function() {
     var t = this;
 
     var version = t.getApiVersion() || '';
@@ -338,7 +441,7 @@ AppManager.prototype.getDisplayPropertyUrl = function() {
 
     var key = this.getDisplayProperty();
 
-    return this.displayPropertyUrl = (key + '|rename(name)');
+    return this.displayPropertyUrl = (key + '~rename(name)');
 };
 
 AppManager.prototype.isUiLocaleDefault = function() {
@@ -364,7 +467,7 @@ AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
 
     var legendSetId;
 
-    new t.refs.api.Request({
+    new t.refs.api.Request(t.refs, {
         type: 'json',
         baseUrl: t.getApiPath() + '/indicators.json',
         params: [

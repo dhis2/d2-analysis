@@ -2,16 +2,36 @@ import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var ResponseRow;
 
-ResponseRow = function(config) {
+ResponseRow = function(refs, config) {
     var t = arrayFrom(config);
-    t.klass = ResponseRow;
 
     t.getAt = function(index) {
         return this[index];
     };
 
     t.setIdCombination = function(idCombination) {
-        this.idCombination = idCombination;
+        t.idCombination = idCombination;
+    };
+
+    t.getNames = function(response) {
+        if (!t.idCombination) {
+            t.setIdCombination(new refs.api.ResponseRowIdCombination(refs, t));
+        }
+
+        return t.idCombination.getNames(response);
+    };
+
+    t.toFloat = function(index) {
+        t[index] = parseFloat(t[index]);
+    };
+
+    t.getRowHtml = function(response, trClass, tdClass) {
+        trClass = trClass ? ' class="' + trClass + '"' : '';
+        tdClass = tdClass ? ' class="' + tdClass + '"' : '';
+
+        var tdStyle = ' style="padding:0 5px"';
+
+        return '<tr' + trClass + '>' + t.getNames(response).map(name => '<td' + tdClass + tdStyle + '>' + name + '</td>').join('') + '</tr>';
     };
 
     // uninitialized

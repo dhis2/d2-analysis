@@ -13,30 +13,18 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
 
-import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
+export var PivotTable;
 
-export var Table;
+PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
+    var t = this;
 
-Table = function(layout, response, colAxis, rowAxis, options) {
-    var t = this,
-        klass = Table,
+    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
 
-        appManager = klass.appManager,
-        uiManager = klass.uiManager,
-        dimensionConfig = klass.dimensionConfig,
-        optionConfig = klass.optionConfig;
+    var { ResponseRowIdCombination } = refs.api;
+
+    var { unclickable } = options;
 
     options = options || {};
-
-
-    const cellWidth = 120,
-          cellheight = 25;
-
-    // inititalize global variables/functions
-    
-    // global functions
-
-    console.log(response);
 
         // table builder
     let getEmptyHtmlArray,
@@ -994,6 +982,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     t.rowAxis = rowAxis;
 };
 
-Table.prototype.getUuidObjectMap = function() {
+PivotTable.prototype.getUuidObjectMap = function() {
     return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };

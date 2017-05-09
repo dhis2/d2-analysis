@@ -1,5 +1,7 @@
 import isString from 'd2-utilizr/lib/isString';
 import isArray from 'd2-utilizr/lib/isArray';
+import { Period } from '../api/Period';
+import { Dimension } from '../api/Dimension';
 
 export var TableManager;
 
@@ -9,26 +11,40 @@ TableManager = function(c) {
     var appManager = c.appManager,
         instanceManager = c.instanceManager,
         uiManager = c.uiManager,
-        sessionStorageManager = c.sessionStorageManager;
+        sessionStorageManager = c.sessionStorageManager,
+        dimensionConfig = c.dimensionConfig;
 
     var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
     };
 
+    var sortIdMap = {
+        'pe': 'eventdate',
+        'ou': 'ouname'
+    };
+
+    var getSortId = function(id, type) {
+        if (type === dimensionConfig.dataType['aggregated_values']) {
+            return id;
+        }
+
+        return sortIdMap[id] || id;
+    };
+
     var onColumnHeaderMouseClick = function(layout, id) {
-        if (layout.sorting && layout.sorting.id === id) {
+        var sortId = getSortId(id);
+
+        if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
             layout.sorting = {
-                id: id,
+                id: getSortId(id, layout.dataType),
                 direction: 'DESC'
             };
         }
 
-        uiManager.mask();
-
-        instanceManager.getReport(layout, false, true);
+        instanceManager.getReport(layout);
     };
 
     var onColumnHeaderMouseOver = function(el) {
@@ -49,7 +65,6 @@ TableManager = function(c) {
 
     t.setColumnHeaderMouseHandlers = function(layout, table) {
         var elObjects = table.sortableIdObjects,
-            idValueMap = table.idValueMap,
             dom;
 
         elObjects.forEach(function(item) {
@@ -75,6 +90,9 @@ TableManager = function(c) {
             parentGraphMap = {},
             objects = [],
             path = appManager.getPath(),
+            dom = document.getElementById(uuid),
+            periodId = dom.getAttribute('data-period-id'),
+            i18n = layout.getRefs().i18nManager.get(),
             menu;
 
         var uuids = table.uuidDimUuidsMap[uuid];
@@ -100,7 +118,7 @@ TableManager = function(c) {
 
                 dimension.add({
                     id: obj.id,
-                    name: response.metaData.names[obj.id]
+                    name: response.getNameById(obj.id)
                 });
             }
         }
@@ -109,7 +127,7 @@ TableManager = function(c) {
         for (var i = 0, id; i < objects.length; i++) {
             id = objects[i].id;
 
-            if (layout.parentGraphMap.hasOwnProperty(id)) {
+            if (layout.parentGraphMap && layout.parentGraphMap.hasOwnProperty(id)) {
                 parentGraphMap[id] = layout.parentGraphMap[id];
             }
         }
@@ -118,51 +136,113 @@ TableManager = function(c) {
 
         layout.toSession();
 
+        const menuItems = [
+            {
+                text: i18n.open_selection_as,
+                iconCls: 'ns-menu-item-datasource',
+                menu: [
+                    {
+                        text: i18n.open_selection_as_chart,
+                        iconCls: 'ns-button-icon-chart',
+                        param: 'chart',
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() { //TODO
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
+                                });
+
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
+                                });
+                            }
+                        }
+                    },
+                    {
+                        text: i18n.open_selection_as_map,
+                        iconCls: 'ns-button-icon-map',
+                        param: 'map',
+                        disabled: true,
+                        handler: function() {
+                            sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
+                        },
+                        listeners: {
+                            render: function() {
+                                this.getEl().on('mouseover', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
+                                });
+
+                                this.getEl().on('mouseout', function() {
+                                    onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
+                                });
+                            }
+                        }
+                    }
+                ]
+            }
+        ];
+
+        const periodMenuItems = [];
+        const period = new Period({
+            id: periodId,
+            name: response.getNameById(periodId)
+        }, layout.getRefs());
+
+        period.generateDisplayProperties();
+
+        const periods = period.getContextMenuItemsConfig();
+
+        for (let i = 0, periodItem; i < periods.length; ++i) {
+            periodItem = periods[i];
+
+            if (periodItem.isSubtitle) {
+                periodMenuItems.push({
+                    xtype: 'label',
+                    html: periodItem.text,
+                    style: periodItem.style
+                });
+
+                continue;
+            }
+
+            periodMenuItems.push({
+                text: periodItem.text,
+                iconCls: periodItem.iconCls,
+                peReqItems: periodItem.items,
+                handler: function() {
+                    const layout = instanceManager.getStateCurrent();
+                    const uiManager = layout.getRefs().uiManager;
+                    const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
+
+                    if (layout.isPeriodInRows()) {
+                        layout.rows.replaceDimensionByName('pe', peDimension);
+                    } else {
+                        layout.columns.replaceDimensionByName('pe', peDimension);
+                    }
+
+                    uiManager.get('westRegion').setState(layout);
+
+                    layout.setResponse(null);
+
+                    instanceManager.getReport(layout, false, false, true);
+                }
+            });
+        }
+
+        menuItems.push({
+            text: i18n.period_drill_down_up,
+            iconCls: 'ns-menu-item-datasource',
+            menu: periodMenuItems
+        });
+
+
         // menu
         menu = Ext.create('Ext.menu.Menu', {
             shadow: true,
             showSeparator: false,
-            items: [
-                {
-                    text: 'Open selection as chart' + '&nbsp;&nbsp;', //i18n
-                    iconCls: 'ns-button-icon-chart',
-                    param: 'chart',
-                    handler: function() {
-                        sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
-                    },
-                    listeners: {
-                        render: function() { //TODO
-                            this.getEl().on('mouseover', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
-                            });
-
-                            this.getEl().on('mouseout', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseout', 'chart');
-                            });
-                        }
-                    }
-                },
-                {
-                    text: 'Open selection as map' + '&nbsp;&nbsp;', //i18n
-                    iconCls: 'ns-button-icon-map',
-                    param: 'map',
-                    disabled: true,
-                    handler: function() {
-                        sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-mapping/index.html?s=analytical');
-                    },
-                    listeners: {
-                        render: function() {
-                            this.getEl().on('mouseover', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseover', 'map');
-                            });
-
-                            this.getEl().on('mouseout', function() {
-                                onValueMenuMouseHover(table, uuid, 'mouseout', 'map');
-                            });
-                        }
-                    }
-                }
-            ]
+            items: menuItems
         });
 
         menu.showAt(function() {
@@ -217,7 +297,7 @@ TableManager = function(c) {
             if (uuidDimUuidsMap.hasOwnProperty(key)) {
                 valueEl = Ext.get(key);
 
-                if (valueEl && parseFloat(valueEl.dom.textContent)) {
+                if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
                     valueEl.dom.onValueMouseClick = onValueMouseClick;
                     valueEl.dom.onValueMouseOver = onValueMouseOver;
                     valueEl.dom.onValueMouseOut = onValueMouseOut;

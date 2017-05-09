@@ -2,7 +2,7 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var I18nManager;
 
-I18nManager = function(config) {
+I18nManager = function(refs, config) {
     var t = this;
 
     var translations = config || {};

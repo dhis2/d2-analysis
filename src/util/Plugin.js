@@ -2,7 +2,7 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var Plugin;
 
-Plugin = function({ refs, renderFn, initializeFn }) {
+Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
     const t = this;
 
     // public properties
@@ -55,26 +55,31 @@ Plugin = function({ refs, renderFn, initializeFn }) {
     };
 
     const _initializeFn = function (readyFn = _readyFn, runFn = _runFn) {
-        const appManager = refs.appManager;
-        const requestManager = refs.requestManager;
-        const init = refs.init;
-        const Request = refs.api.Request;
+        const { appManager, requestManager, init } = refs;
+        const { Request } = refs.api;
 
         appManager.path = t.url;
         appManager.setAuth(t.username && t.password ? t.username + ':' + t.password : null);
 
         // user account
-        $.getJSON(appManager.getPath() + '/api/me/user-account.json').done(function (userAccount) {
-            appManager.userAccount = userAccount;
+        new Request(refs, {
+            baseUrl: appManager.getApiPath() + '/me.json',
+            type: 'json',
+            param: [
+                'fields=id,firstName,surname,userCredentials[username],settings'
+            ],
+            success: function (response) {
+                appManager.userAccount = response;
 
-            requestManager.add(new Request(init.legendSetsInit(refs)));
-            requestManager.add(new Request(init.dimensionsInit(refs)));
+                // inits
+                inits.forEach(initFn => requestManager.add(new Request(refs, initFn(refs))));
 
-            readyFn();
+                readyFn();
 
-            requestManager.set(runFn);
-            requestManager.run();
-        });
+                requestManager.set(runFn);
+                requestManager.run();
+            }
+        }).run();
     };
 };
 

@@ -1,20 +1,15 @@
-import isString from 'd2-utilizr/lib/isString';
-import isNumber from 'd2-utilizr/lib/isNumber';
-import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isArray from 'd2-utilizr/lib/isArray';
-import isObject from 'd2-utilizr/lib/isObject';
+import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
-import arrayContains from 'd2-utilizr/lib/arrayContains';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
-import { Axis } from './Axis.js';
-import { Dimension } from './Dimension.js';
-import { Request } from './Request.js';
-import { ResponseRowIdCombination } from './ResponseRowIdCombination.js';
-import { Sorting } from './Sorting.js';
 import { DateManager } from '../manager/DateManager.js';
 
 export var Layout;
@@ -23,6 +18,8 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var t = this;
 
     refs = isObject(refs) ? refs : {};
+
+    var { Axis, Sorting } = refs.api;
 
     c = isObject(c) ? c : {};
     $.extend(c, applyConfig);
@@ -38,9 +35,9 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var _dataDimensionItems;
 
     // constructor
-    t.columns = (Axis(c.columns)).val();
-    t.rows = (Axis(c.rows)).val();
-    t.filters = (Axis(c.filters)).val(true);
+    t.columns = (Axis(refs, c.columns)).val(true);
+    t.rows = (Axis(refs, c.rows)).val(true);
+    t.filters = (Axis(refs, c.filters)).val(true);
 
         // access
     _access = isObject(c.access) ? c.access : null;
@@ -64,9 +61,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     t.name = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(item => isString(item));
 
         // title
-    if (isString(c.title)) {
-        t.title = c.title;
-    }
+    t.title = arrayClean([c.displayShortName, c.title]).find(item => isString(item));
 
         // description
     if (isString(c.description)) {
@@ -75,7 +70,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
 
         // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
-        t.sorting = new Sorting(c.sorting);
+        t.sorting = new Sorting(refs, c.sorting);
     }
 
         // displayProperty
@@ -278,10 +273,13 @@ Layout.prototype.extendRecords = function(response) {
 };
 
 Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Axis } = refs.api;
 
     if (!skipAddToFilter && !t.filters) {
-        t.filters = new t.getRefs().api.Axis();
+        t.filters = new Axis(refs);
     }
 
     t.getAxes(includeFilter).forEach(function(axis) {
@@ -305,6 +303,7 @@ Layout.prototype.getRecordIds = function(includeFilter) {
     return ids;
 };
 
+
 Layout.prototype.getDimension = function(dimensionName) {
     return this.getDimensions(true).find(function(dimension) {
         return dimension.dimension === dimensionName;
@@ -317,7 +316,7 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     return isSorted ? names.sort() : names;
 };
 
-Layout.prototype.getDimensionNameRecordIdsMap = function(response) {
+Layout.prototype.getDimensionNameIdsMap = function(response) {
     var map = {};
 
     response = response || this.getResponse();
@@ -547,6 +546,11 @@ Layout.prototype.toSession = function() {
 };
 
 Layout.prototype.sort = function(table) {
+    var t = this,
+        refs = t.getRefs();
+
+    var { Record, Dimension, ResponseRowIdCombination } = refs.api;
+
     var id = this.sorting.id,
         direction = this.sorting.direction,
         dimension = this.rows[0],
@@ -561,10 +565,10 @@ Layout.prototype.sort = function(table) {
         return;
     }
 
-    ids = this.getDimensionNameRecordIdsMap(response)[dimension.dimension];
+    ids = this.getDimensionNameIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
-        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination([id, item]).get())]);
+        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination(refs, [id, item]).get())]);
 
         obj = {
             id: item,
@@ -578,10 +582,8 @@ Layout.prototype.sort = function(table) {
     arraySort(records, direction, 'sortingId');
 
     // dimension
-    dimension.items = records;
+    dimension.items = records.map(record => new Record(refs, record));
     dimension.sorted = true;
-
-    dimension = new Dimension(dimension);
 
     this.sorting.id = id;
 };
@@ -607,42 +609,6 @@ Layout.prototype.getFirstDxId = function() {
     return this.getDimension('dx').getRecordIds()[0];
 };
 
-Layout.prototype.data = function(source, format) {
-    var t = this,
-        refs = this.getRefs();
-
-    var uiManager = refs.uiManager;
-
-    var metaDataRequest = this.req(source, format);
-    var dataRequest = this.req(source, format, true);
-
-    var errorFn = function(r) {
-
-        // 409
-        if (isObject(r) && r.status == 409) {
-            uiManager.unmask();
-
-            if (isString(r.responseText)) {
-                uiManager.alert(JSON.parse(r.responseText));
-            }
-        }
-    };
-
-    metaDataRequest.setType(this.getDefaultFormat());
-    dataRequest.setType(this.getDefaultFormat());
-
-    metaDataRequest.add('skipData=true');
-    dataRequest.add('skipMeta=true');
-
-    metaDataRequest.setError(errorFn);
-    dataRequest.setError(Function.prototype);
-
-    return {
-        metaData: metaDataRequest.run(),
-        data: dataRequest.run()
-    };
-};
-
 Layout.prototype.del = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
@@ -656,6 +622,10 @@ Layout.prototype.toPost = function() {
     var t = this;
 
     t.toPostSuper();
+};
+
+Layout.prototype.isPeriodInRows = function() {
+    return this.rows.getDimensionNames().indexOf('pe') !== -1;
 };
 
 // dep 4
@@ -683,16 +653,20 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         uiManager.mask();
     }
 
-    instanceManager.getSharingById(t.id, function(sharing) {
+    // "Save as" mode, t.id is present, copy settings from original
+    if (t.id) {
+        instanceManager.getSharingById(t.id, function(sharing) {
+            // set sharing
+            if (isObject(sharing) && isObject(sharing.object)) {
+                t.setSharing(sharing.object);
+            }
+        });
+    }
+
         t.toPost();
 
-        // set sharing
-        if (isObject(sharing) && isObject(sharing.object)) {
-            t.setSharing(sharing.object);
-        }
-
         // post
-        var postRequest = new Request({
+        var postRequest = new refs.api.Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'POST',
@@ -715,7 +689,7 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
         });
 
         postRequest.run();
-    });
+//    });
 };
 
 Layout.prototype.put = function(id, fn, doMask, doUnmask) {
@@ -744,7 +718,7 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
         }
 
         // put
-        var putRequest = new Request({
+        var putRequest = new refs.api.Request(refs, {
             baseUrl: url,
             type: 'ajax',
             method: 'PUT',
@@ -807,9 +781,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     var t = this,
         refs = this.getRefs();
 
+    var { Request } = refs.api;
+
     var optionConfig = refs.optionConfig,
         appManager = refs.appManager,
-        request = new Request();
+        request = new Request(refs);
 
     var defAggTypeId = optionConfig.getAggregationType('def').id,
         displayProperty = this.displayProperty || appManager.getAnalyticsDisplayProperty();
@@ -905,4 +881,42 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     request.setBaseUrl(this.getRequestPath(source, format));
 
     return request;
+};
+
+// dep 5
+
+Layout.prototype.data = function(source, format) {
+    var t = this,
+        refs = this.getRefs();
+
+    var uiManager = refs.uiManager;
+
+    var metaDataRequest = this.req(source, format);
+    var dataRequest = this.req(source, format, true);
+
+    var errorFn = function(r) {
+
+        // 409
+        if (isObject(r) && r.status == 409) {
+            uiManager.unmask();
+
+            if (isString(r.responseText)) {
+                uiManager.alert(JSON.parse(r.responseText));
+            }
+        }
+    };
+
+    metaDataRequest.setType(this.getDefaultFormat());
+    dataRequest.setType(this.getDefaultFormat());
+
+    metaDataRequest.add('skipData=true');
+    dataRequest.add('skipMeta=true');
+
+    metaDataRequest.setError(errorFn);
+    dataRequest.setError(Function.prototype);
+
+    return {
+        metaData: metaDataRequest.run(),
+        data: dataRequest.run()
+    };
 };
