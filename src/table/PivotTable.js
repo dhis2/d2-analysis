@@ -97,6 +97,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         // legend set
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
         legendDisplayStyle = layout.legendDisplayStyle,
+        legendDisplayStrategy = layout.legendDisplayStrategy,
 
         // utils
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
@@ -150,59 +151,83 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return html;
     };
 
-    getTdHtml = function(config, metaDataId) {
-        var bgColor,
-            legends,
-            colSpan,
-            rowSpan,
-            htmlValue,
-            displayDensity,
-            fontSize,
-            isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty,
-            isValue = isNumeric && config.type === 'value',
-            cls = '',
-            html = '',
-            getHtmlValue;
-
-        getHtmlValue = function(config) {
-            var str = config.htmlValue,
-                n = parseFloat(config.htmlValue);
-
-            if (config.collapsed) {
-                return '';
-            }
-
-            if (isValue) {
-                if (isBoolean(str)) {
-                    return str;
-                }
-
-                //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
-                if (!isNumber(n) || n != str) {
-                    return str;
-                }
-
-                return n;
-            }
-
-            return str || '';
+    const getHtmlValue = function(config, isValue) {
+        if (config.collapsed) {
+            return '';
         }
 
+        var str = config.htmlValue,
+            n = parseFloat(config.htmlValue);
+
+        if (isValue) {
+            if (isBoolean(str)) {
+                return str;
+            }
+
+            //if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
+            if (!isNumber(n) || n != str) {
+                return str;
+            }
+
+            return n;
+        }
+
+        return str || '';
+    };
+
+    getTdHtml = function(config, metaDataId) {
+       var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
+        var isValue = isNumeric && config.type === 'value';
+        var bgColor;
+        var legends = [];
+
+        // validation
         if (!isObject(config)) {
             return '';
         }
 
-        if (config.hidden || config.collapsed) {
+        if (config.hidden || config.collapsed) {
             return '';
         }
 
-        // number of cells
-        tdCount += 1;
+        // count number of cells
+        tdCount = tdCount + 1;
 
-        // background color from legend set
-        if (isValue && legendSet) {
+        var attributes = [];
+        var cls = [];
+        var style = [];
+
+        // html value
+        var htmlValue = getHtmlValue(config, isValue);
+        var ppHtmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
+
+        // cls
+        cls.push(...(config.cls ? config.cls.split(' ') : []));
+        cls.push(config.hidden ? 'td-hidden' : null);
+        cls.push(config.collapsed ? 'td-collapsed' : null);
+        cls.push(isValue && !unclickable ? 'pointer' : null);
+        cls.push(isString(metaDataId) ? 'td-sortable' : null);
+
+        if (isString(metaDataId)) {
+            sortableIdObjects.push({
+                id: metaDataId,
+                uuid: config.uuid
+            });
+        }
+
+        if (isValue) {
             var value = parseFloat(config.value);
-            legends = legendSet.legends;
+
+            if (legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id) {
+                if (config.dxId && response.metaData.items[config.dxId].legendSet) {
+                    var legendSetId = response.metaData.items[config.dxId].legendSet,
+                        _legendSet = appManager.getLegendSetById(legendSetId);
+
+                    legends = _legendSet.legends;
+                }
+            } else {
+                legends = legendSet ? legendSet.legends || [] : [];
+            }
 
             for (var i = 0; i < legends.length; i++) {
                 if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
@@ -211,86 +236,47 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
 
-        colSpan = config.colSpan ? 'colspan="' + config.colSpan + '" ' : '';
-        rowSpan = config.rowSpan ? 'rowspan="' + config.rowSpan + '" ' : '';
-        htmlValue = getHtmlValue(config);
-        htmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
-
-        cls += config.hidden ? ' td-hidden' : '';
-        cls += config.collapsed ? ' td-collapsed' : '';
-        cls += isValue ? ' pointer' : '';
-        //cls += bgColor ? ' legend' : (config.cls ? ' ' + config.cls : '');
-        cls += config.cls ? ' ' + config.cls : '';
-
-        // if sorting
-        if (isString(config.sort)) {
-            cls += ' td-sortable';
-
-            sortableIdObjects.push({
-                id: metaDataId,
-                uuid: config.uuid
-            });
-        }
-
-        html += '<td ' + (config.uuid ? ('id="' + config.uuid + '" ') : '');
-        html += ' class="' + cls + '" ' + colSpan + rowSpan;
-        html += config.title ? ' title="' + config.title + '" ' : '';
-
-        //if (bgColor && isValue) {
-            //html += 'style="color:' + bgColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
-            //html += '>';
-            //html += '<div class="legendCt">';
-            //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
-            //html += '<div class="arrowCt ' + config.cls + '">';
-            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + bgColor + '">&nbsp;</div>';
-            //html += '</div></div></div></td>';
-        //}
-        //else {
-        //    html += 'style="' + (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
-        //}
-
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
             if(bgColor) {
                 var rgb = uiManager.hexToRgb(bgColor),
                     color = uiManager.isColorBright(rgb) ? 'black' : 'white';
-                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') + 
-                                    (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
-                                    (config.width ? 'max-width:' + config.width + 'px;' : '') +
-                                    (config.height ? 'height:' + config.height + 'px!important;' : '') + 
-                                    (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
-                                    (config.height ? 'max-height:' + config.height + 'px!important;' : '') +
-                                    (doDynamicTableUpdate() ? 'overflow: hidden;' : '') +
-                                    (doDynamicTableUpdate() ? 'text-overflow: ellipsis;' : '') +
-                                    (doDynamicTableUpdate() ? 'white-space: nowrap;' : '') +
-                                    (bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '') + '">' + htmlValue + '</td>';
+
+                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '');
             } else {
-                html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') +
-                                    (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
-                                    (config.width ? 'max-width:' + config.width + 'px;' : '') +
-                                    (config.height ? 'height:' + config.height + 'px!important;' : '') + 
-                                    (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
-                                    (config.height ? 'max-height:' + config.height + 'px!important;' : '') +
-                                    (doDynamicTableUpdate() ? 'overflow: hidden;' : '') +
-                                    (doDynamicTableUpdate() ? 'text-overflow: ellipsis;' : '') +
-                                    (doDynamicTableUpdate() ? 'white-space: nowrap;' : '') +
-                                    (bgColor && isValue ? 'background-color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; ' : '');
             }
         }
 
         if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            html += 'style="' + (config.width ? 'width:' + config.width + 'px!important;' : '') +
-                                (config.width ? 'min-width:' + config.width + 'px!important;' : '') +
-                                (config.width ? 'max-width:' + config.width + 'px!important;' : '') +
-                                (config.height ? 'height:' + config.height + 'px!important;' : '') + 
-                                (config.height ? 'min-height:' + config.height + 'px!important;' : '') +
-                                (config.height ? 'max-height:' + config.height + 'px!important;' : '') +
-                                (doDynamicTableUpdate() ? 'overflow: hidden;' : '') +
-                                (doDynamicTableUpdate() ? 'text-overflow: ellipsis;' : '') +
-                                (doDynamicTableUpdate() ? 'white-space: nowrap;' : '') +
-                                (bgColor && isValue ? 'color:' + bgColor + '; ' : '') + '">' + htmlValue + '</td>';
+            style.push(bgColor && isValue ? 'color:' + bgColor + '; ' : '');
         }
 
-        return html;
+        // attributes
+        cls = arrayClean(cls);
+        style = arrayClean(style);
+
+        attributes.push('data-period-id="' + config.peId + '"');
+        attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
+        attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
+        attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
+        attributes.push(config.colSpan ? 'colspan="' + config.colSpan + '"' : null);
+        attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
+        attributes.push(config.title ? 'title="' + config.title + '"' : null);
+
+        //if (legendColor && isValue) {
+            //html += 'style="color:' + legendColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
+            //html += '>';
+            //html += '<div class="legendCt">';
+            //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
+            //html += '<div class="arrowCt ' + config.cls + '">';
+            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + legendColor + '">&nbsp;</div>';
+            //html += '</div></div></div></td>';
+        //}
+        //else {
+        //    html += 'style="' + (legendColor && isValue ? 'color:' + legendColor + '; ' : '') + '">' + htmlValue + '</td>';
+        //}
+
+        return '<td ' + arrayClean(attributes).join(' ') + '>' + ppHtmlValue + '</td>';
     };
 
     // TODO: rename to something more usefull
@@ -705,6 +691,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     width: doDynamicTableUpdate() ? 120 : null,
                     height: doDynamicTableUpdate() ? 25 : null,
                     dxId: rric.getDxIdByIds(response.metaData.dx),
+                    peId: rric.getPeIdByIds(response.metaData.dimensions.pe),
                     rowSpan: 1,
                     colSpan: 1,
                 }
@@ -968,6 +955,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }());
     
     // constructor
+    t.html = renderTable();
     t.dynamic = doDynamicTableUpdate();
     t.render = renderTable;
     

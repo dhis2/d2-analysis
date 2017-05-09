@@ -190,6 +190,8 @@ TableManager = function(c) {
             name: response.getNameById(periodId)
         }, layout.getRefs());
 
+        console.log(period);
+
         period.generateDisplayProperties();
 
         const periods = period.getContextMenuItemsConfig();
