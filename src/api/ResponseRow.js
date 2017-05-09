@@ -13,25 +13,25 @@ ResponseRow = function(refs, config) {
         t.idCombination = idCombination;
     };
 
-    t.getNames = function(response) {
+    t.getNames = function(response, ignoreIndexes) {
         if (!t.idCombination) {
             t.setIdCombination(new refs.api.ResponseRowIdCombination(refs, t));
         }
 
-        return t.idCombination.getNames(response);
+        return t.idCombination.getNames(response, ignoreIndexes);
     };
 
     t.toFloat = function(index) {
         t[index] = parseFloat(t[index]);
     };
 
-    t.getRowHtml = function(response, trClass, tdClass) {
+    t.getRowHtml = function(response, trClass, tdClass, ignoreIndexes) {
         trClass = trClass ? ' class="' + trClass + '"' : '';
         tdClass = tdClass ? ' class="' + tdClass + '"' : '';
 
         var tdStyle = ' style="padding:0 5px"';
 
-        return '<tr' + trClass + '>' + t.getNames(response).map(name => '<td' + tdClass + tdStyle + '>' + name + '</td>').join('') + '</tr>';
+        return '<tr' + trClass + '>' + t.getNames(response, ignoreIndexes).map(name => '<td' + tdClass + tdStyle + '>' + name + '</td>').join('') + '</tr>';
     };
 
     // uninitialized
