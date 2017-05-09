@@ -185,7 +185,6 @@ TableManager = function(c) {
         ];
 
         if (periodId) {
-            console.log(periodId);
             const periodMenuItems = [];
             const period = new Period({
                 id: periodId,
