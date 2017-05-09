@@ -184,58 +184,61 @@ TableManager = function(c) {
             }
         ];
 
-        const periodMenuItems = [];
-        const period = new Period({
-            id: periodId,
-            name: response.getNameById(periodId)
-        }, layout.getRefs());
+        if (periodId) {
+            console.log(periodId);
+            const periodMenuItems = [];
+            const period = new Period({
+                id: periodId,
+                name: response.getNameById(periodId)
+            }, layout.getRefs());
 
-        period.generateDisplayProperties();
+            period.generateDisplayProperties();
 
-        const periods = period.getContextMenuItemsConfig();
+            const periods = period.getContextMenuItemsConfig();
 
-        for (let i = 0, periodItem; i < periods.length; ++i) {
-            periodItem = periods[i];
+            for (let i = 0, periodItem; i < periods.length; ++i) {
+                periodItem = periods[i];
 
-            if (periodItem.isSubtitle) {
+                if (periodItem.isSubtitle) {
+                    periodMenuItems.push({
+                        xtype: 'label',
+                        html: periodItem.text,
+                        style: periodItem.style
+                    });
+
+                    continue;
+                }
+
                 periodMenuItems.push({
-                    xtype: 'label',
-                    html: periodItem.text,
-                    style: periodItem.style
-                });
+                    text: periodItem.text,
+                    iconCls: periodItem.iconCls,
+                    peReqItems: periodItem.items,
+                    handler: function() {
+                        const layout = instanceManager.getStateCurrent();
+                        const uiManager = layout.getRefs().uiManager;
+                        const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
 
-                continue;
+                        if (layout.isPeriodInRows()) {
+                            layout.rows.replaceDimensionByName('pe', peDimension);
+                        } else {
+                            layout.columns.replaceDimensionByName('pe', peDimension);
+                        }
+
+                        uiManager.get('westRegion').setState(layout);
+
+                        layout.setResponse(null);
+
+                        instanceManager.getReport(layout, false, false, true);
+                    }
+                });
             }
 
-            periodMenuItems.push({
-                text: periodItem.text,
-                iconCls: periodItem.iconCls,
-                peReqItems: periodItem.items,
-                handler: function() {
-                    const layout = instanceManager.getStateCurrent();
-                    const uiManager = layout.getRefs().uiManager;
-                    const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
-
-                    if (layout.isPeriodInRows()) {
-                        layout.rows.replaceDimensionByName('pe', peDimension);
-                    } else {
-                        layout.columns.replaceDimensionByName('pe', peDimension);
-                    }
-
-                    uiManager.get('westRegion').setState(layout);
-
-                    layout.setResponse(null);
-
-                    instanceManager.getReport(layout, false, false, true);
-                }
+            menuItems.push({
+                text: i18n.period_drill_down_up,
+                iconCls: 'ns-menu-item-datasource',
+                menu: periodMenuItems
             });
         }
-
-        menuItems.push({
-            text: i18n.period_drill_down_up,
-            iconCls: 'ns-menu-item-datasource',
-            menu: periodMenuItems
-        });
 
 
         // menu
