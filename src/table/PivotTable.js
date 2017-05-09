@@ -187,7 +187,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls = arrayClean(cls);
         style = arrayClean(style);
 
-        attributes.push('data-period-id="' + config.peId + '"');
+        attributes.push('data-period-id="' + (config.peId || '') + '"');
         attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
         attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
         attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
