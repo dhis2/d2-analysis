@@ -395,7 +395,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }
 
     doDynamicTableUpdate = function() {
-        return true;
+        return false;
     }
 
     //TODO: have all cell creation go through this function
@@ -454,9 +454,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                     valueTable.rows[i].values[j].collapsed = true;
                 }
                 dimLeaf = axisObjects[i][rowAxis.dims-1];
+                console.log(dimLeaf);
                 if (dimLeaf) {
                     recursiveReduce(dimLeaf);
-                    axisObjects[i][0].collapsed = true;
+                    // axisObjects[i][0].collapsed = true;
                 }
             }
         }
@@ -950,117 +951,13 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }        
     }
 
-    renderTable = function(rowStart=0, colStart=0, cellWidth=120, cellHeight=25) {
-
-        if(!doDynamicTableUpdate()) {
-            // create html array
-            var htmlArray = arrayClean([].concat(
-                options.skipTitle ? [] : getTitle(completeTableObjects[0].length) || [],
-                getFilterHtmlArray(completeTableObjects[0].length) || [],
-                getTableHtml(completeTableObjects)
-            ));
-
-            // turn html array into html string;
-            return getHtml(htmlArray);
-        }  
-
-        const rowEnd = Math.floor((document.body.clientHeight / cellHeight) + rowStart),
-              colEnd = Math.floor((document.body.clientWidth / cellWidth) + colStart),
-              topPad = rowStart * cellHeight,
-              botPad = (completeTableObjects.length - rowEnd) * cellHeight,
-              table = completeTableObjects.slice(rowStart, rowEnd);
-      
-        // loop through each row of table
-        for(let i = 0, rightPad, leftPad; i < table.length; i++) {
-            
-            // define amount of right padding to simulate scrolling
-            rightPad = (completeTableObjects[i].length - colEnd) * cellWidth;
-
-            // define amount of left padding to simulate scrolling
-            leftPad = colStart * cellWidth;
-
-            // slice viewable column cells
-            if(colStart < rowAxis.dims && table[i][0].colSpan > 1) {
-                table[i] = table[i].slice(0, colEnd);
-                table[i][0] = clone(table[i][0]);
-                table[i][0].colSpan = rowAxis.dims - colStart;  
-                if(i === 0 && table[i][0].hidden) {
-                    table[i][0].hidden = false;
-                }
-            } else {
-                table[i] = table[i].slice(colStart, colEnd);
-            }
-
-            // deal with top left empty cell
-            if(rowStart < colAxis.dims) {
-                for (var j = 0; j < table[0].length; j++) {
-                    if(table[0][j].hidden && table[0][j].type !== 'dimension' && j > rowAxis.dims + 1) {
-                        table[0][j] = clone(table[0][j]);
-                        table[0][j].hidden = false;
-                    }
-                }
-            }
-
-            // resize colspan of col axis
-            if(i < colAxis.dims && table[i][0].children > 1 && table[i][0].hidden && rowStart < colAxis.dims) {
-                let counter = 1, next = table[i][counter];
-                while(next && table[i][0].id === next.id) {
-                    counter++;
-                    next = table[i][counter];
-                }
-
-                // clone object to not modify original object
-                table[i][0] = clone(table[i][0]);
-                table[i][0].hidden = false;
-                table[i][0].colSpan = counter;
-            }
-
-            // resize rowspan of row axis TODO: Find a better way to do this
-            if(rowStart >= colAxis.dims) {
-                for(let j=0; j < rowAxis.dims; j++) {
-                    if(table[0][j].children > 1 && table[0][j].hidden) {
-                        let counter = 0, next = table[colAxis.dims - 1 + counter][j];
-                        while(next && table[counter][j].id === next.id) {
-                            counter++;
-                            next = table[colAxis.dims - 1 + counter][j];
-                        }
-                        // clone object to not modify original object
-                        table[0][j] = clone(table[0][j]);
-                        table[0][j].hidden = false;
-                        table[0][j].rowSpan = counter + 1;
-                    }
-                }
-            }
-
-            // resize row to keep table size consistent
-            resizeRow(table[i], colEnd - colStart);
-
-            // add left pad to table to start of array
-            if(colStart > 0) {
-                table[i].unshift(createCell(null, 'pivot-padding', 'padding', {width: leftPad}));
-            }
-
-            // add right pad to table to end of array
-            if(rightPad > 0) {
-                table[i].push(createCell(null, 'pivot-padding', 'padding', {width: rightPad}));
-            }
-        }
-
-        // add top pad to table to start of array
-        if(rowStart > 0) {
-            table.unshift([createCell(null, 'pivot-padding', 'padding', {height: topPad, colSpan: (colEnd - colStart) + 1})]);
-        }
-
-        // add bottom pad to table to end of array
-        if(botPad > 0) {
-            table.push([createCell(null, 'pivot-padding', 'padding', {height: botPad, colSpan: (colEnd - colStart) + 1})]);
-        }
+    renderTable = function() {
 
         // create html array
         var htmlArray = arrayClean([].concat(
-            // options.skipTitle ? [] : getTitle(table[0].length) || [],
-            // getFilterHtmlArray(table[0].length) || [],
-            getTableHtml(table)
+            options.skipTitle ? [] : getTitle(completeTableObjects[0].length) || [],
+            getFilterHtmlArray(completeTableObjects[0].length) || [],
+            getTableHtml(completeTableObjects)
         ));
 
         // turn html array into html string;
@@ -1085,9 +982,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     // constructor
     t.dynamic = doDynamicTableUpdate();
     t.render = renderTable;
+    
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
     t.idValueMap = idValueMap;
+    
     t.tdCount = tdCount;
     t.layout = layout;
     t.response = response;
