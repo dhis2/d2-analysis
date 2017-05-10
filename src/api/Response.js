@@ -219,7 +219,9 @@ Response.prototype.sortOrganisationUnitsHierarchy = function() {
         });
 
         hierarchyIds.map(ouId => {
-            hierarchyNames.push(this.metaData.items[ouId].name);
+            if (this.metaData.items[ouId]) {
+                hierarchyNames.push(this.metaData.items[ouId].name);
+            }
         });
 
         organisationUnits[i] = {
