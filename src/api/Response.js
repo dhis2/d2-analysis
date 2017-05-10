@@ -445,6 +445,10 @@ Response.prototype.getValueHeader = function() {
     return this.getHeaderByName('value');
 };
 
+Response.prototype.hasIdByDimensionName = function(id, dimensionName) {
+    return arrayContains(this.getIdsByDimensionName(dimensionName), id);
+};
+
 // dep 2
 
 Response.prototype.getValueHeaderIndex = function() {
