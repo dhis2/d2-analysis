@@ -262,9 +262,10 @@ TableManager = function(c) {
 
             const ouMenu = menu.items.findBy(submenu => submenu.uid === 'OU_MENU');
             const organisationUnit = new OrganisationUnit({ id: ouId }, layout.getRefs());
-            
+
             organisationUnit.getAncestorsRequest(function(response) {
                 organisationUnit.setAncestors(response.ancestors);
+                organisationUnit.setLevel(response.level);
 
                 const organisationUnitMenuItems = organisationUnit.getContextMenuItemsConfig();
 
