@@ -34,10 +34,6 @@ ResponseRowIdCombination.prototype.getNames = function(response, ignoreIndexes) 
     return ids.map(id => response.getNameById(id));
 };
 
-ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
-    return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
-};
-
-ResponseRowIdCombination.prototype.getPeIdByIds = function(peIds) {
-  return this.ids.filter(id => arrayContains(arrayFrom(peIds), id))[0];
+ResponseRowIdCombination.prototype.getIdByIds = function(ids) {
+    return this.ids.filter(id => arrayContains(arrayFrom(ids), id))[0];
 };
