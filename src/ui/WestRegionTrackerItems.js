@@ -109,11 +109,25 @@ WestRegionTrackerItems = function(refs) {
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
             var numericValueTypes = dimensionConfig.valueType['numeric_types'];
 
+            // add to layout value store
             this.each(function(record) {
-                if (record.data.isProgramIndicator || arrayContains(numericValueTypes, record.data.valueType)) {
+                if (arrayContains(numericValueTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
             });
+
+            this.toggleProgramIndicators();
+        },
+        toggleProgramIndicators: function(type) {
+            type = type || uiManager.get('dataTypeToolbar').getDataType();
+
+            this.clearFilter();
+
+            if (type === dimensionConfig.dataType['aggregated_values']) {
+                this.filterBy(function(record) {
+                    return !record.data.isProgramIndicator;
+                });
+            }
         }
     });
 
@@ -153,6 +167,14 @@ WestRegionTrackerItems = function(refs) {
     });
 
     // components
+    var onTypeClick = function(type) {
+
+        // available
+        dataElementsByStageStore.toggleProgramIndicators(type);
+
+        // selected
+        dataElementSelected.toggleProgramIndicators(type);
+    };
 
     var setLayout = function(layout) {
         accordion.clearDimensions(layout);
@@ -518,14 +540,17 @@ console.log("data", data);
                         load();
                         return;
                     }
-console.log("stages[0].programStageDataElements", stages[0].programStageDataElements);
-                    // filter non-aggregatable types
+
+                    var include = function(element) {
+                        return arrayContains(types, element.valueType) || isObject(element.optionSet) || isArray(element.legendSets || element.storageLegendSets);
+                    };
+
+                    // filter by type
                     var dataElements = arrayPluck(stages[0].programStageDataElements, 'dataElement').filter(dataElement => {
                         dataElement.isDataElement = true;
-                        return arrayContains(types, dataElement.valueType);
+                        return include(dataElement);
                     });
 
-console.log("dataElements", dataElements);
                     // data elements cache
                     dataElementStorage[stageId] = dataElements;
 
@@ -723,6 +748,16 @@ console.log("dataElements", dataElements);
             for (var i = 0; i < len; i++) {
                 items[0].removeDataElement(reset);
             }
+        },
+        toggleProgramIndicators: function(type) {
+            this.items.each(function(item) {
+                if (type === dimensionConfig.dataType['aggregated_values'] && item.isProgramIndicator) {
+                    item.disable();
+                }
+                else {
+                    item.enable();
+                }
+            });
         }
     });
 
@@ -3131,7 +3166,8 @@ console.log("store",store);
         treePanel: treePanel,
 
         getUiState: getUiState,
-        setUiState: setUiState
+        setUiState: setUiState,
+        onTypeClick: onTypeClick
     });
 
     return accordion;
