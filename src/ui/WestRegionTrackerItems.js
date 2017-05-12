@@ -498,12 +498,12 @@ WestRegionTrackerItems = function(refs) {
 
         var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
-console.log("data", data);
+
             dataElementsByStageStore.loadData(data);
             dataElementsByStageStore.onLoadData();
 
             if (layout) {
-                var dataDimensions = layout ? layout.getDimensions().filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)) : [],
+                var dataDimensions = layout ? layout.getDimensions(true).filter(dim => !arrayContains(['pe', 'ou'], dim.dimension)) : [],
                     records = [];
 
                 for (var i = 0, dim, row; i < dataDimensions.length; i++) {
