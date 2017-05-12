@@ -41,3 +41,7 @@ ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
 ResponseRowIdCombination.prototype.getPeIdByIds = function(peIds) {
   return this.ids.filter(id => arrayContains(arrayFrom(peIds), id))[0];
 };
+
+ResponseRowIdCombination.prototype.getOuIdByIds = function(ouIds) {
+    return this.ids.filter(id => arrayContains(arrayFrom(ouIds), id))[0];
+};
