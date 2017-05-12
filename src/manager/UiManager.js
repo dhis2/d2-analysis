@@ -562,6 +562,7 @@ UiManager = function(refs) {
 
     // redirect
     t.openTableLayoutTab = function(layout, type, isNewTab) {
+        layout = layout || t.instanceManager.getStateCurrent();
         type = type || 'xls';
 
         var url = layout.req(null, type, false, true).url();
