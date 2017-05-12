@@ -2,6 +2,7 @@ import isString from 'd2-utilizr/lib/isString';
 import isArray from 'd2-utilizr/lib/isArray';
 import { Period } from '../api/Period';
 import { Dimension } from '../api/Dimension';
+import { OrganisationUnit } from '../api/OrganisationUnit';
 
 export var TableManager;
 
@@ -92,6 +93,7 @@ TableManager = function(c) {
             path = appManager.getPath(),
             dom = document.getElementById(uuid),
             periodId = dom.getAttribute('data-period-id'),
+            ouId = dom.getAttribute('data-ou-id'),
             i18n = layout.getRefs().i18nManager.get(),
             menu;
 
@@ -239,13 +241,64 @@ TableManager = function(c) {
             });
         }
 
-
         // menu
         menu = Ext.create('Ext.menu.Menu', {
             shadow: true,
             showSeparator: false,
             items: menuItems
         });
+
+        if (ouId) {
+            menu.add({
+                uid: 'OU_MENU',
+                text: i18n.organisation_units_drill_down || 'Org unit drill down/up',
+                iconCls: 'ns-menu-item-datasource',
+                menu: {
+                    items: [
+                        { html: '<div class="spinner"></div>' }
+                    ]
+                }
+            });
+
+            const ouMenu = menu.items.findBy(submenu => submenu.uid === 'OU_MENU');
+            const organisationUnit = new OrganisationUnit({ id: ouId }, layout.getRefs());
+            
+            organisationUnit.getAncestorsRequest(function(response) {
+                organisationUnit.setAncestors(response.ancestors);
+
+                const organisationUnitMenuItems = organisationUnit.getContextMenuItemsConfig();
+
+                // setting click handler
+                for (var i = 0; i < organisationUnitMenuItems.length; ++i) {
+                    const ou = organisationUnitMenuItems[i];
+
+                    if (ou.isSubtitle) {
+                        continue;
+                    }
+
+                    ou.handler = function() {
+                        const layout = instanceManager.getStateCurrent();
+                        const uiManager = layout.getRefs().uiManager;
+                        const ouDimension = new Dimension(layout.getRefs(), { dimension: 'ou', items: this.items });
+
+                        if (layout.isOrganisationUnitInRows()) {
+                            layout.rows.replaceDimensionByName('ou', ouDimension);
+                        } else {
+                            layout.columns.replaceDimensionByName('ou', ouDimension);
+                        }
+
+                        uiManager.get('westRegion').setState(layout);
+
+                        layout.setResponse(null);
+
+                        instanceManager.getReport(layout, false, false, true);
+                    };
+                }
+
+                ouMenu.menu.removeAll();
+                ouMenu.menu.add(organisationUnitMenuItems);
+            });
+        }
 
         menu.showAt(function() {
             var el = Ext.get(uuid),
