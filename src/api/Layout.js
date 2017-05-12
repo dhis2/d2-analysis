@@ -619,14 +619,22 @@ Layout.prototype.toPost = function() {
     t.toPostSuper();
 };
 
-Layout.prototype.isPeriodInRows = function() {
-    return this.rows.getDimensionNames().indexOf('pe') !== -1;
+Layout.prototype.isDimensionInRows = function(dimensionName) {
+    return this.rows.getDimensionNames().indexOf(dimensionName) !== -1;
 };
 
 // dep 4
 
 Layout.prototype.toPut = function() {
     this.toPost();
+};
+
+Layout.prototype.isPeriodInRows = function() {
+    return this.isDimensionInRows('pe');
+};
+
+Layout.prototype.isOrganisationUnitInRows = function() {
+    return this.isDimensionInRows('ou');
 };
 
 // dep 5

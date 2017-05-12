@@ -187,6 +187,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls = arrayClean(cls);
         style = arrayClean(style);
 
+        attributes.push('data-ou-id="' + (config.ouId || '') + '"');
         attributes.push('data-period-id="' + (config.peId || '') + '"');
         attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
         attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
@@ -525,8 +526,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dimensions.dx),
-                    peId: rric.getPeIdByIds(response.metaData.dimensions.pe)
+                    dxId: rric.getIdByIds(response.metaData.dimensions.dx),
+                    peId: rric.getIdByIds(response.metaData.dimensions.pe),
+                    ouId: rric.getIdByIds(response.metaData.dimensions.ou)
                 });
 
                 // map element id to dim element ids
