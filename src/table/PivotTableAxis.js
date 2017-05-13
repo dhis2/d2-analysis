@@ -211,9 +211,7 @@ PivotTableAxis = function(refs, layout, response, type) {
                 oldestObj = obj;
             }
             
-            if(obj.uuid !== oldestObj.uuid && !obj.root) {
-                obj.oldestSibling = oldestObj;
-            }
+            obj.oldestSibling = oldestObj;
 
             if (++doorCount === aFloorSpan[i]) {
                 doorCount = 0;

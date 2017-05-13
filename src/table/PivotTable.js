@@ -413,28 +413,60 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     valueTable.rows[j].values[i].collapsed = true;
                 }
                 dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
-                if (dimLeaf) {
-                    recursiveReduce(dimLeaf);
-                    axisObjects[0][i + rowAxis.dims].collapsed = true;
-                }
+                recursiveReduce(dimLeaf, "colSpan");
             }
         }
     }
 
     hideEmptyRows = function(valueTable, axisObjects) {
         for(var i = 0, dimLeaf; i < valueTable.rows.length; i++) {
-            if(valueTable.rows[i].isEmpty) {
+            if (valueTable.rows[i].isEmpty) {
                 for(var j = 0; j < valueTable.rows[i].values.length; j++) {
                     valueTable.rows[i].values[j].collapsed = true;
                 }
                 dimLeaf = axisObjects[i][rowAxis.dims-1];
-                console.log(dimLeaf);
-                if (dimLeaf) {
-                    recursiveReduce(dimLeaf);
-                    // axisObjects[i][0].collapsed = true;
-                }
+                recursiveReduce(dimLeaf, "rowSpan");
             }
         }
+    }
+
+    const isRowEmpty = function(table, index) {
+        for(var i = 0; i < table[index].length; i++) {
+            if (table[index][i].empty) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const isColumnEmpty = function(table, index) {
+        for(i = 0; i < table.length; i++) {
+            if (table[i][index].empty) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    const getRowTotal = function(table, index) {
+        let total = 0;
+        for(var i = 0; i < table[index].length; i++) {
+            if (table[index][i].type !== 'value-row-total' && table[index][i].type !== 'value-intersect-total') {
+                total += table[index][i].value;
+            }
+        }
+        return total;
+    }
+
+    const getColumnTotal = function(table, index) {
+        let total = 0;
+        for(var i = 0; i < table.length; i++) {
+            if(table[i][index].type === 'value') {
+                total += table[i][index].value;
+            }
+        }
+        return total;
     }
 
     changeToColPercentage = function(valueTable) {
@@ -458,6 +490,51 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
+
+    const hideEmptyRows2 = function(table, axisObjects) {
+        for(var i = 0, dimLeaf; i < table.length; i++) {
+            if (isRowEmpty(table, i)) {
+                for(var j = 0; j < table[i].length; j++) {
+                    table[i][j].collapsed = true;
+                }
+                dimLeaf = axisObjects[i][rowAxis.dims-1];
+                recursiveReduce(dimLeaf, "rowSpan");
+            }
+        }
+    }
+
+    const hideEmptyColumns2 = function(table, axisObjects) {
+        for(var i = 0, dimLeaf; i < table.length; i++) {
+            if(isColumnEmpty(table, i)) {
+                for(var j = 0; j < table.length; j++) {
+                    table[j][i].collapsed = true;
+                }
+                dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
+                recursiveReduce(dimLeaf, "colSpan");
+            }
+        }
+    }
+
+    const changeToColPercentage2 = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!isColumnEmpty(table, i)) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getColumnTotal(table, i)) * 100) + '%';
+                }
+            }
+        }
+    }
+
+    const changeToRowPercentage2 = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!isRowEmpty(table, i)) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getRowTotal(table, i)) * 100) + '%';
+                }    
+            }
+        }
+    }
+
     compressTable = function(valueTable) {
         const valueObjects = [];
         for(var i = 0; i < valueTable.rows.length; i++) {
@@ -469,19 +546,21 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return valueObjects;
     }
 
-    recursiveReduce = function(obj) {
+    recursiveReduce = function(obj, span) {
         if (!obj.children) {
             obj.collapsed = true;
 
             if (obj.parent && obj.parent.oldestSibling) {
                 obj.parent.oldestSibling.children--;
+                obj.parent.oldestSibling[span]--;
             }
         }
 
-        if (obj.parent && obj.parent.oldestSibling) {
+        if (obj.parent) {
             recursiveReduce(obj.parent.oldestSibling);
         }
     };
+
 
     getRowAxisObjectArray = function() {
         const rowAxisArray = [];
@@ -496,8 +575,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     obj.type = 'dimension';
                     obj.cls = 'pivot-dim td-nobreak' + (layout.showHierarchy ? ' align-left' : '');
                     obj.noBreak = true;
-                    obj.width = doDynamicTableUpdate() ? 120 : null,
-                    obj.height = doDynamicTableUpdate() ? 25 : null,
                     obj.hidden = !(obj.rowSpan || obj.colSpan);
                     obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
 
@@ -579,8 +656,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 obj.sort = doSortableColumnHeaders() && i === colAxis.dims - 1 ? colAxis.ids[j] : null; 
                 obj.noBreak = false;
                 obj.hidden = !(obj.rowSpan || obj.colSpan);
-                obj.width = doDynamicTableUpdate() ? 120 : null,
-                obj.height = doDynamicTableUpdate() ? 25 : null,
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
 
                 colAxisArray[i].push(obj);
@@ -615,8 +690,120 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return colAxisArray;
     };
 
+
+    const setTotalCells = function (table) {
+        var columnTotals = new Array(table[1].length).fill(0),
+            columnSubTotals = new Array(table[1].length).fill(0);
+
+        for (var i=0; i < table.length; i++) {
+            for(var j=0, rowTotal=0, rowSubTotal=0; j < table[i].length; j++) {
+
+                var cell = table[i][j];
+                
+                if (cell.type === 'value-row-subtotal') {
+                    cell.value = rowSubTotal;
+                    rowSubTotal = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-column-subtotal') {
+                    cell.value = columnSubTotals[j];
+                    columnSubTotals[j] = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-intersect-subtotal') {
+                    cell.value = columnSubTotals[j];
+                    columnSubTotals[j] = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-row-total') {
+                    cell.value = rowTotal;
+                    continue;
+                }
+
+                if (cell.type === 'value-column-total') {
+                    cell.value = columnTotals[j];
+                    continue;
+                }
+
+                if (cell.type === 'value-intersect-total') {
+                    cell.value = columnTotals[j];
+                    continue;
+                }
+
+                rowTotal += cell.value;
+                rowSubTotal += cell.value;
+                columnTotals[j] += cell.value;
+                columnSubTotals[j] += cell.value;
+                columnTotals[table[i].length - 1] += cell.value;
+                columnSubTotals[table[i].length - 1] += cell.value;
+                
+            }
+        }
+        
+    }
+
+    const setEmptyCells = function (table) {
+        var columnTotalEmpties = new Array(table[1].length).fill(0),
+            columnSubEmpties = new Array(table[1].length).fill(0);
+
+        for (var i=0; i < table.length; i++) {
+            for(var j=0, rowTotalEmpty=0, rowSubEmpty=0; j < table[i].length; j++) {
+
+                var cell = table[i][j];
+
+                if (cell.type === 'value-row-subtotal') {
+                    cell.isEmpty = rowSubEmpty === colUniqueFactor;
+                    rowSubEmpty = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-column-subtotal') {
+                    cell.isEmpty = columnSubEmpties[j] === colUniqueFactor;
+                    columnSubEmpties[j] = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-intersect-subtotal') {
+                    cell.isEmpty = columnSubEmpties[j] === colUniqueFactor;
+                    columnSubEmpties[j] = 0;
+                    continue;
+                }
+
+                if (cell.type === 'value-row-total') {
+                    cell.isEmpty = rowTotalEmpty === colAxis.size;
+                    continue;
+                }
+
+                if (cell.type === 'value-column-total') {
+                    cell.isEmpty = columnTotalEmpties[j] === colUniqueFactor;
+                    continue;
+                }
+
+                if (cell.type === 'value-intersect-total') {
+                    cell.isEmpty = columnTotalEmpties[j] === colUniqueFactor;
+                    continue;
+                }
+
+                rowSubEmpty += cell.empty ? 1 : 0;
+                rowTotalEmpty += cell.empty ? 1 : 0;
+                columnSubEmpties[j] += cell.empty ? 1 : 0;
+                columnTotalEmpties[j] += cell.empty ? 1 : 0;
+                columnSubEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
+                columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
+            }
+        }
+    }
+
+
+
+
+
+
     // TODO: find a better way to count empty/totals
-    getValueObjectArray = function(startCell, endCell) {
+    getValueObjectArray = function() {
         const colAxisSize = colAxis.type ? colAxis.size : 1,
               rowAxisSize = rowAxis.type ? rowAxis.size : 1,
               counterProxyHandler = {
@@ -679,7 +866,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     cellCounter['emptyColumnSubCells'] += 1;
                     cellCounter['emptyColumnAllCells'] += 1;
                 }
-                // var cell = createCell(value, 'pivot-value', 'value', {_uuid: _uuid, uuids: uuids, htmlValue: htmlValue, empty: empty, numeric: true, dxId: rric.getDxIdByIds(response.metaData.dx)})
+
                 var cell = {
                     uuid: _uuid,
                     type: 'value',
@@ -688,8 +875,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    width: doDynamicTableUpdate() ? 120 : null,
-                    height: doDynamicTableUpdate() ? 25 : null,
                     dxId: rric.getDxIdByIds(response.metaData.dx),
                     peId: rric.getPeIdByIds(response.metaData.dimensions.pe),
                     rowSpan: 1,
@@ -715,21 +900,21 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 valueTable.columns[j + colshift].isEmpty = emptyTotalRow;
 
                 // do row sub totals
-                if((i + 1) % rowUniqueFactor === 0 && doColSubTotals()) {
+                if ((i + 1) % rowUniqueFactor === 0 && doColSubTotals()) {
 
                     cellCounter['totalIntersectSubCells'] += cellCounter['totalRowSubCells' + j];
                     cellCounter['totalIntersectAllCells'] += cellCounter['totalRowSubCells' + j];
 
                     subValueRow.total += cellCounter['totalRowSubCells' + j];
-                    subValueRow.values.push(createCell(cellCounter['totalRowSubCells' + j], 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubRow && emptySubCol, numeric: true}));
+                    subValueRow.values.push(createCell(cellCounter['totalRowSubCells' + j], 'pivot-value-subtotal', 'value-column-subtotal', {empty: emptySubRow && emptySubCol, numeric: true}));
 
                     if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        subValueRow.values.push(createCell(cellCounter['totalIntersectSubCells'], 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubCol && emptySubRow, numeric: true}));
+                        subValueRow.values.push(createCell(cellCounter['totalIntersectSubCells'], 'pivot-value-subtotal', 'value-intersect-subtotal', {empty: emptySubCol && emptySubRow, numeric: true}));
                         cellCounter['totalIntersectSubCells'] = 0;
                     }
 
                     if(j === colAxisSize - 1 && doRowTotals()) {
-                        subValueRow.values.push(createCell(cellCounter['totalIntersectAllCells'], 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol && emptySubRow, numeric: true}));
+                        subValueRow.values.push(createCell(cellCounter['totalIntersectAllCells'], 'pivot-value-total-subgrandtotal', 'value-intersect-subtotal', {empty: emptyTotalCol && emptySubRow, numeric: true}));
                         cellCounter['totalIntersectAllCells'] = 0;
                     }
 
@@ -737,29 +922,29 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 }
 
                 // do column sub totals
-                if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
+                if ((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
                     colshift += 1;
-                    row.values.push(createCell(cellCounter['totalColumnSubCells'], 'pivot-value-subtotal', 'valueSubtotal', {empty: emptySubCol, numeric: true}));
+                    row.values.push(createCell(cellCounter['totalColumnSubCells'], 'pivot-value-subtotal', 'value-row-subtotal', {empty: emptySubCol, numeric: true}));
                     addColumn(j + colshift, cellCounter['totalColumnSubCells'], emptySubCol);
                     cellCounter['columnTotal' + (j + colshift)] += cellCounter['totalColumnSubCells'];
                     cellCounter['totalColumnSubCells'] = 0;
                 }
 
                 // do row totals
-                if(i === rowAxisSize - 1 && doColTotals()) {
+                if (i === rowAxisSize - 1 && doColTotals()) {
                     cellCounter['grandTotalIntersectSubCells'] += cellCounter['totalRowAllCells' + j];
                     cellCounter['grandTotalIntersectAllCells'] += cellCounter['totalRowAllCells' + j];
 
-                    totalValueRow.values.push(createCell(cellCounter['totalRowAllCells' + j], 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalRow, numeric: true}));
+                    totalValueRow.values.push(createCell(cellCounter['totalRowAllCells' + j], 'pivot-value-total-subgrandtotal', 'value-column-total', {empty: emptyTotalRow, numeric: true}));
 
                     if((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        totalValueRow.values.push(createCell(cellCounter['grandTotalIntersectSubCells'], 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalRow && emptySubCol, numeric: true}));
+                        totalValueRow.values.push(createCell(cellCounter['grandTotalIntersectSubCells'], 'pivot-value-total-subgrandtotal', 'value-intersect-total', {empty: emptyTotalRow && emptySubCol, numeric: true}));
                         cellCounter['grandTotalIntersectSubCells'] = 0;
                     }
 
                     if(j === colAxisSize - 1 && doRowTotals()) {
                         colshift += 1;
-                        totalValueRow.values.push(createCell(cellCounter['grandTotalIntersectAllCells'], 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol && emptyTotalRow, numeric: true}));
+                        totalValueRow.values.push(createCell(cellCounter['grandTotalIntersectAllCells'], 'pivot-value-total-subgrandtotal', 'value-intersect-total', {empty: emptyTotalCol && emptyTotalRow, numeric: true}));
                         addColumn(j + colshift, cellCounter['grandTotalIntersectAllCells'], emptyTotalCol)
                         cellCounter['columnTotal' + (j + colshift)] += cellCounter['grandTotalIntersectAllCells'];
                     }
@@ -773,8 +958,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 }
 
                 // do column totals
-                if(j === colAxisSize - 1 && doRowTotals()) {
-                    row.values.push(createCell(row.total, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: emptyTotalCol, numeric: true}));
+                if (j === colAxisSize - 1 && doRowTotals()) {
+                    row.values.push(createCell(row.total, 'pivot-value-total-subgrandtotal', 'value-row-total', {empty: emptyTotalCol, numeric: true}));
                 }
 
                 valueTable.total += value;
@@ -800,28 +985,33 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
 
+        const table = compressTable(valueTable);
+
+        setEmptyCells(table);
+        setTotalCells(table);
+
         // do row percentages
         if(doRowPercentage()) {
-            changeToRowPercentage(valueTable);
+            changeToRowPercentage2(table);
         }
 
         // do column percentages
         if(doColPercentage()) {
-            changeToColPercentage(valueTable);
+            changeToColPercentage2(table);
         }
 
         // hide empty columns
         if(doHideEmptyColumns()) {
-            hideEmptyColumns(valueTable, colAxisAllObjects);
+            hideEmptyColumns2(table, colAxisAllObjects);
         }
 
         // hide empty rows
         if(doHideEmptyRows()) {
-            hideEmptyRows(valueTable, rowAxisAllObjects);
+            hideEmptyRows2(table, rowAxisAllObjects);
         }
 
         // return compressed valueTable
-        return compressTable(valueTable);
+        return table;
     };
 
     getTopBarSpan = function(span) {
@@ -941,6 +1131,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     // get html
     (function() {
+        
         // build col axis
         colAxisAllObjects = getColAxisObjectArray();
 
