@@ -30,18 +30,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     let getEmptyHtmlArray,
         getRoundedHtmlValue,
         getTdHtml,
-        getTableHtml,
-        getColAxisObjectArray,
-        getRowAxisObjectArray,
-        getValueObjectArray,
-        getTopBarSpan,
-        getFilterHtmlArray,
-        getTitle,
-        getHtml,
-        renderTable,
-        combineTable,
-
-        // table options
+        getValue,
+        roundIf,
+        getNumberOfDecimals,
         doColTotals,
         doRowTotals,
         doColSubTotals,
@@ -185,7 +176,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             return '';
         }
 
-        if (config.hidden || config.collapsed) {
+        if (config.hidden || config.collapsed) {
             return '';
         }
 
@@ -254,6 +245,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls = arrayClean(cls);
         style = arrayClean(style);
 
+        attributes.push('data-ou-id="' + (config.ouId || '') + '"');
         attributes.push('data-period-id="' + (config.peId || '') + '"');
         attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
         attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
@@ -279,11 +271,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     getValue = function(str) {
-        var n = parseFloat(str);
-
         if (isBoolean(str)) {
             return 1;
         }
+
+        var n = parseFloat(str);
 
         // return string if
         // - parsefloat(string) is not a number

@@ -219,7 +219,9 @@ Response.prototype.sortOrganisationUnitsHierarchy = function() {
         });
 
         hierarchyIds.map(ouId => {
-            hierarchyNames.push(this.metaData.items[ouId].name);
+            if (this.metaData.items[ouId]) {
+                hierarchyNames.push(this.metaData.items[ouId].name);
+            }
         });
 
         organisationUnits[i] = {
@@ -443,6 +445,10 @@ Response.prototype.getRecordsByDimensionName = function(dimensionName) {
 
 Response.prototype.getValueHeader = function() {
     return this.getHeaderByName('value');
+};
+
+Response.prototype.hasIdByDimensionName = function(id, dimensionName) {
+    return arrayContains(this.getIdsByDimensionName(dimensionName), id);
 };
 
 // dep 2

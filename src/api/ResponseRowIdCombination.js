@@ -24,14 +24,16 @@ ResponseRowIdCombination.prototype.get = function() {
     return this.ids.join('-');
 };
 
-ResponseRowIdCombination.prototype.getNames = function(response) {
-    return this.ids.map(id => response.getNameById(id));
+ResponseRowIdCombination.prototype.getNames = function(response, ignoreIndexes) {
+    var ids = this.ids;
+
+    if (isArray(ignoreIndexes)) {
+        ids = ids.filter(((id, index) => !arrayContains(ignoreIndexes, index)));
+    }
+
+    return ids.map(id => response.getNameById(id));
 };
 
-ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
-    return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
-};
-
-ResponseRowIdCombination.prototype.getPeIdByIds = function(peIds) {
-  return this.ids.filter(id => arrayContains(arrayFrom(peIds), id))[0];
+ResponseRowIdCombination.prototype.getIdByIds = function(ids) {
+    return this.ids.filter(id => arrayContains(arrayFrom(ids), id))[0];
 };
