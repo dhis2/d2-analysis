@@ -855,11 +855,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                         totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-intersect-total', { numeric: true }));
                     }
 
-                    // TODO: FIX THIS !!!!!
-                    // if (doSortableColumnHeaders()) {
-                    //     totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]);
-                    //     idValueMap[totalIdComb.get()] = emptyTotalRow ? null : cellCounter['totalRowAllCells' + j];
-                    // }
+                    if (doSortableColumnHeaders()) {
+                        totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]);
+                        idValueMap[totalIdComb.get()] = isColumnEmpty(table, j) ? null : getColumnTotal(table, j);
+                    }
                 }
 
                 // map element id to dim element ids
@@ -880,7 +879,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
 
+        // update totals
         setTotalCells(table);
+
+        // update empties
         setEmptyCells(table);
 
         // do row percentages
