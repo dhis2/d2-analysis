@@ -1025,7 +1025,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     
     // constructor
     t.html = renderTable();
-    t.render = renderTable;
     
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
