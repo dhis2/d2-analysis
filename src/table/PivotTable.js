@@ -68,7 +68,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         getNumberOfDecimals,
         recursiveReduce,
         getUniqueFactor,
-        tableLogger,
         isRowEmpty,
         isColumnEmpty,
         getRowTotal,
@@ -76,11 +75,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         setCellValue,
         setCellEmpty,
 
-
     // global variables
-
         // table holders
-        valueTable = { rows: [], columns: [], total: 0 },
         completeTableObjects,
         valueAllObjects = [],
 
@@ -413,7 +409,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     isColumnEmpty = function(table, index) {
-        for (var i = 0; i < table[1].length; i++) {
+        for (var i = 0; i < table.length; i++) {
             if (table[i][index].empty) {
                 return true;
             }
@@ -445,7 +441,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     hideEmptyRows = function(table, axisObjects) {
         for(var i = 0, dimLeaf; i < table.length; i++) {
             if (isRowEmpty(table, i)) {
-                for(var j = 0; j < table[i].length; j++) {
+                for (var j = 0; j < table[i].length; j++) {
                     table[i][j].collapsed = true;
                 }
                 dimLeaf = axisObjects[i][rowAxis.dims-1];
@@ -456,8 +452,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     hideEmptyColumns = function(table, axisObjects) {
         for(var i = 0, dimLeaf; i < table[1].length; i++) {
-            if(isColumnEmpty(table, i)) {
-                for(var j = 0; j < table.length; j++) {
+            if (isColumnEmpty(table, i)) {
+                for (var j = 0; j < table.length; j++) {
                     table[j][i].collapsed = true;
                 }
                 dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
@@ -469,7 +465,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     changeToColPercentage = function(table) {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
-                if(!isColumnEmpty(table, j)) {
+                if (!isColumnEmpty(table, j)) {
                     table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getColumnTotal(table, i)) * 100) + '%';
                 }
             }
@@ -479,7 +475,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     changeToRowPercentage = function(table) {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
-                if(!isRowEmpty(table, i)) {
+                if (!isRowEmpty(table, i)) {
                     table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getRowTotal(table, i)) * 100) + '%';
                 }    
             }
@@ -613,7 +609,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                 if ((j === colAxis.size - 1) && doRowTotals()) {
                     var totalCell;
-                    if(i === 0) {
+                    if (i === 0) {
                         totalCell = createCell('Total', 'pivot-dim-total', 'dimensionTotal', {sort: doSortableColumnHeaders() ? 'total' : null, rowSpan: colAxis.dims, generateUuid: true})
                     }
 
@@ -631,110 +627,131 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
 
     const setTotalCells = function (table) {
+
         var columnTotals = new Array(table[1].length).fill(0),
-            columnSubTotals = new Array(table[1].length).fill(0),
-            columnInterval = colUniqueFactor;
+            columnSubTotals = new Array(table[1].length).fill(0);
 
         for (var i=0; i < table.length; i++) {
-            for(var j=0, rowTotal=0, rowSubTotal=0, intersectValue = 0; j < table[i].length; j++) {
+            for (var j=0, rowTotal=0, rowSubTotal=0, intersectRow = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j];
-                
-                if (cell.type === 'value-row-subtotal') {
-                    setCellValue(cell, rowSubTotal);
-                    rowSubTotal = 0;
-                    continue;
-                }
+                var cell = table[i][j],
+                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
 
-                if (cell.type === 'value-column-subtotal') {
-                    setCellValue(cell, columnSubTotals[j]);
-                    columnSubTotals[j] = 0;
-                    continue;
-                }
+                switch (cell.type) {
+                    case 'value-row-subtotal': {
+                        setCellValue(cell, rowSubTotal);
+                        rowSubTotal = 0;
+                    } continue;
 
-                if (cell.type === 'value-intersect-subtotal') {
-                    setCellValue(cell, columnSubTotals[j]);
-                    columnSubTotals[j] = 0;
-                    continue;
-                }
+                    case 'value-column-subtotal': {
+                        setCellValue(cell, columnSubTotals[j]);
+                        intersectRow += columnSubTotals[j];
+                        columnSubTotals[j] = 0;
+                    } continue;
 
-                if (cell.type === 'value-row-total') {
-                    setCellValue(cell, rowTotal);
-                    continue;
-                }
+                    case 'value-intersect-subtotal': {
+                        setCellValue(cell, columnSubTotals[j]);
+                        columnSubTotals[j] = 0;
+                    } continue;
 
-                if (cell.type === 'value-column-total') {
-                    setCellValue(cell, columnTotals[j]);
-                    continue;
-                }
+                    case 'value-row-total':{
+                        setCellValue(cell, rowTotal);
+                    } continue;
 
-                if (cell.type === 'value-intersect-total') {
-                    setCellValue(cell, columnTotals[j]);
-                    columnInterval = colUniqueFactor + 1;
-                    continue;
+                    case 'value-row-intersect-total': {
+                        setCellValue(cell, intersectRow);
+                    } continue;
+
+                    case 'value-column-total': {
+                        setCellValue(cell, columnTotals[j]);
+                    } continue;
+
+                    case 'value-column-intersect-total': {
+                        setCellValue(cell, columnTotals[j]);
+                    } continue;
+
+                    case 'value-intersect-total': {
+                        setCellValue(cell, columnTotals[j]);
+                    } continue;
                 }
 
                 rowTotal += cell.value;
                 rowSubTotal += cell.value;
-                columnTotals[j] += cell.value;
                 columnSubTotals[j] += cell.value;
+                columnSubTotals[nextSubCell] += cell.value;  
+                columnTotals[j] += cell.value;
+                columnTotals[nextSubCell] += cell.value;
                 columnTotals[table[i].length - 1] += cell.value;
-                console.log(i - 1 % colUniqueFactor);
-                columnSubTotals[ i - 1 % colUniqueFactor + 1] += cell.value;
-                
             }
         }
-        
     }
 
     const setEmptyCells = function (table) {
+        
         var columnTotalEmpties = new Array(table[1].length).fill(0),
             columnSubEmpties = new Array(table[1].length).fill(0);
 
         for (var i=0; i < table.length; i++) {
-            for(var j=0, rowTotalEmpty=0, rowSubEmpty=0; j < table[i].length; j++) {
+            for (var j=0, rowTotalEmpty=0, rowSubEmpty=0, rowIntesectEmpty = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j];
+                var cell = table[i][j],
+                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
 
-                if (cell.type === 'value-row-subtotal') {
-                    if (rowSubEmpty === colUniqueFactor) setCellEmpty(cell);
-                    rowSubEmpty = 0;
-                    continue;
-                }
+                switch (cell.type) {
+                    case 'value-row-subtotal': {
+                        if (rowSubEmpty === colUniqueFactor) setCellEmpty(cell);
+                        rowSubEmpty = 0;
+                    } continue;
 
-                if (cell.type === 'value-column-subtotal') {
-                    if (columnSubEmpties[j] === colUniqueFactor) setCellEmpty(cell);
-                    columnSubEmpties[j] = 0;
-                    continue;
-                }
+                    case 'value-column-subtotal': {
+                        if (columnSubEmpties[j] === rowUniqueFactor) {
+                            setCellEmpty(cell);
+                            rowIntesectEmpty++;
+                        } 
+                        columnSubEmpties[j] = 0;
+                    } continue;
 
-                if (cell.type === 'value-intersect-subtotal') {
-                    if (columnSubEmpties[j] === colUniqueFactor) setCellEmpty(cell);
-                    columnSubEmpties[j] = 0;
-                    continue;
-                }
+                    case 'value-intersect-subtotal': {
+                        console.log(columnSubEmpties[j], rowUniqueFactor)
+                        if (columnSubEmpties[j] === rowUniqueFactor) setCellEmpty(cell);
+                        columnSubEmpties[j] = 0;
+                    } continue;
 
-                if (cell.type === 'value-row-total') {
-                    if (rowTotalEmpty === colAxis.size) setCellEmpty(cell);
-                    continue;
-                }
+                    case 'value-row-total':{
+                        if (rowTotalEmpty === colAxis.size) setCellEmpty(cell);
+                    } continue;
 
-                if (cell.type === 'value-column-total') {
-                    if (columnTotalEmpties[j] === colUniqueFactor) setCellEmpty(cell);
-                    continue;
-                }
+                    case 'value-column-total': {
+                        if (columnTotalEmpties[j] === rowAxis.size) setCellEmpty(cell);
+                    } continue;
 
-                if (cell.type === 'value-intersect-total') {
-                    if (columnTotalEmpties[j] === colUniqueFactor) setCellEmpty(cell);
-                    continue;
+                    case 'value-row-intersect-total': {
+                        if (rowIntesectEmpty === colAxis.size) setCellEmpty(cell);
+                    } continue;
+
+                    case 'value-column-intersect-total': {;
+                        if (columnTotalEmpties[j] === rowAxis.size * colUniqueFactor) setCellEmpty(cell);
+                    } continue;
+
+                    case 'value-intersect-total': {
+                        if (columnTotalEmpties[j] === rowAxis.size * colAxis.size) setCellEmpty(cell);
+                    } continue;
                 }
 
                 rowSubEmpty += cell.empty ? 1 : 0;
                 rowTotalEmpty += cell.empty ? 1 : 0;
                 columnSubEmpties[j] += cell.empty ? 1 : 0;
                 columnTotalEmpties[j] += cell.empty ? 1 : 0;
-                columnSubEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
                 columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
+
+                if (colUniqueFactor > 1 && doColSubTotals()) {
+                    columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
+                }
+                
+                if (colUniqueFactor > 1 && doColTotals()) {
+                    columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
+                }
+
             }
         }
     }
@@ -818,7 +835,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     }
 
                     if (j === colAxisSize - 1 && doRowTotals()) {
-                        subRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-intersect-subtotal', { numeric: true }));
+                        subRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-row-intersect-total', { numeric: true }));
                     }
                 }
 
@@ -826,7 +843,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 if (i === rowAxisSize - 1 && doColTotals()) {
                     totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-column-total', { numeric: true }));
                     if ((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-intersect-total', { numeric: true }));
+                        totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-column-intersect-total', { numeric: true }));
                     }
 
                     if (j === colAxisSize - 1 && doRowTotals()) {
@@ -834,10 +851,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     }
 
                     // TODO: FIX THIS !!!!!
-                    if (doSortableColumnHeaders()) {
-                        totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = emptyTotalRow ? null : cellCounter['totalRowAllCells' + j];
-                    }
+                    // if (doSortableColumnHeaders()) {
+                    //     totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]);
+                    //     idValueMap[totalIdComb.get()] = emptyTotalRow ? null : cellCounter['totalRowAllCells' + j];
+                    // }
                 }
 
                 // map element id to dim element ids
@@ -881,7 +898,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             hideEmptyRows(table, rowAxisAllObjects);
         }
 
-        // return compressed valueTable
         return table;
     };
 
