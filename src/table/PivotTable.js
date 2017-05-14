@@ -30,9 +30,18 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     let getEmptyHtmlArray,
         getRoundedHtmlValue,
         getTdHtml,
-        getValue,
-        roundIf,
-        getNumberOfDecimals,
+        getTableHtml,
+        getColAxisObjectArray,
+        getRowAxisObjectArray,
+        getValueObjectArray,
+        getTopBarSpan,
+        getFilterHtmlArray,
+        getTitle,
+        getHtml,
+        renderTable,
+        combineTable,
+
+        // table options
         doColTotals,
         doRowTotals,
         doColSubTotals,
@@ -43,6 +52,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         doHideEmptyColumns,
         doShowDimensionLabels, 
         doSortableColumnHeaders,
+
 
         // table transformations
         hideEmptyColumns,
@@ -806,10 +816,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
-                    dxId: rric.getDxIdByIds(response.metaData.dx),
-                    peId: rric.getPeIdByIds(response.metaData.dimensions.pe),
-                    rowSpan: 1,
-                    colSpan: 1,
+                    dxId: rric.getIdByIds(response.metaData.dimensions.dx),
+                    peId: rric.getIdByIds(response.metaData.dimensions.pe),
+                    ouId: rric.getIdByIds(response.metaData.dimensions.ou),
                 }
 
                 row.push(cell);
