@@ -718,7 +718,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        if (columnSubEmpties[j] === rowUniqueFactor) setCellEmpty(cell);
+                        if (columnSubEmpties[j] === rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
                         columnSubEmpties[j] = 0;
                     } continue;
 
@@ -734,7 +734,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                         if (rowIntesectEmpty === colAxis.size) setCellEmpty(cell);
                     } continue;
 
-                    case 'value-column-intersect-total': {;
+                    case 'value-column-intersect-total': {
                         if (columnTotalEmpties[j] === rowAxis.size * colUniqueFactor) setCellEmpty(cell);
                     } continue;
 
