@@ -410,11 +410,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isColumnEmpty = function(table, index) {
         for (var i = 0; i < table.length; i++) {
-            if (table[i][index].empty) {
-                return true;
+            if (!table[i][index].empty) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
 
@@ -445,6 +445,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     table[i][j].collapsed = true;
                 }
                 dimLeaf = axisObjects[i][rowAxis.dims-1];
+                if (dimLeaf.type === 'dimensionSubtotal') {
+                    axisObjects[i][0].collapsed = true;
+                }
                 recursiveReduce(dimLeaf);
             }
         }
@@ -457,6 +460,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     table[j][i].collapsed = true;
                 }
                 dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
+                if (dimLeaf.type === 'dimensionSubtotal') {
+                    axisObjects[0][i + rowAxis.dims].collapsed = true;
+                }
                 recursiveReduce(dimLeaf, 'colSpan');
             }
         }
@@ -712,7 +718,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        console.log(columnSubEmpties[j], rowUniqueFactor)
                         if (columnSubEmpties[j] === rowUniqueFactor) setCellEmpty(cell);
                         columnSubEmpties[j] = 0;
                     } continue;
