@@ -119,7 +119,9 @@ WestRegionTrackerItems = function(refs) {
             this.toggleProgramIndicators();
         },
         toggleProgramIndicators: function(type) {
-            type = type || uiManager.get('dataTypeToolbar').getDataType();
+            var dataTypeToolbar = uiManager.get('dataTypeToolbar');
+
+            type = type || (dataTypeToolbar ? dataTypeToolbar.getDataType() : null);
 
             this.clearFilter();
 
