@@ -73,8 +73,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         recursiveReduce,
         getUniqueFactor,
         isRowEmpty,
+        isSingleRowEmpty,
         isColumnEmpty,
         getRowTotal,
+        getSingleRowTotal,
         getColumnTotal,
         setCellValue,
         setCellEmpty,
@@ -414,6 +416,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return false;
     }
 
+    isSingleRowEmpty = function (row) {
+        for (var i=0; i < row.length; i++) {
+            if(!row[i].empty && row[i].type === 'value') return false;
+        }
+        return true;
+    }
+
     isColumnEmpty = function(table, index) {
         for (var i = 0; i < table.length; i++) {
             if (!table[i][index].empty) {
@@ -423,12 +432,21 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return true;
     }
 
-
     getRowTotal = function(table, index) {
         let total = 0;
         for(var i = 0; i < table[index].length; i++) {
             if (table[index][i].type === 'value') {
                 total += table[index][i].value;
+            }
+        }
+        return total;
+    }
+
+    getSingleRowTotal = function (row) {
+        let total = 0;
+        for (var i=0; i < row.length; i++) {
+            if (row[i].type === 'value') {
+                total += row[i].value;
             }
         }
         return total;
@@ -459,7 +477,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
-    hideEmptyColumns = function(table, axisObjects) {
+    hideEmptyColumns = function(table, axisObjectisSingleRowEmptys) {
         for(var i = 0, dimLeaf; i < table[1].length; i++) {
             if (isColumnEmpty(table, i)) {
                 for (var j = 0; j < table.length; j++) {
@@ -777,22 +795,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
-    const isEmptyR = function (row) {
-        for (var i=0; i < row.length; i++) {
-            if(!row[i].empty && row[i].type === 'value') return false;
-        }
-        return true;
-    }
-    const getRTotal = function (row) {
-        let total = 0;
-        for (var i=0; i < row.length; i++) {
-            if (row[i].type === 'value') {
-                total += row[i].value;
-            }
-        }
-        return total;
-    }
-
     getValueObjectArray = function() {
         const colAxisSize = colAxis.type ? colAxis.size : 1,
               rowAxisSize = rowAxis.type ? rowAxis.size : 1,
@@ -863,7 +865,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                     if (doSortableColumnHeaders()) {
                         totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = isEmptyR(row) ? null : getRTotal(row);
+                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getSingleRowTotal(row);
                     }
                 }
 
