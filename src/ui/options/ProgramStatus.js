@@ -14,8 +14,9 @@ const ProgramStatusSelect = function (refs) {
         labelStyle: 'color:#333',
         queryMode: 'local',
         valueField: 'id',
+        displayField: 'name',
         editable: false,
-        value: 'DEFAULT',
+        value: 'NONE',
         store: Ext.create('Ext.data.Store', {
             fields: ['id', 'name', 'index'],
             data: optionConfig.getProgramStatusRecords()

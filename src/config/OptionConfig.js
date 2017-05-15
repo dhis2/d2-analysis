@@ -226,7 +226,7 @@ OptionConfig = function() {
         programStatus = {
             'def': {
                 index: 1,
-                id: 'DEFAULT',
+                id: 'NONE',
                 name: i18nManager.get('none') || 'None'
             },
             'active': {
@@ -251,7 +251,7 @@ OptionConfig = function() {
         eventStatus = {
             'def': {
                 index: 1,
-                id: 'DEFAULT',
+                id: 'NONE',
                 name: i18nManager.get('none') || 'None'
             },
             'active': {
