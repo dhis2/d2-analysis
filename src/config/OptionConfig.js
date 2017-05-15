@@ -20,6 +20,8 @@ OptionConfig = function() {
     var dataSetMetric;
     var legendDisplayStyle;
     var legendDisplayStrategy;
+    var programStatus;
+    var eventStatus;
 
     // setter
     var setDisplayDensity = function() {
@@ -220,6 +222,66 @@ OptionConfig = function() {
         };
     };
 
+    var setProgramStatus = function() {
+        programStatus = {
+            'def': {
+                index: 1,
+                id: 'DEFAULT',
+                name: i18nManager.get('none') || 'None'
+            },
+            'active': {
+                index: 2,
+                id: 'ACTIVE',
+                name: i18nManager.get('active') || 'Active'
+            },
+            'completed': {
+                index: 3,
+                id: 'COMPLETED',
+                name: i18nManager.get('completed') || 'Completed'
+            },
+            'cancelled': {
+                index: 4,
+                id: 'CANCELLED',
+                name: i18nManager.get('cancelled') || 'Cancelled'
+            }
+        };
+    };
+
+    var setEventStatus = function() {
+        eventStatus = {
+            'def': {
+                index: 1,
+                id: 'DEFAULT',
+                name: i18nManager.get('none') || 'None'
+            },
+            'active': {
+                index: 2,
+                id: 'ACTIVE',
+                name: i18nManager.get('active') || 'Active'
+            },
+            'completed': {
+                index: 3,
+                id: 'COMPLETED',
+                name: i18nManager.get('completed') || 'Completed'
+            },
+            'scheduled': {
+                index: 4,
+                id: 'SCHEDULE',
+                name: i18nManager.get('scheduled') || 'Scheduled'
+            },
+            'overdue': {
+                index: 5,
+                id: 'OVERDUE',
+                name: i18nManager.get('overdue') || 'Overdue'
+            },
+            'skipped': {
+                index: 6,
+                id: 'SKIPPED',
+                name: i18nManager.get('skipped') || 'Skipped'
+            }
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -246,6 +308,8 @@ OptionConfig = function() {
         setDataSetMetric();
         setLegendDisplayStyle();
         setLegendDisplayStrategy();
+        setProgramStatus();
+        setEventStatus();
     };
 
     // prototype
@@ -285,6 +349,14 @@ OptionConfig = function() {
         return key ? legendDisplayStrategy[key] : legendDisplayStrategy;
     };
 
+    t.getProgramStatus = function(key) {
+        return key ? programStatus[key] : programStatus;
+    };
+
+    t.getEventStatus = function(key) {
+        return key ? eventStatus[key] : eventStatus;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -315,6 +387,14 @@ OptionConfig = function() {
 
     t.getLegendDisplayStrategyRecords = function() {
         return getRecords(legendDisplayStrategy);
+    };
+
+    t.getProgramStatusRecords = function() {
+        return getRecords(programStatus);
+    };
+
+    t.getEventStatusRecords = function() {
+        return getRecords(eventStatus);
     };
 
     t.getDigitGroupSeparatorIdMap = function() {
