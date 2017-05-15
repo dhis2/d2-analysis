@@ -18,6 +18,9 @@ import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 export var Table;
 
 Table = function(layout, response, colAxis, rowAxis, options) {
+
+    console.log(response);
+
     var t = this,
         klass = Table,
 
@@ -28,15 +31,21 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     options = options || {};
 
-
-    // table configurations
+    // constant variables
     const cellWidth = 120,
           cellHeight = 25;
 
+    // enums
+    const cellTypes = {
+        1: '',
+        2: '',
+        3: '',
+        4: '',
+        5: '',
+        6: '',
+    };
+
     // inititalize global variables/functions
-    
-    console.log(response);
-    let doOnce = true;
 
     // global functions
         // table builder
@@ -112,6 +121,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         uuidDimUuidsMap = {},
 
         // lookups
+        valueLookuptable,
+        typeLookupTable,
         valueMatrix,
         typeMatrix,
 
@@ -153,25 +164,29 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
     getTableColumnSize = function() {
         let size = colAxis.size;
-
-        if(doRowSubTotals()) size += colAxis.size / colUniqueFactor;
-        if(doRowTotals()) size += 1;
-
+        if (doRowSubTotals()) size += colAxis.size / colUniqueFactor;
+        if (doRowTotals()) size += 1;
         return size;
     }
 
     getTableRowSize = function() {
         let size = rowAxis.size;
-
-        if(doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
-        if(doColTotals()) size += 1;
-
+        if (doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
+        if (doColTotals()) size += 1;
         return size;
+    }
+
+    createLookupTable = function(xDimensionSize, yDimensionSize, fill=0) {
+        let table = new Array(yDimensionSize);
+        for (let i = 0; i < x; i++) {
+            table[i] = new Array(xDimensionSize).fill(fill);
+        }
+        return table;
     }
 
     createMatrix = function(x, y) {
         let matrix = new Array(x);
-        for(let i = 0; i < x; i++) matrix[i] = new Array(y).fill(0);
+        for (let i = 0; i < x; i++) matrix[i] = new Array(y).fill(0);
         return matrix;
     }
 
@@ -589,7 +604,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         cell.uuid = generateUuid ? uuid() : null;
 
-        if(numeric) value = Math.max(0, value);
+        if (numeric) value = Math.max(0, value);
 
         cell.cls = cls;
         cell.value = value ? value : '';
@@ -670,24 +685,34 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }
 
     const createValueCell = function(value, columnIndex, rowIndex) {
-        let rric = new ResponseRowIdCombination(),
-            uuids = [],
-            rowPos = getRowPosition(rowIndex),
-            colPos = getColumnPosition(columnIndex),
-            cell;
+        const rric  = new ResponseRowIdCombination(),
+              _uuid = uuid(),
+              uuids = [];
+
+        let cell;
         
         rric.add(colAxis.type ? colAxis.ids[colPos] : '');
         rric.add(rowAxis.type ? rowAxis.ids[rowPos] : '');
 
-        if (colAxis.type) {
-            uuids = uuids.concat(colAxis.objects.all[colAxis.dims - 1][colPos].uuids);
-        }
-        if (rowAxis.type) {
-            uuids = uuids.concat(rowAxis.objects.all[rowAxis.dims - 1][rowPos].uuids);
-        }
+        if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
+        if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
+
+        // TODO: Update
+        // uuidDimUuidsMap[_uuid] = uuids;
+
+        // cell.uuid       = _uuid;
+        // cell.uuids      = uuids;
+        // cell.value      = value;
+        // cell.empty      = empty;
+        // cell.htmlValue  = htmlValue;
+        // cell.type       = 'value';
+        // cell.cls        = 'pivot-value' + (empty ? ' cursor-default' : '');
+        // cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
+        // cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
+        // cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
 
         cell = createCell(value, 'pivot-value', 'value', {generateUuid: true, uuids: uuids, empty: value < 0, dxId: rric.getDxIdByIds(response.metaData.dx), numeric: true});
-
+        
         uuidDimUuidsMap[cell.uuid] = uuids;
 
         return cell;
@@ -696,7 +721,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     const getValueCell = function(x, y) {
         let value = valueMatrix[y][x];
         switch(typeMatrix[y][x]) {
-            case 0: return createValueCell(value, x, y);
+            case 0: return createValueCell(value, getRowPosition(x), getColumnPosition(y));
             case 1: case 2: case 3: return createSubTotalCell(value);
             case 4: case 5: case 6: return createGrandTotalCell(value);
             default: return null;;
@@ -893,6 +918,74 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             }
         }
         return rowAxisArray;
+    }
+    
+    const gerResponseValue = function(x, y) {
+        empty = false;
+
+        rric = new ResponseRowIdCombination();
+        rric.add(colAxis.type ? colAxis.ids[x] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[y] : '');
+
+        responseValue = idValueMap[rric.get()];
+
+        if (isDefined(responseValue)) {
+            value = getValue(responseValue);
+        } else {
+            value = -1;
+        }
+
+        return value;
+    }
+
+    const createValueLookup = function(xDimensionSize, yDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var y = 0; i < rowAxis.size; y++) {
+            for (var x = 0, value; j < colAxis.size; x++) {
+
+                const value = getResponseValue(y, x);
+
+                // calculate sub totals
+                if (doColTotals())                        lookup[y][x] += value;
+                if (doRowTotals())                        lookup[y][x] += value;
+
+                // calculate grand totals
+                if (doColSubTotals())                     lookup[y][x] += value;
+                if (doRoWSubTotals())                     lookup[y][x] += value;
+                
+                // calculate intersection totals
+                if (doColTotals() && doRowTotals())       lookup[y][x] += value;
+                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] += value;
+
+                lookup[y][x] = value;
+            }
+        }
+        return lookup;
+    }
+
+    const createTypeLookup = function(xDimensionSize, yDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var y = 0; i < rowAxis.size; y++) {
+            for (var x = 0, type; j < colAxis.size; x++) {
+
+                const type = 'sometype';
+
+                // calculate sub totals
+                if (doColTotals())                        lookup[y][x] = type;
+                if (doRowTotals())                        lookup[y][x] = type;
+
+                // calculate grand totals
+                if (doColSubTotals())                     lookup[y][x] = type;
+                if (doRoWSubTotals())                     lookup[y][x] = type;
+                
+                // calculate intersection totals
+                if (doColTotals() && doRowTotals())       lookup[y][x] = type;
+                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] = type;
+
+                lookup[y][x] = type;
+            }
+        }
+        return lookup;
     }
 
     createValueMatrix = function(rows, columns) {
@@ -1331,10 +1424,36 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         updateVerticalPadding(currentTable, currentRowStart, currentRowEnd);
 
         updateColumnAxisColSpan(currentTable, currentColumnStart, currentRowStart, currentColumnEnd - currentColumnStart);
-        updateRowAxisRowSpan(currentTable, currentRowStart, currentColumnStart, currentRowEnd - currentRowStart);
+        // updateRowAxisRowSpan(currentTable, currentRowStart, currentColumnStart, currentRowEnd - currentRowStart);
 
         updatePreviousPosition(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
     }
+
+
+    renderTable = function(rowStart=0, columnStart=0) {
+
+        // calculate end positions based on width/height and start positions
+        let rowEnd = getRowEnd(rowStart),
+            columnEnd = getColumnEnd(columnStart);
+
+        // build initial state of table
+        currentTable = buildTable(columnStart, columnEnd, rowStart, rowEnd);
+
+        // add padding cells to each side of table
+        addPaddingCells(currentTable, columnStart, columnEnd, rowStart, rowEnd);
+        
+        // update previous table positions
+        updatePreviousPosition(columnStart, columnEnd, rowStart, rowEnd);
+
+        // create html array
+        let htmlArray = arrayClean([].concat(
+            // options.skipTitle ? [] : getTitle(table[0].length) || [],
+            // getFilterHtmlArray(table[0].length) || [],
+            getTableHtml(currentTable)
+        ));
+
+        return getHtml(htmlArray);
+    };
 
     const addHorizontalPaddingCellsToRow = function (row, columnStart, columnEnd) {
         row.unshift(createCell(null, 'pivot-padding', 'padding', {width: getLeftPadding(columnStart), hidden: columnStart <= 0}));
@@ -1357,31 +1476,13 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         addVerticalPaddingCells(table, rowStart, rowEnd, columnStart, columnEnd);
     }
 
-    renderTable = function(rowStart=0, columnStart=0) {
-
-        let rowEnd = getRowEnd(rowStart),
-            columnEnd = getColumnEnd(columnStart);
-            
-        currentTable = buildTable(columnStart, columnEnd, rowStart, rowEnd);
-
-        addPaddingCells(currentTable, columnStart, columnEnd, rowStart, rowEnd);
-        updatePreviousPosition(columnStart, columnEnd, rowStart, rowEnd);
-
-        // updateTable(columnStart, rowStart);
-
-        // create html array
-        let htmlArray = arrayClean([].concat(
-            // options.skipTitle ? [] : getTitle(table[0].length) || [],
-            // getFilterHtmlArray(table[0].length) || [],
-            getTableHtml(currentTable)
-        ));
-
-        // turn html array into html string;
-        return getHtml(htmlArray);
-    };
-
     // get html
     (function() {
+
+        // setup lookup tables
+        // valueTableLookup = createValueLookupTable();
+        // typeTableLookup  = createTypeLookupTable();
+
         valueMatrix = createValueMatrix(getTableRowSize(), getTableColumnSize());
     }());
 
@@ -1391,6 +1492,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     t.update = updateTable;
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
+
     t.idValueMap = idValueMap;
     t.tdCount = tdCount;
     t.layout = layout;
