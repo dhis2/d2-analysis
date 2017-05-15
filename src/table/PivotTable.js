@@ -409,11 +409,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isRowEmpty = function(table, index) {
         for (var i = 0; i < table[index].length; i++) {
-            if (table[index][i].empty) {
-                return true;
+            if (!table[index][i].empty) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     isSingleRowEmpty = function (row) {
