@@ -143,11 +143,18 @@ InstanceManager.prototype.getById = function(id, fn) {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {
-            var layout = new t.api.Layout(t.refs, r);
-
-            if (layout) {
-                fn(layout, true);
-            }
+            new t.api.Request({
+                baseUrl: appManager.getApiPath() + '/sharing',
+                type: 'json',
+                complete: function(sharing) {
+                    var permissions = {200: "write", 403: "read", 404: "none"};
+                    var permission = permissions[sharing.status] || "none";
+                    var layout = new t.api.Layout(t.refs, r, {permission: permission});
+                    if (layout) {
+                        fn(layout, true);
+                    }
+                }
+            }).add({type: t.apiResource, id: id}).run();
         },
         error: function(r) {
             uiManager.unmask();
@@ -204,8 +211,9 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     request.run();
 };
 
-InstanceManager.prototype.getSharingById = function(id, fn) {
+InstanceManager.prototype.getSharingById = function(id, fn, options) {
     var t = this;
+    options = options || {};
 
     var success = function(r) {
         fn && fn(r);
@@ -220,8 +228,14 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
         baseUrl: t.appManager.getApiPath() + '/sharing',
         type: 'json',
         success: success,
-        error: function() {
-            t.uiManager.unmask();
+        error: function(res) {
+            // If allowForbidden enabled, call the callback anyway, with an empty object
+            if (res.status == 403 && options.allowForbidden) {
+                success(null);
+            } else {
+                t.uiManager.alert(res);
+                t.uiManager.unmask();
+            }
         }
     });
 

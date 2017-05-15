@@ -464,6 +464,18 @@ UiManager = function(refs) {
         ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
+    t.confirmInterpretationDelete = function(fn) {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+        ConfirmWindow(refs, i18n.are_you_sure, 
+            i18n.this_interpretation_will_be_deleted_continue, null, fn).show();
+    };
+
+    t.confirmCommentDelete = function(fn) {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+        ConfirmWindow(refs, i18n.are_you_sure, 
+            i18n.this_comment_will_be_deleted_continue, null, fn).show();
+    };
+
     // redirect
     t.redirectCtrl = function(url, e) {
         if (e.button === 0 && !e.ctrlKey) {
