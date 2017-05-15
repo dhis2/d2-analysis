@@ -180,11 +180,13 @@ OrganisationUnit.prototype.getContextMenuItemsConfig = function() {
                 text: 'Show all <span class="name">' + ou.name.toLowerCase() + ' units in ' + this.getName() + '</span>',
                 iconCls: 'ns-menu-item-float'
             });
+        });
 
+        sublevels.forEach(ou => {
             if (root.level !== this.getLevel()) {
                 items.push({
                     items: [{ id: root.id + ';' + 'LEVEL-' + ou.level }],
-                    text: 'Show all <span class="name">' + ou.name + ' units in ' + root.name + '</span>',
+                    text: 'Show all <span class="name">' + ou.name + ' units</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             }
