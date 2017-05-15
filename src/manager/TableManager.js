@@ -254,11 +254,11 @@ TableManager = function(c) {
             });
 
             const ouMenu = menu.items.findBy(submenu => submenu.uid === 'OU_MENU');
-            const organisationUnit = new OrganisationUnit({ id: ouId }, layout.getRefs());
+            const organisationUnit = new OrganisationUnit(layout.getRefs(), { id: ouId });
 
-            organisationUnit.getAncestorsRequest(function(response) {
-                organisationUnit.setAncestors(response.ancestors);
-                organisationUnit.setLevel(response.level);
+            organisationUnit.getAncestorsRequest(true).done(function(data) {
+                organisationUnit.setAncestors(data.ancestors);
+                organisationUnit.setLevel(data.level);
 
                 const organisationUnitMenuItems = organisationUnit.getContextMenuItemsConfig();
 
