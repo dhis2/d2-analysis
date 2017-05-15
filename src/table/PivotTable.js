@@ -423,7 +423,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     getRowTotal = function(table, index) {
         let total = 0;
         for(var i = 0; i < table[index].length; i++) {
-            if (table[index][i].type !== 'value-row-total' && table[index][i].type !== 'value-intersect-total') {
+            if (table[index][i].type === 'value') {
                 total += table[index][i].value;
             }
         }
@@ -473,8 +473,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     changeToColPercentage = function(table) {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
-                if (!isColumnEmpty(table, j)) {
-                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getColumnTotal(table, i)) * 100) + '%';
+                if (!isColumnEmpty(table, j) && !table[i][j].empty) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getColumnTotal(table, j)) * 100) + '%';
                 }
             }
         }
