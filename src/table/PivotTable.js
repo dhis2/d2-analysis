@@ -364,7 +364,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     //TODO: have all cell creation go through this function
-    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort, noBreak, dxId, uuids, htmlValue}) {
+    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
         var cell = {}
 
         cell.uuid = _uuid || generateUuid ? uuid() : null;
@@ -379,6 +379,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cell.type = type;
         cell.dxId = dxId;
         cell.uuids = uuids;
+        cell.sort = sort;
 
         if(numeric && !htmlValue) {
             cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
@@ -776,6 +777,22 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
+    const isEmptyR = function (row) {
+        for (var i=0; i < row.length; i++) {
+            if(!row[i].empty && row[i].type === 'value') return false;
+        }
+        return true;
+    }
+    const getRTotal = function (row) {
+        let total = 0;
+        for (var i=0; i < row.length; i++) {
+            if (row[i].type === 'value') {
+                total += row[i].value;
+            }
+        }
+        return total;
+    }
+
     getValueObjectArray = function() {
         const colAxisSize = colAxis.type ? colAxis.size : 1,
               rowAxisSize = rowAxis.type ? rowAxis.size : 1,
@@ -843,6 +860,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 // do column totals
                 if (j === colAxisSize - 1 && doRowTotals()) {
                     row.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-row-total', { numeric: true }));
+
+                    if (doSortableColumnHeaders()) {
+                        totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]);
+                        idValueMap[totalIdComb.get()] = isEmptyR(row) ? null : getRTotal(row);
+                    }
                 }
 
                 // do row sub totals
@@ -866,11 +888,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                     if (j === colAxisSize - 1 && doRowTotals()) {
                         totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-intersect-total', { numeric: true }));
-                    }
-
-                    if (doSortableColumnHeaders()) {
-                        totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = isColumnEmpty(table, j) ? null : getColumnTotal(table, j);
                     }
                 }
 
