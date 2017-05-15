@@ -209,11 +209,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls.push(config.hidden ? 'td-hidden' : null);
         cls.push(config.collapsed ? 'td-collapsed' : null);
         cls.push(isValue && !unclickable ? 'pointer' : null);
-        cls.push(isString(metaDataId) ? 'td-sortable' : null);
+        cls.push(isString(config.sort) ? 'td-sortable' : null);
 
-        if (isString(metaDataId)) {
+        if (isString(config.sort)) {
             sortableIdObjects.push({
-                id: metaDataId,
+                id: config.sort,
                 uuid: config.uuid
             });
         }
