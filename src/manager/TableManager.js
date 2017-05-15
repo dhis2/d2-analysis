@@ -284,6 +284,7 @@ TableManager = function(c) {
 
                 ouMenu.menu.removeAll();
                 ouMenu.menu.add(organisationUnitMenuItems);
+                uiManager.unmask();
             });
         }
 
@@ -296,6 +297,7 @@ TableManager = function(c) {
 
             return xy;
         }());
+        uiManager.mask();
     };
 
     var onValueMouseOver = function(uuid) {
