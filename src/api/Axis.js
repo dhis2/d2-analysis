@@ -142,9 +142,9 @@ Axis = function(refs, config) {
         });
     };
 
-    t.replaceDimensionByName = function(dimensionName, dimension) {
+    t.replaceDimensionByName = function(dimension) {
         for (let i = 0; i < this.length; ++i) {
-            if (this[i].dimension === dimensionName) {
+            if (this[i].dimension === dimension.dimension) {
                 this[i] = dimension;
             }
         }

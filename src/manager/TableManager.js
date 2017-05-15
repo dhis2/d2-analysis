@@ -218,11 +218,7 @@ TableManager = function(c) {
                         const layout = instanceManager.getStateCurrent();
                         const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
 
-                        if (layout.isPeriodInRows()) {
-                            layout.rows.replaceDimensionByName('pe', peDimension);
-                        } else {
-                            layout.columns.replaceDimensionByName('pe', peDimension);
-                        }
+                        layout.replaceDimensionByName(peDimension);
 
                         layout.setResponse(null);
 
@@ -258,11 +254,11 @@ TableManager = function(c) {
             });
 
             const ouMenu = menu.items.findBy(submenu => submenu.uid === 'OU_MENU');
-            const organisationUnit = new OrganisationUnit({ id: ouId }, layout.getRefs());
+            const organisationUnit = new OrganisationUnit(layout.getRefs(), { id: ouId });
 
-            organisationUnit.getAncestorsRequest(function(response) {
-                organisationUnit.setAncestors(response.ancestors);
-                organisationUnit.setLevel(response.level);
+            organisationUnit.getAncestorsRequest(true).done(function(data) {
+                organisationUnit.setAncestors(data.ancestors);
+                organisationUnit.setLevel(data.level);
 
                 const organisationUnitMenuItems = organisationUnit.getContextMenuItemsConfig();
 
@@ -278,11 +274,7 @@ TableManager = function(c) {
                         const layout = instanceManager.getStateCurrent();
                         const ouDimension = new Dimension(layout.getRefs(), { dimension: 'ou', items: this.items });
 
-                        if (layout.isOrganisationUnitInRows()) {
-                            layout.rows.replaceDimensionByName('ou', ouDimension);
-                        } else {
-                            layout.columns.replaceDimensionByName('ou', ouDimension);
-                        }
+                        layout.replaceDimensionByName(ouDimension);
 
                         layout.setResponse(null);
 
@@ -292,6 +284,7 @@ TableManager = function(c) {
 
                 ouMenu.menu.removeAll();
                 ouMenu.menu.add(organisationUnitMenuItems);
+                uiManager.unmask();
             });
         }
 
@@ -304,6 +297,7 @@ TableManager = function(c) {
 
             return xy;
         }());
+        uiManager.mask();
     };
 
     var onValueMouseOver = function(uuid) {

@@ -2,7 +2,7 @@ import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
 export var OrganisationUnit;
 
-OrganisationUnit = function(config, refs) {
+OrganisationUnit = function(refs, config) {
     var t = this;
 
     t.id = config.id;
@@ -44,20 +44,19 @@ OrganisationUnit.prototype.getUpperLevels = function() {
 
 // dep 1
 
-OrganisationUnit.prototype.getAncestorsRequest = function(callback) {
+OrganisationUnit.prototype.getAncestorsRequest = function(shouldRun) {
     const { Request } = this.refs.api;
 
     const request = new Request(refs, {
         baseUrl: this.getAppManager().getApiPath() + '/organisationUnits/' + this.id + '.json',
         type: 'json',
-        success: callback,
         params: [
             'fields=id,level,ancestors[id,level,displayName~rename(name)]',
             'paging=false'
         ],
     });
 
-    request.run();
+    return shouldRun ? request.run() : request;
 };
 
 OrganisationUnit.prototype.getOrganisationUnitLevels = function() {
@@ -68,7 +67,29 @@ OrganisationUnit.prototype.getResponse = function() {
     return this.getInstanceManager().getStateCurrent().getResponse();
 };
 
+OrganisationUnit.prototype.getRootAncestor = function() {
+    const sorted = this.getAncestors().slice().sort((a, b) => a.level > b.level);
+
+    return sorted.length ? sorted[0] : this;
+};
+
+OrganisationUnit.prototype.getParent = function() {
+    const ancestors = this.getAncestors().slice().sort((a, b) => a.level > b.level);
+
+    return ancestors.length ? ancestors[ancestors.length - 1] : null;
+};
+
 // dep 2
+
+OrganisationUnit.prototype.getHierarchyName = function() {
+    return this.getOrganisationUnitLevels().find(ou => ou.level === this.getLevel()).name;
+};
+
+OrganisationUnit.prototype.isRoot = function() {
+    const ancestor = this.getRootAncestor();
+
+    return ancestor ? this.getLevel() === ancestor.level : false;
+};
 
 OrganisationUnit.prototype.getName = function() {
     return this.getResponse().getNameById(this.id);
@@ -85,8 +106,9 @@ OrganisationUnit.prototype.getSublevels = function() {
 
     sublevels = sublevels.map(ou => {
         return {
-            id: this.id + ';' + 'LEVEL-' + ou.level,
-            name: ou.name.toLowerCase()
+            id: this.id,
+            name: ou.name.toLowerCase(),
+            level: ou.level
         }
     });
 
@@ -101,11 +123,6 @@ OrganisationUnit.prototype.getContextMenuItemsConfig = function() {
 
     const sublevels = this.getSublevels();
     const upperLevels = this.getUpperLevels();
-    const current = {
-        id: this.id,
-        name: this.getName(),
-        level: this.getLevel()
-    };
 
     // generate upper levels
     if (upperLevels.length > 0) {
@@ -128,29 +145,51 @@ OrganisationUnit.prototype.getContextMenuItemsConfig = function() {
     items.push({
         isSubtitle: true,
         style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
-        html: current.name
+        html: this.getHierarchyName()
     });
 
     items.push({
-        items: [{ id: current.id }],
-        text: 'Show only <span class="name">' + current.name +'</span>',
+        items: [{ id: this.id }],
+        text: 'Show only <span class="name">' + this.getName() +'</span>',
         iconCls: 'ns-menu-item-float'
     });
 
+    if (this.getParent()) {
+        items.push({
+            items: [{ id: this.getParent().id + ';LEVEL-' + this.getLevel() }],
+            text: 'Show all <span class="name">' + this.getHierarchyName() + ' units in ' + this.getParent().name + '</span>',
+            iconCls: 'ns-menu-item-float'
+        });
+    }
+
+
     // generate menu items for sublevels
     if (sublevels.length > 0) {
+        const root = this.getRootAncestor();
+
         items.push({
             isSubtitle: true,
             style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
             html: this.i18n.drill_down
         });
 
+
         sublevels.forEach(ou => {
             items.push({
-                items: [{ id: ou.id }],
-                text: 'Show all <span class="name">' + ou.name + ' units</span>',
+                items: [{ id: ou.id + ';' + 'LEVEL-' + ou.level }],
+                text: 'Show all <span class="name">' + ou.name.toLowerCase() + ' units in ' + this.getName() + '</span>',
                 iconCls: 'ns-menu-item-float'
             });
+        });
+
+        sublevels.forEach(ou => {
+            if (root.level !== this.getLevel()) {
+                items.push({
+                    items: [{ id: root.id + ';' + 'LEVEL-' + ou.level }],
+                    text: 'Show all <span class="name">' + ou.name + ' units</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            }
         });
     }
 
