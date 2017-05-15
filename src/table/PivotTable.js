@@ -59,6 +59,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         hideEmptyRows,
         changeToColPercentage,
         changeToRowPercentage,
+        setTotalCells,
+        setEmptyCells,
 
         // cell creation
         createCell,
@@ -67,6 +69,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         getValue,
         roundIf,
         getNumberOfDecimals,
+        getHtmlValue,
         recursiveReduce,
         getUniqueFactor,
         isRowEmpty,
@@ -151,7 +154,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return html;
     };
 
-    const getHtmlValue = function(config, isValue) {
+    getHtmlValue = function(config, isValue) {
         if (config.collapsed) {
             return '';
         }
@@ -644,7 +647,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
 
-    const setTotalCells = function (table) {
+    setTotalCells = function (table) {
 
         var columnTotals = new Array(table[1].length).fill(0),
             columnSubTotals = new Array(table[1].length).fill(0);
@@ -704,7 +707,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
-    const setEmptyCells = function (table) {
+    setEmptyCells = function (table) {
         
         var columnTotalEmpties = new Array(table[1].length).fill(0),
             columnSubEmpties = new Array(table[1].length).fill(0);
