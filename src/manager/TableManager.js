@@ -216,7 +216,6 @@ TableManager = function(c) {
                     peReqItems: periodItem.items,
                     handler: function() {
                         const layout = instanceManager.getStateCurrent();
-                        const uiManager = layout.getRefs().uiManager;
                         const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
 
                         if (layout.isPeriodInRows()) {
@@ -224,8 +223,6 @@ TableManager = function(c) {
                         } else {
                             layout.columns.replaceDimensionByName('pe', peDimension);
                         }
-
-                        uiManager.get('westRegion').setState(layout);
 
                         layout.setResponse(null);
 
@@ -279,7 +276,6 @@ TableManager = function(c) {
 
                     ou.handler = function() {
                         const layout = instanceManager.getStateCurrent();
-                        const uiManager = layout.getRefs().uiManager;
                         const ouDimension = new Dimension(layout.getRefs(), { dimension: 'ou', items: this.items });
 
                         if (layout.isOrganisationUnitInRows()) {
@@ -287,8 +283,6 @@ TableManager = function(c) {
                         } else {
                             layout.columns.replaceDimensionByName('ou', ouDimension);
                         }
-
-                        uiManager.get('westRegion').setState(layout);
 
                         layout.setResponse(null);
 
