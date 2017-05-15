@@ -291,6 +291,14 @@ Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
     });
 };
 
+Layout.prototype.replaceDimensionByName = function(dimension, includeFilter) {
+    this.getAxes(includeFilter).forEach(axis => {
+        if (axis.has(dimension.dimension)) {
+            axis.replaceDimensionByName(dimension);
+        }
+    });
+};
+
 // dep 2
 
 Layout.prototype.getRecordIds = function(includeFilter) {

@@ -218,11 +218,7 @@ TableManager = function(c) {
                         const layout = instanceManager.getStateCurrent();
                         const peDimension = new Dimension(layout.getRefs(), { dimension: 'pe', items: this.peReqItems });
 
-                        if (layout.isPeriodInRows()) {
-                            layout.rows.replaceDimensionByName('pe', peDimension);
-                        } else {
-                            layout.columns.replaceDimensionByName('pe', peDimension);
-                        }
+                        layout.replaceDimensionByName(peDimension);
 
                         layout.setResponse(null);
 
@@ -278,11 +274,7 @@ TableManager = function(c) {
                         const layout = instanceManager.getStateCurrent();
                         const ouDimension = new Dimension(layout.getRefs(), { dimension: 'ou', items: this.items });
 
-                        if (layout.isOrganisationUnitInRows()) {
-                            layout.rows.replaceDimensionByName('ou', ouDimension);
-                        } else {
-                            layout.columns.replaceDimensionByName('ou', ouDimension);
-                        }
+                        layout.replaceDimensionByName(ouDimension);
 
                         layout.setResponse(null);
 
