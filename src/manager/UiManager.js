@@ -225,7 +225,7 @@ UiManager = function(refs) {
         if (t.introHtmlIsAsync) {
             return updateIntroHtml();
         }
-        return new Promise(resolve => resolve(introHtml));
+        return introHtml;
     };
 
     t.setUpdateIntroHtmlFn = function(fn) {
