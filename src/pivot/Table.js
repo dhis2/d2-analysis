@@ -35,14 +35,16 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     const cellWidth = 120,
           cellHeight = 25;
 
-    // enums
-    const cellTypes = {
-        1: '',
-        2: '',
-        3: '',
-        4: '',
-        5: '',
-        6: '',
+    // cell type enum
+    const cellType = {
+        'value-row-subtotal':           1,
+        'value-column-subtotal':        2,
+        'value-intersect-subtotals':    3,
+        'value-row-total':              4,
+        'value-row-intersect-total':    5,
+        'value-column-total':           6,
+        'value-column-intersect-total': 7,
+        'value-intersect-total':        8,
     };
 
     // inititalize global variables/functions
@@ -97,6 +99,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         getTableRowSize,
         createMatrix,
         createValueMatrix,
+        createLookupTable,
 
     // global variables
 
@@ -385,6 +388,75 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return number;
     };
 
+        
+    const gerResponseValue = function(x, y) {
+        empty = false;
+
+        rric = new ResponseRowIdCombination();
+        rric.add(colAxis.type ? colAxis.ids[x] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[y] : '');
+
+        responseValue = idValueMap[rric.get()];
+
+        if (isDefined(responseValue)) {
+            value = getValue(responseValue);
+        } else {
+            value = -1;
+        }
+
+        return value;
+    }
+
+    const createValueLookup = function(xDimensionSize, yDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var y = 0; i < rowAxis.size; y++) {
+            for (var x = 0, value; j < colAxis.size; x++) {
+
+                const value = getResponseValue(y, x);
+
+                // calculate sub totals
+                if (doColTotals())                        lookup[y][x] += value;
+                if (doRowTotals())                        lookup[y][x] += value;
+
+                // calculate grand totals
+                if (doColSubTotals())                     lookup[y][x] += value;
+                if (doRoWSubTotals())                     lookup[y][x] += value;
+                
+                // calculate intersection totals
+                if (doColTotals() && doRowTotals())       lookup[y][x] += value;
+                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] += value;
+
+                lookup[y][x] = value;
+            }
+        }
+        return lookup;
+    }
+
+    const createTypeLookup = function(xDimensionSize, yDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var y = 0; i < rowAxis.size; y++) {
+            for (var x = 0, type; j < colAxis.size; x++) {
+
+                const type = 'sometype';
+
+                // calculate sub totals
+                if (doColTotals())                        lookup[y][x] = type;
+                if (doRowTotals())                        lookup[y][x] = type;
+
+                // calculate grand totals
+                if (doColSubTotals())                     lookup[y][x] = type;
+                if (doRoWSubTotals())                     lookup[y][x] = type;
+                
+                // calculate intersection totals
+                if (doColTotals() && doRowTotals())       lookup[y][x] = type;
+                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] = type;
+
+                lookup[y][x] = type;
+            }
+        }
+        return lookup;
+    }
+
     getNumberOfDecimals = function(number) {
         var str = new String(number);
         return (str.indexOf('.') > -1) ? (str.length - str.indexOf('.') - 1) : 0;
@@ -539,11 +611,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         deleteColumn(currentTable, currentTable[1].length - 2);
     }
 
-    const addRowToEndOfTable = function(columnStart, columnEnd, rowIndex) {
+    const addRowToBottomOfTable = function(columnStart, columnEnd, rowIndex) {
         insertRow(currentTable, getTableRow(columnStart, columnEnd, rowIndex), currentTable.length - 1);
     }
 
-    const addRowToStartOfTable = function(columnStart, columnEnd, rowIndex) {
+    const addRowToTopOfTable = function(columnStart, columnEnd, rowIndex) {
         insertRow(currentTable, getTableRow(columnStart, columnEnd, rowIndex), 1);
     }
 
@@ -691,8 +763,8 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         let cell;
         
-        rric.add(colAxis.type ? colAxis.ids[colPos] : '');
-        rric.add(rowAxis.type ? rowAxis.ids[rowPos] : '');
+        rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
 
         if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
         if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
@@ -919,74 +991,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
         return rowAxisArray;
     }
-    
-    const gerResponseValue = function(x, y) {
-        empty = false;
-
-        rric = new ResponseRowIdCombination();
-        rric.add(colAxis.type ? colAxis.ids[x] : '');
-        rric.add(rowAxis.type ? rowAxis.ids[y] : '');
-
-        responseValue = idValueMap[rric.get()];
-
-        if (isDefined(responseValue)) {
-            value = getValue(responseValue);
-        } else {
-            value = -1;
-        }
-
-        return value;
-    }
-
-    const createValueLookup = function(xDimensionSize, yDimensionSize) {
-        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
-        for (var y = 0; i < rowAxis.size; y++) {
-            for (var x = 0, value; j < colAxis.size; x++) {
-
-                const value = getResponseValue(y, x);
-
-                // calculate sub totals
-                if (doColTotals())                        lookup[y][x] += value;
-                if (doRowTotals())                        lookup[y][x] += value;
-
-                // calculate grand totals
-                if (doColSubTotals())                     lookup[y][x] += value;
-                if (doRoWSubTotals())                     lookup[y][x] += value;
-                
-                // calculate intersection totals
-                if (doColTotals() && doRowTotals())       lookup[y][x] += value;
-                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] += value;
-
-                lookup[y][x] = value;
-            }
-        }
-        return lookup;
-    }
-
-    const createTypeLookup = function(xDimensionSize, yDimensionSize) {
-        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
-        for (var y = 0; i < rowAxis.size; y++) {
-            for (var x = 0, type; j < colAxis.size; x++) {
-
-                const type = 'sometype';
-
-                // calculate sub totals
-                if (doColTotals())                        lookup[y][x] = type;
-                if (doRowTotals())                        lookup[y][x] = type;
-
-                // calculate grand totals
-                if (doColSubTotals())                     lookup[y][x] = type;
-                if (doRoWSubTotals())                     lookup[y][x] = type;
-                
-                // calculate intersection totals
-                if (doColTotals() && doRowTotals())       lookup[y][x] = type;
-                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] = type;
-
-                lookup[y][x] = type;
-            }
-        }
-        return lookup;
-    }
 
     createValueMatrix = function(rows, columns) {
 
@@ -1072,10 +1076,12 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         for (var i = 0, y = rowStart; i < table.length; i++, y++) {
             for (var j = 0, x = columnStart, value, cell, totalIdComb; j < table[i].length; j++, x++) {
 
-                if (doSortableColumnHeaders()) {
-                    totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[y]]);
-                    // idValueMap[totalIdComb.get()] = false ? null : cellCounter['totalRowAllCells' + x];
-                }
+                // TODO: FIX THIS
+                // if (doSortableColumnHeaders()) {
+                //     totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[y]]);
+                //     // idValueMap[totalIdComb.get()] = false ? null : cellCounter['totalRowAllCells' + x];
+                // }
+                
                 table[i][j] = getValueCell(x, y);
             }
         }
@@ -1299,16 +1305,48 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             return getColumnAxisColumn(columnIndex, rowStart).concat(getRowAxisColumn(rowStart, rowEnd, columnIndex));
         }
 
-        let column = [];
+        const column = [];
 
         if (rowStart < colAxis.dims) {
-            column = column.concat(getColAxisObjectArray(columnIndex, columnIndex + 1, rowStart));
+            column.push(...getColAxisObjectArray(columnIndex, columnIndex + 1, rowStart));
         }
 
-        column = column.concat(getValueObjectColumn(rowStart, Math.max(0, columnIndex - rowAxis.dims), rowEnd - rowStart));
+        column.push(...getValueObjectColumn(rowStart, Math.max(0, columnIndex - rowAxis.dims), rowEnd - rowStart));
 
         return column;
     };
+
+    const updatePreviousPosition = function (columnStart, columnEnd, rowStart, rowEnd) {
+        previousRowEnd = rowEnd;
+        previousRowStart = rowStart;
+        previousColumnEnd = columnEnd;
+        previousColumnStart = columnStart;
+    }
+
+    const updateTablePadding = function(table, columnStart, columnEnd, rowStart, rowEnd) {
+        const leftPadding   = getLeftPadding(columnStart),
+              rightPaddings = getRightPadding(columnEnd),
+              topPadding    = getTopPadding(rowStart),
+              bottomPadding = getBottomPadding(rowEnd);
+
+        // apply top pad
+        table[0][0].width = topPad;
+        table[0][0].hidden = topPad <= 0;
+
+        // apply bottom pad
+        table[table.length - 1][0].width = bottomPad;
+        table[table.length - 1][0].hidden = bottomPad <= 0;
+
+        for(var i=1; i < table.length - 1; i++) {
+            // apply left pad
+            table[i][0].width  = leftPad;
+            table[i][0].hidden = leftPad <= 0;
+
+            // apply right pad
+            table[i][table[i].length - 1].width = rightPad;
+            table[i][table[i].length - 1].hidden = rightPad <= 0;
+        }
+    }
     
     const updateColumnAxisColSpan = function(table, columnStart, rowStart, maxColSpan) {
         maxColSpan = table[1].length - 2;
@@ -1319,8 +1357,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
                 obj = table[i][j];
 
                 if (obj.type === 'padding') continue; 
-                
-                if(obj.htmlValue.includes("Commodities")) obj.hidden = false;
 
                 if (skipping > 0) {
                     obj.hidden = true;
@@ -1355,35 +1391,53 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
     }
 
-    const updateVerticalPadding = function(table, rowStart, rowEnd) {
+    const updateDimensionSpan = function() {
 
-        const topPad = getTopPadding(rowStart),
-              bottomPad = getBottomPadding(rowEnd);
+        let cell = null;
 
-        table[0][0].width = topPad;
-        table[0][0].hidden = topPad <= 0;
-        table[table.length - 1][0].width = bottomPad;
-        table[table.length - 1][0].hidden = bottomPad <= 0;
-    }
-    
-    const updateHorizontalPadding = function(table, columnStart, columnEnd) {
+        // update colAxis colSpan
+        for (let i=rowStart; i < colAxis.dims; i++) {
+            for (let j=columnStart, colSpanCounter=0; j < getTableColumnSize(); j++) {
 
-        const leftPad = getLeftPadding(columnStart),
-              rightPad = getRightPadding(columnEnd);
+                cell = tabel[i][j];
 
-        for(var i = 1; i < table.length - 1; i++) {
-            table[i][0].width = leftPad;
-            table[i][0].hidden = leftPad <= 0;
-            table[i][table[i].length - 1].width = rightPad;
-            table[i][table[i].length - 1].hidden = rightPad <= 0;
+                if (colSpanCounter === colSpanLimit) {
+                    cell.hidden = true;
+                }
+
+                if (cell.colSpan + colSpanCounter > colSpanLimit) {
+                    cell.colSpan = cell.colSpan + colSpanCounter - colSpanLimit;
+                }
+
+                colSpanCounter += cell.colSpan;
+            }
         }
-    }
 
-    const updatePreviousPosition = function (columnStart, columnEnd, rowStart, rowEnd) {
-        previousRowEnd = rowEnd;
-        previousRowStart = rowStart;
-        previousColumnEnd = columnEnd;
-        previousColumnStart = columnStart;
+        // update rowAxis rowSpan
+        for (let j=0; j < rowAxis.dims, j++) {
+            for (let i=0, rowSpanCounter=0; i < getTableRowSize(); i++) {
+
+                cell = tabel[i][j];
+
+                if (rowSpanCounter === rowSpanLimit) {
+                    cell.hidden = true;
+                }
+
+                if (cell.rowSpan - rowSpanCoutner > rowSpanLimit) {
+                    cell.colSpan = cell.colSpan + colSpanCounter - colSpanLimit;
+                }
+
+                rowSpanCoutner += cell.rowSpan;
+            }
+        }
+
+
+
+
+
+
+
+
     }
 
     const applyChangesToTable = function(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd) {
@@ -1405,11 +1459,11 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
 
         if (previousRowStart > currentRowStart) {
-            addRowToStartOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
+            addRowToTopOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
         }
 
         if (previousRowEnd < currentRowEnd) {
-            addRowToStartOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
+            addRowToBottomOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
         }
 
         if (previousRowStart < currentRowStart) {
@@ -1420,8 +1474,10 @@ Table = function(layout, response, colAxis, rowAxis, options) {
             removeRowFromStartOfTable();
         }
 
-        updateHorizontalPadding(currentTable, currentColumnStart, currentColumnEnd);
-        updateVerticalPadding(currentTable, currentRowStart, currentRowEnd);
+        updateTablePadding(currentTable, currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
+        // udpateTableDimesionSpan();
+
+        // setCurrentPosition();
 
         updateColumnAxisColSpan(currentTable, currentColumnStart, currentRowStart, currentColumnEnd - currentColumnStart);
         // updateRowAxisRowSpan(currentTable, currentRowStart, currentColumnStart, currentRowEnd - currentRowStart);
@@ -1429,6 +1485,42 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         updatePreviousPosition(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const addHorizontalPaddingCellsToRow = function (row, columnStart, columnEnd) {
+        row.unshift(createCell(null, 'pivot-padding', 'padding', {width: getLeftPadding(columnStart), hidden: columnStart <= 0}));
+        row.push(createCell(null, 'pivot-padding', 'padding', {width: getRightPadding(columnEnd), hidden: getRightPadding(columnEnd) <= 0}));
+    }
+
+    const addVerticalPaddingCells = function(table, rowStart, rowEnd, columnStart, columnEnd) {
+        table.unshift([createCell(null, 'pivot-padding', 'padding', {height: getTopPadding(rowStart), colSpan: (columnEnd - columnStart) + 1, hidden: rowStart <= 0})]);
+        table.push([createCell(null, 'pivot-padding', 'padding', {height: getBottomPadding(rowEnd), colSpan: (columnEnd - columnStart) + 1, hidden: true})]);
+    }
+
+    const addHorizontalPaddingCellsToTable = function (table, columnStart, columnEnd) {
+        for (let i = 0; i < table.length; i++) {
+            addHorizontalPaddingCellsToRow(table[i], columnStart, columnEnd);
+        }
+    }
+
+    const addPaddingCells = function (table, columnStart, columnEnd, rowStart, rowEnd) {
+        addHorizontalPaddingCellsToTable(table, columnStart, columnEnd);
+        addVerticalPaddingCells(table, rowStart, rowEnd, columnStart, columnEnd);
+    }
 
     renderTable = function(rowStart=0, columnStart=0) {
 
@@ -1454,27 +1546,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
         return getHtml(htmlArray);
     };
-
-    const addHorizontalPaddingCellsToRow = function (row, columnStart, columnEnd) {
-        row.unshift(createCell(null, 'pivot-padding', 'padding', {width: getLeftPadding(columnStart), hidden: columnStart <= 0}));
-        row.push(createCell(null, 'pivot-padding', 'padding', {width: getRightPadding(columnEnd), hidden: getRightPadding(columnEnd) <= 0}));
-    }
-
-    const addVerticalPaddingCells = function(table, rowStart, rowEnd, columnStart, columnEnd) {
-        table.unshift([createCell(null, 'pivot-padding', 'padding', {height: getTopPadding(rowStart), colSpan: (columnEnd - columnStart) + 1, hidden: rowStart <= 0})]);
-        table.push([createCell(null, 'pivot-padding', 'padding', {height: getBottomPadding(rowEnd), colSpan: (columnEnd - columnStart) + 1, hidden: true})]);
-    }
-
-    const addHorizontalPaddingCellsToTable = function (table, columnStart, columnEnd) {
-        for(let i = 0; i < table.length; i++) {
-            addHorizontalPaddingCellsToRow(table[i], columnStart, columnEnd);
-        }
-    }
-
-    const addPaddingCells = function (table, columnStart, columnEnd, rowStart, rowEnd) {
-        addHorizontalPaddingCellsToTable(table, columnStart, columnEnd);
-        addVerticalPaddingCells(table, rowStart, rowEnd, columnStart, columnEnd);
-    }
 
     // get html
     (function() {
