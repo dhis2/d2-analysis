@@ -216,7 +216,7 @@ EastRegion = function(c) {
                 fieldLabel: i18n.sharing,
                 labelStyle: 'padding-top:0',
                 style: 'margin-bottom:3px',
-                value: getSharingText(layout) + (userCanEditSharing ? 
+                value: getSharingText(layout) + (userCanEditSharing ?
                     '<span style="padding-left:10px">' + getLink(editText, false, true) + '</span>' : ''),
                 cls: 'interpretationDetailsField',
                 listeners: {
@@ -228,7 +228,7 @@ EastRegion = function(c) {
                                 });
                             }, label);
                         }
-                    } 
+                    }
                 }
             }];
         } else {
@@ -500,7 +500,7 @@ EastRegion = function(c) {
 
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
-                url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
+                url: encodeURI(apiPath + '/interpretations/' + interpretation.id +
                     '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
                 method: 'GET',
                 scope: this,
@@ -537,7 +537,7 @@ EastRegion = function(c) {
         // Call comment interpretation, update data model and update/reload panel
         var commentInterpretation = function(f, comment) {
             var text = f.getValue();
-            
+
             if (text.trim() != '') {
                 var commentsUrl = encodeURI(apiPath + '/interpretations/' + interpretation.id + '/comments')
                 Ext.Ajax.request({
@@ -939,13 +939,10 @@ EastRegion = function(c) {
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
         setState: function(layout) {
-            if (layout.interpretations) {
-                this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
+            this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
-                // Favorite loaded with interpretations ->  Add interpretation panel and update
-            
-                this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
-            }
+            // Favorite loaded with interpretations ->  Add interpretation panel and update
+            this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         },
         listeners: {
             expand: function() {
