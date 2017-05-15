@@ -473,8 +473,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     changeToColPercentage = function(table) {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
-                if (!isColumnEmpty(table, j) && !table[i][j].empty) {
-                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getColumnTotal(table, j)) * 100) + '%';
+                let columnTotal = getColumnTotal(table, j);
+                if (!isColumnEmpty(table, j) && !table[i][j].empty && columnTotal !== 0) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / columnTotal) * 100) + '%';
+                }
+                if (columnTotal === 0) {
+                    table[i][j].empty = true;
+                    table[i][j].htmlValue = '&nbsp;';
                 }
             }
         }
@@ -483,9 +488,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     changeToRowPercentage = function(table) {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
-                if (!isRowEmpty(table, i)) {
-                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / getRowTotal(table, i)) * 100) + '%';
-                }    
+                let rowTotal = getRowTotal(table, i);
+                if (!isRowEmpty(table, i) && !table[i][j].empty && rowTotal !== 0) {
+                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / rowTotal) * 100) + '%';
+                }
+                if (rowTotal === 0) {
+                    table[i][j].empty = true;
+                    table[i][j].htmlValue = '&nbsp;';
+                }
             }
         }
     }
@@ -763,7 +773,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
-    // TODO: find a better way to count empty/totals
     getValueObjectArray = function() {
         const colAxisSize = colAxis.type ? colAxis.size : 1,
               rowAxisSize = rowAxis.type ? rowAxis.size : 1,
