@@ -16,7 +16,7 @@ const ProgramStatusSelect = function (refs) {
         valueField: 'id',
         displayField: 'name',
         editable: false,
-        value: 'NONE',
+        value: optionConfig.getProgramStatus('def').id,
         store: Ext.create('Ext.data.Store', {
             fields: ['id', 'name', 'index'],
             data: optionConfig.getProgramStatusRecords()

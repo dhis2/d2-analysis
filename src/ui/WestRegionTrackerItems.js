@@ -767,7 +767,6 @@ WestRegionTrackerItems = function(refs) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow');
 
-console.log("element", element);
         index = index || dataElementSelected.items.items.length;
 
         var getUxType = function(element) {
@@ -903,11 +902,9 @@ console.log("element", element);
                     ux.setRecord(element);
                 }
             }
-console.log("element",element);
-console.log("ux",ux);
+
             store = arrayContains(includeKeys, element.valueType) || element.optionSet ? aggWindow.getDefaultStore() : aggWindow.fixedFilterStore;
 
-console.log("store",store);
             aggWindow.addDimension(element, store, aggWindow.valueStore);
 
             if (queryWindow) {

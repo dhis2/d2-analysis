@@ -16,7 +16,7 @@ const EventStatusSelect = function (refs) {
         valueField: 'id',
         displayField: 'name',
         editable: false,
-        value: 'NONE',
+        value: optionConfig.getEventStatus('def').id,
         store: Ext.create('Ext.data.Store', {
             fields: ['id', 'name', 'index'],
             data: optionConfig.getEventStatusRecords()
