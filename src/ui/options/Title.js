@@ -21,7 +21,7 @@ const TitleContainer = function (refs) {
     });
 
     container.titleInput = Ext.create('Ext.form.field.Text', {
-        width: style.cmpWidth - style.labelWidth,
+        width: style.cmpWidth - style.labelWidth - 5,
         emptyText: i18n.chart_title,
         maxLength: 100,
         enforceMaxLength: true,

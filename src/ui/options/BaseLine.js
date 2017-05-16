@@ -22,6 +22,7 @@ const BaseLineContainer = function (refs) {
     container.baseLineTitleInput = Ext.create('Ext.form.field.Text', {
         style: 'margin-left:1px; margin-bottom:1px',
         fieldStyle: 'padding-left:3px',
+        emptyText: i18n.base_line_title,
         width: style.cmpWidth - style.labelWidth - 5 - style.numberWidth - 1,
         maxLength: 100,
         enforceMaxLength: true,
@@ -35,7 +36,7 @@ const BaseLineContainer = function (refs) {
         {
             bodyStyle: 'border:0 none; padding-top:3px; margin-right:5px; color:#333',
             width: 130,
-            html: 'Base value/title',
+            html: i18n.base_line_value_title,
         },
         container.baseLineValueInput,
         container.baseLineTitleInput

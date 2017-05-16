@@ -45,6 +45,7 @@ const AxisContainer = function (refs) {
     container.rangeAxisTitleInput = Ext.create('Ext.form.field.Text', {
         width: style.cmpWidth,
         fieldLabel: i18n.range_axis_label,
+        emptyText: i18n.range_axis_label,
         labelSeparator: null,
         labelStyle: 'color:#333',
         labelWidth: style.labelWidth,
@@ -56,6 +57,7 @@ const AxisContainer = function (refs) {
     container.domainAxisTitleInput = Ext.create('Ext.form.field.Text', {
         width: style.cmpWidth,
         fieldLabel: i18n.domain_axis_label,
+        emptyText: i18n.domain_axis_label,
         labelSeparator: null,
         labelStyle: 'color:#333',
         labelWidth: style.labelWidth,
