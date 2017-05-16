@@ -2226,7 +2226,7 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_BIMONTH',
                                 boxLabel: i18n['this_bimonth'],
-                                index: 16
+                                index: 17
                             },
                             {
                                 xtype: 'checkbox',
