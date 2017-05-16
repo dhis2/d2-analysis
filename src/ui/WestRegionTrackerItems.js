@@ -302,11 +302,6 @@ WestRegionTrackerItems = function(refs) {
             }
         }
 
-        // options
-        if (optionsWindow) {
-            optionsWindow.setOptions(layout);
-        }
-
         // data items
         onProgramSelect(layout.program.id, layout);
     };
@@ -2915,6 +2910,11 @@ WestRegionTrackerItems = function(refs) {
     // functions
 
     var setUiState = function(layout, response) {
+        var viewport = uiManager.get('viewport');
+        var optionsWindow = viewport.getOptionsWindow(layout);
+
+        optionsWindow.setOptions(layout);
+
         //var statusBar = uiManager.get('statusBar');
 
         // state
