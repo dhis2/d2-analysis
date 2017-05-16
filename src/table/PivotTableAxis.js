@@ -52,13 +52,13 @@ PivotTableAxis = function(refs, layout, response, type) {
 
         return a;
     }();
-//aaUniqueFloorIds  = [ [de-id1, de-id2, de-id3],
-//                      [pe-id1],
-//                      [ou-id1, ou-id2, ou-id3, ou-id4] ]
+    //aaUniqueFloorIds  = [ [de-id1, de-id2, de-id3],
+    //                      [pe-id1],
+    //                      [ou-id1, ou-id2, ou-id3, ou-id4] ]
 
     // nAxisHeight
     nAxisHeight = aaUniqueFloorIds.length;
-//nAxisHeight = 3
+    //nAxisHeight = 3
 
 
     // aUniqueFloorWidth, nAxisWidth, aAccFloorWidth
@@ -69,73 +69,78 @@ PivotTableAxis = function(refs, layout, response, type) {
         nAxisWidth = nAxisWidth * nUniqueFloorWidth;
         aAccFloorWidth.push(nAxisWidth);
     }
-//aUniqueFloorWidth = [3, 1, 4]
-//nAxisWidth        = 12 (3 * 1 * 4)
-//aAccFloorWidth    = [3, 3, 12]
+    //aUniqueFloorWidth = [3, 1, 4]
+    //nAxisWidth        = 12 (3 * 1 * 4)
+    //aAccFloorWidth    = [3, 3, 12]
 
     // aFloorSpan
-    for (var i = 0; i < nAxisHeight; i++) {
-        if (aUniqueFloorWidth[i] === 1) {
-            if (i === 0) { // if top floor, set maximum span
-                aFloorSpan.push(nAxisWidth);
-            }
-            else {
-                if (layout.hideEmptyRows && type === 'row') {
-                    aFloorSpan.push(nAxisWidth / aAccFloorWidth[i]);
-                }
-                else { //if just one item and not top level, use same span as top level
-                    aFloorSpan.push(aFloorSpan[0]);
-                }
-            }
+    if(aUniqueFloorWidth[0] === 1) {
+        aFloorSpan.push(nAxisWidth);
+    }
+
+    for (var i = aFloorSpan.length; i < nAxisHeight; i++) {
+        //if just one item and not top level, use same span as top level TODO: don't think this is necessary
+        if (aUniqueFloorWidth[i] === 1 && !layout.hideEmptyRows && type !== 'row') {
+            aFloorSpan.push(aFloorSpan[0]);
         }
         else {
             aFloorSpan.push(nAxisWidth / aAccFloorWidth[i]);
         }
     }
-//aFloorSpan = [4, 12, 1]
 
+    //aFloorSpan = [4, 12, 1]
 
     // aaGuiFloorIds
     aaGuiFloorIds.push(aaUniqueFloorIds[0]);
 
-    if (nAxisHeight.length > 1) {
-        for (var i = 1, a, n; i < nAxisHeight; i++) {
-            a = [];
-            n = aUniqueFloorWidth[i] === 1 ? aUniqueFloorWidth[0] : aAccFloorWidth[i-1];
+    for (var i = 1, n; i < nAxisHeight; i++) {
+        var a = [];
+        n = aUniqueFloorWidth[i] === 1 ? aUniqueFloorWidth[0] : aAccFloorWidth[i - 1];
 
-            for (var j = 0; j < n; j++) {
-                a = a.concat(aaUniqueFloorIds[i]);
-            }
-
-            aaGuiFloorIds.push(a);
+        for (var j = 0; j < n; j++) {
+            a = a.concat(aaUniqueFloorIds[i]);
         }
-    }
-//aaGuiFloorIds = [ [d1, d2, d3], (3)
-//                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (15)
-//                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2...] (30)
-//                ]
 
+        aaGuiFloorIds.push(a);
+        //aaGuiFloorIds.push(Array(20).concat.apply([], aaUniqueFloorIds[i]));
+    }
+
+    //aaGuiFloorIds = [ [d1, d2, d3], (3)
+    //                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (15)
+    //                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2...] (30)
+    //                ]
     // aaAllFloorIds
+
     for (var i = 0, aAllFloorIds, aUniqueFloorIds, span, factor; i < nAxisHeight; i++) {
         aAllFloorIds = [];
         aUniqueFloorIds = aaUniqueFloorIds[i];
         span = aFloorSpan[i];
         factor = nAxisWidth / (span * aUniqueFloorIds.length);
+        //console.log(factor, aUniqueFloorIds.length);
 
         for (var j = 0; j < factor; j++) {
             for (var k = 0; k < aUniqueFloorIds.length; k++) {
-                for (var l = 0; l < span; l++) {
-                    aAllFloorIds.push(aUniqueFloorIds[k]);
-                }
+                aAllFloorIds.push(...Array(span).fill(aUniqueFloorIds[k]));
             }
         }
-
         aaAllFloorIds.push(aAllFloorIds);
     }
-//aaAllFloorIds = [ [d1, d1, d1, d1, d1, d1, d1, d1, d1, d1, d2, d2, d2, d2, d2, d2, d2, d2, d2, d2, d3, d3, d3, d3, d3, d3, d3, d3, d3, d3], (30)
-//                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (30)
-//                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2] (30)
-//                ]
+
+    //console.log(aaAllFloorIds, aaGuiFloorIds)
+
+
+/*    console.log("begin")
+    console.log(nAxisWidth / (span * aUniqueFloorIds.length));
+    console.log(aaUniqueFloorIds);
+    console.log(aUniqueFloorIds);
+    console.log(aaAllFloorIds);
+    console.log(aFloorSpan);
+    console.log("end")*/
+
+    //aaAllFloorIds = [ [d1, d1, d1, d1, d1, d1, d1, d1, d1, d1, d2, d2, d2, d2, d2, d2, d2, d2, d2, d2, d3, d3, d3, d3, d3, d3, d3, d3, d3, d3], (30)
+    //                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (30)
+    //                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2] (30)
+    //                ]
 
     // aCondoId
     for (var i = 0, ids; i < nAxisWidth; i++) {
@@ -149,8 +154,7 @@ PivotTableAxis = function(refs, layout, response, type) {
             aCondoId.push(ids.join('-'));
         }
     }
-//aCondoId = [ id11+id21+id31, id12+id22+id32, ... ]
-
+    //aCondoId = [ id11+id21+id31, id12+id22+id32, ... ]
 
     // allObjects
     for (var i = 0, allFloor; i < aaAllFloorIds.length; i++) {
@@ -206,7 +210,7 @@ PivotTableAxis = function(refs, layout, response, type) {
                 // tmp oldest uuid
                 oldestObj = obj;
             }
-
+            
             obj.oldestSibling = oldestObj;
 
             if (++doorCount === aFloorSpan[i]) {
@@ -260,7 +264,11 @@ PivotTableAxis = function(refs, layout, response, type) {
             // get the uuid of the oldest sibling
             while (obj.parent) {
                 obj = obj.parent;
-                parentUuids.push(obj.oldestSibling.uuid);
+                if(!obj.root && obj.oldestSibling) {
+                    parentUuids.push(obj.oldestSibling.uuid);
+                } else {
+                    parentUuids.push(obj.uuid);
+                }
             }
 
             // add parent uuids to leaf
@@ -287,7 +295,7 @@ PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    return {
+    var abc = {
         type: type,
         items: aDimensions,
         xItems: {
@@ -304,4 +312,8 @@ PivotTableAxis = function(refs, layout, response, type) {
         size: nAxisWidth,
         uuidObjectMap: uuidObjectMap
     };
+
+    //console.log(abc);
+
+    return abc
 };

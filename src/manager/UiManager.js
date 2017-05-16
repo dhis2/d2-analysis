@@ -18,6 +18,7 @@ UiManager = function(refs) {
     t.i18nManager;
 
     t.preventMask = false;
+    t.introHtmlIsAsync = false;
 
     var components = {};
 
@@ -35,6 +36,7 @@ UiManager = function(refs) {
     var introHtml = '';
 
     var introFn = Function.prototype;
+    var updateIntroHtml = Function.prototype;
 
     var updateFn = function(content, elementId) {
         var el = document.getElementById(elementId);
@@ -44,11 +46,14 @@ UiManager = function(refs) {
             return;
         }
 
-        t.getUpdateComponent() && t.getUpdateComponent().update(content || t.getIntroHtml());
-
-        if (!content) {
-            introFn();
+        if (content) {
+            t.getUpdateComponent().update(content);
+            return;
         }
+
+        t.getIntroHtml().then(html => {
+            t.getUpdateComponent().renew(html);
+        });
     };
 
     var updateInterpretationFn = function(interpretation, layout) {
@@ -116,6 +121,18 @@ UiManager = function(refs) {
     t.get = function(name) {
         return components[name] || document.getElementById(name) || null;
     };
+
+    t.subscribe = function(component, fn) {
+        t.get(component) && t.get(component).subscribe(fn);
+    }
+
+    t.setScrollFn = function(component, fn) {
+        t.get(component) && t.get(component).setScroll(fn);
+    }
+
+    t.scrollTo = function(component, x, y) {
+        t.get(component) && t.get(component).scrollTo(x, y);
+    }
 
     t.getByGroup = function(groupName) {
         return componentGroups[groupName];
@@ -205,11 +222,18 @@ UiManager = function(refs) {
 
     // intro
     t.getIntroHtml = function() {
+        if (t.introHtmlIsAsync) {
+            return updateIntroHtml();
+        }
         return introHtml;
     };
 
+    t.setUpdateIntroHtmlFn = function(fn) {
+        updateIntroHtml = fn;
+    }
+
     t.setIntroHtml = function(html) {
-        introHtml = html;
+        return introHtml = html;
     };
 
     t.setIntroFn = function(fn) {

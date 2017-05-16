@@ -480,6 +480,23 @@ Viewport = function(refs, cmp, config) {
                 }
             });
         },
+        subscribed: [],
+        subscribe: function(fn) {
+            this.subscribed.push(fn);
+        },
+        renew: function(html) {
+            this.update(html);
+            this.subscribed.forEach(fn => {
+                fn();
+            });
+        },
+        setScroll: function(fn) {
+            this.onScroll = fn;
+        },
+        scrollTo: function(x, y) {
+            this.body.scrollTo(x, y);
+        },
+        onScroll: Function.prototype,
         tbar: {
             defaults: {
                 height: 26
@@ -542,6 +559,11 @@ Viewport = function(refs, cmp, config) {
         listeners: {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
+            },
+            render: function(p) {
+                p.body.on('scroll', function(e){
+                    this.onScroll(e.target.scrollLeft, e.target.scrollTop);
+                }, p);
             }
         }
     });

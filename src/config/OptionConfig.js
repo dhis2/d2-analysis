@@ -15,6 +15,7 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
+    var displayType;
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
@@ -128,9 +129,29 @@ OptionConfig = function() {
                 index: 8,
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
-            }
+            },
         };
     };
+
+    var setDisplayType = function() {
+        displayType = {
+            'value': {
+                index: 1,
+                id: 'VALUE',
+                name: i18nManager.get('value') || 'By data element'
+            },
+            'percentofrow': {
+                index: 2,
+                id: 'PERCENTROW',
+                name: i18nManager.get('percent_of_row') || '% of row'
+            },
+            'percentofcolumn': {
+                index: 3,
+                id: 'PERCENTCOLUMN',
+                name: i18nManager.get('percent_of_column') || '% of column'
+            },
+        };
+    }
 
     var setOutputType = function() {
         outputType = {
@@ -303,6 +324,7 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
+        setDisplayType();
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
@@ -327,6 +349,10 @@ OptionConfig = function() {
 
     t.getAggregationType = function(key) {
         return key ? aggregationType[key] : aggregationType;
+    };
+
+    t.getDisplayType = function(key) {
+        return key ? displayType[key] : displayType;
     };
 
     t.getOutputType = function(key) {
@@ -371,6 +397,10 @@ OptionConfig = function() {
 
     t.getAggregationTypeRecords = function() {
         return getRecords(aggregationType);
+    };
+
+    t.getDisplayTypeRecords = function() {
+        return getRecords(displayType);
     };
 
     t.getOutputTypeRecords = function() {
