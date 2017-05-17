@@ -261,6 +261,7 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
+
             // Remove any previous panel
             this.removeAll(true);
 
