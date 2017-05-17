@@ -50,7 +50,7 @@ EastRegion = function(c) {
         // Favorite loaded ->  Add favorite detail panel and update
         // Otherwise -> Display No Favorite Panel
         var detailsPanelItems;
-        if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
+        if (instanceManager.isStateFavorite()) {
 
             var moreText = i18n.show_more;
             var lessText = i18n.show_less;
@@ -261,7 +261,6 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
-
             // Remove any previous panel
             this.removeAll(true);
 
@@ -939,13 +938,11 @@ EastRegion = function(c) {
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
         setState: function(layout) {
-            if (layout.interpretations) {
-                this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
+            this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
-                // Favorite loaded with interpretations ->  Add interpretation panel and update
-            
-                this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
-            }
+            // Favorite loaded with interpretations ->  Add interpretation panel and update
+    
+            this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         },
         listeners: {
             expand: function() {
