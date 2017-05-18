@@ -216,12 +216,12 @@ OptionConfig = function() {
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
             'fill': {
-                index: 0,
+                index: 2,
                 id: 'FILL',
                 name: i18nManager.get('background_color') || 'Background color'
             },
             'text': {
-                index: 1,
+                index: 3,
                 id: 'TEXT',
                 name: i18nManager.get('text_color') || 'Text color'
             }
@@ -231,12 +231,12 @@ OptionConfig = function() {
     var setLegendDisplayStrategy = function() {
         legendDisplayStrategy = {
             'fixed': {
-                index: 0,
+                index: 1,
                 id: 'FIXED',
-                name: i18nManager.get('fixed') || 'Fixed'
+                name: i18nManager.get('all_data_items') || 'All'
             },
             'by_data_item': {
-                index: 1,
+                index: 2,
                 id: 'BY_DATA_ITEM',
                 name: i18nManager.get('by_data_item') || 'By data item'
             }
