@@ -1,10 +1,10 @@
 import style from './Style';
 
-const EventStatusSelect = function (refs) {
+const EventStatusSelect = function(refs, applyConfig) {
     const optionConfig = refs.optionConfig;
     const i18n = refs.i18nManager.get();
 
-    return Ext.create('Ext.form.field.ComboBox', {
+    return Ext.create('Ext.form.field.ComboBox', Object.assign({
         cls: 'ns-combo',
         style: 'margin-bottom:' + style.comboBottomMargin + 'px',
         width: style.cmpWidth,
@@ -21,7 +21,7 @@ const EventStatusSelect = function (refs) {
             fields: ['id', 'name', 'index'],
             data: optionConfig.getEventStatusRecords()
         })
-    });
+    }, applyConfig || {}));
 }
 
 export {
