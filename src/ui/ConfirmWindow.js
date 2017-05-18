@@ -1,6 +1,8 @@
 export var ConfirmWindow;
 
-ConfirmWindow = function(refs, title, msg, btnText, fn) {
+ConfirmWindow = function(refs, title, msg, btnText, fn, applyConfig) {
+    applyConfig = applyConfig || {};
+
     var i18n = refs.i18nManager.get();
 
     var confirmButtonText = btnText || 'OK';
@@ -38,7 +40,7 @@ ConfirmWindow = function(refs, title, msg, btnText, fn) {
         }
     });
 
-    var window = Ext.create('Ext.window.Window', {
+    var window = Ext.create('Ext.window.Window', Object.assign({
         bodyStyle: 'background:#fff; padding:30px 60px 26px 42px',
         defaults: defaults,
         modal: true,
@@ -76,7 +78,7 @@ ConfirmWindow = function(refs, title, msg, btnText, fn) {
                 confirmButton.focus(false, 50);
             }
         }
-    });
+    }, applyConfig));
 
     return window;
 };

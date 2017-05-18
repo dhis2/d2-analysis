@@ -199,6 +199,7 @@ Response = function(refs, config) {
 
     // uninitialized
     t.idValueMap;
+    t.sortedRows;
 
     t.getRefs = function() {
         return refs;
@@ -459,6 +460,25 @@ Response.prototype.getValueHeaderIndex = function() {
 
 // dep 3
 
+Response.prototype.getSortedRows = function() {
+    if (this.sortedRows) {
+        return this.sortedRows;
+    }
+
+    var valueHeaderIndex = this.getValueHeaderIndex();
+
+    // filter
+    var rows = this.rows.filter(row => isNumeric(row[valueHeaderIndex]));
+
+    // parse
+    rows.forEach(row => row.toFloat(valueHeaderIndex));
+
+    // sort
+    arraySort(rows, 'DESC', valueHeaderIndex);
+
+    return this.sortedRows = rows;
+};
+
 Response.prototype.getIdValueMap = function(layout) {
     if (this.idValueMap) {
         return this.idValueMap;
@@ -505,29 +525,6 @@ Response.prototype.getTotal = function() {
     return this.rows.reduce((total, row) => total + parseFloat(row[valueHeaderIndex]), 0);
 };
 
-Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
-    limit = isNumeric(limit) ? parseInt(limit) : 10;
-    isTop = isBoolean(isTop) ? isTop : true;
-    isBottom = isBoolean(isBottom) ? isBottom : true;
-
-    var valueHeaderIndex = this.getValueHeaderIndex();
-
-    var filteredRows = this.rows.filter(row => isNumeric(row[valueHeaderIndex]));
-
-    filteredRows.forEach(row => row.toFloat(valueHeaderIndex));
-
-    arraySort(filteredRows, 'DESC', valueHeaderIndex);
-
-    var len = filteredRows.length;
-
-    var limitedRows = [
-        ...(isTop ? filteredRows.slice(0, limit) : []),
-        ...(isBottom ? filteredRows.slice(len - limit, len) : [])
-    ];
-
-    return limitedRows;
-};
-
 // dep 4
 
 Response.prototype.getValue = function(param, layout) {
@@ -539,6 +536,21 @@ Response.prototype.getValue = function(param, layout) {
     var id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
     return this.getIdValueMap(layout)[id];
+};
+
+Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
+    limit = isNumeric(limit) ? parseInt(limit) : 10;
+    isTop = isBoolean(isTop) ? isTop : true;
+    isBottom = isBoolean(isBottom) ? isBottom : true;
+
+    var sortedRows = this.getSortedRows();
+
+    var len = sortedRows.length;
+
+    return [
+        ...(isTop ? sortedRows.slice(0, limit) : []),
+        ...(isBottom ? sortedRows.slice(len - limit, len) : [])
+    ];
 };
 
 // dep 5
