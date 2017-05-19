@@ -50,7 +50,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         doRowPercentage,
         doHideEmptyRows,
         doHideEmptyColumns,
-        doShowDimensionLabels, 
+        doShowDimensionLabels,
         doSortableColumnHeaders,
 
 
@@ -109,7 +109,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout),
         sortableIdObjects = [], //todo
-        tdCount = 0;
+        tdCount = 0,
+        ignoreDimensionIds = ['dy'];
 
     getUniqueFactor = function(xAxis) {
         var unique;
@@ -129,8 +130,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     colUniqueFactor = getUniqueFactor(colAxis);
     rowUniqueFactor = getUniqueFactor(rowAxis);
-    columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
-    rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [];
+    columnDimensionNames = (colAxis.type ? layout.columns.getDimensionNames(response) : []).filter(name => !arrayContains(ignoreDimensionIds, name));
+    rowDimensionNames = (rowAxis.type ? layout.rows.getDimensionNames(response) : []).filter(name => !arrayContains(ignoreDimensionIds, name));
 
     getRoundedHtmlValue = function(value, dec = 2) {
         return parseFloat(roundIf(value, 2)).toString();
@@ -145,10 +146,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 html.push(createCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '', 'pivot-dim-label', 'empty', {}));
             }
         }
-        
+
         var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
-                response.getNameById(rowDimensionNames[j]) + 
-                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
+                response.getNameById(rowDimensionNames[j]) +
+                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') +
                 response.getNameById(columnDimensionNames[i]);
 
         html.push(createCell(cellValue, 'pivot-dim-label', 'empty', {}));
@@ -385,7 +386,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if(numeric && !htmlValue) {
             cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
-        } 
+        }
         else if (!htmlValue) {
             cell.htmlValue = value ? value : '';
         }
@@ -565,7 +566,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     for(var j = 1; j < rowAxis.dims; j++) {
                         axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - j, hidden: true}));
                     }
-                    
+
                     rowAxisArray.push(axisRow);
                 }
 
@@ -612,7 +613,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             if (layout.showDimensionLabels) {
                 colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i))
             }
-            
+
             else if (colAxis.type && rowAxis.type) {
                 if(i === 0) {
                     colAxisArray[i].push(createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
@@ -628,7 +629,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 obj = colAxis.objects.all[i][j];
                 obj.type = 'dimension';
                 obj.cls = 'pivot-dim';
-                obj.sort = doSortableColumnHeaders() && i === colAxis.dims - 1 ? colAxis.ids[j] : null; 
+                obj.sort = doSortableColumnHeaders() && i === colAxis.dims - 1 ? colAxis.ids[j] : null;
                 obj.noBreak = false;
                 obj.hidden = !(obj.rowSpan || obj.colSpan);
                 obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
@@ -656,7 +657,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     else {
                         totalCell = createCell(null, 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {hidden: true});
                     }
-                    
+
                     colAxisArray[i].push(totalCell);
                 }
             }
@@ -722,9 +723,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 columnTotals[table[i].length - 1] += cell.value;
 
                 if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubTotals[nextSubCell] += cell.value;  
+                    columnSubTotals[nextSubCell] += cell.value;
                 }
-                
+
                 if (colUniqueFactor > 1 && doColTotals()) {
                     columnTotals[nextSubCell] += cell.value;
                 }
@@ -733,7 +734,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     setEmptyCells = function (table) {
-        
+
         var columnTotalEmpties = new Array(table[1].length).fill(0),
             columnSubEmpties = new Array(table[1].length).fill(0);
 
@@ -753,7 +754,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                         if (columnSubEmpties[j] === rowUniqueFactor) {
                             setCellEmpty(cell);
                             rowIntesectEmpty++;
-                        } 
+                        }
                         columnSubEmpties[j] = 0;
                     } continue;
 
@@ -792,7 +793,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 if (colUniqueFactor > 1 && doColSubTotals()) {
                     columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
                 }
-                
+
                 if (colUniqueFactor > 1 && doColTotals()) {
                     columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
                 }
@@ -1047,7 +1048,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     (function() {
-        
+
         // build col axis
         colAxisAllObjects = getColAxisObjectArray();
 
@@ -1060,14 +1061,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
     }());
-    
+
     // constructor
     t.html = renderTable();
-    
+
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
     t.idValueMap = idValueMap;
-    
+
     t.tdCount = tdCount;
     t.layout = layout;
     t.response = response;
