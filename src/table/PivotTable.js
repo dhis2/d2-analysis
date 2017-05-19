@@ -718,10 +718,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 rowTotal += cell.value;
                 rowSubTotal += cell.value;
                 columnSubTotals[j] += cell.value;
-                columnSubTotals[nextSubCell] += cell.value;  
                 columnTotals[j] += cell.value;
-                columnTotals[nextSubCell] += cell.value;
                 columnTotals[table[i].length - 1] += cell.value;
+
+                if (colUniqueFactor > 1 && doColSubTotals()) {
+                    columnSubTotals[nextSubCell] += cell.value;  
+                }
+                
+                if (colUniqueFactor > 1 && doColTotals()) {
+                    columnTotals[nextSubCell] += cell.value;
+                }
             }
         }
     }
