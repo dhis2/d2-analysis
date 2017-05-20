@@ -478,7 +478,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
-    hideEmptyColumns = function(table, axisObjectisSingleRowEmptys) {
+    hideEmptyColumns = function(table, axisObjects) {
         for(var i = 0, dimLeaf; i < table[1].length; i++) {
             if (isColumnEmpty(table, i)) {
                 for (var j = 0; j < table.length; j++) {
