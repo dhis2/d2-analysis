@@ -15,7 +15,7 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
-    var displayType;
+    var numberType;
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
@@ -133,8 +133,8 @@ OptionConfig = function() {
         };
     };
 
-    var setDisplayType = function() {
-        displayType = {
+    var setNumberType = function() {
+        numberType = {
             'value': {
                 index: 1,
                 id: 'VALUE',
@@ -142,12 +142,12 @@ OptionConfig = function() {
             },
             'percentofrow': {
                 index: 2,
-                id: 'PERCENTROW',
+                id: 'ROW_PERCENTAGE',
                 name: i18nManager.get('percent_of_row') || '% of row'
             },
             'percentofcolumn': {
                 index: 3,
-                id: 'PERCENTCOLUMN',
+                id: 'COLUMN_PERCENTAGE',
                 name: i18nManager.get('percent_of_column') || '% of column'
             },
         };
@@ -324,7 +324,7 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
-        setDisplayType();
+        setNumberType();
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
@@ -351,8 +351,8 @@ OptionConfig = function() {
         return key ? aggregationType[key] : aggregationType;
     };
 
-    t.getDisplayType = function(key) {
-        return key ? displayType[key] : displayType;
+    t.getNumberType = function(key) {
+        return key ? numberType[key] : numberType;
     };
 
     t.getOutputType = function(key) {
@@ -399,8 +399,8 @@ OptionConfig = function() {
         return getRecords(aggregationType);
     };
 
-    t.getDisplayTypeRecords = function() {
-        return getRecords(displayType);
+    t.getNumberTypeRecords = function() {
+        return getRecords(numberType);
     };
 
     t.getOutputTypeRecords = function() {

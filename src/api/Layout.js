@@ -471,8 +471,8 @@ Layout.prototype.toPlugin = function(el) {
             delete layout.aggregationType;
         }
 
-        if (layout.displayType === optionConfig.getDisplayType('value').id) {
-            delete layout.displayType;
+        if (layout.numberType === optionConfig.getNumberType('value').id) {
+            delete layout.numberType;
         }
 
         if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id) {

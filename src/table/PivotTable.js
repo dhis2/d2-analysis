@@ -339,11 +339,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     doColPercentage = function() {
-        return layout.displayType === 'PERCENTCOLUMN';
+        return layout.numberType === 'COLUMN_PERCENTAGE';
     };
 
     doRowPercentage = function() {
-        return layout.displayType === 'PERCENTROW';
+        return layout.numberType === 'ROW_PERCENTAGE';
     };
 
     doSortableColumnHeaders = function() {
