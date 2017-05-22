@@ -16,6 +16,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 export var PivotTable;
 
 PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
+    
     var t = this;
 
     var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
@@ -339,11 +340,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     doColPercentage = function() {
-        return layout.numberType === 'COLUMN_PERCENTAGE';
+        return layout.numberType === optionConfig.getNumberType().percentofcolumn.id;
     };
 
     doRowPercentage = function() {
-        return layout.numberType === 'ROW_PERCENTAGE';
+        return layout.numberType === optionConfig.getNumberType().percentofrow.id;
     };
 
     doSortableColumnHeaders = function() {
