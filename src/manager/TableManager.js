@@ -256,6 +256,8 @@ TableManager = function(c) {
             const ouMenu = menu.items.findBy(submenu => submenu.uid === 'OU_MENU');
             const organisationUnit = new OrganisationUnit(layout.getRefs(), { id: ouId });
 
+            uiManager.mask();
+
             organisationUnit.getAncestorsRequest(true).done(function(data) {
                 organisationUnit.setAncestors(data.ancestors);
                 organisationUnit.setLevel(data.level);
@@ -297,7 +299,6 @@ TableManager = function(c) {
 
             return xy;
         }());
-        uiManager.mask();
     };
 
     var onValueMouseOver = function(uuid) {
