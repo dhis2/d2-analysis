@@ -1811,7 +1811,7 @@ WestRegionTrackerItems = function(refs) {
                 path = map[id];
 
             if (path.substr(0, rootId.length + 1) !== ('/' + rootId)) {
-                path = '/' + rootId + path;
+                path = '/' + rootId + '/' + path;
             }
 
             var record;

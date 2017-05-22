@@ -138,17 +138,17 @@ OptionConfig = function() {
             'value': {
                 index: 1,
                 id: 'VALUE',
-                name: i18nManager.get('value') || 'By data element'
+                name: i18nManager.get('value') || 'Value'
             },
             'percentofrow': {
                 index: 2,
                 id: 'ROW_PERCENTAGE',
-                name: i18nManager.get('percent_of_row') || '% of row'
+                name: i18nManager.get('percent_of_row') || 'Percentage of row'
             },
             'percentofcolumn': {
                 index: 3,
                 id: 'COLUMN_PERCENTAGE',
-                name: i18nManager.get('percent_of_column') || '% of column'
+                name: i18nManager.get('percent_of_column') || 'Percentage of column'
             },
         };
     }
