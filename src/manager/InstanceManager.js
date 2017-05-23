@@ -353,6 +353,11 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
         }
     }
 
+    // validation
+    if (isFunction(layout.val) && !layout.val()) {
+        return;
+    }
+
     t.uiManager.mask();
 
     // response
