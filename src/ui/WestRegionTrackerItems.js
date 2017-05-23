@@ -238,51 +238,52 @@ WestRegionTrackerItems = function(refs) {
         period.setDimension(layout);
 
         // organisation units
-        if (ouIds) {
-            for (var i = 0, ouId; i < ouIds.length; i++) {
-                ouId = ouIds[i];
+        organisationUnit.setDimension(layout);
+        //if (ouIds) {
+            //for (var i = 0, ouId; i < ouIds.length; i++) {
+                //ouId = ouIds[i];
 
-                if (ouId === 'USER_ORGUNIT') {
-                    isOu = true;
-                }
-                else if (ouId === 'USER_ORGUNIT_CHILDREN') {
-                    isOuc = true;
-                }
-                else if (ouId === 'USER_ORGUNIT_GRANDCHILDREN') {
-                    isOugc = true;
-                }
-                else if (ouId.substr(0,5) === 'LEVEL') {
-                    levels.push(parseInt(ouRecords[i].id.split('-')[1]));
-                }
-                else if (ouId.substr(0,8) === 'OU_GROUP') {
-                    groups.push(ouId.split('-')[1]);
-                }
-            }
+                //if (ouId === 'USER_ORGUNIT') {
+                    //isOu = true;
+                //}
+                //else if (ouId === 'USER_ORGUNIT_CHILDREN') {
+                    //isOuc = true;
+                //}
+                //else if (ouId === 'USER_ORGUNIT_GRANDCHILDREN') {
+                    //isOugc = true;
+                //}
+                //else if (ouId.substr(0,5) === 'LEVEL') {
+                    //levels.push(parseInt(ouRecords[i].id.split('-')[1]));
+                //}
+                //else if (ouId.substr(0,8) === 'OU_GROUP') {
+                    //groups.push(ouId.split('-')[1]);
+                //}
+            //}
 
-            if (levels.length) {
-                toolMenu.clickHandler('level');
-                organisationUnitLevel.setValue(levels);
-            }
-            else if (groups.length) {
-                toolMenu.clickHandler('group');
-                organisationUnitGroup.setValue(groups);
-            }
-            else {
-                toolMenu.clickHandler('orgunit');
-                userOrganisationUnit.setValue(isOu);
-                userOrganisationUnitChildren.setValue(isOuc);
-                userOrganisationUnitGrandChildren.setValue(isOugc);
-            }
+            //if (levels.length) {
+                //toolMenu.clickHandler('level');
+                //organisationUnitLevel.setValue(levels);
+            //}
+            //else if (groups.length) {
+                //toolMenu.clickHandler('group');
+                //organisationUnitGroup.setValue(groups);
+            //}
+            //else {
+                //toolMenu.clickHandler('orgunit');
+                //userOrganisationUnit.setValue(isOu);
+                //userOrganisationUnitChildren.setValue(isOuc);
+                //userOrganisationUnitGrandChildren.setValue(isOugc);
+            //}
 
-            if (!(isOu || isOuc || isOugc)) {
-                if (isObject(graphMap)) {
-                    treePanel.selectGraphMap(graphMap);
-                }
-            }
-        }
-        else {
-            treePanel.reset();
-        }
+            //if (!(isOu || isOuc || isOugc)) {
+                //if (isObject(graphMap)) {
+                    //treePanel.selectGraphMap(graphMap);
+                //}
+            //}
+        //}
+        //else {
+            //treePanel.reset();
+        //}
 
         // dimensions
         for (var key in dimensionIdSelectedStoreMap) {
@@ -1806,7 +1807,7 @@ WestRegionTrackerItems = function(refs) {
             }
         },
         multipleExpand: function(id, map, doUpdate) {
-            var that = this,
+            var t = this,
                 rootId = appManager.rootNodeId,
                 path = map[id];
 
@@ -1814,12 +1815,10 @@ WestRegionTrackerItems = function(refs) {
                 path = '/' + rootId + '/' + path;
             }
 
-            var record;
-
-            that.expandPath(path, 'id', '/', function() {
-                record = Object.assign({}, that.getRootNode().findChild('id', id, true));
-                that.recordsToSelect.push(record);
-                that.multipleSelectIf(map, doUpdate);
+            t.expandPath(path, 'id', '/', function() {
+                var record = t.getRootNode().findChild('id', id, true);
+                t.recordsToSelect.push(record);
+                t.multipleSelectIf(map, doUpdate);
             });
         },
         select: function(url, params) {
@@ -1854,7 +1853,6 @@ WestRegionTrackerItems = function(refs) {
             return map;
         },
         selectGraphMap: function(map, update) {
-            //if (!ns.core.support.prototype.object.getLength(map)) {
             if (!Object.keys(map).length) {
                 return;
             }
