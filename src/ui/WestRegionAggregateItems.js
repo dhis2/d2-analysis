@@ -3621,7 +3621,7 @@ WestRegionAggregateItems = function(c) {
                     config.dimension = dimension.id;
                 }
 
-                if (selectedStore.getRange().length) {
+                if (!selectedAll.getValue() && selectedStore.getRange().length) {
                     config.items = [];
 
                     selectedStore.each(function(r) {
