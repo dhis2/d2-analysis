@@ -139,18 +139,23 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     getEmptyHtmlArray = function(i) {
         var html = [],
+            cellValue,
             isIntersectionCell = i < colAxis.dims - 1;
 
         if (rowAxis.type && rowAxis.dims) {
             for (var j = 0; j < rowAxis.dims - 1; j++) {
                 html.push(createCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '', 'pivot-dim-label', 'empty', {}));
             }
-        }
+        } 
 
-        var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
-                response.getNameById(rowDimensionNames[j]) +
+        if (isIntersectionCell || !rowDimensionNames[j]) { 
+            cellValue = response.getNameById(columnDimensionNames[i])
+        } 
+        else {
+            cellValue = response.getNameById(rowDimensionNames[j]) +
                 (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') +
-                response.getNameById(columnDimensionNames[i]);
+                response.getNameById(columnDimensionNames[i])
+        }
 
         html.push(createCell(cellValue, 'pivot-dim-label', 'empty', {}));
 
@@ -611,7 +616,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             colAxisArray.push([]);
 
             if (layout.showDimensionLabels) {
-                colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i))
+                colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i));
             }
 
             else if (colAxis.type && rowAxis.type) {
@@ -1002,7 +1007,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     combineTable = function(rowAxisComb, colAxisComb, values) {
         const combinedTable = [];
         for (let i = 0; i < values.length; i++) {
-            combinedTable.push(rowAxisComb[i].concat(values[i]));
+            if (rowAxisComb[i]) combinedTable.push(rowAxisComb[i].concat(values[i]));
         }
         return colAxisComb.concat(combinedTable);
     };
