@@ -148,7 +148,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         } 
 
-        if (isIntersectionCell || !rowDimensionNames[j]) { 
+        if (isIntersectionCell || !rowAxis.type) { 
             cellValue = response.getNameById(columnDimensionNames[i])
         } 
         else {
