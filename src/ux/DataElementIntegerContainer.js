@@ -23,18 +23,22 @@ DataElementIntegerContainer = function(refs) {
         style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
             var record = {},
-                isRange = this.rangeSetCmp.getValue() !== containerConfig.defaultRangeSetId;
+                rangeSet = this.rangeSetCmp.getValue();
+
+            var isRange = rangeSet !== containerConfig.defaultRangeSetId;
 
             record.dimension = this.dataElement.id;
             record.name = this.dataElement.name;
 
             if (isRange) {
                 record.legendSet = {
-                    id: this.rangeSetCmp.getValue()
+                    id: rangeSet
                 };
 
-                if (this.rangeValueCmp.getValue().length) {
-                    record.filter = 'IN:' + this.rangeValueCmp.getValue().join(';');
+                var ranges = this.rangeValueCmp.getValue();
+
+                if (ranges.length) {
+                    record.filter = 'IN:' + ranges.join(';');
                 }
             }
             else {
