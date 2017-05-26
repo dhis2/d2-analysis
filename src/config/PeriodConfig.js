@@ -16,15 +16,19 @@ PeriodConfig = function() {
         periodTypes = {
             'Daily': i18nManager.get('daily') || 'Daily',
             'Weekly': i18nManager.get('weekly') || 'Weekly',
+            'WeeklyWednesday': i18nManager.get('weekly_wednesday') || 'Weekly (Start Wednesday)',
+            'WeeklyThursday': i18nManager.get('weekly_thursday') || 'Weekly (Start Thursday)',
+            'WeeklySaturday': i18nManager.get('weekly_saturday') || 'Weekly (Start Saturday)',
+            'WeeklySunday': i18nManager.get('weekly_sunday') || 'Weekly (Start Sunday)',
             'Monthly': i18nManager.get('monthly') || 'Monthly',
             'BiMonthly': i18nManager.get('bimonthly') || 'BiMonthly',
             'Quarterly': i18nManager.get('quarterly') || 'Quarterly',
             'SixMonthly': i18nManager.get('sixmonthly') || 'SixMonthly',
             'SixMonthlyApril': i18nManager.get('sixmonthly_april') || 'SixMonthly April',
             'Yearly': i18nManager.get('yearly') || 'Yearly',
-            'FinancialOct': i18nManager.get('financial_oct') || 'Financial October',
-            'FinancialJuly': i18nManager.get('financial_july') || 'Financial July',
-            'FinancialApril': i18nManager.get('financial_april') || 'Financial April'
+            'FinancialOct': i18nManager.get('financial_oct') || 'Financial year (Start October)',
+            'FinancialJuly': i18nManager.get('financial_july') || 'Financial year (Start July)',
+            'FinancialApril': i18nManager.get('financial_april') || 'Financial year (Start April)'
         };
     };
 
