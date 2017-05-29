@@ -352,13 +352,17 @@ WestRegionTrackerItems = function(refs) {
                 return;
             }
 
-            return arraySort(categoryCombo.categories.filter(c => c.name !== DEFAULT).forEach(c => {
+            var categories = categoryCombo.categories.filter(c => c.name !== DEFAULT);
+
+            categories.forEach(c => {
                 c.items = c.categoryOptions;
 
                 if (isArray(c.items)) {
                     arraySort(c.items);
                 }
-            }));
+            });
+
+            return categories;
         };
 
         var load = function(_program) {
@@ -375,7 +379,7 @@ WestRegionTrackerItems = function(refs) {
 
             // remove and add dynamic program related dimensions
             accordionBody.removeItems();
-            accordionBody.addItems(arrayClean(dimensions));
+            accordionBody.addItems(arraySort(arrayClean(dimensions)));
 
             // stages
             stage.enable();
