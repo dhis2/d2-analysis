@@ -1146,7 +1146,7 @@ WestRegionTrackerItems = function(refs) {
         var window = uiManager.get('viewport').getLayoutWindow(),
             peDimensionConfig = dimensionConfig.get('period');
 
-        if ((period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
+        if (!window.hasDimension(peDimensionConfig.dimensionName) && (period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
             window.addDimension({
                 id: peDimensionConfig.dimensionName,
                 name: peDimensionConfig.name
@@ -1166,11 +1166,6 @@ WestRegionTrackerItems = function(refs) {
     var intervalListeners = {
         added: function(cmp) {
             onCheckboxAdd(cmp);
-        },
-        change: function() {
-            if (relativePeriod.getRecords().length < 2) {
-                onPeriodChange();
-            }
         }
     };
 
