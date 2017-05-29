@@ -83,6 +83,16 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.userOrgUnit = arrayFrom(c.userOrgUnit);
     }
 
+    // startDate
+    if (isString(c.startDate)) {
+        t.startDate = c.startDate;
+    }
+
+    // endDate
+    if (isString(c.endDate)) {
+        t.endDate = c.endDate;
+    }
+
         // relative period date
     if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
