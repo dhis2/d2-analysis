@@ -3065,7 +3065,7 @@ WestRegionTrackerItems = function(refs) {
                     pageSize: 100
                 };
             }
-        }
+        };
 
         return config;
     };
