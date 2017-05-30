@@ -882,14 +882,14 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         // rows
         request.add('rows=' + this.getDimensionNames(false, false, this.rows).join(';'));
 
-        // hide empty rows
-        if (this.hideEmptyRows) {
-            request.add('hideEmptyRows=true');
+        // hide empty columns
+        if (this.hideEmptyColumns) {
+            request.add('hideEmptyColumns=true');
         }
 
         // hide empty rows
-        if (this.hideEmpryColumns) {
-            request.add('hideEmpryColumns=true');
+        if (this.hideEmptyRows) {
+            request.add('hideEmptyRows=true');
         }
 
         // show hierarchy
