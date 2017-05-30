@@ -179,19 +179,6 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var setLayout = function(layout) {
-        var idMap = layout.getDimensionNameIdsMap();
-
-        var fixedPeriodRecords = [],
-            peIds = idMap[periodObjectName] || [],
-            ouIds = idMap[organisationUnitObjectName] || [],
-            graphMap = layout.parentGraphMap,
-            isOu = false,
-            isOuc = false,
-            isOugc = false,
-            levels = [],
-            groups = [],
-            winMap = {},
-            optionsWindow;
 
         // data
         programStore.add(layout.program);
@@ -2878,11 +2865,11 @@ WestRegionTrackerItems = function(refs) {
             queryLayoutWindow.reset();
         }
 
-        if (aggLayoutWindow) {
+        if (aggOptionsWindow) {
             aggOptionsWindow.reset();
         }
 
-        if (aggLayoutWindow) {
+        if (queryOptionsWindow) {
             queryOptionsWindow.reset();
         }
 
