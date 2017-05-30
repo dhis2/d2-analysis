@@ -3620,6 +3620,7 @@ WestRegionAggregateItems = function(c) {
             availableStore: availableStore,
             selectedStore: selectedStore,
             selectedAll: selectedAll,
+            isDynamic: true,
             clearDimension: function() {
                 availableStore.reset();
                 selectedStore.removeAll();
@@ -3820,14 +3821,16 @@ WestRegionAggregateItems = function(c) {
         config.rows = [];
         config.filters = [];
 
-        // panel data
-        for (var i = 0, dim, dimName; i < accordionPanels.length; i++) {
-            dim = accordionPanels[i].getDimension();
+        // all panels data
+        accordionBody.items.each(function(panel) {
+            if (panel.getDimension) {
+                var dim = panel.getDimension();
 
-            if (dim) {
-                nameDimArrayMap[dim.dimension] = [dim];
+                if (dim && dim.dimension) {
+                    nameDimArrayMap[dim.dimension] = [dim];
+                }
             }
-        }
+        });
 
         // columns, rows, filters
         for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {

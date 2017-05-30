@@ -239,51 +239,6 @@ WestRegionTrackerItems = function(refs) {
 
         // organisation units
         organisationUnit.setDimension(layout);
-        //if (ouIds) {
-            //for (var i = 0, ouId; i < ouIds.length; i++) {
-                //ouId = ouIds[i];
-
-                //if (ouId === 'USER_ORGUNIT') {
-                    //isOu = true;
-                //}
-                //else if (ouId === 'USER_ORGUNIT_CHILDREN') {
-                    //isOuc = true;
-                //}
-                //else if (ouId === 'USER_ORGUNIT_GRANDCHILDREN') {
-                    //isOugc = true;
-                //}
-                //else if (ouId.substr(0,5) === 'LEVEL') {
-                    //levels.push(parseInt(ouRecords[i].id.split('-')[1]));
-                //}
-                //else if (ouId.substr(0,8) === 'OU_GROUP') {
-                    //groups.push(ouId.split('-')[1]);
-                //}
-            //}
-
-            //if (levels.length) {
-                //toolMenu.clickHandler('level');
-                //organisationUnitLevel.setValue(levels);
-            //}
-            //else if (groups.length) {
-                //toolMenu.clickHandler('group');
-                //organisationUnitGroup.setValue(groups);
-            //}
-            //else {
-                //toolMenu.clickHandler('orgunit');
-                //userOrganisationUnit.setValue(isOu);
-                //userOrganisationUnitChildren.setValue(isOuc);
-                //userOrganisationUnitGrandChildren.setValue(isOugc);
-            //}
-
-            //if (!(isOu || isOuc || isOugc)) {
-                //if (isObject(graphMap)) {
-                    //treePanel.selectGraphMap(graphMap);
-                //}
-            //}
-        //}
-        //else {
-            //treePanel.reset();
-        //}
 
         // dimensions
         for (var key in dimensionIdSelectedStoreMap) {
@@ -2787,6 +2742,7 @@ WestRegionTrackerItems = function(refs) {
             availableStore: availableStore,
             selectedStore: selectedStore,
             selectedAll: selectedAll,
+            isDynamic: true,
             clearDimension: function() {
                 availableStore.reset();
                 selectedStore.removeAll();
@@ -3012,17 +2968,15 @@ WestRegionTrackerItems = function(refs) {
         }
 
         // dynamic dimensions data
-        for (var i = 0, panel, dim, dimName; i < panels.length; i++) {
-            panel = panels[i];
+        accordionBody.items.each(function(panel) {
+            if (panel.isDynamic && panel.getDimension) {
+                var dim = panel.getDimension();
 
-            if (panel.getDimension) {
-                dim = panel.getDimension();
-
-                if (dim && !map.hasOwnProperty(dim.dimension)) {
+                if (dim && dim.dimension) {
                     map[dim.dimension] = [dim];
                 }
             }
-        }
+        });
 
         // other
         map['longitude'] = [{dimension: 'longitude'}];
