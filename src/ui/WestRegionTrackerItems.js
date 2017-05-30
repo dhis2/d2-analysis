@@ -179,12 +179,6 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var setLayout = function(layout) {
-        accordion.clearDimensions(layout);
-
-        if (!layout) {
-            return;
-        }
-
         var idMap = layout.getDimensionNameIdsMap();
 
         var fixedPeriodRecords = [],
@@ -198,37 +192,6 @@ WestRegionTrackerItems = function(refs) {
             groups = [],
             winMap = {},
             optionsWindow;
-
-        var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
-            aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
-            queryLayoutWindow = uiManager.get('queryLayoutWindow'),
-            aggOptionsWindow = uiManager.get('aggregateOptionsWindow'),
-            queryOptionsWindow = uiManager.get('queryOptionsWindow'),
-            chartTypeToolbar = uiManager.get('chartTypeToolbar');
-
-        winMap[dimensionConfig.dataType['aggregated_values']] = aggOptionsWindow;
-        winMap[dimensionConfig.dataType['individual_cases']] = queryOptionsWindow;
-
-        optionsWindow = winMap[layout.dataType];
-
-        // set layout
-        if (dataTypeToolbar) {
-            dataTypeToolbar.setDataType(layout.dataType);
-        }
-
-        if (aggLayoutWindow) {
-            aggLayoutWindow.reset();
-        }
-
-        if (queryLayoutWindow) {
-            queryLayoutWindow.reset();
-        }
-
-        if (chartTypeToolbar) {
-            chartTypeToolbar.reset();
-
-            chartTypeToolbar.setChartType(layout.type);
-        }
 
         // data
         programStore.add(layout.program);
@@ -2891,9 +2854,39 @@ WestRegionTrackerItems = function(refs) {
 
     var setUiState = function(layout, response) {
         var viewport = uiManager.get('viewport');
-        var optionsWindow = viewport.getOptionsWindow(layout);
 
-        optionsWindow.setOptions(layout);
+        var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
+            chartTypeToolbar = uiManager.get('chartTypeToolbar'),
+            aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
+            queryLayoutWindow = uiManager.get('queryLayoutWindow'),
+            aggOptionsWindow = uiManager.get('aggregateOptionsWindow'),
+            queryOptionsWindow = uiManager.get('queryOptionsWindow');
+
+        if (dataTypeToolbar) {
+            dataTypeToolbar.setDataType(layout ? layout.dataType : null);
+        }
+
+        if (chartTypeToolbar) {
+            chartTypeToolbar.setChartType(layout ? layout.type : null);
+        }
+
+        if (aggLayoutWindow) {
+            aggLayoutWindow.reset();
+        }
+
+        if (queryLayoutWindow) {
+            queryLayoutWindow.reset();
+        }
+
+        if (aggLayoutWindow) {
+            aggOptionsWindow.reset();
+        }
+
+        if (aggLayoutWindow) {
+            queryOptionsWindow.reset();
+        }
+
+        accordion.clearDimensions(layout);
 
         //var statusBar = uiManager.get('statusBar');
 
@@ -2906,7 +2899,9 @@ WestRegionTrackerItems = function(refs) {
 
         //statusBar.setStatus(layout, response);
 
-        setLayout(layout);
+        if (layout) {
+            setLayout(layout);
+        }
     };
 
     var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
