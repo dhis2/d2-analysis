@@ -190,23 +190,8 @@ WestRegionTrackerItems = function(refs) {
         // organisation units
         organisationUnit.setDimension(layout);
 
-        // dimensions
-        for (var key in dimensionIdSelectedStoreMap) {
-            if (dimensionIdSelectedStoreMap.hasOwnProperty(key)) {
-                var a = dimensionIdAvailableStoreMap[key],
-                    s = dimensionIdSelectedStoreMap[key];
-
-                if (s.getCount() > 0) {
-                    a.reset();
-                    s.removeAll();
-                }
-
-                if (recMap[key]) {
-                    s.add(recMap[key]);
-                    uiManager.msFilterAvailable({store: a}, {store: s});
-                }
-            }
-        }
+        // wait with dynamic dimensions
+        //accordion.setDimensions(layout, true);
 
         // data items
         onProgramSelect(layout.program.id, layout);
@@ -285,6 +270,11 @@ WestRegionTrackerItems = function(refs) {
             // remove and add dynamic program related dimensions
             accordionBody.removeItems();
             accordionBody.addItems(arraySort(arrayClean(dimensions)));
+
+            // restore dynamic dimensions
+            if (layout) {
+                accordion.setDimensions(layout, true);
+            }
 
             // stages
             stage.enable();
@@ -818,7 +808,7 @@ WestRegionTrackerItems = function(refs) {
         }
 
         // favorite
-        if (layout && layout.dataType === dimensionConfig.dataType['aggregated_values']) {
+        if (layout && layout.dataType !== dimensionConfig.dataType['individual_cases']) {
 
             aggWindow.reset(true, true);
 
@@ -867,8 +857,10 @@ WestRegionTrackerItems = function(refs) {
             }
 
             // collapse data dimensions
-            aggWindow.collapseDataDimensions.setValue(layout.collapseDataDimensions);
-            aggWindow.onCollapseDataDimensionsChange(layout.collapseDataDimensions);
+            if (aggWindow.collapseDataDimensions) {
+                aggWindow.collapseDataDimensions.setValue(layout.collapseDataDimensions);
+                aggWindow.onCollapseDataDimensionsChange(layout.collapseDataDimensions);
+            }
         }
     };
 
@@ -3083,8 +3075,12 @@ WestRegionTrackerItems = function(refs) {
                 panel.clearDimension(!!layout);
             });
         },
-        setDimensions: function(layout) {
+        setDimensions: function(layout, dynamicOnly) {
             accordionPanels.forEach(function(panel) {
+                if (dynamicOnly && !panel.isDynamic) {
+                    return;
+                }
+
                 panel.setDimension(layout);
             });
         },
