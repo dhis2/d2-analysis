@@ -67,8 +67,6 @@ DataElementIntegerContainer = function(refs) {
                 this.onRangeSetSelect(containerConfig.defaultRangeSetId);
 
                 if (record.filter) {
-                //this.rangeSetCmp.pendingValue = containerConfig.defaultRangeSetId;
-
                     var a = record.filter.split(':');
 
                     if (a.length > 1) {
