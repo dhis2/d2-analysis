@@ -2,7 +2,7 @@ export var ConfirmButton;
 
 ConfirmButton = function(refs, { type = 'confirm', text = 'OK', fn = Function.prototype, closeFn = Function.prototype, applyConfig = {} }) {
     var i18n = refs.i18nManager.get();
-console.log("text: ", text);
+
     var defaults = {
         padding: '0 3px',
         borderRadius: '2px',

@@ -49,11 +49,13 @@ DimensionConfig = function() {
             data: {
                 value: 'data',
                 name: i18nManager.get('data') || 'Data',
+                id: 'dx',
                 dimensionName: 'dx',
                 objectName: 'dx'
             },
             category: {
                 name: i18nManager.get('assigned_categories') || 'Assigned categories',
+                id: 'co',
                 dimensionName: 'co',
                 objectName: 'co',
             },
@@ -96,6 +98,7 @@ DimensionConfig = function() {
             period: {
                 value: 'period',
                 name: i18nManager.get('periods') || 'Periods',
+                id: 'pe',
                 dimensionName: 'pe',
                 objectName: 'pe'
             },
@@ -112,6 +115,7 @@ DimensionConfig = function() {
             organisationUnit: {
                 value: 'organisationUnit',
                 name: i18nManager.get('i18n.organisation_units') || 'Organisation units',
+                id: 'ou',
                 dimensionName: 'ou',
                 objectName: 'ou'
             },

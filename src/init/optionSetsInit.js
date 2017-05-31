@@ -1,10 +1,13 @@
+import isObject from 'd2-utilizr/lib/isObject';
+
 export var optionSetsInit;
 
 optionSetsInit = function(refs) {
-    var t = this,
-        appManager = refs.appManager,
-        requestManager = refs.requestManager,
-        indexedDbManager = refs.indexedDbManager;
+    var t = this;
+
+    var { appManager, requestManager, indexedDbManager } = refs;
+
+    var { Request } = refs.api;
 
     var apiPath = appManager.getApiPath(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl();
@@ -20,13 +23,17 @@ optionSetsInit = function(refs) {
                 // check if idb has any option sets
                 indexedDbManager.getKeys('optionSets').done( function(keys) {
                     if (keys.length === 0) {
-                        Ext.Ajax.request({
-                            url: appManager.getApiPath() + '/optionSets.json?fields=id,name,version,options[code,name]&paging=false',
+                        new Request(refs, {
+                            baseUrl: appManager.getApiPath() + '/optionSets.json',
+                            params: [
+                                'fields=id,name,version,options[code,name]',
+                                'paging=false'
+                            ],
                             success: function(r) {
-                                var sets = Ext.decode(r.responseText).optionSets;
+                                var optionSets = r.optionSets;
 
-                                if (sets.length) {
-                                    indexedDbManager.setAll('optionSets', sets).done(function() {
+                                if (optionSets.length) {
+                                    indexedDbManager.setAll('optionSets', optionSets).done(function() {
                                         requestManager.ok(t);
                                     });
                                 }
@@ -34,16 +41,40 @@ optionSetsInit = function(refs) {
                                     requestManager.ok(t);
                                 }
                             }
-                        });
+                        }).run();
+
+                        //Ext.Ajax.request({
+                            //url: appManager.getApiPath() + '/optionSets.json?fields=id,name,version,options[code,name]&paging=false',
+                            //success: function(r) {
+                                //var sets = Ext.decode(r.responseText).optionSets;
+
+                                //if (sets.length) {
+                                    //indexedDbManager.setAll('optionSets', sets).done(function() {
+                                        //requestManager.ok(t);
+                                    //});
+                                //}
+                                //else {
+                                    //requestManager.ok(t);
+                                //}
+                            //}
+                        //});
                     }
                     else {
-                        Ext.Ajax.request({
-                            url: appManager.getApiPath() + '/optionSets.json?fields=id,version&paging=false',
-                            disableCaching: false,
+                        new Request(refs, {
+                            baseUrl: appManager.getApiPath() + '/optionSets.json',
+                            params: [
+                                'fields=id,version',
+                                'paging=false'
+                            ],
                             success: function(r) {
-                                var optionSets = Ext.decode(r.responseText).optionSets || [],
+
+                        //Ext.Ajax.request({
+                            //url: appManager.getApiPath() + '/optionSets.json?fields=id,version&paging=false',
+                            //disableCaching: false,
+                            //success: function(r) {
+                                var optionSets = r.optionSets || [],
                                     ids = [],
-                                    url = '',
+                                    filters = [],
                                     callbacks = 0;
 
                                 var updateStore = function() {
@@ -54,25 +85,40 @@ optionSetsInit = function(refs) {
                                         }
 
                                         for (var i = 0; i < ids.length; i++) {
-                                            url += '&filter=id:eq:' + ids[i];
+                                            filters.push('filter=id:eq:' + ids[i]);
                                         }
 
-                                        Ext.Ajax.request({
-                                            url: appManager.getApiPath() + '/optionSets.json?fields=id,name,version,options[code,name]&paging=false' + url,
+                                        new Request(refs, {
+                                            baseUrl: appManager.getApiPath() + '/optionSets.json',
+                                            params: filters.concat([
+                                                'fields=id,name,version,options[code,name]',
+                                                'paging=false'
+                                            ]),
                                             success: function(r) {
-                                                var sets = Ext.decode(r.responseText).optionSets;
+                                                var optionSets = r.optionSets;
 
-                                                indexedDbManager.setAll('optionSets', sets).done(function() {
+                                                indexedDbManager.setAll('optionSets', optionSets).done(function() {
                                                     requestManager.ok(t);
                                                 });
                                             }
-                                        });
+                                        }).run();
+
+                                        //Ext.Ajax.request({
+                                            //url: appManager.getApiPath() + '/optionSets.json?fields=id,name,version,options[code,name]&paging=false' + url,
+                                            //success: function(r) {
+                                                //var sets = Ext.decode(r.responseText).optionSets;
+
+                                                //indexedDbManager.setAll('optionSets', sets).done(function() {
+                                                    //requestManager.ok(t);
+                                                //});
+                                            //}
+                                        //});
                                     }
                                 };
 
                                 var registerOptionSet = function(optionSet) {
                                     indexedDbManager.get('optionSets', optionSet.id).done( function(obj) {
-                                        if (!Ext.isObject(obj) || obj.version !== optionSet.version) {
+                                        if (!isObject(obj) || obj.version !== optionSet.version) {
                                             ids.push(optionSet.id);
                                         }
 
@@ -87,7 +133,7 @@ optionSetsInit = function(refs) {
                                     requestManager.ok(t);
                                 }
                             }
-                        });
+                        }).run();
                     }
                 });
             });
