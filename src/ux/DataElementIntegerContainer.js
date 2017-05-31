@@ -62,16 +62,19 @@ DataElementIntegerContainer = function(refs) {
                     }
                 }
             }
-            else if (record.filter) {
-                //this.rangeSetCmp.pendingValue = containerConfig.defaultRangeSetId;
-                this.rangeSetCmp.setValue(containerConfig.defaultRangeSetId); //todo?
+            else {
+                this.rangeSetCmp.setValue(containerConfig.defaultRangeSetId);
                 this.onRangeSetSelect(containerConfig.defaultRangeSetId);
 
-                var a = record.filter.split(':');
+                if (record.filter) {
+                //this.rangeSetCmp.pendingValue = containerConfig.defaultRangeSetId;
 
-                if (a.length > 1) {
-                    this.operatorCmp.setValue(a[0]);
-                    this.valueCmp.setValue(a[1]);
+                    var a = record.filter.split(':');
+
+                    if (a.length > 1) {
+                        this.operatorCmp.setValue(a[0]);
+                        this.valueCmp.setValue(a[1]);
+                    }
                 }
             }
         },
