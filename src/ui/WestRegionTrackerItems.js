@@ -125,7 +125,7 @@ WestRegionTrackerItems = function(refs) {
 
             this.clearFilter();
 
-            if (type === dimensionConfig.dataType['aggregated_values']) {
+            if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
