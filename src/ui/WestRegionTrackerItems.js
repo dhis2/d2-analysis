@@ -1038,22 +1038,6 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-        // relative periods
-    var onPeriodChange = function() {
-        var window = uiManager.get('viewport').getLayoutWindow(),
-            peDimensionConfig = dimensionConfig.get('period');
-
-        if (!window.hasDimension(peDimensionConfig.dimensionName) && (period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
-            window.addDimension({
-                id: peDimensionConfig.dimensionName,
-                name: peDimensionConfig.name
-            }, window.colStore);
-        }
-        else {
-            window.removeDimension(peDimensionConfig.dimensionName);
-        }
-    };
-
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
@@ -1388,7 +1372,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             {
@@ -1397,7 +1380,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
-                    onPeriodChange();
                 }
             },
             ' '
@@ -1406,7 +1388,6 @@ WestRegionTrackerItems = function(refs) {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }, this);
             }
         }
@@ -1428,7 +1409,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             {
@@ -1437,7 +1417,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             '->',
@@ -1451,7 +1430,6 @@ WestRegionTrackerItems = function(refs) {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }, this);
             }
         }
