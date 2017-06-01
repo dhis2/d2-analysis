@@ -2871,7 +2871,8 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
-        var panels = uiManager.get('accordion').panels,
+        var viewport = uiManager.get('viewport'),
+            panels = uiManager.get('accordion').panels,
             dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),
             aggregateOptionsWindow = uiManager.get('aggregateOptionsWindow'),
@@ -2886,6 +2887,8 @@ WestRegionTrackerItems = function(refs) {
             addAxisDimension,
             store,
             data;
+
+        layoutWindow = layoutWindow || viewport.getLayoutWindow();
 
         config.program = program.getRecord();
         config.programStage = stage.getRecord();
@@ -2969,7 +2972,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.colStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], columns);
@@ -2980,7 +2983,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.rowStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], rows);
@@ -2991,7 +2994,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.filterStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
@@ -3002,7 +3005,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.fixedFilterStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
