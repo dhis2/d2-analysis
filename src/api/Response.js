@@ -49,6 +49,11 @@ Response = function(refs, config) {
         'eventdate'
     ];
 
+    var DEFAULT_PREFIX_IGNORE_HEADERS = [
+        'dy',
+        ...DEFAULT_COLLECT_IGNORE_HEADERS
+    ];
+
                                 //DIMENSIONS      ITEMS    -> COLLECT         PREFIX
 
 //- required                        V               V           no             no
@@ -61,7 +66,7 @@ Response = function(refs, config) {
 
     // functions
     var isPrefixHeader = (header, dimensions) => {
-        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
+        if (arrayContains(DEFAULT_PREFIX_IGNORE_HEADERS, header.name)) {
             return false;
         }
 
