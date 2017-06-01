@@ -178,23 +178,13 @@ WestRegionTrackerItems = function(refs) {
         dataElementSelected.toggleProgramIndicators(type);
     };
 
-    var setLayout = function(layout) {
+    var setData = function(layout) {
 
-        // data
-        programStore.add(layout.program);
-        program.setValue(layout.program.id);
-
-        // periods
-        period.setDimension(layout);
-
-        // organisation units
-        organisationUnit.setDimension(layout);
-
-        // wait with dynamic dimensions
+        // wait, more dynamic dimensions could be added by program
         //accordion.setDimensions(layout, true);
 
         // data items
-        onProgramSelect(layout.program.id, layout);
+        onProgramSelect(null, layout);
     };
 
     var program = Ext.create('Ext.form.field.ComboBox', {
@@ -229,7 +219,11 @@ WestRegionTrackerItems = function(refs) {
         var DEFAULT = 'default';
         var ATTRIBUTE = 'ATTRIBUTE';
 
-        programId = layout ? layout.program.id : programId;
+        programId = programId || (layout ? layout.program.id : null);
+
+        if (!programId) {
+            return;
+        }
 
         // reset
         stage.clearValue();
@@ -885,7 +879,9 @@ WestRegionTrackerItems = function(refs) {
             dataElementAvailable,
             dataElementSelected
         ],
-        setDimension: setLayout,
+        setDimension: function(layout) {
+            setData(layout);
+        },
         clearDimension: function() {
             program.clearValue();
             stage.clearValue();
@@ -2836,14 +2832,31 @@ WestRegionTrackerItems = function(refs) {
         }
 
         if (aggOptionsWindow) {
-            aggOptionsWindow.reset();
+            aggOptionsWindow.setOptions(layout);
         }
 
         if (queryOptionsWindow) {
-            queryOptionsWindow.reset();
+            queryOptionsWindow.setOptions(layout);
         }
 
+        // dimensions
         accordion.clearDimensions(layout);
+
+        if (layout) {
+
+            // data
+            programStore.add(layout.program);
+            program.setValue(layout.program.id);
+
+            // periods
+            period.setDimension(layout);
+
+            // organisation units
+            organisationUnit.setDimension(layout);
+
+            // data, dynamic dimensions and layout window
+            setData(layout);
+        }
 
         //var statusBar = uiManager.get('statusBar');
 
@@ -2855,10 +2868,6 @@ WestRegionTrackerItems = function(refs) {
         //}
 
         //statusBar.setStatus(layout, response);
-
-        if (layout) {
-            setLayout(layout);
-        }
     };
 
     var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
