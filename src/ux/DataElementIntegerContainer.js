@@ -51,7 +51,10 @@ DataElementIntegerContainer = function(refs) {
         },
         setRecord: function(record) {
             if (isObject(record.legendSet) && record.legendSet.id) {
-                this.rangeSetCmp.pendingValue = record.legendSet.id;
+                //this.rangeSetCmp.pendingValue = record.legendSet.id;
+                this.rangeSetCmp.store.add(appManager.getLegendSetById(record.legendSet.id));
+                this.rangeSetCmp.setValue(record.legendSet.id);
+
                 this.onRangeSetSelect(record.legendSet.id);
 
                 if (record.filter) {
