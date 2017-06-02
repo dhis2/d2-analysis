@@ -14,7 +14,7 @@ CalendarManager = function(refs, config) {
     t.dateFormat = config.dateFormat || 'yyyy-MM-dd';
     t.defaultCalendarId = 'gregorian';
     t.defaultCalendarIsoId = 'iso8601';
-    t.calendarIds = ['coptic', 'ethiopian', 'islamic', 'julian', 'nepali', 'thai'];
+    t.calendarIds = ['coptic', 'ethiopian', 'islamic', 'julian', 'nepali', 'thai', 'persian'];
 
     // uninitialized
     t.calendar;
