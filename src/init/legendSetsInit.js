@@ -11,7 +11,7 @@ legendSetsInit = function(c) {
     return {
         baseUrl: apiPath + '/legendSets.json',
         params: [
-            'fields=id,displayName|rename(name),legends[id,displayName|rename(name),startValue,endValue,color]',
+            'fields=id,displayName~rename(name),legends[id,displayName~rename(name),startValue,endValue,color]',
             'paging=false'
         ],
         success: function(r) {

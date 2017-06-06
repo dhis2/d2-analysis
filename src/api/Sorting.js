@@ -1,6 +1,6 @@
 export var Sorting;
 
-Sorting = function(config) {
+Sorting = function(refs, config) {
     var t = this;
 
     t.id = config.id || null;

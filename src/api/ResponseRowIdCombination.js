@@ -5,9 +5,8 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var ResponseRowIdCombination;
 
-ResponseRowIdCombination = function(config) {
+ResponseRowIdCombination = function(refs, config) {
     var t = this;
-    t.klass = ResponseRowIdCombination;
 
     config = isArray(config) ? config : (isString(config) ? config.split('-') : null);
 
@@ -17,7 +16,7 @@ ResponseRowIdCombination = function(config) {
 
 ResponseRowIdCombination.prototype.add = function(id) {
     if (id) {
-        this.ids.push(id);
+        this.ids = this.ids.concat(id.split('-'));
     }
 };
 
@@ -25,6 +24,16 @@ ResponseRowIdCombination.prototype.get = function() {
     return this.ids.join('-');
 };
 
-ResponseRowIdCombination.prototype.getDxIdByIds = function(dxIds) {
-    return this.ids.filter(id => arrayContains(arrayFrom(dxIds), id))[0];
+ResponseRowIdCombination.prototype.getNames = function(response, ignoreIndexes) {
+    var ids = this.ids;
+
+    if (isArray(ignoreIndexes)) {
+        ids = ids.filter(((id, index) => !arrayContains(ignoreIndexes, index)));
+    }
+
+    return ids.map(id => response.getNameById(id));
+};
+
+ResponseRowIdCombination.prototype.getIdByIds = function(ids) {
+    return this.ids.filter(id => arrayContains(arrayFrom(ids), id))[0];
 };

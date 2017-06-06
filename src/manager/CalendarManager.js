@@ -4,7 +4,7 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var CalendarManager;
 
-CalendarManager = function(config) {
+CalendarManager = function(refs, config) {
     var t = this;
 
     config = isObject(config) ? config : {};
@@ -14,7 +14,7 @@ CalendarManager = function(config) {
     t.dateFormat = config.dateFormat || 'yyyy-MM-dd';
     t.defaultCalendarId = 'gregorian';
     t.defaultCalendarIsoId = 'iso8601';
-    t.calendarIds = ['coptic', 'ethiopian', 'islamic', 'julian', 'nepali', 'thai'];
+    t.calendarIds = ['coptic', 'ethiopian', 'islamic', 'julian', 'nepali', 'thai', 'persian'];
 
     // uninitialized
     t.calendar;

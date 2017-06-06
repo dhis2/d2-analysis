@@ -20,10 +20,17 @@ DimensionConfig = function() {
         'ou': 'organisationUnit'
     };
 
+    var defaultDataType = 'aggregated_values';
+
     // data type
     t.dataType = {
         'aggregated_values': 'AGGREGATED_VALUES',
         'individual_cases': 'EVENTS'
+    };
+
+    t.dataTypeUrl = {
+        'AGGREGATED_VALUES': '/events/aggregate',
+        'EVENTS': '/events/query'
     };
 
     // value type
@@ -42,11 +49,13 @@ DimensionConfig = function() {
             data: {
                 value: 'data',
                 name: i18nManager.get('data') || 'Data',
+                id: 'dx',
                 dimensionName: 'dx',
                 objectName: 'dx'
             },
             category: {
                 name: i18nManager.get('assigned_categories') || 'Assigned categories',
+                id: 'co',
                 dimensionName: 'co',
                 objectName: 'co',
             },
@@ -89,6 +98,7 @@ DimensionConfig = function() {
             period: {
                 value: 'period',
                 name: i18nManager.get('periods') || 'Periods',
+                id: 'pe',
                 dimensionName: 'pe',
                 objectName: 'pe'
             },
@@ -98,9 +108,14 @@ DimensionConfig = function() {
             relativePeriod: {
                 value: 'relativePeriod'
             },
+            startEndDate: {
+                value: 'dates',
+                name: i18nManager.get('start_end_dates')
+            },
             organisationUnit: {
                 value: 'organisationUnit',
                 name: i18nManager.get('i18n.organisation_units') || 'Organisation units',
+                id: 'ou',
                 dimensionName: 'ou',
                 objectName: 'ou'
             },
@@ -157,6 +172,10 @@ DimensionConfig = function() {
         }
 
         return map;
+    };
+
+    t.getDefaultDataType = function() {
+        return t.dataType[defaultDataType];
     };
 
     t.setI18nManager = function(manager) {

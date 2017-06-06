@@ -1,34 +1,195 @@
-import isNumber from 'd2-utilizr/lib/isNumber';
-import isObject from 'd2-utilizr/lib/isObject';
-import isString from 'd2-utilizr/lib/isString';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
+import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayInsert from 'd2-utilizr/lib/arrayInsert';
+import arraySort from 'd2-utilizr/lib/arraySort';
+import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import objectApplyIf from 'd2-utilizr/lib/objectApplyIf';
 import clone from 'd2-utilizr/lib/clone';
-import { Record } from './Record.js';
-import { ResponseHeader } from './ResponseHeader.js';
-import { ResponseRow } from './ResponseRow.js';
-import { ResponseRowIdCombination } from './ResponseRowIdCombination.js';
+import isBoolean from 'd2-utilizr/lib/isBoolean';
+import isDefined from 'd2-utilizr/lib/isDefined';
+import isEmpty from 'd2-utilizr/lib/isEmpty';
+import isNumber from 'd2-utilizr/lib/isNumber';
+import isNumeric from 'd2-utilizr/lib/isNumeric';
+import isObject from 'd2-utilizr/lib/isObject';
+import isString from 'd2-utilizr/lib/isString';
+
+import getParseMiddleware from '../util/getParseMiddleware';
 
 export var Response;
 
-Response = function(config) {
+Response = function(refs, config) {
     var t = this;
-    t.klass = Response;
 
     config = isObject(config) ? config : {};
 
-    // constructor
-    t.headers = (config.headers || []).map(function(header) {
-        return new ResponseHeader(header);
+    var { appManager, indexedDbManager, i18nManager } = refs;
+
+    var { ResponseHeader, ResponseRow } = refs.api;
+
+    var i18n = i18nManager.get();
+
+    var booleanMap = {
+        '0': i18n.no || 'No',
+        '1': i18n.yes || 'Yes'
+    };
+
+    var OUNAME = 'ouname';
+    var OU = 'ou';
+
+    var DEFAULT_COLLECT_IGNORE_HEADERS = [
+        'psi',
+        'ps',
+        'eventdate',
+        'longitude',
+        'latitude',
+        'ouname',
+        'oucode',
+        'eventdate',
+        'eventdate'
+    ];
+
+    var DEFAULT_PREFIX_IGNORE_HEADERS = [
+        'dy',
+        ...DEFAULT_COLLECT_IGNORE_HEADERS
+    ];
+
+                                //DIMENSIONS      ITEMS    -> COLLECT         PREFIX
+
+//- required                        V               V           no             no
+
+//- legendSet                       V               V           no             no
+//- !dimensions                     x               x           yes            yes
+
+//- optionset, !dimensions          x               x           yes            yes
+//- optionset                       V               x           no             yes
+
+    // functions
+    var isPrefixHeader = (header, dimensions) => {
+        if (arrayContains(DEFAULT_PREFIX_IGNORE_HEADERS, header.name)) {
+            return false;
+        }
+
+        return ('optionSet' in header) || isEmpty(dimensions);
+    };
+
+    var isCollectHeader = (header, dimensions) => {
+        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
+            return false;
+        }
+
+        return isEmpty(dimensions);
+    };
+
+    var getHeader = (name) => {
+        return t.headers.find(header => header.name === name);
+    };
+
+    var hasHeader = (name) => {
+        return getHeader(name) !== undefined;
+    };
+
+    t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
+
+    t.getSortedUniqueRowIdStringsByHeader = (header) => {
+        var parseByType = getParseMiddleware(header.valueType);
+        var parseString = getParseMiddleware('STRING');
+
+        return arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parseByType(responseRow.getAt(header.index)))))).map(id => parseString(id));
+    };
+
+    t.getNameByIdsByValueType = (id, valueType) => {
+        if (valueType === 'BOOLEAN') {
+            return booleanMap[id];
+        }
+
+        return id;
+    };
+
+    // headers
+    t.headers = (config.headers || []).map((header, index) => {
+        var dimensions = config.metaData.dimensions;
+
+        var prefixConfig = isPrefixHeader(header, dimensions[header.name]) ? { isPrefix: true } : {};
+        var collectConfig = isCollectHeader(header, dimensions[header.name]) ? { isCollect: true } : {};
+
+        return new ResponseHeader(refs, header, Object.assign({}, prefixConfig, collectConfig, { index }));
     });
 
-    t.metaData = config.metaData;
+    // rows
+    t.rows = (config.rows || []).map(row => ResponseRow(refs, row));
 
-    t.rows = (config.rows || []).map(function(row) {
-        return ResponseRow(row);
-    });
+    t.metaData = function() {
+        var metaData = Object.assign({}, config.metaData);
+
+        var dimensions = metaData.dimensions,
+            items = metaData.items;
+
+        // populate metaData dimensions and items
+        t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
+            var ids;
+
+            // collect row values
+            if (header.isCollect) {
+                ids = t.getSortedUniqueRowIdStringsByHeader(header);
+                dimensions[header.name] = ids;
+            }
+            else {
+                ids = dimensions[header.name];
+            }
+
+            if (header.isPrefix) {
+
+                // create prefixed dimensions array
+                dimensions[header.name] = ids.map(id => t.getPrefixedId(id, header.name));
+
+                // create items
+                if (header.optionSet) {
+                    dimensions[header.name].forEach((prefixedId, index) => {
+                        var id = ids[index];
+                        var optionSet = header.optionSet;
+
+                        var name = indexedDbManager.getCachedOptionName(ids[index], header.optionSet);
+
+                        items[prefixedId] = { name: name };
+                    });
+                }
+                else {
+                    dimensions[header.name].forEach((prefixedId, index) => {
+                        var id = ids[index];
+                        var valueType = header.valueType;
+
+                        var name = t.getNameByIdsByValueType(id, valueType);
+
+                        items[prefixedId] = { name: name };
+                    });
+                }
+            }
+        });
+
+        // for events, add items from 'ouname'
+        if (hasHeader(OUNAME) && hasHeader(OU)) {
+            var ounameHeaderIndex = getHeader(OUNAME).getIndex();
+            var ouHeaderIndex = getHeader(OU).getIndex();
+
+            for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
+                row = t.rows[i];
+                ouId = row.getAt(ouHeaderIndex);
+
+                if (items[ouId] !== undefined) {
+                    continue;
+                }
+
+                ouName = row.getAt(ounameHeaderIndex);
+
+                items[ouId] = {
+                    name: ouName
+                };
+            }
+        }
+
+        return metaData;
+    }();
 
     // transient
     t.nameHeaderMap = function() {
@@ -43,25 +204,66 @@ Response = function(config) {
 
     // uninitialized
     t.idValueMap;
+    t.sortedRows;
 
-    // set index on Headers
-    t.headers.forEach(function(header, index) {
-        header.setIndex(index);
+    t.getRefs = function() {
+        return refs;
+    };
+};
+
+Response.prototype.sortOrganisationUnitsHierarchy = function() {
+    let organisationUnits = this.metaData.dimensions.ou;
+
+    for (let i = 0; i < organisationUnits.length; ++i) {
+        let organisationUnit = organisationUnits[i],
+            hierarchyPrefix = this.metaData.ouHierarchy[organisationUnit],
+            hierarchyIds = [organisationUnit],
+            hierarchyNames = [];
+
+        hierarchyPrefix.split('/').reverse().forEach(ouId => {
+            hierarchyIds.unshift(ouId);
+        });
+
+        hierarchyIds.map(ouId => {
+            if (this.metaData.items[ouId]) {
+                hierarchyNames.push(this.metaData.items[ouId].name);
+            }
+        });
+
+        organisationUnits[i] = {
+            id: organisationUnit,
+            fullName: hierarchyNames.join(' / ')
+        };
+    }
+
+    arraySort(organisationUnits, null, 'fullName');
+
+    this.metaData.dimensions.ou = organisationUnits.map(ou => {
+        return ou.id;
     });
 };
 
 Response.prototype.clone = function() {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
 
-    return new Response(t);
+    var { Response } = refs.api;
+
+    return new Response(refs, t);
 };
 
 Response.prototype.getHeaderByName = function(name) {
     return this.nameHeaderMap[name];
 };
 
+Response.prototype.getHeaderByIndex = function(index) {
+    return this.headers[index];
+};
+
 Response.prototype.getHeaderIndexByName = function(name) {
-    return this.nameHeaderMap[name].index;
+    var header = this.nameHeaderMap[name] || {};
+
+    return header.index;
 };
 
 Response.prototype.getOptionSetHeaders = function() {
@@ -69,27 +271,32 @@ Response.prototype.getOptionSetHeaders = function() {
 };
 
 Response.prototype.getNameById = function(id) {
-    return this.metaData.names[id] || '';
+    return (this.metaData.items[id] || {}).name || id;
 };
 
 Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
     var metaData = this.metaData,
         name = '';
 
+    var items = metaData.items;
+
     if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
-        a.shift();
 
-        for (var i = 0; i < a.length; i++) {
-            name += (isHtml ? '<span class="text-weak">' : '') + metaData.names[a[i]] + (isHtml ? '</span>' : '') + ' / ';
-        }
+        a.forEach(function(id) {
+            name += (isHtml ? '<span class="text-weak">' : '') + items[id].name + (isHtml ? '</span>' : '') + ' / ';
+        });
     }
 
     return name;
 };
 
 Response.prototype.getIdsByDimensionName = function(dimensionName) {
-    return this.metaData[dimensionName] || [];
+    return this.metaData.dimensions ? this.metaData.dimensions[dimensionName] || [] : [];
+};
+
+Response.prototype.addMetaDataItems = function(items) {
+    this.metaData.items = Object.assign(this.metaData.items, items)
 };
 
 Response.prototype.addOuHierarchyDimensions = function() {
@@ -182,7 +389,19 @@ Response.prototype.printResponseCSV = function() {
     alink.click();
 };
 
+Response.prototype.getFilteredHeaders = function(names) {
+    return this.headers.filter(header => arrayContains(names, header.name));
+};
+
+Response.prototype.getOrganisationUnitsIds = function() {
+    return this.metaData.dimensions.ou;
+};
+
 // dep 1
+
+Response.prototype.getHeaderNameByIndex = function(index) {
+    this.getHeaderByIndex(index).name;
+};
 
 Response.prototype.getHeaderIndexOrder = function(dimensionNames) {
     var t = this,
@@ -211,22 +430,31 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
+    var t = this,
+        refs = t.getRefs();
+
+    var { Record } = refs.api;
+
     var metaData = this.metaData,
-        ids = metaData[dimensionName],
+        ids = this.getIdsByDimensionName(dimensionName) || [],
         records = [];
 
     ids.forEach(function(id) {
-        records.push((new Record({
+        records.push((new Record(refs, {
             id: id,
-            name: metaData.names[id]
+            name: t.getNameById(id)
         })).val());
     });
 
-    return records;
+    return arrayClean(records);
 };
 
 Response.prototype.getValueHeader = function() {
     return this.getHeaderByName('value');
+};
+
+Response.prototype.hasIdByDimensionName = function(id, dimensionName) {
+    return arrayContains(this.getIdsByDimensionName(dimensionName), id);
 };
 
 // dep 2
@@ -237,21 +465,51 @@ Response.prototype.getValueHeaderIndex = function() {
 
 // dep 3
 
+Response.prototype.getSortedRows = function() {
+    if (this.sortedRows) {
+        return this.sortedRows;
+    }
+
+    var valueHeaderIndex = this.getValueHeaderIndex();
+
+    // filter
+    var rows = this.rows.filter(row => isNumeric(row[valueHeaderIndex]));
+
+    // parse
+    rows.forEach(row => row.toFloat(valueHeaderIndex));
+
+    // sort
+    arraySort(rows, 'DESC', valueHeaderIndex);
+
+    return this.sortedRows = rows;
+};
+
 Response.prototype.getIdValueMap = function(layout) {
     if (this.idValueMap) {
         return this.idValueMap;
     }
 
     var t = this,
-        headerIndexOrder = t.getHeaderIndexOrder(layout.getDimensionNames()),
+        refs = t.getRefs();
+
+    var { ResponseRowIdCombination } = refs.api;
+
+    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
         idValueMap = {},
         idCombination;
 
+    var dimensions = t.metaData.dimensions;
+
     this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination();
+        idCombination = new ResponseRowIdCombination(refs);
 
         headerIndexOrder.forEach(function(index) {
-            idCombination.add(responseRow.getAt(index));
+            var header = t.getHeaderByIndex(index);
+            var rowValue = responseRow.getAt(index);
+
+            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
+
+            idCombination.add(key);
         });
 
         responseRow.setIdCombination(idCombination);
@@ -275,9 +533,29 @@ Response.prototype.getTotal = function() {
 // dep 4
 
 Response.prototype.getValue = function(param, layout) {
+    var t = this,
+        refs = t.getRefs();
+
+    var { ResponseRowIdCombination } = refs.api;
+
     var id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
     return this.getIdValueMap(layout)[id];
+};
+
+Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
+    limit = isNumeric(limit) ? parseInt(limit) : 10;
+    isTop = isBoolean(isTop) ? isTop : true;
+    isBottom = isBoolean(isBottom) ? isBottom : true;
+
+    var sortedRows = this.getSortedRows();
+
+    var len = sortedRows.length;
+
+    return [
+        ...(isTop ? sortedRows.slice(0, limit) : []),
+        ...(isBottom ? sortedRows.slice(len - limit, len) : [])
+    ];
 };
 
 // dep 5

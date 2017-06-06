@@ -9,9 +9,8 @@ export var InstanceManager;
 InstanceManager = function(refs) {
     var t = this;
 
-    t.refs = isObject(refs) ? refs : {};
+    refs = isObject(refs) ? refs : {};
 
-    t.api = refs.api;
     t.appManager = refs.appManager;
     t.uiManager = refs.uiManager;
     t.i18nManager = refs.i18nManager;
@@ -31,9 +30,10 @@ InstanceManager = function(refs) {
     t.plugin = false;
     t.dashboard = false;
 
-    // uninitialized
+    // configurable
     t.apiResource;
     t.apiEndpoint;
+    t.analyticsEndpoint = '/analytics';
     t.dataStatisticsEventType;
 
     // getter/setter
@@ -103,16 +103,23 @@ InstanceManager = function(refs) {
     t.setFn = function(func) {
         fn = func;
     };
+
+    t.getRefs = function() {
+        return refs;
+    };
 };
 
 InstanceManager.prototype.getLayout = function(layoutConfig) {
     var t = this,
+        refs = t.getRefs(),
         favorite = t.getStateFavorite(),
         layout;
 
+    var { Layout } = refs.api;
+
     layoutConfig = layoutConfig || t.uiManager.getUiState();
 
-    layout = new t.api.Layout(t.refs, layoutConfig);
+    layout = new Layout(refs, layoutConfig);
 
     if (layout) {
         layout.apply(favorite);
@@ -122,7 +129,10 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
 };
 
 InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
-    var t = this;
+    var t = this,
+        refs = t.getRefs();
+
+    var { Layout, Request } = refs.api;
 
     id = isString(id) ? id : t.getStateFavoriteId() || null;
 
@@ -139,7 +149,7 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
         t.getReport(layout, isFavorite);
     };
 
-    var request = new t.api.Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         beforeRun: function() {
@@ -153,7 +163,7 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
             }
         },
         success: function(r) {
-            var layout = new t.api.Layout(t.refs, r);
+            var layout = new Layout(refs, r);
 
             if (layout) {
                 fn(layout, true);
@@ -181,14 +191,17 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
         return;
     }
 
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
+
+    var { Request } = refs.api;
 
     var appManager = t.appManager;
     var uiManager = t.uiManager;
     var i18n = t.i18nManager.get();
 
-    var request = new t.api.Request({
-        baseUrl: t.appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
+    var request = new Request(refs, {
+        baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
         method: 'DELETE',
         beforeRun: function() {
             if (doMask) {
@@ -212,33 +225,31 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     request.run();
 };
 
-InstanceManager.prototype.getSharingById = function(id, fn) {
-    var t = this;
+InstanceManager.prototype.getSharingById = function(id, fn) {
+    var t = this,
+        refs = this.getRefs();
 
-    var success = function(r) {
-        fn && fn(r);
-    };
+    var { Request } = refs.api;
 
-    if (!id) {
-        success();
-        return;
-    }
+    var appManager = t.appManager;
 
-    var request = new t.api.Request({
-        baseUrl: t.appManager.getApiPath() + '/sharing',
+    var request = new Request(refs, {
+        baseUrl: appManager.getApiPath() + '/sharing',
         type: 'json',
-        success: success,
-        error: function() {
+        success: function(r) {
+            fn && fn(r);
+        },
+        error: function() {
             t.uiManager.unmask();
         }
     });
 
     request.add({
         type: t.apiResource,
-        id: id || t.getStateFavoriteId()
+        id: id
     });
 
-    return request.run();
+    request.run();
 };
 
 InstanceManager.prototype.getUiState = function() {
@@ -246,9 +257,12 @@ InstanceManager.prototype.getUiState = function() {
 };
 
 InstanceManager.prototype.postDataStatistics = function() {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
 
-    var request = new t.api.Request({
+    var { Request } = refs.api;
+
+    var request = new Request(refs, {
         baseUrl: t.appManager.getApiPath() + '/dataStatistics',
         method: 'POST'
     });
@@ -275,12 +289,15 @@ InstanceManager.prototype.getInterpretationById = function(id, fn) {
         return;
     }
 
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
+
+    var { Request } = refs.api;
 
     var appManager = t.appManager;
     var uiManager = t.uiManager;
 
-    var request = new t.api.Request({
+    var request = new Request(refs, {
         baseUrl: appManager.getApiPath() + '/interpretations/' + id + '.json',
         type: 'json',
         success: function(r) {
@@ -314,7 +331,10 @@ InstanceManager.prototype.getData = function(layout) {
 };
 
 InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState, fn) {
-    var t = this;
+    var t = this,
+        refs = this.getRefs();
+
+    var { Response } = refs.api;
 
     var _fn = function() {
         if (!skipState) {
@@ -333,6 +353,11 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
         }
     }
 
+    // validation
+    if (isFunction(layout.val) && !layout.val()) {
+        return;
+    }
+
     t.uiManager.mask();
 
     // response
@@ -349,7 +374,13 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
             reqMap.data.done(function(res) {
                 res.metaData = md.metaData;
 
-                layout.setResponse(new t.api.Response(res));
+                let response = new Response(refs, res);
+
+                if (layout.showHierarchy === true) {
+                    response.sortOrganisationUnitsHierarchy();
+                }
+
+                layout.setResponse(response);
 
                 _fn();
             });

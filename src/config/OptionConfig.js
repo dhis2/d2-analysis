@@ -15,11 +15,14 @@ OptionConfig = function() {
     var fontSize;
     var digitGroupSeparator;
     var aggregationType;
-    var displayType;
+    var numberType;
     var outputType;
     var dataApprovalLevel;
     var dataSetMetric;
     var legendDisplayStyle;
+    var legendDisplayStrategy;
+    var programStatus;
+    var eventStatus;
 
     // setter
     var setDisplayDensity = function() {
@@ -130,22 +133,22 @@ OptionConfig = function() {
         };
     };
 
-    var setDisplayType = function() {
-        displayType = {
+    var setNumberType = function() {
+        numberType = {
             'value': {
                 index: 1,
                 id: 'VALUE',
-                name: i18nManager.get('value') || 'By data element'
+                name: i18nManager.get('value') || 'Value'
             },
             'percentofrow': {
                 index: 2,
-                id: 'PERCENTROW',
-                name: i18nManager.get('percent_of_row') || '% of row'
+                id: 'ROW_PERCENTAGE',
+                name: i18nManager.get('percent_of_row') || 'Percentage of row'
             },
             'percentofcolumn': {
                 index: 3,
-                id: 'PERCENTCOLUMN',
-                name: i18nManager.get('percent_of_column') || '% of column'
+                id: 'COLUMN_PERCENTAGE',
+                name: i18nManager.get('percent_of_column') || 'Percentage of column'
             },
         };
     }
@@ -213,14 +216,89 @@ OptionConfig = function() {
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
             'fill': {
-                index: 0,
+                index: 2,
                 id: 'FILL',
                 name: i18nManager.get('background_color') || 'Background color'
             },
             'text': {
-                index: 1,
+                index: 3,
                 id: 'TEXT',
                 name: i18nManager.get('text_color') || 'Text color'
+            }
+        };
+    };
+
+    var setLegendDisplayStrategy = function() {
+        legendDisplayStrategy = {
+            'fixed': {
+                index: 1,
+                id: 'FIXED',
+                name: i18nManager.get('all_data_items') || 'All'
+            },
+            'by_data_item': {
+                index: 2,
+                id: 'BY_DATA_ITEM',
+                name: i18nManager.get('by_data_item') || 'By data item'
+            }
+        };
+    };
+
+    var setProgramStatus = function() {
+        programStatus = {
+            'def': {
+                index: 1,
+                id: 'DEFAULT',
+                name: i18nManager.get('all') || 'All'
+            },
+            'active': {
+                index: 2,
+                id: 'ACTIVE',
+                name: i18nManager.get('active') || 'Active'
+            },
+            'completed': {
+                index: 3,
+                id: 'COMPLETED',
+                name: i18nManager.get('completed') || 'Completed'
+            },
+            'cancelled': {
+                index: 4,
+                id: 'CANCELLED',
+                name: i18nManager.get('cancelled') || 'Cancelled'
+            }
+        };
+    };
+
+    var setEventStatus = function() {
+        eventStatus = {
+            'def': {
+                index: 1,
+                id: 'DEFAULT',
+                name: i18nManager.get('all') || 'All'
+            },
+            'active': {
+                index: 2,
+                id: 'ACTIVE',
+                name: i18nManager.get('active') || 'Active'
+            },
+            'completed': {
+                index: 3,
+                id: 'COMPLETED',
+                name: i18nManager.get('completed') || 'Completed'
+            },
+            'scheduled': {
+                index: 4,
+                id: 'SCHEDULE',
+                name: i18nManager.get('scheduled') || 'Scheduled'
+            },
+            'overdue': {
+                index: 5,
+                id: 'OVERDUE',
+                name: i18nManager.get('overdue') || 'Overdue'
+            },
+            'skipped': {
+                index: 6,
+                id: 'SKIPPED',
+                name: i18nManager.get('skipped') || 'Skipped'
             }
         };
     };
@@ -246,11 +324,14 @@ OptionConfig = function() {
         setFontSize();
         setDigitGroupSeparator();
         setAggregationType();
-        setDisplayType();
+        setNumberType();
         setOutputType();
         setDataApprovalLevel();
         setDataSetMetric();
         setLegendDisplayStyle();
+        setLegendDisplayStrategy();
+        setProgramStatus();
+        setEventStatus();
     };
 
     // prototype
@@ -270,8 +351,8 @@ OptionConfig = function() {
         return key ? aggregationType[key] : aggregationType;
     };
 
-    t.getDisplayType = function(key) {
-        return key ? displayType[key] : displayType;
+    t.getNumberType = function(key) {
+        return key ? numberType[key] : numberType;
     };
 
     t.getOutputType = function(key) {
@@ -290,6 +371,18 @@ OptionConfig = function() {
         return key ? legendDisplayStyle[key] : legendDisplayStyle;
     };
 
+    t.getLegendDisplayStrategy = function(key) {
+        return key ? legendDisplayStrategy[key] : legendDisplayStrategy;
+    };
+
+    t.getProgramStatus = function(key) {
+        return key ? programStatus[key] : programStatus;
+    };
+
+    t.getEventStatus = function(key) {
+        return key ? eventStatus[key] : eventStatus;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -306,8 +399,8 @@ OptionConfig = function() {
         return getRecords(aggregationType);
     };
 
-    t.getDisplayTypeRecords = function() {
-        return getRecords(displayType);
+    t.getNumberTypeRecords = function() {
+        return getRecords(numberType);
     };
 
     t.getOutputTypeRecords = function() {
@@ -320,6 +413,18 @@ OptionConfig = function() {
 
     t.getLegendDisplayStyleRecords = function() {
         return getRecords(legendDisplayStyle);
+    };
+
+    t.getLegendDisplayStrategyRecords = function() {
+        return getRecords(legendDisplayStrategy);
+    };
+
+    t.getProgramStatusRecords = function() {
+        return getRecords(programStatus);
+    };
+
+    t.getEventStatusRecords = function() {
+        return getRecords(eventStatus);
     };
 
     t.getDigitGroupSeparatorIdMap = function() {
@@ -351,6 +456,7 @@ OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
     var t = this;
 
     var separator = t.getDigitGroupSeparatorIdMap()[id];
+
     return separator ? separator.value : '';
 };
 

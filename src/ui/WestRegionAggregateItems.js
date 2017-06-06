@@ -43,7 +43,11 @@ WestRegionAggregateItems = function(c) {
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
 
         dimensionPanelMap = {},
-        periodCheckboxes = [];
+        accordionPanels = [],
+        periodCheckboxes = [],
+
+        baseWidth = uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        accBaseWidth = baseWidth;
 
     // stores
 
@@ -98,7 +102,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/indicators.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -171,7 +175,7 @@ WestRegionAggregateItems = function(c) {
         fields: ['id', 'name', 'index'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false'),
+            url: encodeURI(apiPath + '/indicatorGroups.json?fields=id,displayName~rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'indicatorGroups'
@@ -270,7 +274,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElements.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = '&filter=domainType:eq:AGGREGATE' + (filter ? '&filter=' + displayProperty + ':ilike:' + filter : '');
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -308,7 +312,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElementOperands.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -442,7 +446,7 @@ WestRegionAggregateItems = function(c) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataSets.json?',
-                fieldsUrl = 'fields=dimensionItem|rename(id),' + displayPropertyUrl,
+                fieldsUrl = 'fields=dimensionItem~rename(id),' + displayPropertyUrl,
                 filterUrl = filter ? '&filter=' + displayProperty + ':ilike:' + filter : '';
 
             var url = baseUrl + fieldsUrl + filterUrl;
@@ -615,7 +619,7 @@ WestRegionAggregateItems = function(c) {
         fields: ['id', 'name'],
         proxy: {
             type: 'ajax',
-            url: encodeURI(apiPath + '/programs.json?fields=id,displayName|rename(name)&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?fields=id,displayName~rename(name)&paging=false'),
             reader: {
                 type: 'json',
                 root: 'programs'
@@ -836,7 +840,7 @@ WestRegionAggregateItems = function(c) {
     var dataType = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         //emptyText: i18n.data_type,
@@ -856,51 +860,6 @@ WestRegionAggregateItems = function(c) {
         listeners: {
             select: function(cb) {
                 onDataTypeSelect(cb.getValue());
-            }
-        }
-    });
-
-    var dataSelected = Ext.create('Ext.ux.form.MultiSelect', {
-        cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
-        valueField: 'id',
-        displayField: 'name',
-        ddReorder: true,
-        store: dataSelectedStore,
-        tbar: [
-            {
-                xtype: 'button',
-                text: 'test',
-                //iconCls: 'ns-button-icon-arrowleftdouble',
-                iconCls: 'ns-button-icon-map',
-                width: 22,
-                handler: function() {
-                    dataSelectedStore.removeAll();
-                    data.updateStoreFilters();
-                }
-            },
-            {
-                xtype: 'button',
-                icon: 'ns-button-icon-arrowleft',
-                width: 22,
-                handler: function() {
-                    dataSelectedStore.removeByIds(dataSelected.getValue());
-                    data.updateStoreFilters();
-                }
-            },
-            '->',
-            {
-                xtype: 'label',
-                text: i18n['selected'],
-                cls: 'ns-toolbar-multiselect-right-label'
-            }
-        ],
-        listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function() {
-                    dataSelectedStore.removeByIds(dataSelected.getValue());
-                    data.updateStoreFilters();
-                }, this);
             }
         }
     });
@@ -979,7 +938,7 @@ WestRegionAggregateItems = function(c) {
     var indicatorGroup = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px; margin-top:0px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_indicator_group'],
@@ -1008,7 +967,7 @@ WestRegionAggregateItems = function(c) {
 
     var indicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: indicatorAvailableStore,
@@ -1058,7 +1017,7 @@ WestRegionAggregateItems = function(c) {
 
     var indicatorSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1199,7 +1158,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataElementAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         isPending: false,
@@ -1251,7 +1210,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataElementSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1296,7 +1255,7 @@ WestRegionAggregateItems = function(c) {
     var dataElementGroup = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 90,
+        width: accBaseWidth - 90,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_data_element_group'],
@@ -1444,7 +1403,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataSetAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: dataSetAvailableStore,
@@ -1494,7 +1453,7 @@ WestRegionAggregateItems = function(c) {
 
     var dataSetSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1539,7 +1498,7 @@ WestRegionAggregateItems = function(c) {
     var dataSetMetric = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px; margin-top:0px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n['select_indicator_group'],
@@ -1587,16 +1546,16 @@ WestRegionAggregateItems = function(c) {
         }
 
         Ext.Ajax.request({
-            url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem|rename(id),name,valueType&paging=false'),
+            url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem~rename(id),name,valueType&paging=false'),
             disableCaching: false,
             success: function(r) {
-                var types = appManager.getValueTypesByType('aggregate'),
+                var types = dimensionConfig.valueType['aggregate_aggregatable_types'],
                     elements = Ext.decode(r.responseText).programDataElements.filter(function(item) {
                         return arrayContains(types, (item || {}).valueType);
                     });
 
                 Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + displayPropertyUrl + '|rename(name),valueType]&paging=false'),
+                    url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem~rename(id),' + displayPropertyUrl + '~rename(name),valueType]&paging=false'),
                     disableCaching: false,
                     success: function(r) {
                         var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
@@ -1614,7 +1573,7 @@ WestRegionAggregateItems = function(c) {
     var eventDataItemProgram = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_program,
@@ -1703,7 +1662,7 @@ WestRegionAggregateItems = function(c) {
 
     var eventDataItemAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: eventDataItemAvailableStore,
@@ -1753,7 +1712,7 @@ WestRegionAggregateItems = function(c) {
 
     var eventDataItemSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -1826,7 +1785,7 @@ WestRegionAggregateItems = function(c) {
         }
 
         Ext.Ajax.request({
-            url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + displayPropertyUrl + ']&paging=false'),
+            url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem~rename(id),' + displayPropertyUrl + ']&paging=false'),
             disableCaching: false,
             success: function(r) {
                 var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
@@ -1841,7 +1800,7 @@ WestRegionAggregateItems = function(c) {
     var programIndicatorProgram = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin:0 1px 1px 0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_program,
@@ -1930,7 +1889,7 @@ WestRegionAggregateItems = function(c) {
 
     var programIndicatorAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         store: programIndicatorAvailableStore,
@@ -1980,7 +1939,7 @@ WestRegionAggregateItems = function(c) {
 
     var programIndicatorSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         valueField: 'id',
         displayField: 'name',
         ddReorder: true,
@@ -2046,6 +2005,8 @@ WestRegionAggregateItems = function(c) {
 
     var data = Ext.create('Ext.panel.Panel', {
         title: '<div class="ns-panel-title-data">' + i18n.data + '</div>',
+        cls: 'ns-accordion-first',
+        bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         dimension: dataObjectName,
         updateStoreFilters: function() {
@@ -2100,13 +2061,15 @@ WestRegionAggregateItems = function(c) {
                 dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
             }
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_indicator : uiConfig.west_maxheight_accordion_indicator;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_indicator :
+                uiConfig.west_maxheight_accordion_indicator;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight([indicatorAvailable, indicatorSelected], this, uiConfig.west_fill_accordion_indicator);
             uiManager.msSetHeight([dataElementAvailable, dataElementSelected], this, uiConfig.west_fill_accordion_dataelement);
@@ -2128,7 +2091,7 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-    uiManager.reg(data, 'data');
+    accordionPanels.push(uiManager.reg(data, 'data'));
 
     // period
 
@@ -2226,19 +2189,25 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_BIMONTH',
                                 boxLabel: i18n['this_bimonth'],
-                                index: 15
+                                index: 17
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_BIMONTH',
                                 boxLabel: i18n['last_bimonth'],
-                                index: 16
+                                index: 18
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_BIMONTHS',
                                 boxLabel: i18n['last_6_bimonths'],
-                                index: 17
+                                index: 19
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'BIMONTHS_THIS_YEAR',
+                                boxLabel: i18n['bimonths_this_year'],
+                                index: 20
                             }
                         ]
                     },
@@ -2256,19 +2225,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_FINANCIAL_YEAR',
                                 boxLabel: i18n['this_financial_year'],
-                                index: 24
+                                index: 28
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_FINANCIAL_YEAR',
                                 boxLabel: i18n['last_financial_year'],
-                                index: 25
+                                index: 29
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
                                 boxLabel: i18n['last_5_financial_years'],
-                                index: 26
+                                index: 30
                             }
                         ]
                     }
@@ -2318,6 +2287,12 @@ WestRegionAggregateItems = function(c) {
                                 relativePeriodId: 'LAST_52_WEEKS',
                                 boxLabel: i18n['last_52_weeks'],
                                 index: 9
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'WEEKS_THIS_YEAR',
+                                boxLabel: i18n['weeks_this_year'],
+                                index: 10
                             }
                         ]
                     },
@@ -2335,19 +2310,25 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_QUARTER',
                                 boxLabel: i18n['this_quarter'],
-                                index: 18
+                                index: 21
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_QUARTER',
                                 boxLabel: i18n['last_quarter'],
-                                index: 19
+                                index: 22
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_4_QUARTERS',
                                 boxLabel: i18n['last_4_quarters'],
-                                index: 20
+                                index: 23
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'QUARTERS_THIS_YEAR',
+                                boxLabel: i18n['quarters_this_year'],
+                                index: 24
                             }
                         ]
                     },
@@ -2365,19 +2346,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_YEAR',
                                 boxLabel: i18n['this_year'],
-                                index: 27
+                                index: 31
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_YEAR',
                                 boxLabel: i18n['last_year'],
-                                index: 28
+                                index: 32
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_5_YEARS',
                                 boxLabel: i18n['last_5_years'],
-                                index: 29
+                                index: 33
                             }
                         ]
                     }
@@ -2402,31 +2383,37 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_MONTH',
                                 boxLabel: i18n['this_month'],
-                                index: 10
+                                index: 11
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_MONTH',
                                 boxLabel: i18n['last_month'],
-                                index: 11
+                                index: 12
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_3_MONTHS',
                                 boxLabel: i18n['last_3_months'],
-                                index: 12
+                                index: 13
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_6_MONTHS',
                                 boxLabel: i18n['last_6_months'],
-                                index: 13
+                                index: 14
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_12_MONTHS',
                                 boxLabel: i18n['last_12_months'],
-                                index: 14
+                                index: 15
+                            },
+                            {
+                                xtype: 'checkbox',
+                                relativePeriodId: 'MONTHS_THIS_YEAR',
+                                boxLabel: i18n['months_this_year'],
+                                index: 16
                             }
                         ]
                     },
@@ -2444,19 +2431,19 @@ WestRegionAggregateItems = function(c) {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'THIS_SIX_MONTH',
                                 boxLabel: i18n['this_sixmonth'],
-                                index: 21
+                                index: 25
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_SIX_MONTH',
                                 boxLabel: i18n['last_sixmonth'],
-                                index: 22
+                                index: 26
                             },
                             {
                                 xtype: 'checkbox',
                                 relativePeriodId: 'LAST_2_SIXMONTHS',
                                 boxLabel: i18n['last_2_sixmonths'],
-                                index: 23
+                                index: 27
                             }
                         ]
                     }
@@ -2467,7 +2454,7 @@ WestRegionAggregateItems = function(c) {
 
     var fixedPeriodAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         height: 180,
         valueField: 'id',
         displayField: 'name',
@@ -2507,7 +2494,7 @@ WestRegionAggregateItems = function(c) {
 
     var fixedPeriodSelected = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-right',
-        width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+        width: accBaseWidth / 2,
         height: 180,
         valueField: 'id',
         displayField: 'name',
@@ -2564,7 +2551,7 @@ WestRegionAggregateItems = function(c) {
     var periodType = Ext.create('Ext.form.field.ComboBox', {
         cls: 'ns-combo',
         style: 'margin-bottom:1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 62 - 62 - 2,
+        width: accBaseWidth - 62 - 62 - 2,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_period_type,
@@ -2642,13 +2629,15 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_period : uiConfig.west_maxheight_accordion_period;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_period :
+                uiConfig.west_maxheight_accordion_period;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight(
                 [fixedPeriodAvailable, fixedPeriodSelected],
@@ -2724,13 +2713,14 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-    uiManager.reg(period, 'period');
+    accordionPanels.push(uiManager.reg(period, 'period'));
+
     // organisation unit
 
     var treePanel = Ext.create('Ext.tree.Panel', {
         cls: 'ns-tree',
         style: 'border-top: 1px solid #ddd; padding-top: 1px',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding,
+        width: accBaseWidth,
         displayField: 'name',
         rootVisible: false,
         autoScroll: true,
@@ -2773,7 +2763,7 @@ WestRegionAggregateItems = function(c) {
                 path = map[id];
 
             if (path.substr(0, rootId.length + 1) !== ('/' + rootId)) {
-                path = '/' + rootId + path;
+                path = '/' + rootId + '/' + path;
             }
 
             t.expandPath(path, 'id', '/', function() {
@@ -2833,7 +2823,7 @@ WestRegionAggregateItems = function(c) {
                 format: 'json',
                 noCache: false,
                 extraParams: {
-                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
+                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty~rename(hasChildren)&paging=false'
                 },
                 url: apiPath + '/organisationUnits',
                 reader: {
@@ -2964,7 +2954,7 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-combo',
         multiSelect: true,
         style: 'margin-bottom:0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+        width: accBaseWidth - 37,
         valueField: 'level',
         displayField: 'name',
         emptyText: i18n.select_organisation_unit_levels,
@@ -2977,7 +2967,7 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-combo',
         multiSelect: true,
         style: 'margin-bottom:0',
-        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+        width: accBaseWidth - 37,
         valueField: 'id',
         displayField: 'name',
         emptyText: i18n.select_organisation_unit_groups,
@@ -3231,13 +3221,15 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        onExpand: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
-            var accordion = uiManager.get('accordion');
 
-            var accordionHeight = westRegion.hasScrollbar ? uiConfig.west_scrollbarheight_accordion_organisationunit : uiConfig.west_maxheight_accordion_organisationunit;
-
-            accordion.setThisHeight(accordionHeight);
+            return westRegion.hasScrollbar ?
+                uiConfig.west_scrollbarheight_accordion_organisationunit :
+                uiConfig.west_maxheight_accordion_organisationunit;
+        },
+        onExpand: function() {
+            accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
         },
@@ -3249,7 +3241,7 @@ WestRegionAggregateItems = function(c) {
                 items: [
                     toolPanel,
                     {
-                        width: uiConfig.west_fieldset_width - uiConfig.west_width_padding - 37,
+                        width: accBaseWidth - 37,
                         layout: 'column',
                         bodyStyle: 'border:0 none',
                         items: [
@@ -3270,7 +3262,7 @@ WestRegionAggregateItems = function(c) {
             }
         }
     });
-    uiManager.reg(organisationUnit, 'organisationUnit');
+    accordionPanels.push(uiManager.reg(organisationUnit, 'organisationUnit'));
 
     // dimensions
 
@@ -3520,7 +3512,7 @@ WestRegionAggregateItems = function(c) {
 
         available = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-left',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             store: availableStore,
@@ -3567,7 +3559,7 @@ WestRegionAggregateItems = function(c) {
 
         selected = Ext.create('Ext.ux.form.MultiSelect', {
             cls: 'ns-toolbar-multiselect-right',
-            width: (uiConfig.west_fieldset_width - uiConfig.west_width_padding) / 2,
+            width: accBaseWidth / 2,
             valueField: 'id',
             displayField: 'name',
             ddReorder: true,
@@ -3628,6 +3620,7 @@ WestRegionAggregateItems = function(c) {
             availableStore: availableStore,
             selectedStore: selectedStore,
             selectedAll: selectedAll,
+            isDynamic: true,
             clearDimension: function() {
                 availableStore.reset();
                 selectedStore.removeAll();
@@ -3653,7 +3646,7 @@ WestRegionAggregateItems = function(c) {
                     config.dimension = dimension.id;
                 }
 
-                if (selectedStore.getRange().length) {
+                if (!selectedAll.getValue() && selectedStore.getRange().length) {
                     config.items = [];
 
                     selectedStore.each(function(r) {
@@ -3711,14 +3704,166 @@ WestRegionAggregateItems = function(c) {
         return panel;
     };
 
-    var getDimensionPanels = function(dimensions, iconCls) {
-        var panels = [];
+        // accordion
+    var defaultItems = [
+        data,
+        period,
+        organisationUnit,
+        ...appManager.dimensions.map(dimension => {
+            var panel = getDimensionPanel(dimension, 'ns-panel-title-dimension');
 
-        for (var i = 0, panel; i < dimensions.length; i++) {
-            panels.push(getDimensionPanel(dimensions[i], iconCls));
+            accordionPanels.push(uiManager.reg(panel, panel.dimension));
+
+            return panel;
+        })
+    ];
+
+    var getItems = function(dimensions = []) {
+        return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
+    };
+
+    var accordionBody = Ext.create('Ext.panel.Panel', {
+        layout: 'accordion',
+        activeOnTop: true,
+        cls: 'ns-accordion',
+        bodyStyle: 'border:0 none',
+        height: 700,
+        toBeRemoved: [],
+        addItems: function(dimensions) {
+            this.toBeRemoved = this.add(getItems(dimensions));
+
+            accordion.setThisHeight();
+        },
+        removeItems: function() {
+            this.toBeRemoved.map(item => isString(item) ? item : item.id).forEach(id => {
+                accordionBody.remove(id);
+            });
+
+            accordion.setThisHeight();
+
+            this.toBeRemoved = [];
+        },
+        getExpandedPanel: function() {
+            var expandedPanel;
+
+            this.items.each(function(panel) {
+                if (!panel.collapsed) {
+                    expandedPanel = panel;
+                    return false;
+                }
+            });
+
+            return expandedPanel;
+        },
+        items: defaultItems
+    });
+
+    // state
+    var setUiState = function(layout) {
+        var layoutWindow = uiManager.get('layoutWindow'),
+            optionsWindow = uiManager.get('optionsWindow'),
+            chartTypeToolbar = uiManager.get('chartTypeToolbar');
+
+        if (chartTypeToolbar) {
+            chartTypeToolbar.reset();
         }
 
-        return panels;
+        // clear panels
+        accordion.clearDimensions(layout);
+
+        if (layout) {
+            var co = dimensionConfig.get('category');
+
+            // type
+            if (chartTypeToolbar) {
+                chartTypeToolbar.setChartType(layout.type);
+            }
+
+            // panels
+            accordion.setDimensions(layout);
+
+            // layout window
+            if (layoutWindow) {
+                layoutWindow.reset(true);
+                layoutWindow.setDimensions(layout);
+            }
+
+                // add assigned categories as dimension
+            if (!layoutWindow.hasDimension(co.dimensionName)) {
+                layoutWindow.addDimension({
+                    id: co.dimensionName,
+                    name: co.name
+                }, layoutWindow.dimensionStore);
+            }
+
+            // options window
+            if (optionsWindow) {
+                optionsWindow.setOptions(layout);
+            }
+        }
+        else {
+            treePanel.reset();
+            layoutWindow.reset();
+            optionsWindow.reset();
+        }
+    };
+
+    var getUiState = function(layoutWindow, optionsWindow) {
+        var columnDimNames = layoutWindow.colStore.getDimensionNames(),
+            rowDimNames = layoutWindow.rowStore.getDimensionNames(),
+            filterDimNames = layoutWindow.filterStore.getDimensionNames(),
+            config = optionsWindow.getOptions(),
+            dx = dimensionConfig.get('data').dimensionName,
+            co = dimensionConfig.get('category').dimensionName,
+            nameDimArrayMap = {};
+
+        config.columns = [];
+        config.rows = [];
+        config.filters = [];
+
+        // all panels data
+        accordionBody.items.each(function(panel) {
+            if (panel.getDimension) {
+                var dim = panel.getDimension();
+
+                if (dim && dim.dimension) {
+                    nameDimArrayMap[dim.dimension] = [dim];
+                }
+            }
+        });
+
+        // columns, rows, filters
+        for (var i = 0, nameArrays = [columnDimNames, rowDimNames, filterDimNames], axes = [config.columns, config.rows, config.filters], dimNames; i < nameArrays.length; i++) {
+            dimNames = nameArrays[i];
+
+            for (var j = 0, dimName, dim; j < dimNames.length; j++) {
+                dimName = dimNames[j];
+
+                if (dimName === co) {
+                    axes[i].push({
+                        dimension: co,
+                        items: []
+                    });
+                }
+                else if (dimName === dx && nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dx].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dx][k]));
+
+                        // TODO program
+                        if (nameDimArrayMap[dx][k].program) {
+                            config.program = nameDimArrayMap[dx][k].program;
+                        }
+                    }
+                }
+                else if (nameDimArrayMap.hasOwnProperty(dimName) && nameDimArrayMap[dimName]) {
+                    for (var k = 0; k < nameDimArrayMap[dimName].length; k++) {
+                        axes[i].push(Ext.clone(nameDimArrayMap[dimName][k]));
+                    }
+                }
+            }
+        }
+
+        return config;
     };
 
     // add listeners
@@ -3737,27 +3882,63 @@ WestRegionAggregateItems = function(c) {
         });
     }());
 
-    return function() {
-        var panels = [
-                data,
-                period,
-                organisationUnit
-            ],
-            dims = clone(appManager.dimensions),
-            dimPanels = getDimensionPanels(dims, 'ns-panel-title-dimension'),
-            last;
+    var accordion = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; border-top:1px solid #e1e1e1; padding:1px; padding-bottom:0; overflow-y:scroll;',
+        accordionBody: accordionBody,
+        items: accordionBody,
+        panels: accordionPanels,
+        expandInitPanels: function() {
+            organisationUnit.expand();
+        },
+        clearDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.clearDimension(!!layout);
+            });
+        },
+        setDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
+                panel.setDimension(layout);
+            });
+        },
+        setThisHeight: function(mx) {
+            var westRegion = uiManager.get('westRegion'),
+                panelHeight = this.panels.length * 28,
+                chartTypeToolbarHeight = westRegion.hasChartTypeToolbar() ? 45 : 0,
+                height;
 
-        // idPanelMap
-        dimPanels.forEach(function(panel) {
-            dimensionPanelMap[panel.dimension] = panel;
-        });
+            if (westRegion.hasScrollbar) {
+                height = panelHeight + mx;
+                this.setHeight(westRegion.getHeight() - chartTypeToolbarHeight - 2);
+                accordionBody.setHeight(height - 2);
+            }
+            else {
+                height = westRegion.getHeight() - uiConfig.west_fill;
+                mx += panelHeight;
+                accordion.setHeight((height > mx ? mx : height) - 2);
+                accordionBody.setHeight((height > mx ? mx : height) - 4);
+            }
+        },
+        getExpandedPanel: function() {
+            return accordionBody.getExpandedPanel();
+        },
+        getFirstPanel: function() {
+            return this.panels[0];
+        },
+        getParentGraphMap: function() {
+            return treePanel.getParentGraphMap();
+        },
+        getUxArray: function(id) {
+            return dataElementSelected.getUxArrayById(id);
+        },
 
-        // panels
-        panels = [...panels, ...dimPanels];
+        accordionBody: accordionBody,
+        panels: accordionPanels,
+        treePanel: treePanel,
 
-        // last cls
-        panels[panels.length - 1].cls = 'ns-accordion-last';
+        //reset: reset,
+        getUiState: getUiState,
+        setUiState: setUiState
+    });
 
-        return panels;
-    }();
+    return accordion;
 };
