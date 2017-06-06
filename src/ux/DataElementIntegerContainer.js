@@ -51,7 +51,10 @@ DataElementIntegerContainer = function(refs) {
         },
         setRecord: function(record) {
             if (isObject(record.legendSet) && record.legendSet.id) {
-                this.rangeSetCmp.pendingValue = record.legendSet.id;
+                //this.rangeSetCmp.pendingValue = record.legendSet.id;
+                this.rangeSetCmp.store.add(appManager.getLegendSetById(record.legendSet.id));
+                this.rangeSetCmp.setValue(record.legendSet.id);
+
                 this.onRangeSetSelect(record.legendSet.id);
 
                 if (record.filter) {
@@ -62,16 +65,17 @@ DataElementIntegerContainer = function(refs) {
                     }
                 }
             }
-            else if (record.filter) {
-                //this.rangeSetCmp.pendingValue = containerConfig.defaultRangeSetId;
-                this.rangeSetCmp.setValue(containerConfig.defaultRangeSetId); //todo?
+            else {
+                this.rangeSetCmp.setValue(containerConfig.defaultRangeSetId);
                 this.onRangeSetSelect(containerConfig.defaultRangeSetId);
 
-                var a = record.filter.split(':');
+                if (record.filter) {
+                    var a = record.filter.split(':');
 
-                if (a.length > 1) {
-                    this.operatorCmp.setValue(a[0]);
-                    this.valueCmp.setValue(a[1]);
+                    if (a.length > 1) {
+                        this.operatorCmp.setValue(a[0]);
+                        this.valueCmp.setValue(a[1]);
+                    }
                 }
             }
         },

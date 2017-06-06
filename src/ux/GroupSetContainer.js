@@ -292,7 +292,7 @@ GroupSetContainer = function(refs) {
                     width: containerConfig.nameCmpWidth,
                     items: [
                         this.nameCmp,
-                        this.addCmp,
+                        //this.addCmp,
                         this.removeCmp
                     ]
                 },

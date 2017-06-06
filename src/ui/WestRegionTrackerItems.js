@@ -125,7 +125,7 @@ WestRegionTrackerItems = function(refs) {
 
             this.clearFilter();
 
-            if (type === dimensionConfig.dataType['aggregated_values']) {
+            if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
@@ -178,38 +178,13 @@ WestRegionTrackerItems = function(refs) {
         dataElementSelected.toggleProgramIndicators(type);
     };
 
-    var setLayout = function(layout) {
+    var setData = function(layout) {
 
-        // data
-        programStore.add(layout.program);
-        program.setValue(layout.program.id);
-
-        // periods
-        period.setDimension(layout);
-
-        // organisation units
-        organisationUnit.setDimension(layout);
-
-        // dimensions
-        for (var key in dimensionIdSelectedStoreMap) {
-            if (dimensionIdSelectedStoreMap.hasOwnProperty(key)) {
-                var a = dimensionIdAvailableStoreMap[key],
-                    s = dimensionIdSelectedStoreMap[key];
-
-                if (s.getCount() > 0) {
-                    a.reset();
-                    s.removeAll();
-                }
-
-                if (recMap[key]) {
-                    s.add(recMap[key]);
-                    uiManager.msFilterAvailable({store: a}, {store: s});
-                }
-            }
-        }
+        // wait, more dynamic dimensions could be added by program
+        //accordion.setDimensions(layout, true);
 
         // data items
-        onProgramSelect(layout.program.id, layout);
+        onProgramSelect(null, layout);
     };
 
     var program = Ext.create('Ext.form.field.ComboBox', {
@@ -244,7 +219,11 @@ WestRegionTrackerItems = function(refs) {
         var DEFAULT = 'default';
         var ATTRIBUTE = 'ATTRIBUTE';
 
-        programId = layout ? layout.program.id : programId;
+        programId = programId || (layout ? layout.program.id : null);
+
+        if (!programId) {
+            return;
+        }
 
         // reset
         stage.clearValue();
@@ -285,6 +264,11 @@ WestRegionTrackerItems = function(refs) {
             // remove and add dynamic program related dimensions
             accordionBody.removeItems();
             accordionBody.addItems(arraySort(arrayClean(dimensions)));
+
+            // restore dynamic dimensions
+            if (layout) {
+                accordion.setDimensions(layout, true);
+            }
 
             // stages
             stage.enable();
@@ -818,7 +802,7 @@ WestRegionTrackerItems = function(refs) {
         }
 
         // favorite
-        if (layout && layout.dataType === dimensionConfig.dataType['aggregated_values']) {
+        if (layout && layout.dataType !== dimensionConfig.dataType['individual_cases']) {
 
             aggWindow.reset(true, true);
 
@@ -867,8 +851,10 @@ WestRegionTrackerItems = function(refs) {
             }
 
             // collapse data dimensions
-            aggWindow.collapseDataDimensions.setValue(layout.collapseDataDimensions);
-            aggWindow.onCollapseDataDimensionsChange(layout.collapseDataDimensions);
+            if (aggWindow.collapseDataDimensions) {
+                aggWindow.collapseDataDimensions.setValue(layout.collapseDataDimensions);
+                aggWindow.onCollapseDataDimensionsChange(layout.collapseDataDimensions);
+            }
         }
     };
 
@@ -893,7 +879,9 @@ WestRegionTrackerItems = function(refs) {
             dataElementAvailable,
             dataElementSelected
         ],
-        setDimension: setLayout,
+        setDimension: function(layout) {
+            setData(layout);
+        },
         clearDimension: function() {
             program.clearValue();
             stage.clearValue();
@@ -1045,22 +1033,6 @@ WestRegionTrackerItems = function(refs) {
             endDate
         ]
     });
-
-        // relative periods
-    var onPeriodChange = function() {
-        var window = uiManager.get('viewport').getLayoutWindow(),
-            peDimensionConfig = dimensionConfig.get('period');
-
-        if (!window.hasDimension(peDimensionConfig.dimensionName) && (period.isRelativePeriods() || fixedPeriodSelectedStore.getRange().length)) {
-            window.addDimension({
-                id: peDimensionConfig.dimensionName,
-                name: peDimensionConfig.name
-            }, window.colStore);
-        }
-        else {
-            window.removeDimension(peDimensionConfig.dimensionName);
-        }
-    };
 
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
@@ -1396,7 +1368,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             {
@@ -1405,7 +1376,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
-                    onPeriodChange();
                 }
             },
             ' '
@@ -1414,7 +1384,6 @@ WestRegionTrackerItems = function(refs) {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }, this);
             }
         }
@@ -1436,7 +1405,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             {
@@ -1445,7 +1413,6 @@ WestRegionTrackerItems = function(refs) {
                 width: 22,
                 handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }
             },
             '->',
@@ -1459,7 +1426,6 @@ WestRegionTrackerItems = function(refs) {
             afterrender: function() {
                 this.boundList.on('itemdblclick', function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
-                    onPeriodChange();
                 }, this);
             }
         }
@@ -2866,14 +2832,31 @@ WestRegionTrackerItems = function(refs) {
         }
 
         if (aggOptionsWindow) {
-            aggOptionsWindow.reset();
+            aggOptionsWindow.setOptions(layout);
         }
 
         if (queryOptionsWindow) {
-            queryOptionsWindow.reset();
+            queryOptionsWindow.setOptions(layout);
         }
 
+        // dimensions
         accordion.clearDimensions(layout);
+
+        if (layout) {
+
+            // data
+            programStore.add(layout.program);
+            program.setValue(layout.program.id);
+
+            // periods
+            period.setDimension(layout);
+
+            // organisation units
+            organisationUnit.setDimension(layout);
+
+            // data, dynamic dimensions and layout window
+            setData(layout);
+        }
 
         //var statusBar = uiManager.get('statusBar');
 
@@ -2885,14 +2868,11 @@ WestRegionTrackerItems = function(refs) {
         //}
 
         //statusBar.setStatus(layout, response);
-
-        if (layout) {
-            setLayout(layout);
-        }
     };
 
     var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
-        var panels = uiManager.get('accordion').panels,
+        var viewport = uiManager.get('viewport'),
+            panels = uiManager.get('accordion').panels,
             dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow'),
             aggregateOptionsWindow = uiManager.get('aggregateOptionsWindow'),
@@ -2907,6 +2887,8 @@ WestRegionTrackerItems = function(refs) {
             addAxisDimension,
             store,
             data;
+
+        layoutWindow = layoutWindow || viewport.getLayoutWindow();
 
         config.program = program.getRecord();
         config.programStage = stage.getRecord();
@@ -2990,7 +2972,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.colStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], columns);
@@ -3001,7 +2983,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.rowStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], rows);
@@ -3012,7 +2994,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.filterStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
@@ -3023,7 +3005,7 @@ WestRegionTrackerItems = function(refs) {
         store = layoutWindow.fixedFilterStore;
 
         if (store) {
-            data = store.snapshot || store.data;
+            data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
             data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
@@ -3083,8 +3065,12 @@ WestRegionTrackerItems = function(refs) {
                 panel.clearDimension(!!layout);
             });
         },
-        setDimensions: function(layout) {
+        setDimensions: function(layout, dynamicOnly) {
             accordionPanels.forEach(function(panel) {
+                if (dynamicOnly && !panel.isDynamic) {
+                    return;
+                }
+
                 panel.setDimension(layout);
             });
         },
