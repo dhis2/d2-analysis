@@ -1863,7 +1863,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">six-month April' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'six-month') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1874,7 +1874,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">six-month' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'six-month') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1885,7 +1885,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">quarter' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'quarter') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
