@@ -124,6 +124,13 @@ Period.prototype.getTypeById = function(id) {
     }
 };
 
+Period.prototype.getNameByParents = function(parents, defaultName) {
+    if (parents.length !== 1 || parents[0].name === undefined) {
+        return defaultName;
+    }
+
+    return defaultName + ' ' + parents[0].name;
+};
 
 // dep 1
 
@@ -1716,7 +1723,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">six-month' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'six-month') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1727,7 +1734,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">quarter' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'quarter') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1738,7 +1745,7 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">bi-month' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'bimonthly') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
