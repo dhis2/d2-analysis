@@ -407,24 +407,40 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         return value;
     }
 
+    const isColumnSubTotalPosition = (x) => {
+        return doColSubTotals() && (x + 1) % (colUniqueFactor + 1) === 0
+    }
+
+    const isColumnTotalPosition = (x) => {
+        return doColTotals() && x === getTableColumnSize();
+    }
+
+    const isRowSubTotalPosition = (y) => {
+        return doRowSubTotals() && (y + 1) % (rowUniqueFactor + 1) === 0
+    }
+
+    const isRowTotalPosition = (y) => {
+        return doRowTotals() && y === getTableRowSize();
+    }
+
     const createValueLookup = function(xDimensionSize, yDimensionSize) {
         const lookup = createLookupTable(xDimensionSize, yDimensionSize);
         for (var y = 0; i < rowAxis.size; y++) {
             for (var x = 0, value; j < colAxis.size; x++) {
 
-                const value = getResponseValue(y, x);
+                value = getResponseValue(y, x);
 
                 // calculate sub totals
-                if (doColTotals())                        lookup[y][x] += value;
-                if (doRowTotals())                        lookup[y][x] += value;
+                if (isColumnSubTotalPosition(x))                               lookup[y][x] += value;
+                if (isRowSubTotalPosition(y))                                  lookup[y][x] += value;
 
                 // calculate grand totals
-                if (doColSubTotals())                     lookup[y][x] += value;
-                if (doRoWSubTotals())                     lookup[y][x] += value;
+                if (isColumnTotalPosition(x))                                  lookup[y][x] += value;
+                if (isRowTotalPosition(y))                                     lookup[y][x] += value;
                 
                 // calculate intersection totals
-                if (doColTotals() && doRowTotals())       lookup[y][x] += value;
-                if (doColSubTotals() && doRowSubTotals()) lookup[y][x] += value;
+                if (isColumnTotalPosition(x) && isRowTotalPosition(y))         lookup[y][x] += value;
+                if (isColumnSubTotalPosition(x) && isRowSubTotalPosition(y))   lookup[y][x] += value;
 
                 lookup[y][x] = value;
             }
@@ -437,7 +453,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         for (var y = 0; i < rowAxis.size; y++) {
             for (var x = 0, type; j < colAxis.size; x++) {
 
-                const type = 'sometype';
+                type = 'sometype';
 
                 // calculate sub totals
                 if (doColTotals())                        lookup[y][x] = type;
@@ -1478,22 +1494,6 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         updatePreviousPosition(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     const addHorizontalPaddingCellsToRow = function (row, columnStart, columnEnd) {
         row.unshift(createCell(null, 'pivot-padding', 'padding', {width: getLeftPadding(columnStart), hidden: columnStart <= 0}));
         row.push(createCell(null, 'pivot-padding', 'padding', {width: getRightPadding(columnEnd), hidden: getRightPadding(columnEnd) <= 0}));
@@ -1551,12 +1551,12 @@ Table = function(layout, response, colAxis, rowAxis, options) {
     }());
 
     // constructor
-    t.dynamic = doDynamicTableUpdate();
     t.render = renderTable;
     t.update = updateTable;
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
 
+    t.isDynamic = doDynamicTableUpdate();
     t.idValueMap = idValueMap;
     t.tdCount = tdCount;
     t.layout = layout;
