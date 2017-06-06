@@ -1414,7 +1414,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
         }
 
         // update rowAxis rowSpan
-        for (let j=0; j < rowAxis.dims, j++) {
+        for (let j=0; j < rowAxis.dims; j++) {
             for (let i=0, rowSpanCounter=0; i < getTableRowSize(); i++) {
 
                 cell = tabel[i][j];
@@ -1429,14 +1429,7 @@ Table = function(layout, response, colAxis, rowAxis, options) {
 
                 rowSpanCoutner += cell.rowSpan;
             }
-        }
-
-
-
-
-
-
-
+        }s
 
     }
 
