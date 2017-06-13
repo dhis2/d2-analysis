@@ -390,6 +390,20 @@ WestRegionTrackerItems = function(refs) {
         var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
 
+            // DHIS2-1496: prefix items in available/selected list
+            data.forEach(value => {
+                let prefix = 'DE';
+
+                if (value.isProgramIndicator) {
+                    prefix = 'PI';
+                }
+                else if (value.isAttribute) {
+                    prefix = 'PA';
+                }
+
+                value.name = `[${ prefix }] ${ value.name}`;
+            });
+
             dataElementsByStageStore.loadData(data);
             dataElementsByStageStore.onLoadData();
 
@@ -451,6 +465,64 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
+    // DHIS2-1496: filter by data element, program attribute or program indicator
+    const dataElementType = Ext.create('Ext.form.field.ComboBox', {
+        editable: false,
+        valueField: 'id',
+        displayField: 'name',
+        queryMode: 'local',
+        width: accBaseWidth,
+        listConfig: {loadMask: false},
+        style: 'padding-bottom:1px; border-bottom:1px solid #ddd; margin-bottom:1px',
+        value: 'all',
+        store: {
+            fields: ['id', 'name'],
+            data: [
+                {id: 'all', name: 'All (data elements, program attributes, program indicators)'},
+                {id: 'de', name: 'Data elements'},
+                {id: 'pa', name: 'Program attributes'},
+                {id: 'pi', name: 'Program indicators'}
+            ]
+        },
+        reset: () => {
+            onDataElementTypeSelect('all');
+        },
+        listeners: {
+            select: cmp => {
+                onDataElementTypeSelect(cmp.getValue());
+            }
+        }
+    });
+
+    const onDataElementTypeSelect = type => {
+        const aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow');
+
+        dataElementType.setValue(type);
+
+        const store = dataElementsByStageStore;
+
+        switch (type) {
+            case 'all':
+                store.clearFilter();
+                break;
+            case 'de':
+                store.filterBy(record => {
+                    return ! record.data.isAttribute && ! record.data.isProgramIndicator;
+                });
+                break;
+            case 'pa':
+                store.filterBy(record => {
+                    return record.data.isAttribute;
+                });
+                break;
+            case 'pi':
+                store.filterBy(record => {
+                    return record.data.isProgramIndicator;
+                });
+                break;
+        }
+    };
+
     var dataElementLabel = Ext.create('Ext.form.Label', {
         text: i18n.available,
         cls: 'ns-toolbar-multiselect-left-label',
@@ -482,7 +554,7 @@ WestRegionTrackerItems = function(refs) {
 
     var dataElementFilter = Ext.create('Ext.form.field.Trigger', {
         cls: 'ns-trigger-filter',
-        emptyText: 'Filter available..',
+        emptyText: 'Filter available...',
         height: 22,
         width: 170,
         hidden: true,
@@ -876,6 +948,7 @@ WestRegionTrackerItems = function(refs) {
         dimension: dimensionConfig.get('data').objectName,
         items: [
             programStagePanel,
+            dataElementType,
             dataElementAvailable,
             dataElementSelected
         ],
@@ -2498,7 +2571,7 @@ WestRegionTrackerItems = function(refs) {
 
         dataFilter = Ext.create('Ext.form.field.Trigger', {
             cls: 'ns-trigger-filter',
-            emptyText: 'Filter available..',
+            emptyText: 'Filter available...',
             height: 22,
             hidden: true,
             enableKeyEvents: true,
