@@ -146,10 +146,8 @@ FavoriteWindow = function(c, action) {
             if (value !== t.currentValue) {
                 t.currentValue = value;
 
-                var url = value ? apiPath + '/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') : null;
-
                 favoriteStore.page = 1;
-                favoriteStore.loadStore(url);
+                favoriteStore.loadStore(getStoreUrl(null, true));
             }
         }
     };
@@ -503,7 +501,8 @@ FavoriteWindow = function(c, action) {
                             if (record.data.access['delete']) {
                                 uiManager.confirmDelete(i18n.delete_favorite, function() {
                                     instanceManager.delById(id, function() {
-                                        favoriteStore.loadStore();
+                                        // DHIS2-1475: preserve the filter when reloading the favorite list
+                                        favoriteStore.loadStore(getStoreUrl(null, true));
 
                                         if (id === instanceManager.getStateFavoriteId()) {
                                             instanceManager.setState();
