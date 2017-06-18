@@ -12,10 +12,16 @@ import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import uuid from 'd2-utilizr/lib/uuid';
+import numberDecimals from 'd2-utilizr/lib/uuid';
+
+import {ResponseRowIdCombination} from '../api/ResponseRowIdCombination';
 
 export var PivotTable;
 
 PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
+
+    console.log(response);
+
     var t = this;
 
     var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
@@ -26,6 +32,24 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     options = options || {};
 
+    // constant variables
+    const cellWidth = 120,
+          cellHeight = 25;
+
+    // cell type enum
+    const cellType = {
+        'value':                        0,
+        'value-row-subtotal':           1,
+        'value-column-subtotal':        2,
+        'value-row-total':              3,
+        'value-column-total':           4,
+        'value-intersect-subtotals':    5,
+        'value-intersect-total':        6,
+    };
+
+    // inititalize global variables/functions
+
+    // global functions
         // table builder
     let getEmptyHtmlArray,
         getRoundedHtmlValue,
@@ -50,17 +74,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         doRowPercentage,
         doHideEmptyRows,
         doHideEmptyColumns,
-        doShowDimensionLabels,
+        doShowDimensionLabels, 
         doSortableColumnHeaders,
-
+        doDynamicTableUpdate,
+        doRenderLargeTables,
 
         // table transformations
         hideEmptyColumns,
         hideEmptyRows,
-        changeToColPercentage,
-        changeToRowPercentage,
-        setTotalCells,
-        setEmptyCells,
+        transformColPercentage,
+        transformRowPercentage,
 
         // cell creation
         createCell,
@@ -68,36 +91,43 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         // utils
         getValue,
         roundIf,
-        getNumberOfDecimals,
-        getHtmlValue,
         recursiveReduce,
         getUniqueFactor,
-        isRowEmpty,
-        isSingleRowEmpty,
-        isColumnEmpty,
-        getRowTotal,
-        getSingleRowTotal,
-        getColumnTotal,
-        setCellValue,
-        setCellEmpty,
+        tableLogger,
+        getTableColumnSize,
+        getTableRowSize,
+        createMatrix,
+        createValueMatrix,
+        createLookupTable,
+        getHtmlValue,
+        buildTable2D,
 
     // global variables
-        // table holders
-        completeTableObjects,
-        valueAllObjects = [],
+
+        // table info
+        previousColumnStart,
+        previousColumnEnd,
+        previousRowStart,
+        previousRowEnd,
+        previousTopScrollPosition,
+        previousLeftScrollPosition,
+        currentStartColumn,
+        currentTable,
 
         // row axis
-        rowAxisAllObjects = [],
         rowUniqueFactor,
         rowDimensionNames,
 
         // col axis
-        colAxisAllObjects = [],
         columnDimensionNames,
         colUniqueFactor,
 
         // uid
         uuidDimUuidsMap = {},
+
+        // lookups
+        valueLookup,
+        typeLookup,
 
         // legend set
         legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
@@ -128,34 +158,75 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return null;
     };
 
+    recursiveReduce = function(obj) {
+        if (!obj.children) {
+            obj.collapsed = true;
+
+            if (obj.parent && obj.parent.oldestSibling) {
+                obj.parent.oldestSibling.children--;
+            }
+        }
+
+        if (obj.parent && obj.parent.oldestSibling) {
+            recursiveReduce(obj.parent.oldestSibling);
+        }
+    };
+
     colUniqueFactor = getUniqueFactor(colAxis);
     rowUniqueFactor = getUniqueFactor(rowAxis);
-    columnDimensionNames = (colAxis.type ? layout.columns.getDimensionNames(response) : []).filter(name => !arrayContains(ignoreDimensionIds, name));
-    rowDimensionNames = (rowAxis.type ? layout.rows.getDimensionNames(response) : []).filter(name => !arrayContains(ignoreDimensionIds, name));
+    columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
+    rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [];
 
     getRoundedHtmlValue = function(value, dec = 2) {
         return parseFloat(roundIf(value, 2)).toString();
     };
 
+    getTableColumnSize = function() {
+        let size = colAxis.size;
+        if (doRowSubTotals()) size += colAxis.size / colUniqueFactor;
+        if (doRowTotals()) size += 1;
+        return size;
+    }
+
+    getTableRowSize = function() {
+        let size = rowAxis.size;
+        if (doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
+        if (doColTotals()) size += 1;
+        return size;
+    }
+
+    createLookupTable = function(xDimensionSize, yDimensionSize, fill=0) {
+        let table = new Array(yDimensionSize);
+        for (let i = 0; i < yDimensionSize; i++) {
+            table[i] = new Array(xDimensionSize).fill(fill);
+        }
+        return table;
+    }
+
+    const buildCornerColumnAxis = (x, rowStart) => {
+        let column = new Array(colAxis.dims - x);
+
+        for (let i=0; i < column.length; i++) {
+            column[i] = getEmptyHtmlArray (rowStart++)[x];
+        }
+
+        return column;
+    }
+
     getEmptyHtmlArray = function(i) {
         var html = [],
-            cellValue,
             isIntersectionCell = i < colAxis.dims - 1;
 
         if (rowAxis.type && rowAxis.dims) {
             for (var j = 0; j < rowAxis.dims - 1; j++) {
                 html.push(createCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '', 'pivot-dim-label', 'empty', {}));
             }
-        } 
-
-        if (isIntersectionCell || !rowAxis.type) { 
-            cellValue = response.getNameById(columnDimensionNames[i])
-        } 
-        else {
-            cellValue = response.getNameById(rowDimensionNames[j]) +
-                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') +
-                response.getNameById(columnDimensionNames[i])
         }
+        
+        var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
+                response.getNameById(rowDimensionNames[j]) + 
+                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
+                response.getNameById(columnDimensionNames[i]);
 
         html.push(createCell(cellValue, 'pivot-dim-label', 'empty', {}));
 
@@ -275,34 +346,33 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
         attributes.push(config.title ? 'title="' + config.title + '"' : null);
 
-        //if (legendColor && isValue) {
-            //html += 'style="color:' + legendColor + ';padding:' + displayDensity + '; font-size:' + fontSize + ';"' + '>' + htmlValue + '</td>';
-            //html += '>';
-            //html += '<div class="legendCt">';
-            //html += '<div class="number ' + config.cls + '" style="padding:' + displayDensity + '; padding-right:3px; font-size:' + fontSize + '">' + htmlValue + '</div>';
-            //html += '<div class="arrowCt ' + config.cls + '">';
-            //html += '<div class="arrow" style="border-bottom:8px solid transparent; border-right:8px solid ' + legendColor + '">&nbsp;</div>';
-            //html += '</div></div></div></td>';
-        //}
-        //else {
-        //    html += 'style="' + (legendColor && isValue ? 'color:' + legendColor + '; ' : '') + '">' + htmlValue + '</td>';
-        //}
-
         return '<td ' + arrayClean(attributes).join(' ') + '>' + ppHtmlValue + '</td>';
     };
 
+    const setRenderSize = (numberOfRows, numberOfColumns) => {
+
+    }
+
+    const getDimensionColArray = function() {
+        const dimensionColArray = [];
+        // show row dimension labels
+        if (rowAxis.type && layout.showDimensionLabels) {
+            dimensionColArray[i] = new Array(rowDimensionNames.length);
+            // colAxisArray from row object names
+            for (var i = 0; i < rowDimensionNames.length; i++) {
+                dimensionColArray[i][j] = createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {});
+            }
+        }
+        return dimensionColArray;
+    }
+
     getValue = function(str) {
+        var n = parseFloat(str);
+
         if (isBoolean(str)) {
             return 1;
         }
 
-        var n = parseFloat(str);
-
-        // return string if
-        // - parsefloat(string) is not a number
-        // - string is just starting with a number
-        // - string is a valid date
-        // if (!isNumber(n) || n != str || new Date(str).toString() !== 'Invalid Date') {
         if (!isNumber(n) || n != str) {
             return 0;
         }
@@ -315,17 +385,161 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         precision = parseFloat(precision);
 
         if (isNumber(number) && isNumber(precision)) {
-            var numberOfDecimals = getNumberOfDecimals(number);
+            var numberOfDecimals = numberDecimals(number);
             return numberOfDecimals > precision ? numberToFixed(number, precision) : number;
         }
 
         return number;
     };
 
-    getNumberOfDecimals = function(number) {
-        var str = new String(number);
-        return (str.indexOf('.') > -1) ? (str.length - str.indexOf('.') - 1) : 0;
-    };
+        
+    const gerResponseValue = function(y, x) {
+        var empty = false,
+            rric,
+            responseValue,
+            value;
+
+        rric = new ResponseRowIdCombination();
+
+        rric.add(colAxis.type ? colAxis.ids[x] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[y] : '');
+
+        responseValue = idValueMap[rric.get()];
+
+        if (isDefined(responseValue)) {
+            value = getValue(responseValue);
+        } else {
+            value = -1;
+        }
+
+        return value;
+    }
+
+    const isColumnSubTotalPosition = (x) => {
+        return doColSubTotals() && (x + 1) % (colUniqueFactor + 1) === 0
+    }
+
+    const isColumnTotalPosition = (x) => {
+        return doColTotals() && x === getTableColumnSize() - 1;
+    }
+
+    const isRowSubTotalPosition = (y) => {
+        return doRowSubTotals() && (y + 1) % (rowUniqueFactor + 1) === 0
+    }
+
+    const isRowTotalPosition = (y) => {
+        return doRowTotals() && y === getTableRowSize() - 1;
+    }
+
+    const nextSubColumnIndex = (x) => {
+        return x + Math.floor(x / colUniqueFactor) + (colUniqueFactor - (x % colUniqueFactor));
+    }
+
+    const nextSubRowIndex = (y) => {
+        return y + Math.floor(y / rowUniqueFactor) + (rowUniqueFactor - (y % rowUniqueFactor));
+    }
+
+    const nextTotalColumnIndex = () => {
+        return getTableColumnSize() - 1;
+    }
+
+    const nextTotalRowIndex = () => {
+        return getTableRowSize() - 1;
+    }
+
+    const createValueLookup = function(yDimensionSize, xDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var i=0, y=0; i < rowAxis.size; i++, y++) {
+            if ((y + 1) % (rowUniqueFactor + 1) === 0) y++;
+            for (var j=0, x=0, value; j < colAxis.size; j++, x++) {                
+                if ((x + 1) % (colUniqueFactor + 1) === 0) x++;
+
+                value = gerResponseValue(i, j);
+
+                lookup[y][x] = value;
+
+                // calculate sub totals
+                if (doColSubTotals())                               lookup[y][nextSubColumnIndex(j)] += value;
+                if (doRowSubTotals())                               lookup[nextSubRowIndex(i)][x]    += value;
+
+                // calculate grand totals
+                if (doColTotals())                                  lookup[y][nextTotalColumnIndex()] += value;
+                if (doRowTotals())                                  lookup[nextTotalRowIndex()][x]    += value;
+            }
+        }
+        return lookup;
+    }
+
+    const createTypeLookup = function(yDimensionSize, xDimensionSize) {
+        const lookup = createLookupTable(xDimensionSize, yDimensionSize);
+        for (var y = 0; y < yDimensionSize; y++) {
+            for (var x = 0, type; x < xDimensionSize; x++) {
+
+                // calculate sub totals
+                if (isRowSubTotalPosition(y))                                lookup[y][x] = 1;
+                if (isColumnSubTotalPosition(x))                             lookup[y][x] = 2;
+
+                // calculate grand totals
+                if (isRowTotalPosition(y))                                   lookup[y][x] = 3;
+                if (isColumnTotalPosition(x))                                lookup[y][x] = 4;
+                
+                // calculate intersection totals
+                if (isColumnSubTotalPosition(x) && isRowSubTotalPosition(y)) lookup[y][x] = 5;
+                if (isColumnTotalPosition(x) && isRowTotalPosition(y))       lookup[y][x] = 6;
+            }
+        }
+        return lookup;
+    }
+
+    hideEmptyColumns = function(table) {
+        for(var i = 0, dimLeaf; i < valueTable.columns.length; i++) {
+            if(valueTable.columns[i].isEmpty) {
+                for(var j = 0; j < valueTable.rows.length; j++) {
+                    valueTable.rows[j].values[i].collapsed = true;
+                }
+                dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
+                if (dimLeaf) {
+                    recursiveReduce(dimLeaf);
+                    axisObjects[0][i + rowAxis.dims].collapsed = true;
+                }
+            }
+        }
+    }
+
+    hideEmptyRows = function(table) {
+        for(var i = 0, dimLeaf; i < table.length; i++) {
+            if(table[i].isEmpty) {
+                for(var j = 0; j < table[i].length; j++) {
+                    table[i][j].collapsed = true;
+                }
+                dimLeaf = table[i][rowAxis.dims-1];
+                if (dimLeaf) {
+                    recursiveReduce(dimLeaf);
+                    axisObjects[i][0].collapsed = true;
+                }
+            }
+        }
+    }
+
+    transformColPercentage = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!table[i][j].empty) {
+                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[getTableRowSize() - 1][j]);
+                }
+            }
+        }
+    }
+
+    transformRowPercentage = function(table) {
+        for(var i = 0; i < table.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                if(!table[i][j].empty) {
+                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[i][getTableColumnSize() - 1]);
+                }    
+            }
+        }
+    }
 
     doColTotals = function() {
         return !!layout.showColTotals;
@@ -344,11 +558,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     doColPercentage = function() {
-        return layout.numberType === optionConfig.getNumberType().percentofcolumn.id;
+        return layout.displayType === 'PERCENTCOLUMN';
     };
 
     doRowPercentage = function() {
-        return layout.numberType === optionConfig.getNumberType().percentofrow.id;
+        return layout.displayType === 'PERCENTROW';
     };
 
     doSortableColumnHeaders = function() {
@@ -371,11 +585,175 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return layout.showDimensionLabels;
     }
 
+    doDynamicTableUpdate = function() {
+        return true;
+    }
+
+    doRenderLargeTables = function() {
+        return false;
+    }
+
+    const getPercentageHtml = function(value, total) {
+        return getRoundedHtmlValue((value / total) * 100) + '%';
+    }
+
+    const getRowPosition = function(position) {
+        return doColSubTotals() ? position - Math.floor(position / rowUniqueFactor) : position
+    }
+
+    const getColumnPosition = function(position) {
+        return doRowSubTotals() ? position - Math.floor(position / colUniqueFactor) : position
+    }
+    
+    const createSubTotalCell = function(value) {
+        return createCell(value, 'pivot-value-subtotal', 'valueSubtotal', {empty: value <= 0, numeric: true});
+    }
+
+    const createGrandTotalCell = function(value) {
+        return createCell(value, 'pivot-value-total-subgrandtotal', 'valueTotalSubgrandtotal', {empty: value <= 0, numeric: true})
+    }
+
+    const createDimensionSubTotalCell = function(value, colSpan, rowSpan, empty, hidden) {
+        return createCell(value, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan, rowSpan, empty, hidden});
+    }
+
+    const createDimensionGrandTotalCell = function(value, colSpan, rowSpan, sort, generateUuid) {
+        return createCell(value, 'pivot-dim-total', 'dimensionSubtotal', {colSpan, rowSpan, sort: doSortableColumnHeaders() && sort ? 'total' : null, generateUuid});
+    }
+
+    const createDimensionEmptyCell = function(colSpan, rowSpan, hidden) {
+        return createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan, rowSpan, hidden});
+    }
+
+    const isColumnSubTotal = function(columnPosition) {
+        return doRowSubTotals() && (columnPosition + 1) % (colUniqueFactor + 1) === 0;
+    }
+
+    const isColumnGrandTotal = function(columnPosition) {
+        return doRowTotals() && columnPosition === getTableColumnSize() - 1;
+    }
+
+    const isRowSubTotal = function(rowPosition) {
+        return doColSubTotals() && (rowPosition + 1) % (rowUniqueFactor + 1) === 0;
+    }
+
+    const isRowGrandTotal = function(rowPosition) {
+        return doColTotals() && rowPosition === getTableRowSize() - 1;
+    }
+    
+    const getColumnAxisColumn = function(rowStart, columnIndex) {
+        return getColAxisObjectArray(columnIndex, columnIndex + 1, rowStart);
+    }
+
+    const getColumnAxisRow = function(columnStart, columnEnd, rowIndex) {
+        return getColAxisObjectArray(columnStart, columnEnd, rowIndex);   
+    }
+
+    const getTopPadding = function(rowStart) {
+        return rowStart * cellHeight;
+    }
+
+    const getBottomPadding = function(rowEnd) {
+        return (getTableRowSize() - rowEnd) * cellHeight;
+    }
+
+    const getLeftPadding = function(columnStart) {
+        return columnStart * cellWidth;
+    }
+
+    const getRightPadding = function(columnEnd) {
+        return (getTableColumnSize() - columnEnd) * cellWidth;
+    }
+
+    const getRowEnd = function (rowStart) { 
+        return Math.min(getTableRenderHeight() + rowStart, getTableRowSize());
+    }
+
+    const getColumnEnd = function (colStart) { 
+        return Math.min(getTableRenderWidth() + colStart, getTableColumnSize());
+    }
+
+    const addColumnToRightOfTable = function(rowStart, rowEnd, columnIndex) {
+        insertColumn(currentTable, getTableColumn(rowStart, rowEnd, columnIndex), currentTable[1].length - 1);
+    }
+
+    const addColumnToLeftOfTable = function (rowStart, rowEnd, columnIndex) {
+        insertColumn(currentTable, getTableColumn(rowStart, rowEnd, columnIndex), 1);
+    }
+
+    const removeColumnFromLeftOfTable = function (rowStart, rowEnd, columnIndex) {
+        deleteColumn(currentTable, 1, 2);
+        insertColumn(currentTable, getTableColumn(rowStart, rowEnd, columnIndex), 1);
+    }
+
+    const removeColumnFromRightOfTable = function () {
+        deleteColumn(currentTable, currentTable[1].length - 2);
+    }
+
+    const addRowToBottomOfTable = function(columnStart, columnEnd, rowIndex) {
+        insertRow(currentTable, getTableRow(columnStart, columnEnd, rowIndex), currentTable.length - 1);
+    }
+
+    const addRowToTopOfTable = function(columnStart, columnEnd, rowIndex) {
+        insertRow(currentTable, getTableRow(columnStart, columnEnd, rowIndex), 1);
+    }
+
+    const removeRowFromStartOfTable = function() {
+        deleteRow(currentTable, currentTable.length - 2);
+    }
+
+    const RemoveRowFromStartOfTable = function() {
+        deleteRow(currentTable, 1);
+    }
+
+    const deleteRow = function(table, rowIndex) {
+        table.splice(rowIndex, 1);
+    }
+
+    const deleteColumn = function(table, columnIndex, quantity=1) {
+        for (var i = 1; i < table.length - 1; i++) table[i].splice(columnIndex, quantity);
+    }
+
+    const insertRow = function(table, row, rowIndex) {
+        table.splice(rowIndex, 0, row);
+    }
+
+    const insertColumn = function(table, column, columnIndex) {
+        for (var i = 0; i < table.length - 2; i++) table[i + 1].splice(columnIndex, 0, column[i][0]);
+    }
+
+    const getNumberOfVerticalUpdates = function(currentTopScrollPosition) {
+        return Math.floor(Math.abs(previousTopScrollPosition - currentTopScrollPosition) / cellHeight);
+    }
+
+    const getNumberOfHorizontalUpdates = function(currentLeftScrollPosition) {
+        return Math.floor(Math.abs(previousLeftScrollPosition - currentLeftScrollPosition) / cellWidth);
+    }
+
+    const getTableRenderWidth = function() {
+        return Math.floor((document.body.clientWidth) / cellWidth);
+    }
+
+    const getTableRenderHeight = function() {
+        return Math.floor(document.body.clientHeight / cellHeight);
+    }
+
+    const getRowAxisColumn = function(rowStart, rowEnd, columnIndex) {
+
+        // correct for column dimension shifty
+        rowStart = Math.max(0, rowStart - colAxis.dims);
+
+        return getRowAxisObjectArray(rowStart, rowEnd, columnIndex)[0];
+    }
+
+
     //TODO: have all cell creation go through this function
-    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
+    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, title, width, height, sort, noBreak, dxId, uuids, htmlValue}) {
         var cell = {}
 
-        cell.uuid = _uuid || generateUuid ? uuid() : null;
+        cell.uuid = generateUuid ? uuid() : null;
+
+        if (numeric) value = Math.max(0, value);
 
         cell.cls = cls;
         cell.value = value ? value : '';
@@ -385,13 +763,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cell.empty = empty;
         cell.hidden = hidden;
         cell.type = type;
+
+        cell.width = width ?  width : doDynamicTableUpdate() ? cellWidth : null;
+        cell.height = height ? height : doDynamicTableUpdate() ? cellHeight : null;
+        
         cell.dxId = dxId;
         cell.uuids = uuids;
-        cell.sort = sort;
 
         if(numeric && !htmlValue) {
             cell.htmlValue = empty ? '&nbsp;' : getRoundedHtmlValue(value);
-        }
+        } 
         else if (!htmlValue) {
             cell.htmlValue = value ? value : '';
         }
@@ -402,555 +783,385 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return cell;
     }
 
-    setCellValue = function(cell, value) {
-        cell.value = value;
-        cell.htmlValue = getRoundedHtmlValue(value);
+    const createValueCell = function(value, columnIndex, rowIndex) {
+        const rric  = new ResponseRowIdCombination(),
+              _uuid = uuid(),
+              uuids = [],
+              cell = {},
+              responseValue = gerResponseValue(columnIndex, rowIndex);
+        
+        rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
+
+        // if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
+        // if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
+
+        uuidDimUuidsMap[_uuid] = uuids;
+
+        cell.value = value === -1 ? 0 : value;
+        cell.htmlValue = value === -1 ? '&nbsp;' : value;
+        cell.empty = value === -1;
+
+        cell.uuid       = _uuid;
+        cell.uuids      = uuids;
+        cell.type       = 'value';
+        cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : '');
+        cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
+        cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
+        cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
+
+        return cell;
+    }
+    
+    const getValueCell = function(x, y) {
+        let value = valueLookup[y][x];
+        switch(typeLookup[y][x]) {
+            case 0: return createValueCell(value, y, x);
+            case 1: case 2: case 5: return createSubTotalCell(value);
+            case 3: case 4: case 6: return createGrandTotalCell(value);
+            default: return null;;
+        }
     }
 
-    setCellEmpty = function(cell) {
-        cell.value = '',
-        cell.htmlValue = '';
-        cell.empty = true;
+    const createColumnAxisCell = function(columnPosition, rowPosition) {
+
+        let obj = colAxis.objects.all[rowPosition][columnPosition];
+
+        obj.type = 'dimension';
+        obj.cls = 'pivot-dim';
+        obj.sort = doSortableColumnHeaders() && rowPosition === colAxis.dims - 1 ? colAxis.ids[columnPosition] : null; 
+        obj.noBreak = false;
+        obj.hidden = !(obj.rowSpan || obj.colSpan);
+        obj.width = doDynamicTableUpdate() ? cellWidth : null,
+        obj.height = doDynamicTableUpdate() ? cellHeight : null,
+        obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
+
+        return obj;
     }
 
-    isRowEmpty = function(table, index) {
-        for (var i = 0; i < table[index].length; i++) {
-            if (!table[index][i].empty) {
-                return false;
+    const getColumnAxisCell = function(columnPosition, rowPosition, firstRow = false) {
+
+        if (columnPosition < rowAxis.dims && layout.showDimensionLabels) {
+            colAxisArray[i][j] = dimLabelArray[x];
+            colSpanCounter++;
+        }
+
+        // create left corner cell
+        if (columnPosition < rowAxis.dims && !layout.showDimensionLabels) {
+            if (firstRow) colAxisArray[i][j] = createDimensionEmptyCell(rowAxis.dims - rowPosition, colAxis.dims - rowPosition, x !== columnStart);
+            else          colAxisArray[i][j] = createDimensionEmptyCell(rowAxis.dims - rowPosition, colAxis.dims - rowPosition, true);
+            colSpanCounter++;
+        }
+
+        // create sub row total space cell
+        if (isColumnSubTotal(xd)) {
+            if (firstRow) colAxisArray[i][j] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims- rowPosition, true, false);
+            else          colAxisArray[i][j] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims- rowPosition, true, true);
+            colSpanCounter++;
+        }
+
+        // cereate total row space cell
+        if (isColumnGrandTotal(xd)) {
+            if (firstRow) colAxisArray[i][j] = createDimensionGrandTotalCell('Total', 1, colAxis.dims - rowPosition, true, true);
+            else          colAxisArray[i][j] = createDimensionSubTotalCell('&nbsp;', 1, 1, true, true);
+        }
+    }
+
+    const buildColumnAxisColumn = (x, rowStart) => {
+        if (colAxis.dims < rowStart) return [];
+
+        let column = new Array(colAxis.dims - rowStart);
+
+        if (x < rowAxis.dims) {
+            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
+                if (i === 0) column[i] = createDimensionEmptyCell(rowAxis.dims - x, colAxis.dims - y, x !== currentStartColumn);
+                else         column[i] = createDimensionEmptyCell(rowAxis.dims - x, colAxis.dims - y, true);
+            }
+            return column;
+        }
+
+        x -= rowAxis.dims
+
+        if (isColumnSubTotal(x)) {
+            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
+                if (i === 0) column[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, false);
+                else         column[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+            }
+            return column;
+        }
+
+        if (isColumnGrandTotal(x)) {
+            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
+                if (i === 0) column[i] = createDimensionGrandTotalCell('Total', 1, colAxis.dims - y, true, true);
+                else         column[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+            }
+            return column;
+        }
+
+        for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
+            column[i] = createColumnAxisCell(Math.max(0, x - Math.floor(x / colUniqueFactor)), y);
+        }
+
+        return column;
+    }
+    
+    const buildRowAxisColumn = (x, rowStart, rowEnd) => {
+        if (rowAxis.dims < x) return [];
+
+        let column = new Array(rowEnd - rowStart);
+
+        for(var i = 0, y = rowStart; y < rowEnd; i++, y++) {
+
+            if (isRowSubTotal(y)) {
+                if (currentStartColumn === x) column[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, false);
+                else                          column[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
+                continue;
+            }
+
+            if (isRowGrandTotal(y)) {
+                if (currentStartColumn === x) column[i] = createDimensionGrandTotalCell('Total', rowAxis.dims - x, 1, false, false);
+                else                          column[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
+                continue;
+            }
+
+            column[i] = createRowAxisCell(x, y - Math.floor(y / rowUniqueFactor));
+        }
+
+        return column;
+    }
+
+    const buildColumnAxisRow = (y, columnStart, columnEnd) => {
+        if (colAxis.dims < y) return [];
+
+        let row = new Array(columnEnd - columnStart),
+            i = 0,
+            x = columnStart;
+
+        if (x < rowAxis.dims) {
+            for (i, x; x < colAxis.dims; i++, x++) {
+                if (i === 0) row[i] = createDimensionEmptyCell(rowAxis.dims - x, colAxis.dims - y, false);
+                else         row[i] = createDimensionEmptyCell(rowAxis.dims - x, colAxis.dims - y, true);
             }
         }
-        return true;
-    }
 
-    isSingleRowEmpty = function (row) {
-        for (var i=0; i < row.length; i++) {
-            if(!row[i].empty && row[i].type === 'value') return false;
-        }
-        return true;
-    }
+        x -= rowAxis.dims;
+        columnEnd -= rowAxis.dims;
 
-    isColumnEmpty = function(table, index) {
-        for (var i = 0; i < table.length; i++) {
-            if (!table[i][index].empty) {
-                return false;
+        for(i, x; x < columnEnd; i++, x++) {
+
+            if (isColumnSubTotal(x)) {
+                if (i === 0) row[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, false);
+                else         row[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+                continue;
             }
+
+            if (isColumnGrandTotal(x)) {
+                if (i === 0) row[i] = createDimensionGrandTotalCell('Total', 1, colAxis.dims - y, true, false);
+                else         row[i] = createDimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+                continue
+            }
+
+            row[i] = createColumnAxisCell(x - Math.floor(x / colUniqueFactor), y);
         }
-        return true;
+
+        return row;
     }
 
-    getRowTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table[index].length; i++) {
-            if (table[index][i].type === 'value') {
-                total += table[index][i].value;
+    const buildRowAxisRow = (y, columnStart) => {
+        if (rowAxis.dims < columnStart) return [];
+
+        let row = new Array(rowAxis.dims - columnStart);
+
+        if (isRowSubTotal(y)) {
+            for (let i=0, x=columnStart; x < rowAxis.dims; i++, x++) {
+                if (i === 0) row[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, false);
+                else         row[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
             }
+            return row;
         }
-        return total;
+
+        if (isRowGrandTotal(y)) {
+            for (let i=0, x=columnStart; x < rowAxis.dims; i++, x++) {
+                if (i === 0) row[i] = createDimensionGrandTotalCell('Total', rowAxis.dims - x, 1, false, false);
+                else         row[i] = createDimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
+            }
+            return row;
+        }
+
+        for(var i = 0, x = columnStart; x < rowAxis.dims; i++, x++) {
+            row[i] = createRowAxisCell(x, Math.max(0, y - Math.floor(y / rowUniqueFactor)));
+        }
+
+        return row;
     }
 
-    getSingleRowTotal = function (row) {
-        let total = 0;
-        for (var i=0; i < row.length; i++) {
-            if (row[i].type === 'value') {
-                total += row[i].value;
+    const buildRowAxis = (rowStart, rowEnd, columnStart) => {
+        rowEnd -= colAxis.dims;
+
+        let axis = new Array(rowEnd - rowStart);
+
+        if(!rowAxis.type) {
+            if (layout.showDimensionLabels) {
+                axis[0] = [{ type: 'transparent', cls: 'pivot-transparent-row' }];
             }
+            return axis;
         }
-        return total;
+        
+        for (let i=0,y=rowStart; y < rowEnd; i++, y++) {
+            axis[i] = buildRowAxisRow(y, columnStart);
+        }
+
+        return axis;
     }
 
-    getColumnTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table.length; i++) {
-            if(table[i][index].type === 'value') {
-                total += table[i][index].value;
-            }
+    const buildColumnAxis = (columnStart, columnEnd, rowStart) => {
+        if (!colAxis.type) return getDimensionColArray();
+
+        let axis = new Array(columnEnd - columnStart);
+
+        for (let i=0,x=columnStart; x < columnEnd; i++, x++) {
+            axis[i] = buildColumnAxisColumn(x, rowStart);
         }
-        return total;
+
+        return axis;
     }
 
-    hideEmptyRows = function(table, axisObjects) {
-        for(var i = 0, dimLeaf; i < table.length; i++) {
-            if (isRowEmpty(table, i)) {
-                for (var j = 0; j < table[i].length; j++) {
-                    table[i][j].collapsed = true;
-                }
-                dimLeaf = axisObjects[i][rowAxis.dims-1];
-                if (dimLeaf.type === 'dimensionSubtotal') {
-                    axisObjects[i][0].collapsed = true;
-                }
-                recursiveReduce(dimLeaf);
-            }
+    buildTable2D = (rows, columns) => {
+        let table2D = new Array(rows);
+        
+        for (let i=0; i < rows; i++) {
+            table2D[i] = new Array(columns);
         }
+
+        return table2D;
+    } 
+
+    const buildValueRow = (y, columnStart, columnEnd) => {
+        let row = new Array(columnEnd - columnStart);
+
+        for (let i=0, x=columnStart; x < columnEnd; i++, x++) {
+            row[i] = getValueCell(x, y);
+        }
+
+        return row;
     }
 
-    hideEmptyColumns = function(table, axisObjects) {
-        for(var i = 0, dimLeaf; i < table[1].length; i++) {
-            if (isColumnEmpty(table, i)) {
-                for (var j = 0; j < table.length; j++) {
-                    table[j][i].collapsed = true;
-                }
-                dimLeaf = axisObjects[colAxis.dims-1][i + rowAxis.dims];
-                if (dimLeaf.type === 'dimensionSubtotal') {
-                    axisObjects[0][i + rowAxis.dims].collapsed = true;
-                }
-                recursiveReduce(dimLeaf, 'colSpan');
-            }
+    const buildValueColumn = (x, rowStart, rowEnd) => {
+
+        let column = new Array(rowEnd - rowStart);
+        
+        for (let i=0, y=rowStart; y < rowEnd; i++, y++) {
+            column[i] = getValueCell(x, y);
         }
+
+        return column;
+           
     }
 
-    changeToColPercentage = function(table) {
-        for(var i = 0; i < table.length; i++) {
-            for (var j = 0; j < table[i].length; j++) {
-                let columnTotal = getColumnTotal(table, j);
-                if (!isColumnEmpty(table, j) && !table[i][j].empty && columnTotal !== 0) {
-                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / columnTotal) * 100) + '%';
-                }
-                if (columnTotal === 0) {
-                    table[i][j].empty = true;
-                    table[i][j].htmlValue = '&nbsp;';
-                }
-            }
-        }
-    }
-
-    changeToRowPercentage = function(table) {
-        for(var i = 0; i < table.length; i++) {
-            for (var j = 0; j < table[i].length; j++) {
-                let rowTotal = getRowTotal(table, i);
-                if (!isRowEmpty(table, i) && !table[i][j].empty && rowTotal !== 0) {
-                    table[i][j].htmlValue = getRoundedHtmlValue((table[i][j].value / rowTotal) * 100) + '%';
-                }
-                if (rowTotal === 0) {
-                    table[i][j].empty = true;
-                    table[i][j].htmlValue = '&nbsp;';
-                }
-            }
-        }
-    }
-
-    recursiveReduce = function(obj, span) {
-        if (!obj.children) {
-            obj.collapsed = true;
-
-            if (obj.parent && obj.parent.oldestSibling) {
-                obj.parent.oldestSibling.children--;
-                span && obj.parent.oldestSibling[span]--;
-            }
+    const buildTableColumn = (x, rowStart, rowEnd) => {
+        
+        let columnAxis = buildColumnAxisColumn(x, rowStart);
+        
+        if (x < rowAxis.dims) {
+            return columnAxis.concat(buildRowAxisColumn(x, rowStart, rowEnd));
         }
 
-        if (obj.parent) {
-            recursiveReduce(obj.parent.oldestSibling);
-        }
+        let valueTable = buildValueColumn(x, rowStart, rowEnd);
+        
+        return columnAxis.concat(valueTable);
     };
 
-    getRowAxisObjectArray = function() {
-        const rowAxisArray = [];
-
-        // dimension
-        if (rowAxis.type) {
-            for (var i = 0, row; i < rowAxis.size; i++) {
-                row = [];
-
-                for (var j = 0, obj, newObj; j < rowAxis.dims; j++) {
-                    obj = rowAxis.objects.all[j][i];
-                    obj.type = 'dimension';
-                    obj.cls = 'pivot-dim td-nobreak' + (layout.showHierarchy ? ' align-left' : '');
-                    obj.noBreak = true;
-                    obj.hidden = !(obj.rowSpan || obj.colSpan);
-                    obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
-
-                    row.push(obj);
-                }
-
-                rowAxisArray.push(row);
-
-                if(doColSubTotals() && (i + 1) % rowUniqueFactor === 0) {
-                    var axisRow = [];
-                    axisRow.push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims, empty: true}));
-
-                    for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - j, hidden: true}));
-                    }
-
-                    rowAxisArray.push(axisRow);
-                }
-
-                if(doColTotals() && i === rowAxis.size - 1) {
-                    var axisRow = [];
-                    axisRow.push(createCell('Total', 'pivot-dim-total', 'dimensionSubtotal', {colSpan: rowAxis.dims, empty: true}));
-                    for(var j = 1; j < rowAxis.dims; j++) {
-                        axisRow.push(createCell(null, 'pivot-dim-subtotal', 'dimensionSubtotal', {colSpan: rowAxis.dims - j, hidden: true}));
-                    }
-                    rowAxisArray.push(axisRow);
-                }
-            }
-        }
-        else {
-            if (layout.showDimensionLabels) {
-                rowAxisArray.push([{
-                    type: 'transparent',
-                    cls: 'pivot-transparent-row'
-                }]);
-            }
+    const buildTableRow = (y, columnStart, columnEnd) => { 
+        if (y < colAxis.dims) {
+            return buildColumnAxisRow(y, columnStart, columnEnd);
         }
 
-        return rowAxisArray;
-    }
+        y -= colAxis.dims;
 
-    getColAxisObjectArray = function() {
-        var colAxisArray = []
-        if (!colAxis.type) {
-            // show row dimension labels
-            if (rowAxis.type && layout.showDimensionLabels) {
-                colAxisArray.push([]);
-                // colAxisArray from row object names
-                for (var i = 0; i < rowDimensionNames.length; i++) {
-                    colAxisArray[i].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
-                }
-            }
-            return colAxisArray;
-        }
+        if (columnStart < rowAxis.dims) columnEnd -= (rowAxis.dims - columnStart);
 
-        // for each col dimension
-        for (var i = 0; i < colAxis.dims; i++) {
-            colAxisArray.push([]);
+        let rowAxisRow = buildRowAxisRow(y, columnStart),
+            valueTable = buildValueRow(y, columnStart, columnEnd);
 
-            if (layout.showDimensionLabels) {
-                colAxisArray[i] = colAxisArray[i].concat(getEmptyHtmlArray(i));
-            }
-
-            else if (colAxis.type && rowAxis.type) {
-                if(i === 0) {
-                    colAxisArray[i].push(createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
-                    for (var j = 0; j < rowAxis.dims - 1; j++) colAxisArray[i].push(createCell('', 'pivot-empty', 'empty', {hidden: true}));
-                } else {
-                    for (var j = 1; j <= rowAxis.dims; j++) colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true, colSpan: rowAxis.dims, rowSpan: colAxis.dims - j}));
-                }
-            }
-
-            for (var j = 0, obj, spanCount = 0; j < colAxis.size; j++) {
-                spanCount++;
-
-                obj = colAxis.objects.all[i][j];
-                obj.type = 'dimension';
-                obj.cls = 'pivot-dim';
-                obj.sort = doSortableColumnHeaders() && i === colAxis.dims - 1 ? colAxis.ids[j] : null;
-                obj.noBreak = false;
-                obj.hidden = !(obj.rowSpan || obj.colSpan);
-                obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
-
-                colAxisArray[i].push(obj);
-
-                if (spanCount === colAxis.span[0] && doRowSubTotals() ) {
-                    if(i === 0) {
-                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {rowSpan: colAxis.dims, empty: true}));
-                    }
-
-                    else {
-                        colAxisArray[i].push(createCell('&nbsp;', 'pivot-dim-subtotal', 'dimensionSubtotal', {rowSpan: colAxis.dims - i, empty: true, hidden: true}));
-                    }
-
-                    spanCount = 0;
-                }
-
-                if ((j === colAxis.size - 1) && doRowTotals()) {
-                    var totalCell;
-                    if (i === 0) {
-                        totalCell = createCell('Total', 'pivot-dim-total', 'dimensionTotal', {sort: doSortableColumnHeaders() ? 'total' : null, rowSpan: colAxis.dims, generateUuid: true})
-                    }
-
-                    else {
-                        totalCell = createCell(null, 'pivot-dim-subtotal cursor-default', 'dimensionSubtotal', {hidden: true});
-                    }
-
-                    colAxisArray[i].push(totalCell);
-                }
-            }
-        }
-
-        return colAxisArray;
+        return rowAxisRow.concat(valueTable);
     };
 
+    const buildValueTable = function(rowStart, rowEnd, columnStart, columnEnd) {
+        rowEnd    -= colAxis.dims;
+        columnEnd -= rowAxis.dims;
 
-    setTotalCells = function (table) {
+        let table = buildTable2D(rowEnd - rowStart, columnEnd - columnStart);
 
-        var columnTotals = new Array(table[1].length).fill(0),
-            columnSubTotals = new Array(table[1].length).fill(0);
+        for (let i=0, y=rowStart; i < table.length; i++, y++) {
+            for (let j=0, x=columnStart; j < table[i].length; j++, x++) {
+                
+                // TODO: FIX THIS
+                // if (doSortableColumnHeaders()) {
+                //     totalIdComb = new ResponseRowIdCombination(['total', rowAxis.ids[y]]);
+                //     // idValueMap[totalIdComb.get()] = false ? null : cellCounter['totalRowAllCells' + x];
+                // }
 
-        for (var i=0; i < table.length; i++) {
-            for (var j=0, rowTotal=0, rowSubTotal=0, intersectRow = 0; j < table[i].length; j++) {
-
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
-
-                switch (cell.type) {
-                    case 'value-row-subtotal': {
-                        setCellValue(cell, rowSubTotal);
-                        rowSubTotal = 0;
-                    } continue;
-
-                    case 'value-column-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        intersectRow += columnSubTotals[j];
-                        columnSubTotals[j] = 0;
-                    } continue;
-
-                    case 'value-intersect-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        columnSubTotals[j] = 0;
-                    } continue;
-
-                    case 'value-row-total':{
-                        setCellValue(cell, rowTotal);
-                    } continue;
-
-                    case 'value-row-intersect-total': {
-                        setCellValue(cell, intersectRow);
-                    } continue;
-
-                    case 'value-column-total': {
-                        setCellValue(cell, columnTotals[j]);
-                    } continue;
-
-                    case 'value-column-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
-                    } continue;
-
-                    case 'value-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
-                    } continue;
-                }
-
-                rowTotal += cell.value;
-                rowSubTotal += cell.value;
-                columnSubTotals[j] += cell.value;
-                columnTotals[j] += cell.value;
-                columnTotals[table[i].length - 1] += cell.value;
-
-                if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubTotals[nextSubCell] += cell.value;
-                }
-
-                if (colUniqueFactor > 1 && doColTotals()) {
-                    columnTotals[nextSubCell] += cell.value;
-                }
+                table[i][j] = getValueCell(x, y);
             }
         }
-    }
-
-    setEmptyCells = function (table) {
-
-        var columnTotalEmpties = new Array(table[1].length).fill(0),
-            columnSubEmpties = new Array(table[1].length).fill(0);
-
-        for (var i=0; i < table.length; i++) {
-            for (var j=0, rowTotalEmpty=0, rowSubEmpty=0, rowIntesectEmpty = 0; j < table[i].length; j++) {
-
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
-
-                switch (cell.type) {
-                    case 'value-row-subtotal': {
-                        if (rowSubEmpty === colUniqueFactor) setCellEmpty(cell);
-                        rowSubEmpty = 0;
-                    } continue;
-
-                    case 'value-column-subtotal': {
-                        if (columnSubEmpties[j] === rowUniqueFactor) {
-                            setCellEmpty(cell);
-                            rowIntesectEmpty++;
-                        }
-                        columnSubEmpties[j] = 0;
-                    } continue;
-
-                    case 'value-intersect-subtotal': {
-                        if (columnSubEmpties[j] === rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
-                        columnSubEmpties[j] = 0;
-                    } continue;
-
-                    case 'value-row-total':{
-                        if (rowTotalEmpty === colAxis.size) setCellEmpty(cell);
-                    } continue;
-
-                    case 'value-column-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size) setCellEmpty(cell);
-                    } continue;
-
-                    case 'value-row-intersect-total': {
-                        if (rowIntesectEmpty === colAxis.size) setCellEmpty(cell);
-                    } continue;
-
-                    case 'value-column-intersect-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size * colUniqueFactor) setCellEmpty(cell);
-                    } continue;
-
-                    case 'value-intersect-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size * colAxis.size) setCellEmpty(cell);
-                    } continue;
-                }
-
-                rowSubEmpty += cell.empty ? 1 : 0;
-                rowTotalEmpty += cell.empty ? 1 : 0;
-                columnSubEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
-
-                if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
-                if (colUniqueFactor > 1 && doColTotals()) {
-                    columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
-            }
-        }
-    }
-
-    getValueObjectArray = function() {
-        const colAxisSize = colAxis.type ? colAxis.size : 1,
-              rowAxisSize = rowAxis.type ? rowAxis.size : 1,
-              table = [];
-
-        for (var i = 0; i < rowAxisSize; i++) {
-
-            var row = [],
-                subRow = [],
-                totalRow = [];
-
-            for (var j = 0, rric, value, responseValue, htmlValue, empty, _uuid, uuids, empty, totalIdComb; j < colAxisSize; j++) {
-                rric = new ResponseRowIdCombination();
-                empty = false;
-                uuids = [];
-
-                // meta data uid
-                rric.add(colAxis.type ? colAxis.ids[j] : '');
-                rric.add(rowAxis.type ? rowAxis.ids[i] : '');
-
-                // value html element id
-                _uuid = uuid();
-
-                // get uuids array from colaxis/rowaxis leaf
-                if (colAxis.type) {
-                    uuids = uuids.concat(colAxis.objects.all[colAxis.dims - 1][j].uuids);
-                }
-                if (rowAxis.type) {
-                    uuids = uuids.concat(rowAxis.objects.all[rowAxis.dims - 1][i].uuids);
-                }
-
-                // value, htmlValue
-                responseValue = idValueMap[rric.get()];
-
-                if (isDefined(responseValue)) {
-                    value = getValue(responseValue);
-                    htmlValue = responseValue;
-                }
-                else {
-                    value = 0;
-                    empty = true;
-                    htmlValue = '&nbsp;';
-                }
-
-                var cell = {
-                    uuid: _uuid,
-                    type: 'value',
-                    cls: 'pivot-value' + (empty ? ' cursor-default' : ''),
-                    value: value,
-                    htmlValue: htmlValue,
-                    empty: empty,
-                    uuids: uuids,
-                    dxId: rric.getIdByIds(response.metaData.dimensions.dx),
-                    peId: rric.getIdByIds(response.metaData.dimensions.pe),
-                    ouId: rric.getIdByIds(response.metaData.dimensions.ou),
-                }
-
-                row.push(cell);
-
-                // do column sub totals
-                if ((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                    row.push(createCell(null, 'pivot-value-subtotal', 'value-row-subtotal', { numeric: true }));
-                }
-
-                // do column totals
-                if (j === colAxisSize - 1 && doRowTotals()) {
-                    row.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-row-total', { numeric: true }));
-
-                    if (doSortableColumnHeaders()) {
-                        totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getSingleRowTotal(row);
-                    }
-                }
-
-                // do row sub totals
-                if ((i + 1) % rowUniqueFactor === 0 && doColSubTotals()) {
-                    subRow.push(createCell(0, 'pivot-value-subtotal', 'value-column-subtotal', { numeric: true }));
-                    if ((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        subRow.push(createCell(null, 'pivot-value-subtotal', 'value-intersect-subtotal', { numeric: true }));
-                    }
-
-                    if (j === colAxisSize - 1 && doRowTotals()) {
-                        subRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-row-intersect-total', { numeric: true }));
-                    }
-                }
-
-                // do row totals
-                if (i === rowAxisSize - 1 && doColTotals()) {
-                    totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-column-total', { numeric: true }));
-                    if ((j + 1) % colUniqueFactor === 0 && doRowSubTotals()) {
-                        totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-column-intersect-total', { numeric: true }));
-                    }
-
-                    if (j === colAxisSize - 1 && doRowTotals()) {
-                        totalRow.push(createCell(null, 'pivot-value-total-subgrandtotal', 'value-intersect-total', { numeric: true }));
-                    }
-                }
-
-                // map element id to dim element ids
-                uuidDimUuidsMap[_uuid] = uuids;
-            }
-
-            // push value row
-            table.push(row);
-
-            // push sub value row
-            if (doColSubTotals() && subRow.length > 0) {
-                table.push(subRow);
-            }
-
-            // push totasl value row
-            if (doColTotals() && totalRow.length > 0) {
-                table.push(totalRow);
-            }
-        }
-
-        // update totals
-        setTotalCells(table);
-
-        // update empties
-        setEmptyCells(table);
-
-        // do row percentages
-        if(doRowPercentage()) {
-            changeToRowPercentage(table);
-        }
-
-        // do column percentages
-        if(doColPercentage()) {
-            changeToColPercentage(table);
-        }
-
-        // hide empty columns
-        if(doHideEmptyColumns()) {
-            hideEmptyColumns(table, colAxisAllObjects);
-        }
-
-        // hide empty rows
-        if(doHideEmptyRows()) {
-            hideEmptyRows(table, rowAxisAllObjects);
-        }
+        
+        if (doRowPercentage()) transformRowPercentage(table);
+        if (doColPercentage()) transformColPercentage(table);
 
         return table;
+    }
+
+    const buildTable2 = () => {
+        let rowAxis = buildRowAxis(),
+            colAxis = buildColumnAxis(),
+            values = buildValueTable();
+
+    }
+
+    combineTable = function(rowAxis, colAxis, values) {
+        let table = new Array(rowAxis.length);
+
+        for (let i = 0; i < rowAxis.length; i++) {
+            table[i] = rowAxis[i].concat(values[i]);
+        }
+
+        return toRow(colAxis).concat(table);
     };
+
+    const createPaddingCell = (width, height, colSpan=1) => {
+        return createCell(null, 'pivot-padding', 'padding', {height: height, width: width, colSpan: colSpan, hidden: true})
+    };
+
+    const addPaddingCells = (table, columnStart, columnEnd, rowStart, rowEnd) => {
+
+        let leftCell = createPaddingCell(getLeftPadding(columnStart), 25),
+            rightCell = createPaddingCell(getRightPadding(columnEnd), 25),
+            topCell = createPaddingCell(120, getTopPadding(rowStart), (columnEnd - columnStart) + 1),
+            bottomCell = createPaddingCell(120, getBottomPadding(rowEnd), (columnEnd - columnStart) + 1);
+
+        for (let i=0; i < table.length; i++) {
+            table[i].push(rightCell);
+            table[i].unshift(leftCell);
+        }
+
+        table.push([bottomCell]);
+        table.unshift([topCell]);
+    }
+
+    const toRow = (array) => {
+        let row = new Array(array[0].length);
+
+        for(let i=0; i < row.length; i++) {
+            row[i] = [];
+        }
+
+        for (let i=0; i < array.length; i++) {
+            for (let j=0; j < array[i].length; j++) {
+                row[j].push(array[i][j]);
+            }
+        }
+        return row;
+    }
 
     getTopBarSpan = function(span) {
         var rowDims = rowAxis.dims || 0;
@@ -968,48 +1179,37 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     getFilterHtmlArray = function(span) {
-        if (!layout.filters) {
-            return;
-        }
+        if (!layout.filters) return;
 
         var text = layout.filters.getRecordNames(false, layout.getResponse(), true),
-            row = [];
+            row = new Array(1);
 
-        row.push(getTdHtml({
+        row[0] = getTdHtml({
             type: 'filter',
             cls: 'pivot-filter cursor-default',
             colSpan: getTopBarSpan(span),
             title: text,
             htmlValue: text
-        }));
+        });
 
         return [row];
     };
 
     getTitle = function(span) {
-        if (!layout.title) {
-            return;
-        }
+        if (!layout.title) return;
 
-        var text = layout.title, row = [];
+        var text = layout.title,
+            row = new Array(1);
 
-        row.push(getTdHtml({
+        row[0] = getTdHtml({
             type: 'filter',
             cls: 'pivot-filter cursor-default',
             colSpan: getTopBarSpan(span),
             title: text,
             htmlValue: text,
-        }));
+        });
 
         return [row];
-    };
-
-    combineTable = function(rowAxisComb, colAxisComb, values) {
-        const combinedTable = [];
-        for (let i = 0; i < values.length; i++) {
-            if (rowAxisComb[i]) combinedTable.push(rowAxisComb[i].concat(values[i]));
-        }
-        return colAxisComb.concat(combinedTable);
     };
 
     getTableHtml = function(combiTable) {
@@ -1022,6 +1222,21 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
         return html;
     };
+
+    const createRowAxisCell = function(columnPosition, rowPosition) {
+        
+        let obj = rowAxis.objects.all[columnPosition][rowPosition];
+
+        obj.type = 'dimension';
+        obj.cls = 'pivot-dim td-nobreak' + (layout.showHierarchy ? ' align-left' : '');
+        obj.noBreak = true;
+        obj.width = doDynamicTableUpdate() ? cellWidth : null,
+        obj.height = doDynamicTableUpdate() ? cellHeight : null,
+        obj.htmlValue = response.getItemName(obj.id, layout.showHierarchy, true);
+        obj.hidden = !(obj.rowSpan || obj.colSpan);
+
+        return obj;
+    }
 
     getHtml = function(htmlArray) {
         var cls = 'pivot user-select',
@@ -1039,41 +1254,326 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return table += '</table>';
     };
 
-    renderTable = function() {
+    const updateTable = function(columnStart, rowStart) {
+        
+        const numberOfHorizontalUpdates = Math.abs(columnStart - previousColumnStart),
+              numberOfVerticalUpdates = Math.abs(rowStart - previousRowStart),
+              columnEnd = getColumnEnd(columnStart),
+              rowEnd = getRowEnd(rowStart);
 
-        // create html array
-        var htmlArray = arrayClean([].concat(
-            options.skipTitle ? [] : getTitle(completeTableObjects[0].length) || [],
-            getFilterHtmlArray(completeTableObjects[0].length) || [],
-            getTableHtml(completeTableObjects)
+        let prs = previousRowStart,
+            pre = previousRowEnd,
+            pcs = previousColumnStart,
+            pce = previousColumnEnd;
+
+        for(let i = 0; i < numberOfVerticalUpdates; i++) {
+            if (rowStart < previousRowStart) {
+                if (rowStart < prs) --prs;
+                if (rowEnd < pre) --pre;
+            } else {
+                if (rowStart > prs) ++prs;
+                if (rowEnd > pre) ++pre;
+            }
+            applyChangesToTable(pcs, pce, prs, pre);
+        }
+
+        for(let i = 0; i < numberOfHorizontalUpdates; i++) {
+            if (columnStart < previousColumnStart) {
+                if (columnStart < pcs) --pcs;
+                if (columnEnd < pce) --pce
+            } else {
+                if (columnStart > pcs) ++pcs;
+                if (columnEnd > pce) ++pce;
+            }
+            applyChangesToTable(pcs, pce, prs, pre);
+        }
+
+        let htmlArray = arrayClean([].concat(
+            // options.skipTitle ? [] : getTitle(table[0].length) || [],
+            // getFilterHtmlArray(table[0].length) || [],
+            getTableHtml(currentTable)
         ));
 
-        // turn html array into html string;
+        return getHtml(htmlArray);
+    }
+
+    const getValueObjectRow = function(rowPosition, columnPosition, size) {
+        const row = new Array(size);
+        for(let i=0, x=columnPosition ; i < row.length; i++, x++) {
+            row[i] = getValueCell(x, rowPosition);
+        }
+        return row;
+    }
+
+    const getValueObjectColumn = function(rowPosition, columnPosition, size) {
+        const column = new Array(size);
+        for(let i=0, y=rowPosition ; i < column.length; i++, y++) {
+            column[i] = [getValueCell(columnPosition, y)];
+        }
+        return column;
+    }
+
+    const getTableRow = function(columnStart, columnEnd, rowIndex) {
+        rowIndex = Math.max(0, rowIndex - colAxis.dims);
+        columnStart = Math.max(0, columnStart - rowAxis.dims);
+
+        let row = [];
+
+        if (rowIndex < colAxis.dims) {
+            row = row.concat(getColAxisObjectArray(columnStart, columnEnd, rowIndex)[0]);
+        } else {
+            if (columnStart < rowAxis.dims) row = row.concat(getSingleRowAxisRow(rowIndex, columnStart));
+            row = row.concat(getValueObjectRow(rowIndex, columnStart, columnEnd - columnStart));
+        }
+
+        addHorizontalPaddingCellsToRow(row, columnStart, columnEnd);
+
+        return row;
+    };
+
+    const getTableColumn = function(rowStart, rowEnd, columnIndex) { 
+
+        if (columnIndex < rowAxis.dims) {
+            return getColumnAxisColumn(columnIndex, rowStart).concat(getRowAxisColumn(rowStart, rowEnd, columnIndex));
+        }
+
+        const column = [];
+
+        if (rowStart < colAxis.dims) {
+            column.push(...getColAxisObjectArray(columnIndex, columnIndex + 1, rowStart));
+        }
+
+        column.push(...getValueObjectColumn(rowStart, Math.max(0, columnIndex - rowAxis.dims), rowEnd - rowStart));
+
+        return column;
+    };
+
+    const updatePreviousPosition = function (columnStart, columnEnd, rowStart, rowEnd) {
+        previousRowEnd = rowEnd;
+        previousRowStart = rowStart;
+        previousColumnEnd = columnEnd;
+        previousColumnStart = columnStart;
+    }
+
+    const updateTablePadding = function(table, columnStart, columnEnd, rowStart, rowEnd) {
+        const leftPadding   = getLeftPadding(columnStart),
+              rightPaddings = getRightPadding(columnEnd),
+              topPadding    = getTopPadding(rowStart),
+              bottomPadding = getBottomPadding(rowEnd);
+
+        // apply top pad
+        table[0][0].width = topPad;
+        table[0][0].hidden = topPad <= 0;
+
+        // apply bottom pad
+        table[table.length - 1][0].width = bottomPad;
+        table[table.length - 1][0].hidden = bottomPad <= 0;
+
+        for (let i=1; i < table.length - 1; i++) {
+            // apply left pad
+            table[i][0].width  = leftPad;
+            table[i][0].hidden = leftPad <= 0;
+
+            // apply right pad
+            table[i][table[i].length - 1].width = rightPad;
+            table[i][table[i].length - 1].hidden = rightPad <= 0;
+        }
+    }
+    
+    const updateColumnAxisColSpan = function(table, columnStart, rowStart, maxColSpan) {
+        maxColSpan = table[1].length - 2;
+        let skipping = 0;
+        for (var i = rowStart; i < colAxis.dims; i++) {
+            for (var j, x = columnStart, xd, currentColspan, colSpanCounter = 0, obj; j < table[i].length; j++, x++) {
+                
+                obj = table[i][j];
+
+                if (obj.type === 'padding') continue; 
+
+                if (skipping > 0) {
+                    obj.hidden = true;
+                }
+
+                if (obj.type !== 'dimension') {
+                    colSpanCounter += obj.colSpan;
+                    skipping = obj.colSpan - 1;
+                    continue;
+                }
+                
+                xd = Math.max(0, x - rowAxis.dims);
+
+                if (obj.oldestSibling) {
+                    currentColspan = obj.oldestSibling.children - ((doRowSubTotals() ? xd -  Math.floor(xd / (colUniqueFactor + 1)) : xd) % obj.oldestSibling.children);
+                } else {
+                    currentColspan = obj.children;
+                }
+
+                if(colSpanCounter + currentColspan > maxColSpan && !obj.hidden) {
+                    currentColspan = maxColSpan - colSpanCounter;
+                }
+                
+                if(colSpanCounter !== maxColSpan && !obj.hidden) {
+                    colSpanCounter += obj.colSpan ? obj.colSpan : 0;
+                }
+
+                obj.colSpan = currentColspan === 0 ? 1 : currentColspan
+
+                skipping = obj.colSpan - 1;
+            }
+        }
+    }
+
+    const updateDimensionSpan = function() {
+
+        let cell = null;
+
+        // update colAxis colSpan
+        for (let i=rowStart; i < colAxis.dims; i++) {
+            for (let j=columnStart, colSpanCounter=0; j < getTableColumnSize(); j++) {
+
+                cell = tabel[i][j];
+
+                if (colSpanCounter === colSpanLimit) {
+                    cell.hidden = true;
+                }
+
+                if (cell.colSpan + colSpanCounter > colSpanLimit) {
+                    cell.colSpan = cell.colSpan + colSpanCounter - colSpanLimit;
+                }
+
+                colSpanCounter += cell.colSpan;
+            }
+        }
+
+        // update rowAxis rowSpan
+        for (let j=0; j < rowAxis.dims; j++) {
+            for (let i=0, rowSpanCounter=0; i < getTableRowSize(); i++) {
+
+                cell = tabel[i][j];
+
+                if (rowSpanCounter === rowSpanLimit) {
+                    cell.hidden = true;
+                }
+
+                if (cell.rowSpan - rowSpanCoutner > rowSpanLimit) {
+                    cell.colSpan = cell.colSpan + colSpanCounter - colSpanLimit;
+                }
+
+                rowSpanCoutner += cell.rowSpan;
+            }
+        }
+
+    }
+
+    const applyChangesToTable = function(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd) {
+
+        if (previousColumnStart > currentColumnStart) {
+            addColumnToLeftOfTable(currentRowStart, currentRowEnd, currentColumnStart);
+        }
+
+        if (previousColumnEnd < currentColumnEnd) {
+            addColumnToRightOfTable(currentRowStart, currentRowEnd, currentColumnEnd + 1)
+        }
+
+        if (previousColumnStart < currentColumnStart) {
+            removeColumnFromLeftOfTable(currentRowStart, currentRowEnd, currentColumnStart);
+        } 
+
+        if (previousColumnEnd > currentColumnEnd) {
+            removeColumnFromRightOfTable();
+        }
+
+        if (previousRowStart > currentRowStart) {
+            addRowToTopOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
+        }
+
+        if (previousRowEnd < currentRowEnd) {
+            addRowToBottomOfTable(currentColumnStart, currentColumnEnd, currentRowStart);
+        }
+
+        if (previousRowStart < currentRowStart) {
+            removeRowFromStartOfTable();
+        }
+
+        if (previousRowEnd > currentRowEnd) {
+            removeRowFromStartOfTable();
+        }
+
+        updateTablePadding(currentTable, currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
+        // udpateTableDimesionSpan();
+
+        // setCurrentPosition();
+
+        updateColumnAxisColSpan(currentTable, currentColumnStart, currentRowStart, currentColumnEnd - currentColumnStart);
+        // updateRowAxisRowSpan(currentTable, currentRowStart, currentColumnStart, currentRowEnd - currentRowStart);
+
+        updatePreviousPosition(currentColumnStart, currentColumnEnd, currentRowStart, currentRowEnd);
+    }
+
+    renderTable = function(rowStart=0, columnStart=0) {
+
+        // calculate end positions based on width/height and start positions
+        let rowEnd = getRowEnd(rowStart),
+            columnEnd = getColumnEnd(columnStart);
+
+        currentStartColumn = columnStart;
+
+        // build initial state of table
+        currentTable = buildTable(columnStart, columnEnd, rowStart, rowEnd);
+
+        // add padding cells to each side of table
+        addPaddingCells(currentTable, columnStart, columnEnd, rowStart, rowEnd);
+        
+        // update previous table positions
+        updatePreviousPosition(columnStart, columnEnd, rowStart, rowEnd);
+
+        // create html array
+        let htmlArray = arrayClean([].concat(
+            // options.skipTitle ? [] : getTitle(table[0].length) || [],
+            // getFilterHtmlArray(table[0].length) || [],
+            getTableHtml(currentTable)
+        ));
+
         return getHtml(htmlArray);
     };
 
+    const buildTable = (columnStart, columnEnd, rowStart, rowEnd) => {
+        return combineTable(
+            buildRowAxis(rowStart, rowEnd, columnStart),
+            buildColumnAxis(columnStart, columnEnd, rowStart),
+            buildValueTable(rowStart, rowEnd, columnStart, columnEnd)
+        );
+    }
+
+    // get html
     (function() {
+        // build lookup tables
+        valueLookup = createValueLookup(getTableRowSize(), getTableColumnSize());
+        typeLookup  = createTypeLookup(getTableRowSize(), getTableColumnSize());
 
-        // build col axis
-        colAxisAllObjects = getColAxisObjectArray();
+        console.log(buildTableRow(3, 4, 8));
+        // console.log(buildTableColumn(0, 0, 15));
+        // console.log(buildColumnAxisRow(0, 0, 7));
+        // console.log(buildValueRow(0, 0, 7));
+        // console.log(buildValueColumn(0, 0, 7));
+        // console.log(buildRowAxisColumn(0, 0, 7));
+        // console.log(buildTableColumn(2, 0, 5));
+        // console.log(buildTableColumn(3, 0, 5));
+        // console.log(buildTableColumn(4, 0, 5));
+        // console.log(buildTableColumn(5, 0, 5));
+        // console.log(buildTableColumn(6, 0, 5));
 
-        // build row axis
-        rowAxisAllObjects = getRowAxisObjectArray();
-
-        // build value table
-        valueAllObjects = getValueObjectArray();
-
-        // combine axes with value table
-        completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
     }());
 
     // constructor
     t.html = renderTable();
-
+    t.render = renderTable;
+    t.update = updateTable;
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
-    t.idValueMap = idValueMap;
 
+    t.isDynamic = doDynamicTableUpdate();
+    t.idValueMap = idValueMap;
     t.tdCount = tdCount;
     t.layout = layout;
     t.response = response;
