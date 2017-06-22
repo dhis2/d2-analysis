@@ -126,9 +126,14 @@ WestRegionTrackerItems = function(refs) {
             this.clearFilter();
 
             if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
+                dataElementType.store.filterBy(item => { return item.data.id != 'pi' });
+
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
+            }
+            else {
+                dataElementType.store.clearFilter();
             }
         }
     });
@@ -317,11 +322,13 @@ WestRegionTrackerItems = function(refs) {
                     // attributes
                     _program.attributes = arrayPluck(_program.programTrackedEntityAttributes, 'trackedEntityAttribute').filter(attribute => {
                         attribute.isAttribute = true;
+                        attribute.name = '[PA] ' + attribute.name;
                         return !attribute.confidential;
                     });
 
                     // mark as program indicator
                     _program.programIndicators.forEach(function(item) {
+                        item.name = '[PI] ' + item.name;
                         item.isProgramIndicator = true;
                     });
 
@@ -390,20 +397,6 @@ WestRegionTrackerItems = function(refs) {
         var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
 
-            // DHIS2-1496: prefix items in available/selected list
-            data.forEach(value => {
-                let prefix = 'DE';
-
-                if (value.isProgramIndicator) {
-                    prefix = 'PI';
-                }
-                else if (value.isAttribute) {
-                    prefix = 'PA';
-                }
-
-                value.name = `[${ prefix }] ${ value.name}`;
-            });
-
             dataElementsByStageStore.loadData(data);
             dataElementsByStageStore.onLoadData();
 
@@ -453,6 +446,7 @@ WestRegionTrackerItems = function(refs) {
                     // filter by type
                     var dataElements = arrayPluck(stages[0].programStageDataElements, 'dataElement').filter(dataElement => {
                         dataElement.isDataElement = true;
+                        dataElement.name = '[DE] ' + dataElement.name;
                         return include(dataElement);
                     });
 
@@ -495,8 +489,6 @@ WestRegionTrackerItems = function(refs) {
     });
 
     const onDataElementTypeSelect = type => {
-        const aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow');
-
         dataElementType.setValue(type);
 
         const store = dataElementsByStageStore;
