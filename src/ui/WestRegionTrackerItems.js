@@ -126,7 +126,7 @@ WestRegionTrackerItems = function(refs) {
             this.clearFilter();
 
             if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
-                dataElementType.store.filterBy(item => { return item.data.id != 'pi' });
+                dataElementType.store.filterBy(record => { return record.data.id != 'pi' });
 
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
@@ -465,14 +465,14 @@ WestRegionTrackerItems = function(refs) {
         valueField: 'id',
         displayField: 'name',
         queryMode: 'local',
-        width: accBaseWidth,
+        width: (accBaseWidth / 2) - 32,
         listConfig: {loadMask: false},
         style: 'padding-bottom:1px; border-bottom:1px solid #ddd; margin-bottom:1px',
         value: 'all',
         store: {
             fields: ['id', 'name'],
             data: [
-                {id: 'all', name: 'All (data elements, program attributes, program indicators)'},
+                {id: 'all', name: 'All'},
                 {id: 'de', name: 'Data elements'},
                 {id: 'pa', name: 'Program attributes'},
                 {id: 'pi', name: 'Program indicators'}
@@ -516,6 +516,7 @@ WestRegionTrackerItems = function(refs) {
     };
 
     var dataElementLabel = Ext.create('Ext.form.Label', {
+        width: (accBaseWidth / 2) - 32,
         text: i18n.available,
         cls: 'ns-toolbar-multiselect-left-label',
         style: 'margin-right:5px'
@@ -548,7 +549,7 @@ WestRegionTrackerItems = function(refs) {
         cls: 'ns-trigger-filter',
         emptyText: 'Filter available...',
         height: 22,
-        width: 170,
+        width: (accBaseWidth / 2) - 5,
         hidden: true,
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
@@ -558,6 +559,8 @@ WestRegionTrackerItems = function(refs) {
                 this.reset();
                 this.onKeyUpHandler();
             }
+
+            dataElementSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var store = dataElementsByStageStore,
@@ -605,6 +608,7 @@ WestRegionTrackerItems = function(refs) {
             dataElementLabel,
             dataElementSearch,
             dataElementFilter,
+            dataElementType,
             '->',
             {
                 xtype: 'button',
@@ -940,7 +944,6 @@ WestRegionTrackerItems = function(refs) {
         dimension: dimensionConfig.get('data').objectName,
         items: [
             programStagePanel,
-            dataElementType,
             dataElementAvailable,
             dataElementSelected
         ],
@@ -2562,6 +2565,7 @@ WestRegionTrackerItems = function(refs) {
         });
 
         dataFilter = Ext.create('Ext.form.field.Trigger', {
+            width: accBaseWidth / 2,
             cls: 'ns-trigger-filter',
             emptyText: 'Filter available...',
             height: 22,
