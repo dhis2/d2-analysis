@@ -94,11 +94,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         roundIf,
         recursiveReduce,
         getUniqueFactor,
-        tableLogger,
         getTableColumnSize,
         getTableRowSize,
-        createMatrix,
-        createValueMatrix,
         getHtmlValue,
 
     // global variables
@@ -293,7 +290,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return str || '';
     };
 
-        
     /** @description Builds a 2D array with the given dimensions
      *  @param   {number} rows
      *  @param   {number} columns
@@ -888,7 +884,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const appendColumn = (columnIndex, rowStart, rowEnd) => {
         let column = buildTableColumn(columnIndex, rowStart, rowEnd);
-        for (var i = 1; i < column.length - 1; i++) {
+        for (var i = 1; i < column.length + 1; i++) {
             currentTable[i].splice(currentTable[i].length - 1, 0, column[i - 1]);
         }
     }
@@ -900,7 +896,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const prependColumn = (columnIndex, rowStart, rowEnd) => {
         let column = buildTableColumn(columnIndex, rowStart, rowEnd);
-        for (var i = 1; i < column.length - 1; i++) {
+        for (var i = 1; i < column.length + 1; i++) {
             currentTable[i].splice(1, 0, column[i - 1]);
         }
     }
@@ -1101,6 +1097,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const buildRowAxisColumn = (x, rowStart, rowEnd) => {
         if (rowAxis.dims < x) return [];
 
+        // if (rowStart < colAxis.dims) rowEnd -= colAixs.dims - rowStart;
+
         let column = new Array(rowEnd - rowStart);
 
         for(var i = 0, y = rowStart; y < rowEnd; i++, y++) {
@@ -1116,9 +1114,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 continue;
             }
 
+
             column[i] = createRowAxisCell(x, y - Math.floor(y / rowUniqueFactor));
         }
-
         return column;
     }
 
@@ -1159,7 +1157,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 continue
             }
 
-            row[i] = createColumnAxisCell(x - Math.floor(x / colUniqueFactor), y);
+            row[i] = createColumnAxisCell(x - Math.floor(x / (colUniqueFactor + 1)), y);
         }
 
         return row;
@@ -1239,21 +1237,22 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {array}
      */
     const buildTableColumn = (columnIndex, rowStart, rowEnd) => {
-        
         let columnAxis = buildColumnAxisColumn(columnIndex, rowStart);
-        
+
+        if (rowStart > colAxis.dims) {
+            rowStart -= colAxis.dims;
+        }
+
         if (columnIndex < rowAxis.dims) {
             return columnAxis.concat(buildRowAxisColumn(columnIndex, rowStart, rowEnd - 1));
         }
 
         columnIndex -= rowAxis.dims;
 
-        if (rowStart < colAxis.dims) {
-            // rowEnd -= (colAxis.dims - rowStart);
-        }
-
-        let valueTable = buildValueColumn(columnIndex, rowStart, rowEnd + 1),
+        let valueTable = buildValueColumn(columnIndex, rowStart, rowEnd - 1),
             column = columnAxis.concat(valueTable);
+
+        console.log(column);
     
         return column;
     };
@@ -1265,18 +1264,22 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {array}
      */
     const buildTableRow = (y, columnStart, columnEnd) => { 
+        let rowAxisRow = [];
+
         if (y < colAxis.dims) {
-            return buildColumnAxisRow(y, columnStart, columnEnd);
+            return buildColumnAxisRow(y, columnStart, columnEnd + 1);
         }
 
         y -= colAxis.dims;
 
         if (columnStart < rowAxis.dims) {
             columnEnd -= (rowAxis.dims - columnStart);
+            rowAxisRow = buildRowAxisRow(y, columnStart);
+        } else {
+            columnStart -= rowAxis.dims
         }
 
-        let rowAxisRow = buildRowAxisRow(y, columnStart),
-            valueTable = buildValueRow(y, columnStart, columnEnd),
+        let valueTable = buildValueRow(y, columnStart, columnEnd + 1),
             row = rowAxisRow.concat(valueTable);
 
         return row;
@@ -1500,7 +1503,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     
                     case 'dimension': {
                         cell.rowSpan = cell.children   ? cell.children - (y % cell.children) : 1;
-                        cell.hidden  = !cell.children  ? false : cell.children !== cell.rowSpan;
+                        cell.hidden  = cell.children  ?  cell.children !== cell.rowSpan : false;
                         if  (j === 1 && i !== rowAxis.dims) cell.hidden = false;
                         rowSpanValue = cell.hidden ? 0 : cell.rowSpan;
                         y++;
@@ -1610,6 +1613,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
         
         console.log(currentTable);
+        // console.log(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
 
         let htmlArray = arrayClean([].concat(
             // options.skipTitle ? [] : getTitle(table[0].length) || [],
@@ -1674,7 +1678,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         updateRowAxisDimensionSpan();
     }
 
-    /** @description
+    /** @description renders table given a rowstart and column start.
      *  @param   {number} [rowStart=0] 
      *  @param   {number} [columnStart=0] 
      *  @returns {array}
@@ -1695,6 +1699,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         
         updateColumnAxisDimensionSpan();
         updateRowAxisDimensionSpan();
+        
+        console.log(currentTable);
+        console.log(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
 
         // create html array
         let htmlArray = arrayClean([].concat(
@@ -1709,6 +1716,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     (function() {
         valueLookup = createValueLookup(getTableRowSize(), getTableColumnSize());
         typeLookup  = createTypeLookup(getTableRowSize(), getTableColumnSize());
+
+        console.log(valueLookup);
+
     }());
 
     // constructor
