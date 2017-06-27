@@ -493,6 +493,10 @@ Viewport = function(refs, cmp, config) {
         setScroll: function(fn) {
             this.onScroll = fn;
         },
+        setOnResize: function(fn) {
+            this.onResize = fn;
+            this.onresize = fn;
+        },
         scrollTo: function(x, y) {
             this.body.scrollTo(x, y);
         },
@@ -560,9 +564,14 @@ Viewport = function(refs, cmp, config) {
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
             },
+            resize: {
+                fn: function(e) {
+                    this.onResize(e);
+                }
+            },
             render: function(p) {
-                p.body.on('scroll', function(e){
-                    this.onScroll(e.target.scrollLeft, e.target.scrollTop);
+                p.body.on('scroll', function(e) {
+                    this.onScroll(e);
                 }, p);
             }
         }

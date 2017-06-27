@@ -342,6 +342,7 @@ TableManager = function(c) {
             if (uuidDimUuidsMap.hasOwnProperty(key)) {
                 valueEl = Ext.get(key);
 
+
                 if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
                     valueEl.dom.onValueMouseClick = onValueMouseClick;
                     valueEl.dom.onValueMouseOver = onValueMouseOver;
