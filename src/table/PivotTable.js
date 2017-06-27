@@ -482,23 +482,28 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     const createValueLookup = function(yDimensionSize, xDimensionSize) {
+
         const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
+
         for (var i=0, y=0; i < rowAxis.size; i++, y++) {
-            if ((y + 1) % (rowUniqueFactor + 1) === 0) y++;
-            for (var j=0, x=0, value; j < colAxis.size; j++, x++) {                
-                if ((x + 1) % (colUniqueFactor + 1) === 0) x++;
+
+            if (doColSubTotals() && (y + 1) % (rowUniqueFactor + 1) === 0) y++;
+
+            for (var j=0, x=0, value; j < colAxis.size; j++, x++) {
+
+                if (doRowSubTotals() && (x + 1) % (colUniqueFactor + 1) === 0) x++;
 
                 value = gerResponseValue(i, j);
 
                 lookup[y][x] = value;
 
                 // calculate sub totals
-                if (doColSubTotals())                               lookup[y][nextSubColumnIndex(j)] += value;
-                if (doRowSubTotals())                               lookup[nextSubRowIndex(i)][x]    += value;
+                if (doColSubTotals())                               lookup[nextSubRowIndex(i)][x]     += value;
+                if (doRowSubTotals())                               lookup[y][nextSubColumnIndex(j)]  += value;
 
                 // calculate grand totals
-                if (doColTotals())                                  lookup[y][nextTotalColumnIndex()] += value;
-                if (doRowTotals())                                  lookup[nextTotalRowIndex()][x]    += value;
+                if (doColTotals())                                  lookup[nextTotalRowIndex()][x]    += value;
+                if (doRowTotals())                                  lookup[y][nextTotalColumnIndex()] += value;
             }
         }
         return lookup;
@@ -994,6 +999,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return Math.floor(document.body.clientHeight / cellHeight);
     }
 
+    /** @description
+     *  @param   {number} span 
+     *  @returns {number}
+     */
     getTopBarSpan = function(span) {
         var rowDims = rowAxis.dims || 0;
 
@@ -1009,6 +1018,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return span;
     };
 
+    /** @description
+     *  @param   {number} span 
+     *  @returns {array}
+     */
     getFilterHtmlArray = function(span) {
         if (!layout.filters) return;
 
@@ -1026,7 +1039,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return [row];
     };
 
-    getTitle = function(span) {
+    /** @description builds the title row of the table which will be placed at the top.
+     *               It returns an array with a single element.
+     *  @param {number} span 
+     *  @returns {array}
+     */
+    getTitle = (span) => {
         if (!layout.title) return;
 
         var text = layout.title,
@@ -1079,7 +1097,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             return column;
         }
 
-        x = Math.max(0, x - Math.floor(x / (colUniqueFactor + 1)));
+        if (doRowSubTotals()) {
+            x = Math.max(0, x - Math.floor(x / (colUniqueFactor + 1)));
+        }
 
         for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
             column[i] = createColumnAxisCell(x, y);
@@ -1114,8 +1134,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 continue;
             }
 
+            let yd = y
 
-            column[i] = createRowAxisCell(x, y - Math.floor(y / rowUniqueFactor));
+            if (doColSubTotals()) {
+                yd -= Math.floor(y / rowUniqueFactor);
+            }
+
+            column[i] = createRowAxisCell(x, yd);
         }
         return column;
     }
@@ -1157,9 +1182,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 continue
             }
 
-            row[i] = createColumnAxisCell(x - Math.floor(x / (colUniqueFactor + 1)), y);
-        }
+            let xd = x;
 
+            if (doRowSubTotals()) {
+                xd -= Math.floor(x / (colUniqueFactor + 1));
+            }
+
+            row[i] = createColumnAxisCell(xd, y);
+        }
         return row;
     }
 
@@ -1188,8 +1218,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
             return row;
         }
-        
-        rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (rowUniqueFactor + 1)));
+
+        if (doColSubTotals()) {
+            rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (rowUniqueFactor + 1)));
+        }
 
         for(var i = 0, x = columnStart; x < rowAxis.dims; i++, x++) {
             row[i] = createRowAxisCell(x, rowIndex);
@@ -1244,15 +1276,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         if (columnIndex < rowAxis.dims) {
-            return columnAxis.concat(buildRowAxisColumn(columnIndex, rowStart, rowEnd - 1));
+            return columnAxis.concat(buildRowAxisColumn(columnIndex, rowStart, rowEnd - (colAxis.dims - 1)));
         }
 
         columnIndex -= rowAxis.dims;
 
-        let valueTable = buildValueColumn(columnIndex, rowStart, rowEnd - 1),
+        let valueTable = buildValueColumn(columnIndex, rowStart, rowEnd - (colAxis.dims - 1)),
             column = columnAxis.concat(valueTable);
-
-        console.log(column);
     
         return column;
     };
@@ -1321,7 +1351,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         let axis = new Array(columnEnd - columnStart);
 
-        for (let i=0,x=columnStart; x <= columnEnd; i++, x++) {
+        for (let i=0, x=columnStart; x <= columnEnd; i++, x++) {
             axis[i] = buildColumnAxisColumn(x, rowStart);
         }
 
@@ -1387,10 +1417,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const addPaddingCells = (table, columnStart, columnEnd, rowStart, rowEnd) => {
 
-        let leftCell = createPaddingCell(getLeftPadding(), 25),
-            rightCell = createPaddingCell(getRightPadding(), 25, 1, false),
-            topCell = createPaddingCell(120, getTopPadding(), (columnEnd - columnStart) + 1),
-            bottomCell = createPaddingCell(120, getBottomPadding(), (columnEnd - columnStart) + 1, false);
+        let leftPadding    = getLeftPadding(),
+            rightPadding  = getRightPadding(),
+            topPadding    = getTopPadding(),
+            bottomPadding = getBottomPadding(),
+            leftCell      = createPaddingCell(leftPadding, 25),
+            rightCell     = createPaddingCell(rightPadding, 25, 1, rightPadding <= 0),
+            topCell       = createPaddingCell(120, topPadding, (columnEnd - columnStart) + 1),
+            bottomCell    = createPaddingCell(120, bottomPadding, (columnEnd - columnStart) + 1, bottomPadding <= 0);
+
+        console.log(rightPadding);
 
         for (let i=0; i < table.length; i++) {
             table[i].push(rightCell);
@@ -1486,11 +1522,15 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const updateRowAxisDimensionSpan = () => {
         let rowSpanLimit = t.rowEnd - t.rowStart + 1,
-            yStart = Math.max(0, t.rowStart - colAxis.dims) - Math.floor(Math.max(0, t.rowStart - colAxis.dims) / (rowUniqueFactor + 1)),
+            yStart = Math.max(0, t.rowStart - colAxis.dims),
             rowSpanValue = 0,
             cell;
 
-        for (let i=1; i < colAxis.dims - t.columnStart + 1; i++) {
+        if (doColSubTotals()) {
+            yStart -= Math.floor(Math.max(0, t.rowStart - colAxis.dims) / (rowUniqueFactor + 1));
+        }
+
+        for (let i=1; i < rowAxis.dims - t.columnStart + 1; i++) {
             for (let j=1, y=yStart, rowSpanCounter=0; j < currentTable.length - 1; j++) {
 
                 cell = currentTable[j][i];
@@ -1502,8 +1542,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } break;
                     
                     case 'dimension': {
-                        cell.rowSpan = cell.children   ? cell.children - (y % cell.children) : 1;
-                        cell.hidden  = cell.children  ?  cell.children !== cell.rowSpan : false;
+                        let rowSpan = cell.children * rowAxis.span[i];
+                        cell.rowSpan = cell.children   ? rowSpan - (y % rowSpan) : 1;
+                        cell.hidden  = cell.children  ?  rowSpan !== cell.rowSpan : false;
                         if  (j === 1 && i !== rowAxis.dims) cell.hidden = false;
                         rowSpanValue = cell.hidden ? 0 : cell.rowSpan;
                         y++;
@@ -1542,11 +1583,15 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const updateColumnAxisDimensionSpan = () => {
         let colSpanLimit = t.columnEnd - t.columnStart + 1,
-            xStart = Math.max(0, t.columnStart - rowAxis.dims) -  Math.floor(Math.max(0, t.columnStart - rowAxis.dims) / (colUniqueFactor + 1)),
+            xStart = Math.max(0, t.columnStart - rowAxis.dims),
             colSpanValue = 0,
             cell;
 
-        for (let i=1; i < rowAxis.dims - t.rowStart + 1; i++) {
+        if (doRowSubTotals()) {
+            xStart -=  Math.floor(Math.max(0, t.columnStart - rowAxis.dims) / (colUniqueFactor + 1));
+        }
+
+        for (let i=1; i < colAxis.dims - t.rowStart + 1; i++) {
             for (let j=1, x=xStart, colSpanCounter=0; j < currentTable[i].length - 1; j++) {
 
                 cell = currentTable[i][j];
@@ -1558,8 +1603,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } break;
                     
                     case 'dimension': {
-                        cell.colSpan = cell.children ? cell.children - (x % cell.children) : 1;
-                        cell.hidden =  cell.children ? cell.children !== cell.colSpan : false;
+                        let colSpan = cell.children * colAxis.span[i]
+                        cell.colSpan = cell.children ? colSpan - (x % colSpan) : 1;
+                        cell.hidden =  cell.children ? colSpan !== cell.colSpan : false;
                         if  (j === 1 && i !== colAxis.dims) cell.hidden = false;
                         colSpanValue = cell.hidden   ? 0 : cell.colSpan;
                         x++;
@@ -1679,8 +1725,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     /** @description renders table given a rowstart and column start.
-     *  @param   {number} [rowStart=0] 
-     *  @param   {number} [columnStart=0] 
+     *  @param   {number} [rowStart=0]
+     *  @param   {number} [columnStart=0]
      *  @returns {array}
      */
     renderTable = (rowStart=0, columnStart=0) => {
@@ -1713,12 +1759,25 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return buildHtmlTable(htmlArray);
     };
 
+    /** @description 
+     *  @param {number} widthInPixels 
+     */
+    const setWindowRenderWidth = (widthInPixels) => {
+        t.renderWidth = widthInPixels;
+    }
+
+    /** @description
+     *  @param {number} heightInPixels 
+     */
+    const setWindowRenderHeight = (heightInPixels) => {
+        t.renderHeight = heightInPixels;
+    }
+
     (function() {
         valueLookup = createValueLookup(getTableRowSize(), getTableColumnSize());
         typeLookup  = createTypeLookup(getTableRowSize(), getTableColumnSize());
 
-        console.log(valueLookup);
-
+        console.log(colUniqueFactor, rowUniqueFactor)
     }());
 
     // constructor
