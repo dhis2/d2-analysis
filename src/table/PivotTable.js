@@ -751,12 +751,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        if (rowSubEmpty === colUniqueFactor) setCellEmpty(cell);
+                        if (rowSubEmpty >= colUniqueFactor) setCellEmpty(cell);
                         rowSubEmpty = 0;
                     } continue;
 
                     case 'value-column-subtotal': {
-                        if (columnSubEmpties[j] === rowUniqueFactor) {
+                        if (columnSubEmpties[j] >= rowUniqueFactor) {
                             setCellEmpty(cell);
                             rowIntesectEmpty++;
                         }
@@ -764,28 +764,28 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        if (columnSubEmpties[j] === rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
+                        if (columnSubEmpties[j] >= rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
                         columnSubEmpties[j] = 0;
                     } continue;
 
                     case 'value-row-total':{
-                        if (rowTotalEmpty === colAxis.size) setCellEmpty(cell);
+                        if (rowTotalEmpty >= colAxis.size) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size) setCellEmpty(cell);
+                        if (columnTotalEmpties[j] >= rowAxis.size) setCellEmpty(cell);
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        if (rowIntesectEmpty === colAxis.size) setCellEmpty(cell);
+                        if (rowIntesectEmpty >= colAxis.size) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size * colUniqueFactor) setCellEmpty(cell);
+                        if (columnTotalEmpties[j] >= rowAxis.size * colUniqueFactor) setCellEmpty(cell);
                     } continue;
 
                     case 'value-intersect-total': {
-                        if (columnTotalEmpties[j] === rowAxis.size * colAxis.size) setCellEmpty(cell);
+                        if (columnTotalEmpties[j] >= rowAxis.size * colAxis.size) setCellEmpty(cell);
                     } continue;
                 }
 
