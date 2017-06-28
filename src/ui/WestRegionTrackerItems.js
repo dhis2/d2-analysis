@@ -126,9 +126,14 @@ WestRegionTrackerItems = function(refs) {
             this.clearFilter();
 
             if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
+                dataElementType.store.filterBy(record => { return record.data.id != 'pi' });
+
                 this.filterBy(function(record) {
                     return !record.data.isProgramIndicator;
                 });
+            }
+            else {
+                dataElementType.store.clearFilter();
             }
         }
     });
@@ -317,11 +322,13 @@ WestRegionTrackerItems = function(refs) {
                     // attributes
                     _program.attributes = arrayPluck(_program.programTrackedEntityAttributes, 'trackedEntityAttribute').filter(attribute => {
                         attribute.isAttribute = true;
+                        attribute.name = '[PA] ' + attribute.name;
                         return !attribute.confidential;
                     });
 
                     // mark as program indicator
                     _program.programIndicators.forEach(function(item) {
+                        item.name = '[PI] ' + item.name;
                         item.isProgramIndicator = true;
                     });
 
@@ -439,6 +446,7 @@ WestRegionTrackerItems = function(refs) {
                     // filter by type
                     var dataElements = arrayPluck(stages[0].programStageDataElements, 'dataElement').filter(dataElement => {
                         dataElement.isDataElement = true;
+                        dataElement.name = '[DE] ' + dataElement.name;
                         return include(dataElement);
                     });
 
@@ -451,7 +459,64 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
+    // DHIS2-1496: filter by data element, program attribute or program indicator
+    const dataElementType = Ext.create('Ext.form.field.ComboBox', {
+        editable: false,
+        valueField: 'id',
+        displayField: 'name',
+        queryMode: 'local',
+        width: (accBaseWidth / 2) - 32,
+        listConfig: {loadMask: false},
+        style: 'padding-bottom:1px; border-bottom:1px solid #ddd; margin-bottom:1px',
+        value: 'all',
+        store: {
+            fields: ['id', 'name'],
+            data: [
+                {id: 'all', name: 'All'},
+                {id: 'de', name: 'Data elements'},
+                {id: 'pa', name: 'Program attributes'},
+                {id: 'pi', name: 'Program indicators'}
+            ]
+        },
+        reset: () => {
+            onDataElementTypeSelect('all');
+        },
+        listeners: {
+            select: cmp => {
+                onDataElementTypeSelect(cmp.getValue());
+            }
+        }
+    });
+
+    const onDataElementTypeSelect = type => {
+        dataElementType.setValue(type);
+
+        const store = dataElementsByStageStore;
+
+        switch (type) {
+            case 'all':
+                store.clearFilter();
+                break;
+            case 'de':
+                store.filterBy(record => {
+                    return ! record.data.isAttribute && ! record.data.isProgramIndicator;
+                });
+                break;
+            case 'pa':
+                store.filterBy(record => {
+                    return record.data.isAttribute;
+                });
+                break;
+            case 'pi':
+                store.filterBy(record => {
+                    return record.data.isProgramIndicator;
+                });
+                break;
+        }
+    };
+
     var dataElementLabel = Ext.create('Ext.form.Label', {
+        width: (accBaseWidth / 2) - 32,
         text: i18n.available,
         cls: 'ns-toolbar-multiselect-left-label',
         style: 'margin-right:5px'
@@ -482,9 +547,9 @@ WestRegionTrackerItems = function(refs) {
 
     var dataElementFilter = Ext.create('Ext.form.field.Trigger', {
         cls: 'ns-trigger-filter',
-        emptyText: 'Filter available..',
+        emptyText: 'Filter available...',
         height: 22,
-        width: 170,
+        width: (accBaseWidth / 2) - 5,
         hidden: true,
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
@@ -494,6 +559,8 @@ WestRegionTrackerItems = function(refs) {
                 this.reset();
                 this.onKeyUpHandler();
             }
+
+            dataElementSearch.hideFilter();
         },
         onKeyUpHandler: function() {
             var store = dataElementsByStageStore,
@@ -541,6 +608,7 @@ WestRegionTrackerItems = function(refs) {
             dataElementLabel,
             dataElementSearch,
             dataElementFilter,
+            dataElementType,
             '->',
             {
                 xtype: 'button',
@@ -2497,8 +2565,9 @@ WestRegionTrackerItems = function(refs) {
         });
 
         dataFilter = Ext.create('Ext.form.field.Trigger', {
+            width: accBaseWidth / 2,
             cls: 'ns-trigger-filter',
-            emptyText: 'Filter available..',
+            emptyText: 'Filter available...',
             height: 22,
             hidden: true,
             enableKeyEvents: true,
