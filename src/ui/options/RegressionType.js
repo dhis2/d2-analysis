@@ -19,7 +19,9 @@ const RegressionTypeSelect = function (refs) {
             fields: ['id', 'text'],
             data: [
                 { id: 'NONE', text: i18n.none },
-                { id: 'LINEAR', text: i18n.linear }
+                { id: 'LINEAR', text: i18n.linear },
+                { id: 'POLYNOMIAL', text: i18n.polynomial },
+                { id: 'LOESS', text: i18n.loess }
             ]
         })
     });
