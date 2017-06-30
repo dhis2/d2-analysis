@@ -173,14 +173,14 @@ export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
  *  @param   {string} value 
  *  @returns {object} 
  */
-const DimensionLabelCell = (value) => {
+export const DimensionLabelCell = (value) => {
     const cell = DefaultCell();
 
     cell.value = value;
     cell.type  = 'empty';
     cell.cls   = 'pivot-dim-label';
 
-    htmlValue = value;
+    cell.htmlValue = value;
 
     return cell;
 };

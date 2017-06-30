@@ -132,52 +132,87 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         tdCount = 0,
         ignoreDimensionIds = ['dy'];
 
-
-    doColTotals = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doColTotals = () => {
         return !!layout.showColTotals;
     };
 
-    doRowTotals = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doRowTotals = () => {
         return !!layout.showRowTotals;
     };
 
-    doColSubTotals = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doColSubTotals = () => {
         return !!layout.showColSubTotals && rowAxis.type && rowAxis.dims > 1;
     };
 
-    doRowSubTotals = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doRowSubTotals = () => {
         return !!layout.showRowSubTotals && colAxis.type && colAxis.dims > 1;
     };
 
-    doColPercentage = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doColPercentage = () => {
         return layout.numberType === optionConfig.getNumberType().percentofcolumn.id;
     };
 
-    doRowPercentage = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doRowPercentage = () => {
         return layout.numberType === optionConfig.getNumberType().percentofrow.id;
     };
 
-    doSortableColumnHeaders = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doSortableColumnHeaders = () => {
         return (rowAxis.type && rowAxis.dims === 1);
     };
 
-    doSortableColumnHeaders = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doSortableColumnHeaders = () => {
         return (rowAxis.type && rowAxis.dims === 1);
     };
 
-    doHideEmptyRows = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doHideEmptyRows = () => {
         return layout.hideEmptyRows && colAxis.type && rowAxis.type;
     };
 
-    doHideEmptyColumns = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doHideEmptyColumns = () => {
         return layout.hideEmptyColumns && colAxis.type && rowAxis.type;
     };
 
-    doShowDimensionLabels = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doShowDimensionLabels = () => {
         return layout.showDimensionLabels;
     };
 
-    doDynamicTableUpdate = function() {
+    /** @description
+     *  @returns {boolean}
+     */
+    doDynamicTableUpdate = () => {
         return true;
     };
 
@@ -259,85 +294,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         if (doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
         if (doColTotals()) size += 1;
         return size;
-    };
-
-    /** @description
-     *  @param   {number} columnIndex 
-     *  @param   {number} rowStart 
-     *  @returns {array} 
-     */
-    const buildCornerColumnAxis = (columnIndex, rowStart) => {
-        let column = new Array(colAxis.dims - columnIndex);
-
-        for (let i=0; i < column.length; i++) {
-            column[i] = getEmptyHtmlArray(rowStart++)[columnIndex];
-        }
-
-        return column;
-    };
-
-    /** @description
-     *  @param   {number} i 
-     *  @returns {array}
-     */
-    getEmptyHtmlArray = function(i) {
-        var html = [],
-            isIntersectionCell = i < colAxis.dims - 1;
-
-        if (rowAxis.type && rowAxis.dims) {
-            for (var j = 0; j < rowAxis.dims - 1; j++) {
-                html.push(DimensionLabelCell(!isIntersectionCell ? response.getNameById(rowDimensionNames[j]) : '',));
-            }
-        }
-        
-        var cellValue = isIntersectionCell ? response.getNameById(columnDimensionNames[i]) :
-                response.getNameById(rowDimensionNames[j]) + 
-                (colAxis.type && rowAxis.type ? '&nbsp;/&nbsp;' : '') + 
-                response.getNameById(columnDimensionNames[i]);
-
-        html.push(DimensionLabelCell(cellValue));
-
-        return html;
-    };
-
-
-    const buildCornerAxisRow = (rowIndex, columnStart) => {
-        const cornerAxis = [];
-
-        for (let i=0,; x < rowAxis.dims - columnStart; i++) {
-            cornerAxis[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]))
-        }
-
-        return cornerAxis;
-    };
-
-    const buildCornerAxisColumn = (columnIndex, rowStart) => {
-        const cornerAxis = [];
-
-        for (let i=0; y < colAxis.dims - rowStart; i++) {
-            cornerAxis[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]))
-        }
-
-        return cornerAxis;
-    }
-
-    const buildCornerAxis = () => {
-        const cornerAxis = [];
-
-        return cornerAxis;
-    }
-
-    const getDimensionColArray = function() {
-        const dimensionColArray = [];
-        // show row dimension labels
-        if (rowAxis.type && layout.showDimensionLabels) {
-            dimensionColArray[i] = new Array(rowDimensionNames.length);
-            // colAxisArray from row object names
-            for (var i = 0; i < rowDimensionNames.length; i++) {
-                dimensionColArray[i][j] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]));
-            }
-        }
-        return dimensionColArray;
     };
 
     /** @description gets the html value of given object.
@@ -524,8 +480,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return number;
     };
 
-    /** @description
-     *  @param {number} number 
+    /** @description returns the number of decumal of given float
+     *  @param   {number} number 
      *  @returns {number}
      */
     const getNumberOfDecimals = (number) => {
@@ -642,9 +598,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return cell;
     };
     
-    /** @description 
-     *  @param {number} columnIndex 
-     *  @param {number} rowIndex 
+    /** @description gets value cell based on its type.
+     *  @param   {number} columnIndex 
+     *  @param   {number} rowIndex 
      *  @returns {object}
      */
     const getValueCell = (columnIndex, rowIndex) => {
@@ -1051,11 +1007,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             sort = null;
 
         if (columnIndex < rowAxis.dims) {
-            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
-                if (i === 0) column[i] = DimensionEmptyCell(rowAxis.dims - columnIndex, colAxis.dims - y, columnIndex !== t.columnStart);
-                else         column[i] = DimensionEmptyCell(rowAxis.dims - columnIndex, colAxis.dims - y, true);
-            }
-            return column;
+            return buildCornerAxisColumn(columnIndex, rowStart);
         }
 
         columnIndex -= rowAxis.dims
@@ -1346,7 +1298,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {array}
      */ 
     const buildColumnAxis = (columnStart, columnEnd, rowStart) => {
-        if (!colAxis.type) return getDimensionColArray();
+        if (!colAxis.type) return buildCornerAxisRow(0, 0);
 
         let axis = new Array(columnEnd - columnStart);
 
@@ -1356,6 +1308,93 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         return axis;
     };
+
+    /** @description builds a single row of the corner axis dimension of the table.
+     *  @param   {number} rowIndex 
+     *  @param   {number} columnStart 
+     *  @returns {array}
+     */
+    const buildCornerAxisRow = (rowIndex, columnStart) => {
+        const row = new Array(rowAxis.dims - columnStart);
+
+        if (!doShowDimensionLabels()) {
+            row[i] = DimensionEmptyCell(rowAxis.dims - x, colAxis.dims - rowIndex, columnStart === t.columnStart);
+            for (let i=0, x=columnStart; x < rowAxis.dims; i++, x++) {
+                row[i] = DimensionEmptyCell(rowAxis.dims - x, colAxis.dims - rowIndex, true);
+            }
+            return row;
+        }
+
+        if (rowIndex === colAxis.dims - 1) {
+            for (let i=columnStart; i < rowAxis.dims - 1; i++) {
+                row[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]));
+            }
+
+            let colAxisLabel = colAxis.type ? response.getNameById(columnDimensionNames[rowAxis.dims - 1]) : null,
+                rowAxisLabel = rowAxis.type ? response.getNameById(rowDimensionNames[colAxis.dims - 1]) : null;
+
+            row[rowAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
+        }
+
+        else {
+            for (let i=columnStart; i < rowAxis.dims - 1; i++) {
+                row[i] = DimensionEmptyCell(1, 1, false);
+            }
+            row[rowAxis.dims - 1] = DimensionLabelCell(response.getNameById(columnDimensionNames[rowIndex]))
+        }
+
+        return row;
+    };
+
+    /** @description builds a single column of the corner axis dimension of the table.
+     *  @param   {number} columnIndex 
+     *  @param   {number} rowStart 
+     *  @returns {array}
+     */
+    const buildCornerAxisColumn = (columnIndex, rowStart) => {
+        const column = new Array(colAxis.dims - rowStart);
+
+        if (!doShowDimensionLabels()) {
+            column[0] = DimensionEmptyCell(rowAxis.dims - columnIndex, colAxis.dims - rowStart, columnIndex !== t.columnStart);
+            for (let i=1, y=rowStart + 1; y < colAxis.dims; i++, y++) {
+                column[i] = DimensionEmptyCell(rowAxis.dims - columnIndex, colAxis.dims - y, true);
+            }
+            return column;
+        }
+
+        if (columnIndex === rowAxis.dims - 1) {
+            for (let i=rowStart; i < colAxis.dims - 1; i++) {
+                column[i] = DimensionLabelCell(response.getNameById(columnDimensionNames[i]));
+            }
+
+            let colAxisLabel = colAxis.type ? response.getNameById(columnDimensionNames[rowAxis.dims - 1]) : null,
+                rowAxisLabel = rowAxis.type ? response.getNameById(rowDimensionNames[colAxis.dims - 1]) : null;
+
+            column[colAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
+        }
+
+        else {
+            for (let i=rowStart; i < rowAxis.dims - 1; i++) {
+                column[i] = DimensionEmptyCell(1, 1, false);
+            }
+            column[rowAxis.dims - 1] = DimensionLabelCell(response.getNameById(rowDimensionNames[columnIndex]))
+        }
+
+        return column;
+    }
+
+    /** @description builds the corner axis dimension of the table.
+     *  @returns {array}
+     */
+    const buildCornerAxis = () => {
+        const cornerAxis = new Array(colAxis.dims);
+
+        for (let i=0; i < colAxis.dims; i++) {
+            cornerAxis[i] = buildCornerAxisRow(i, 0);
+        }
+
+        return cornerAxis;
+    }
     
     /** @description Builds the value table of the table.
      *  @param   {number} rowStart 
@@ -1737,6 +1776,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     (function() {
         valueLookup = createValueLookup(getTableRowSize(), getTableColumnSize());
         typeLookup  = createTypeLookup(getTableRowSize(), getTableColumnSize());
+
+        console.log(buildColumnAxisColumn(0, 0));
+        console.log(buildCornerAxisColumn(0, 0))
     }());
 
     // constructor
