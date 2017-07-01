@@ -1,5 +1,6 @@
 import { ResponseRowIdCombination } from '../api/ResponseRowIdCombination';
 import { getRoundedHtmlValue } from './PivotTableUtils';
+import uuid from 'd2-utilizr/lib/uuid';
 
 /** @description factory function for cell with default options.
  *  @returns {object}
@@ -177,7 +178,7 @@ export const DimensionLabelCell = (value) => {
     const cell = DefaultCell();
 
     cell.value = value;
-    cell.type  = 'empty';
+    cell.type  = 'labeled';
     cell.cls   = 'pivot-dim-label';
 
     cell.htmlValue = value;
@@ -214,17 +215,9 @@ export const PaddingCell = (width, height, colSpan, rowSpan, hidden) => {
 
 // TODO: THESE NEED WORK
 
-const ValueCell = (value, columnIndex, rowIndex, rowAxis, colAxis, response) => {
-    const cell = DefaultCell(),
-            rric  = new ResponseRowIdCombination(),
-            uuids = [];
+export const ValueCell = (value, response, rric, uuids) => {
+    const cell  = DefaultCell();
     
-    rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
-    rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
-
-    if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
-    if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
-
     cell.uuid       = uuid();
     cell.uuids      = uuids;
 
@@ -238,8 +231,6 @@ const ValueCell = (value, columnIndex, rowIndex, rowAxis, colAxis, response) => 
     cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
     cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
     cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
-
-    uuidDimUuidsMap[cell.uuid] = uuids;
 
     return cell;
 };
