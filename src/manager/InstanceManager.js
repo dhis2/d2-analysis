@@ -143,17 +143,19 @@ InstanceManager.prototype.getById = function(id, fn) {
         baseUrl: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id + '.json',
         type: 'json',
         success: function(r) {
+            var onComplete = function(xhr) {
+                var permissions = {200: "write", 403: "read", 404: "none"};
+                var permission = permissions[xhr.status] || "none";
+                var layout = new t.api.Layout(t.refs, r, {permission: permission});
+                if (layout) {
+                    fn(layout, true);
+                }
+            };
             new t.api.Request({
                 baseUrl: appManager.getApiPath() + '/sharing',
                 type: 'json',
-                complete: function(sharing, statusText, xhr) {
-                    var permissions = {200: "write", 403: "read", 404: "none"};
-                    var permission = permissions[xhr.status] || "none";
-                    var layout = new t.api.Layout(t.refs, r, {permission: permission});
-                    if (layout) {
-                        fn(layout, true);
-                    }
-                }
+                error: function(xhr, statusText, error) { onComplete(xhr); },
+                success: function(sharing, statusText, xhr) { onComplete(xhr); },
             }).add({type: t.apiResource, id: id}).run();
         },
         error: function(r) {
