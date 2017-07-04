@@ -1302,7 +1302,6 @@ WestRegionAggregateItems = function(c) {
         listeners: {
             select: function(cb) {
                 dataElementGroup.loadAvailable(true);
-                dataSelectedStore.removeByProperty('objectName', 'de');
             }
         }
     });
