@@ -39,10 +39,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     const t = this;
 
-    const { appManager, uiManager, dimensionConfig, optionConfig } = refs;
-
-    const { ResponseRowIdCombination } = refs.api;
-    const { unclickable } = options;
+    const { appManager, uiManager, dimensionConfig, optionConfig } = refs,
+          { ResponseRowIdCombination } = refs.api,
+          { unclickable } = options;
 
     options = options || {};
 
@@ -61,47 +60,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         'value-intersect-total':        6,
     };
 
-    // inititalize global variables/functions
-
-    // global functions
-        // table builder
+    // inititalize global variables
     let currentTable,
         currentHtmlTable,
-        getEmptyHtmlArray,
-        getRoundedHtmlValue,
-        getTdHtml,
-        buildHtmlRows,
-        getTopBarSpan,
-        getFilterHtmlArray,
-        buildHtmlTable,
-        renderTable,
 
-        // table options
-        doColTotals,
-        doRowTotals,
-        doColSubTotals,
-        doRowSubTotals,
-        doColPercentage,
-        doRowPercentage,
-        doHideEmptyRows,
-        doHideEmptyColumns,
-        doShowDimensionLabels, 
-        doSortableColumnHeaders,
-        doDynamicTableUpdate,
-
-        // table transformations
-        transformColPercentage,
-        transformRowPercentage,
-
-        // utils
-        getValue,
-        roundIf,
-        getUniqueFactor,
-        getTableColumnSize,
-        getTableRowSize,
-        getHtmlValue,
-
-    // global variables
         // row axis
         rowUniqueFactor,
         rowDimensionNames,
@@ -130,91 +92,84 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         tdCount = 0,
         ignoreDimensionIds = ['dy'];
 
-    /** @description
+    /** @description checks if show column totals is enabled.
      *  @returns {boolean}
      */
-    doColTotals = () => {
+    const doColTotals = () => {
         return !!layout.showColTotals;
     };
 
-    /** @description
+    /** @description checks if row totals is enabled.
      *  @returns {boolean}
      */
-    doRowTotals = () => {
+    const doRowTotals = () => {
         return !!layout.showRowTotals;
     };
 
-    /** @description
+    /** @description checks if column sub totals is enabled.
      *  @returns {boolean}
      */
-    doColSubTotals = () => {
+    const doColSubTotals = () => {
         return !!layout.showColSubTotals && rowAxis.type && rowAxis.dims > 1;
     };
 
-    /** @description
+    /** @description checks if row sub totals is enabled.
      *  @returns {boolean}
      */
-    doRowSubTotals = () => {
+    const doRowSubTotals = () => {
         return !!layout.showRowSubTotals && colAxis.type && colAxis.dims > 1;
     };
 
-    /** @description
+    /** @description checks if column percentage is enabled.
      *  @returns {boolean}
      */
-    doColPercentage = () => {
+    const doColPercentage = () => {
         return layout.numberType === optionConfig.getNumberType().percentofcolumn.id;
     };
 
-    /** @description
+    /** @description checks if row percentage is enabled.
      *  @returns {boolean}
      */
-    doRowPercentage = () => {
+    const doRowPercentage = () => {
         return layout.numberType === optionConfig.getNumberType().percentofrow.id;
     };
 
-    /** @description
+    /** @description checks if column headers are sortable.
      *  @returns {boolean}
      */
-    doSortableColumnHeaders = () => {
+    const doSortableColumnHeaders = () => {
         return (rowAxis.type && rowAxis.dims === 1);
     };
 
-    /** @description
+    /** @description checks if hide empty rows is enabled.
      *  @returns {boolean}
      */
-    doSortableColumnHeaders = () => {
-        return (rowAxis.type && rowAxis.dims === 1);
-    };
-
-    /** @description
-     *  @returns {boolean}
-     */
-    doHideEmptyRows = () => {
+    const doHideEmptyRows = () => {
         return layout.hideEmptyRows && colAxis.type && rowAxis.type;
     };
 
-    /** @description
+    /** @description checks if hide empty columns is enabled.
      *  @returns {boolean}
      */
-    doHideEmptyColumns = () => {
+    const doHideEmptyColumns = () => {
         return layout.hideEmptyColumns && colAxis.type && rowAxis.type;
     };
 
-    /** @description
+    /** @description checks if dimension labels is enabled.
      *  @returns {boolean}
      */
-    doShowDimensionLabels = () => {
+    const doShowDimensionLabels = () => {
         return layout.showDimensionLabels;
     };
 
-    /** @description 
+    /** @description checks if dynamic table is enabled.
      *  @returns {boolean}
      */
-    doDynamicTableUpdate = () => {
+    const doDynamicTableUpdate = () => {
         return true;
     };
 
-    /** @description
+    /** @description checks for show hierarchy.
      *  @returns {boolean}
      */
     const doShowHierarchy = () => {
@@ -269,11 +224,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return valueLookup[getTableRowSize() - 1][columnIndex] <= 0;
     };
 
-    /** @description
-     *  @param   {any} xAxis 
+    /** @description gets the uniuqe factor for the axis (number of elements within highest level parent).
+     *  @param   {object} xAxis 
      *  @returns {number}
      */
-    getUniqueFactor = (xAxis) => {
+    const getUniqueFactor = (xAxis) => {
         var unique;
 
         if (!xAxis.xItems) {
@@ -306,12 +261,30 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     };
 
+    /** @description collapses parents of given object.
+     *  @param {object} obj 
+     */
+    const recursiveReduce2 = (obj) => {
+        if (!obj.children) {
+            obj.collapsed = true;
+
+            if (obj.parent && obj.parent.oldestSibling) {
+                obj.parent.oldestSibling.children--;
+                obj.parent.knicked = true;
+            }
+        }
+
+        if (obj.parent) {
+            recursiveReduce2(obj.parent);
+        }
+    };
+
     /** @description returns the rounded value of the given float.
      *  @param   {number} value 
      *  @param   {number} [dec=2] 
      *  @returns {number}
      */
-    getRoundedHtmlValue = (value, dec=2) => {
+    const getRoundedHtmlValue = (value, dec=2) => {
         return parseFloat(roundIf(value, 2)).toString();
     };
 
@@ -327,7 +300,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     /** @description returns the size of the column axis not including the corner cell.
      *  @returns {number}
      */
-    getTableColumnSize = () => {
+    const getTableColumnSize = () => {
         let size = colAxis.size;
         if (doRowSubTotals()) size += colAxis.size / colUniqueFactor;
         if (doRowTotals()) size += 1;
@@ -337,7 +310,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     /** @description returns the size of the row axis not including the corner cell.
      *  @returns {number}
      */
-    getTableRowSize = () => {
+    const getTableRowSize = () => {
         let size = rowAxis.size;
         if (doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
         if (doColTotals()) size += 1;
@@ -349,7 +322,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {bool} isValue 
      *  @returns {string}
      */
-    getHtmlValue = (config, isValue) => {
+    const getHtmlValue = (config, isValue) => {
         if (config.collapsed) {
             return '';
         }
@@ -385,7 +358,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {string} metaDataId 
      *  @returns {object}
      */
-    getTdHtml = (config, metaDataId) => {
+    const getTdHtml = (config, metaDataId) => {
         var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
         var isValue = isNumeric && config.type === 'value';
         var bgColor;
@@ -461,17 +434,17 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             style.push(bgColor && isValue ? 'color:' + bgColor + '; ' : '');
         }
         
-        style.push(`min-width:${config.width}px!important;`);
-        style.push(`min-height:${config.height}px!important;`);
-        style.push(`max-width:${config.width}px!important;`);
-        style.push(`max-height:${config.height}px!important;`);
-        style.push(`width:${config.width}px!important;`);
-        style.push(`height:${config.height}px!important;`);
-
-        style.push(`white-space: nowrap!important;`);
-        style.push(`overflow: hidden!important;`);
-        style.push(`text-overflow: ellipsis!important;`);
-        
+        if (doDynamicTableUpdate()) {
+            style.push(`min-width:${config.width}px!important;`);
+            style.push(`min-height:${config.height}px!important;`);
+            style.push(`max-width:${config.width}px!important;`);
+            style.push(`max-height:${config.height}px!important;`);
+            style.push(`width:${config.width}px!important;`);
+            style.push(`height:${config.height}px!important;`);
+            style.push(`white-space: nowrap!important;`);
+            style.push(`overflow: hidden!important;`);
+            style.push(`text-overflow: ellipsis!important;`);
+        }
 
         // attributes
         cls = arrayClean(cls);
@@ -493,7 +466,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {string} str 
      *  @returns {number}
      */
-    getValue = (str) => {
+    const getValue = (str) => {
         var n = parseFloat(str);
 
         if (isBoolean(str)) {
@@ -512,7 +485,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} precision 
      *  @returns {number}
      */
-    roundIf = (number, precision) => {
+    const roundIf = (number, precision) => {
         number = parseFloat(number);
         precision = parseFloat(precision);
 
@@ -672,24 +645,20 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const hideEmptyColumns = () => {
         for (let i = rowAxis.dims + 1, dimLeaf; i < currentTable[1].length - 1; i++) {
             if (isColumnEmpty(i - (rowAxis.dims + 1))) {
-
-                // for (let j = colAxis.dims - t.rowStart + 1; j < currentTable.length - 1; j++) {
-                //     currentTable[j][i].collapsed = true;
-                // }
-
-                for (let j = 1; j < currentTable.length - 1; j++) {
-                    currentTable[j][i].collapsed = true;
-                }
-
-
                 if (t.rowStart < colAxis.dims) {
                     dimLeaf = currentTable[colAxis.dims - t.rowStart][i];
                     if (dimLeaf.type === 'dimensionSubtotal') {
                         currentTable[1][i].collapsed = true;
                     }
-                    recursiveReduce(dimLeaf);
-                }
 
+                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
+                        recursiveReduce2(dimLeaf);
+                    }
+                }
+                
+                for (let j = 1; j < currentTable.length - 1; j++) {
+                    currentTable[j][i].collapsed = true;
+                }
             }
         }
     };
@@ -700,17 +669,18 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const hideEmptyRows = () => {
         for (let i = colAxis.dims + 1 - t.rowStart, dimLeaf; i < currentTable.length - 1; i++) {
             if (isRowEmpty(i - (colAxis.dims + 1  - t.rowStart))) {
-
-                for (let j = rowAxis.dims - t.columnStart + 1; j < currentTable[i].length - 1; j++) {
-                    currentTable[i][j].collapsed = true;
-                }
-
                 if (t.columnStart < rowAxis.dims) {
                     dimLeaf = currentTable[i][rowAxis.dims - t.columnStart];
                     if (dimLeaf.type === 'dimensionSubtotal') {
                         currentTable[i][1].collapsed = true;
                     }
-                    recursiveReduce(dimLeaf);
+                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
+                        recursiveReduce2(dimLeaf);
+                    }
+                }
+
+                for (let j = 1; j < currentTable[i].length - 1; j++) {
+                    currentTable[i][j].collapsed = true;
                 }
             }            
         }
@@ -719,7 +689,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     /** @description transforms values in columns to percentages.
      *  @param {array} table 
      */
-    transformColPercentage = (table) => {
+    const transformColPercentage = (table) => {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
                 if(!table[i][j].empty) {
@@ -736,7 +706,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     /** @description transforms values in rows to percentages.
      *  @param {array} table 
      */
-    transformRowPercentage = (table) => {
+    const transformRowPercentage = (table) => {
         for(var i = 0; i < table.length; i++) {
             for (var j = 0; j < table[i].length; j++) {
                 if (!table[i][j].empty) {
@@ -844,7 +814,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} span 
      *  @returns {number}
      */
-    getTopBarSpan = (span) => {
+    const getTopBarSpan = (span) => {
         var rowDims = rowAxis.dims || 0;
 
         if (!layout.showDimensionLabels) {
@@ -974,7 +944,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} span 
      *  @returns {array}
      */
-    getFilterHtmlArray = (span) => {
+    const getFilterHtmlArray = (span) => {
         if (!layout.filters) return;
 
         var text = layout.filters.getRecordNames(false, layout.getResponse(), true),
@@ -1186,7 +1156,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (rowUniqueFactor + 1)));
         }
 
-        for(var i = 0, x = columnStart; x < rowAxis.dims; i++, x++) {
+        for (var i = 0, x = columnStart; x < rowAxis.dims; i++, x++) {
             let axisObject = rowAxis.objects.all[x][rowIndex];
             row[i] = RowAxisCell(axisObject, response, doShowHierarchy(), !(axisObject.rowSpan || axisObject.colSpan));
         }
@@ -1468,7 +1438,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {array} objectArray 
      *  @returns {array}
      */
-    buildHtmlRows = (objectArray) => {
+    const buildHtmlRows = (objectArray) => {
         const html = [];
         for (let i=0; i < objectArray.length; i++) {
             for (var j=0, htmlRow=[]; j < objectArray[i].length; j++) {
@@ -1483,7 +1453,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {array} htmlArray 
      *  @returns {array}
      */
-    buildHtmlTable = (htmlArray) => {
+    const buildHtmlTable = (htmlArray) => {
         var cls = 'pivot user-select',
             table;
 
@@ -1517,6 +1487,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 cell = currentTable[j][i];
                 cell.hidden = true;
 
+                if (cell.collapsed) continue;
+
                 switch (cell.type) {
                     case 'empty': {
                         rowSpanValue = 1;
@@ -1526,11 +1498,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } break;
                     
                     case 'dimension': {
-                        let rowSpan = cell.children * rowAxis.span[x + 1];
+                        let rowSpan = cell.oldestSibling.children * rowAxis.span[x + 1];
+
                         cell.rowSpan = cell.children ? rowSpan - (y % rowSpan) : 1;
+                        
                         cell.hidden  = cell.children ?  rowSpan !== cell.rowSpan : false;
+                        
                         if  (j === 1 && i !== rowAxis.dims) cell.hidden = false;
+                        
                         rowSpanValue = cell.hidden ? 0 : cell.rowSpan;
+                        
                         y++;
                     } break;                    
 
@@ -1580,6 +1557,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                 cell = currentTable[i][j];
                 cell.hidden = true;
+
+                if (cell.collapsed) continue;
 
                 switch (cell.type) {
                     case 'empty': {
@@ -1735,14 +1714,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             updatePaddingCells();
             updateColumnAxisDimensionSpan();
             updateRowAxisDimensionSpan();
-
-            if (doHideEmptyColumns()) {
-                hideEmptyColumns();
-            }
-
-            if (doHideEmptyRows()) {
-                hideEmptyRows();
-            }
         }
     };
 
@@ -1751,7 +1722,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} [columnStart=0]
      *  @returns {array}
      */
-    renderTable = (rowStart=0, columnStart=0) => {
+    const renderTable = (rowStart=0, columnStart=0) => {
 
         t.columnStart = columnStart;
         t.columnEnd = getColumnEnd(columnStart);
@@ -1765,7 +1736,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         // add padding cells to each side of table
         addPaddingCells(currentTable, t.columnStart, t.columnEnd, t.rowStart, t.rowEnd);
         
-
         if (doHideEmptyRows()) {
             hideEmptyRows();
         }
@@ -1812,6 +1782,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         for (let i = 0; i < numberOfHorizontalUpdatres; i++) {
             applyChangesToTable(columnStart, columnEnd, rowStart, rowEnd, i === numberOfHorizontalUpdatres - 1) ;
         }
+
+        if (doHideEmptyColumns()) {
+            hideEmptyColumns();
+        }
+
+        if (doHideEmptyRows()) {
+            hideEmptyRows();
+        }
+
+        console.log(currentTable);
 
         let htmlArray = arrayClean([].concat(
             // options.skipTitle ? [] : buildTableTitle(currentTable[1].length) || [],
