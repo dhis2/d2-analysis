@@ -56,31 +56,14 @@ export const toRow = (array) => {
     return row;
 }
 
-/** @description returns the rounded value of the given float.
- *  @param   {number} value 
- *  @param   {number} [dec=2] 
+/** @description returns the number of decumal of given float
+ *  @param   {number} number 
  *  @returns {number}
- */
-export const getRoundedHtmlValue = (value, dec=2) => {
-    return parseFloat(roundIf(value, 2)).toString();
-};
-
-/** @description
- *  @param {number} number 
- *  @returns {number}
+ *  @deprecated should switch to use function located in d2-utilizr
  */
 export const getNumberOfDecimals = (number) => {
     var str = new String(number);
     return (str.indexOf('.') > -1) ? (str.length - str.indexOf('.') - 1) : 0;
-};
-
-/** @description get percentage representation of value.
- *  @param   {number} value 
- *  @param   {number} total 
- *  @returns {string}
- */
-export const getPercentageHtml = (value, total) => {
-    return getRoundedHtmlValue((value / total) * 100) + '%';
 };
 
 /** @description deletes a number of rows of given table at given row index.
@@ -101,4 +84,22 @@ export const deleteColumn = (table, columnIndex, quantity=1) => {
     for (let i = 1; i < table.length - 1; i++) {
         table[i].splice(columnIndex, quantity);
     }
+};
+
+/** @description returns the rounded value of the given float.
+ *  @param   {number} value 
+ *  @param   {number} [dec=2] 
+ *  @returns {number}
+ */
+export const getRoundedHtmlValue = (value, dec=2) => {
+    return parseFloat(roundIf(value, 2)).toString();
+};
+
+/** @description get percentage representation of value.
+ *  @param   {number} value 
+ *  @param   {number} total 
+ *  @returns {string}
+ */
+export const getPercentageHtml = (value, total) => {
+    return getRoundedHtmlValue((value / total) * 100) + '%';
 };

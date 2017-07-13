@@ -184,7 +184,7 @@ PivotTableAxis = function(refs, layout, response, type) {
     for (var i = 0, aAboveFloorObjects, doorIds, uniqueDoorIds; i < aaAllFloorObjects.length; i++) {
         doorIds = [];
 
-        for (var j = 0, obj, doorCount = 0, oldestObj; j < aaAllFloorObjects[i].length; j++) {
+        for (var j = 0, obj, doorCount = 0, siblingPosition = 0, oldestObj; j < aaAllFloorObjects[i].length; j++) {
 
             obj = aaAllFloorObjects[i][j];
             doorIds.push(obj.id);
@@ -210,8 +210,13 @@ PivotTableAxis = function(refs, layout, response, type) {
                 // tmp oldest uuid
                 oldestObj = obj;
             }
-            
+
             obj.oldestSibling = oldestObj;
+            obj.siblingPosition = siblingPosition++;
+
+            if (aaAllFloorObjects[i][j + 1] && obj.id !== aaAllFloorObjects[i][j + 1].id) {
+                siblingPosition = 0;
+            }
 
             if (++doorCount === aFloorSpan[i]) {
                 doorCount = 0;
