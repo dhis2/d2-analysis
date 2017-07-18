@@ -148,9 +148,9 @@ InstanceManager.prototype.getById = function(id, fn) {
             new t.api.Request({
                 baseUrl: appManager.getApiPath() + '/sharing',
                 type: 'json',
-                complete: function(sharing) {
+                complete: function(sharing, statusText, xhr) {
                     var permissions = {200: "write", 403: "read", 404: "none"};
-                    var permission = permissions[sharing.status] || "none";
+                    var permission = permissions[xhr.status] || "none";
                     var layout = new t.api.Layout(t.refs, r, {permission: permission});
                     if (layout) {
                         fn(layout, true);

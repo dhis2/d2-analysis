@@ -64,9 +64,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     t.name = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(item => isString(item));
 
         // title
-    if (isString(c.title)) {
-        t.title = c.title;
-    }
+    t.title = arrayClean([c.displayShortName, c.title]).find(item => isString(item));
 
         // description
     if (isString(c.description)) {
