@@ -40,11 +40,11 @@ export const ValueSubTotalCell = (value) => {
  *  @param   {number} value 
  *  @returns {object}
  */
-export const ValueGrandTotalCell = (value) => {
+export const ValueTotalCell = (value) => {
     const cell = DefaultCell();
 
     cell.value     = value;
-    cell.type      = 'valueTotalSubgrandtotal';
+    cell.type      = 'valueTotal';
     cell.cls       = 'pivot-value-total-subgrandtotal';
 
     cell.empty     = value <= 0;
@@ -70,7 +70,7 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     cell.width     = 120;
     cell.height    = 25;
 
-    cell.type      = 'rowDimension';
+    cell.type      = 'dimension';
     cell.cls       = 'pivot-dim td-nobreak' + (showHierarchy ? ' align-left' : '');
 
     cell.noBreak   = true;
@@ -98,13 +98,16 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
     cell.width     = 120;
     cell.height    = 25;
 
-    cell.type      = 'columnDimension';
+    cell.type      = 'dimension';
     cell.cls       = 'pivot-dim';
 
     cell.noBreak   = false;
     cell.hidden    = hidden;
 
-    cell.sort      = sort ? sort : null; 
+    if (sort) {
+        cell.sort  = sort;
+        cell.cls += ' td-sortable';
+    }
     
     cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
 
@@ -147,7 +150,7 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     const cell = DefaultCell();
 
     cell.value   = value;
-    cell.type    = 'dimensionSubtotal';
+    cell.type    = 'dimensionTotal';
     cell.cls     = 'pivot-dim-total';
 
     cell.colSpan = colSpan;
@@ -206,7 +209,7 @@ export const DimensionLabelCell = (value) => {
  *   @param   {boolean} hidden 
  *   @returns {object}
  */
-export const PaddingCell = (width, height, colSpan, rowSpan, hidden) => {
+export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
     const cell = DefaultCell();
 
     cell.value     = '&nbsp;';
@@ -224,6 +227,18 @@ export const PaddingCell = (width, height, colSpan, rowSpan, hidden) => {
     return cell;
 };
 
+export const FilterCell = (text, colSpan) => {
+    const cell = DefaultCell();
+
+    cell.type      = 'filter',
+    cell.cls       = 'pivot-filter cursor-default',
+    cell.colSpan   = colSpan,
+    cell.title     = text,
+    cell.htmlValue = text
+
+    return cell;
+}
+
 
 // TODO: THESE NEED WORK
 
@@ -234,11 +249,13 @@ export const ValueCell = (value, response, rric, uuids) => {
     cell.uuids      = uuids;
 
     cell.empty      = value === -1;
-    cell.value      = value === -1 ? 0 : value;
+    cell.value      = value === -1 ? 0        : value;
     cell.htmlValue  = value === -1 ? '&nbsp;' : value;
 
+    cell.isValue    = !cell.empty;
+
     cell.type       = 'value';
-    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : '');
+    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
 
     cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
     cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);

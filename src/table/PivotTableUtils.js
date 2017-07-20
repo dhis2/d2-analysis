@@ -103,3 +103,19 @@ export const getRoundedHtmlValue = (value, dec=2) => {
 export const getPercentageHtml = (value, total) => {
     return getRoundedHtmlValue((value / total) * 100) + '%';
 };
+
+/** @description Builds a 2D array with the given dimensions
+ *  @param   {number} rows
+ *  @param   {number} columns
+ *  @returns {array}  
+ */ 
+export const buildTable2D = (rows, columns, fill) => {
+    let table2D = new Array(rows);
+    
+    for (let i=0; i < rows; i++) {
+        table2D[i] = new Array(columns);
+        if (typeof fill !== 'undefined') table2D[i].fill(fill);
+    }
+
+    return table2D;
+};

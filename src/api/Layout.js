@@ -402,6 +402,8 @@ Layout.prototype.toPlugin = function(el) {
         var deleteIfFalsy = [
             'hideEmptyRows',
             'hideEmptyColumns',
+            'stickyColumnDimension',
+            'stickyRowDimension',
             'skipRounding',
             'showHierarchy',
             'completedOnly',

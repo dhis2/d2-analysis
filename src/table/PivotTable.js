@@ -15,13 +15,16 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 import { ResponseRowIdCombination } from '../api/ResponseRowIdCombination';
 
+import { isColorBright } from '../util/colorUtils';
+
 import { toRow,
          deleteRow,
          deleteColumn,
-         getPercentageHtml } from './PivotTableUtils';
+         getPercentageHtml,
+         buildTable2D } from './PivotTableUtils';
 
 import { ValueSubTotalCell,
-         ValueGrandTotalCell,
+         ValueTotalCell,
          RowAxisCell,
          ColumnAxisCell,
          DimensionSubTotalCell,
@@ -29,7 +32,8 @@ import { ValueSubTotalCell,
          DimensionEmptyCell,
          DimensionLabelCell,
          ValueCell,
-         PaddingCell } from './PivotTableCells';
+         PaddingCell,
+         FilterCell } from './PivotTableCells';
 
 
 export var PivotTable;
@@ -52,28 +56,23 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     // cell type enum
     const cellType = {
-        'value':                        0,
-        'value-row-subtotal':           1,
-        'value-column-subtotal':        2,
-        'value-row-total':              3,
-        'value-column-total':           4,
-        'value-intersect-subtotals':    5,
-        'value-intersect-total':        6,
+        'value':         0,
+        'valueSubtotal': 1,
+        'valueTotal':    2,
     };
 
     // inititalize global variables
     let currentTable,
-        currentHtmlTable,
 
         // row axis
         rowUniqueFactor,
         rowDimensionNames,
-        numberOfHiddenRows = 0,
+        numberOfEmptyRows = 0,
 
         // col axis
         columnDimensionNames,
         colUniqueFactor,
-        numberOfHiddenColumns = 0,
+        numberOfEmptyColumns = 0,
 
         // uid
         uuidDimUuidsMap = {},
@@ -165,12 +164,26 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return layout.showDimensionLabels;
     };
 
-    /** @description checks if dynamic table is enabled.
+    /** @description checks if clipping table is enabled.
      *  @returns {boolean}
      */
-    const doDynamicTableUpdate = () => {
+    const doTableClipping = () => {
         return true;
     };
+
+    /** @description checks if sticky columns is enabled.
+     *  @returns {boolean}
+     */
+    const doStickyColumns = () => {
+        return layout.stickyColumnDimension;
+    }
+
+    /** @description checks if sticky rows enabled.
+     *  @returns {boolean}
+     */
+    const doStickyRows = () => {
+        return layout.stickyRowDimension;
+    }
 
     /** @description checks for show hierarchy.
      *  @returns {boolean}
@@ -178,6 +191,38 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const doShowHierarchy = () => {
         return !!layout.showHierarchy;
     }
+
+    /** @description
+     *  @returns {boolean}
+     */
+    const doLegendDisplayByDataItem = () => {
+        return legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id;
+    }
+
+    /** @description
+     *  @returns {boolean}
+     */
+    const doLegendDisplay = () => {
+        return legendDisplayStrategy !== optionConfig.getLegendDisplayStrategy('fixed').id;
+    }
+
+    /** @description
+     *  @returns {boolean}
+     */
+    const doLegendDisplayStyleFill = () => {
+        return legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id;
+    }
+
+    /** @description
+     *  @returns {boolean}
+     */
+    const doLegendDisplayStyleText = () => {
+        return legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id;
+    }
+
+    /**
+     *  VERIFIERS
+     */
 
     /** @description checks if the cell at the given column index is a column sub total cell.
      *  @param   {number} columnIndex 
@@ -232,56 +277,34 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {number}
      */
     const getUniqueFactor = (xAxis) => {
-        var unique;
-
-        if (!xAxis.xItems) {
-            return null;
-        }
-
-        unique = xAxis.xItems.unique;
-
-        if (unique) {
-            return unique.length < 2 ? 1 : (xAxis.size / unique[0].length);
+        if (xAxis.xItems && xAxis.xItems.unique) {
+            return xAxis.xItems.unique.length < 2 ? 1 : (xAxis.size / xAxis.xItems.unique[0].length);
         }
 
         return null;
     };
 
-    /** @description collapses parents of given object.
-     *  @param {object} obj 
-     */
-    const recursiveReduce = (obj) => {
-        if (!obj.children) {
-            obj.collapsed = true;
-
-            if (obj.parent && obj.parent.oldestSibling) {
-                obj.parent.oldestSibling.children--;
-                obj.parent.knicked = true;
-            }
-        }
-
-        if (obj.parent) {
-            recursiveReduce(obj.parent);
-        }
-    };
-    
-    /** @description returns the size of the column axis not including the corner cell.
+    /** @description returns the size of the column axis.
+     *  @param   {boolean} includeCorner 
      *  @returns {number}
      */
-    const getTableColumnSize = () => {
+    const getTableColumnSize = (includeCorner=false) => {
         let size = colAxis.size;
         if (doRowSubTotals()) size += colAxis.size / colUniqueFactor;
-        if (doRowTotals()) size += 1;
+        if (doRowTotals())    size += 1;
+        if (includeCorner)    size += rowAxis.dims;
         return size;
     };
 
-    /** @description returns the size of the row axis not including the corner cell.
+    /** @description returns the size of the row axis.
+     *  @param   {boolean} includeCorner 
      *  @returns {number}
      */
-    const getTableRowSize = () => {
+    const getTableRowSize = (includeCorner=false) => {
         let size = rowAxis.size;
         if (doColSubTotals()) size += rowAxis.size / rowUniqueFactor;
-        if (doColTotals()) size += 1;
+        if (doColTotals())    size += 1;
+        if (includeCorner)    size += colAxis.dims;
         return size;
     };
 
@@ -290,280 +313,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {bool} isValue 
      *  @returns {string}
      */
-    const getHtmlValue = (config, isValue) => {
-        if (config.collapsed) {
-            return '';
-        }
-
-        const str = config.htmlValue,
-              n = parseFloat(config.htmlValue);
-
-        if (isValue && (!isNumber(n) || n != str)) {
-            return n;
-        }
-
-        return str || '';
-    };
-    
-    /** @description Builds a 2D array with the given dimensions
-     *  @param   {number} rows
-     *  @param   {number} columns
-     *  @returns {array}  
-     */ 
-    const buildTable2D = (rows, columns, fill) => {
-        let table2D = new Array(rows);
-        
-        for (let i=0; i < rows; i++) {
-            table2D[i] = new Array(columns);
-            if (typeof fill !== 'undefined') table2D[i].fill(fill);
-        }
-
-        return table2D;
+    const getHtmlValue = ({collapsed, htmlValue, type, isValue}) => {
+        htmlValue = collapsed || !htmlValue ? '' : htmlValue;
+        return !arrayContains(['dimension', 'filter'], type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
     };
 
-    /** @description 
-     *  @param   {object} config 
-     *  @param   {string} metaDataId 
-     *  @returns {object}
-     */
-    const getTdHtml = (config, metaDataId) => {
-        var isNumeric = isObject(config) && isString(config.type) && config.type.substr(0,5) === 'value' && !config.empty;
-        var isValue = isNumeric && config.type === 'value';
-        var bgColor;
-        var legends = [];
-
-        // validation
-        if (!isObject(config)) {
-            return '';
-        }
-
-        if (config.hidden || config.collapsed) {
-            return '';
-        }
-
-        // count number of cells
-        tdCount = tdCount + 1;
-
-        var attributes = [];
-        var cls = [];
-        var style = [];
-
-        // html value
-        var htmlValue = getHtmlValue(config, isValue);
-        var ppHtmlValue = !arrayContains(['dimension', 'filter'], config.type) ? optionConfig.prettyPrint(htmlValue, layout.digitGroupSeparator) : htmlValue;
-
-        // cls
-        cls.push(...(config.cls ? config.cls.split(' ') : []));
-        cls.push(config.hidden ? 'td-hidden' : null);
-        cls.push(config.collapsed ? 'td-collapsed' : null);
-        cls.push(isValue && !unclickable ? 'pointer' : null);
-        cls.push(isString(config.sort) ? 'td-sortable' : null);
-
-        if (isString(config.sort)) {
-            sortableIdObjects.push({
-                id: config.sort,
-                uuid: config.uuid
-            });
-        }
-
-        if (isValue) {
-            var value = parseFloat(config.value);
-
-            if (legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id) {
-                if (config.dxId && response.metaData.items[config.dxId].legendSet) {
-                    var legendSetId = response.metaData.items[config.dxId].legendSet,
-                        _legendSet = appManager.getLegendSetById(legendSetId);
-
-                    legends = _legendSet.legends;
-                }
-            } else {
-                legends = legendSet ? legendSet.legends || [] : [];
-            }
-
-            for (var i = 0; i < legends.length; i++) {
-                if (numberConstrain(value, legends[i].startValue, legends[i].endValue) === value) {
-                    bgColor = legends[i].color;
-                }
-            }
-        }
-
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id) {
-            if(bgColor) {
-                var rgb = uiManager.hexToRgb(bgColor),
-                    color = uiManager.isColorBright(rgb) ? 'black' : 'white';
-
-                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; color: ' + color + '; '  : '');
-            } else {
-                style.push(bgColor && isValue ? 'background-color:' + bgColor + '; ' : '');
-            }
-        }
-
-        if (legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id) {
-            style.push(bgColor && isValue ? 'color:' + bgColor + '; ' : '');
-        }
-        
-        if (doDynamicTableUpdate()) {
-            style.push(`min-width:${config.width}px!important;`);
-            style.push(`min-height:${config.height}px!important;`);
-            style.push(`max-width:${config.width}px!important;`);
-            style.push(`max-height:${config.height}px!important;`);
-            style.push(`width:${config.width}px!important;`);
-            style.push(`height:${config.height}px!important;`);
-            style.push(`white-space: nowrap!important;`);
-            style.push(`overflow: hidden!important;`);
-            style.push(`text-overflow: ellipsis!important;`);
-        }
-
-        // attributes
-        cls = arrayClean(cls);
-        style = arrayClean(style);
-
-        attributes.push('data-ou-id="' + (config.ouId || '') + '"');
-        attributes.push('data-period-id="' + (config.peId || '') + '"');
-        attributes.push(cls.length ? 'class="' + cls.join(' ') + '"' : null);
-        attributes.push(style.length ? 'style="' + style.join(' ') + '"' : null);
-        attributes.push(config.uuid ? 'id="' + config.uuid + '"' : null);
-        attributes.push(config.colSpan ? 'colspan="' + config.colSpan + '"' : null);
-        attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
-        attributes.push(config.title ? 'title="' + config.title + '"' : null);
-
-        return '<td ' + arrayClean(attributes).join(' ') + '>' + ppHtmlValue + '</td>';
-    };
-
-    /** @description gets integer representation of given string.
-     *  @param   {string} str 
-     *  @returns {number}
-     */
-    const getValue = (str) => {
-        var n = parseFloat(str);
-
-        if (isBoolean(str)) {
-            return 1;
-        }
-
-        if (!isNumber(n) || n != str) {
-            return 0;
-        }
-
-        return n;
-    };
-
-    /** @description builds an rric object
-     *  @param   {number} columnIndex 
-     *  @param   {number} rowIndex 
-     *  @returns {object}
-     */
-    const buildRRIC = (columnIndex, rowIndex) => {
-        const rric = new ResponseRowIdCombination();
-
-        rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
-        rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
-
-        return rric;
-    }
-        
-    /** @description gets cell value based on column and row index.
-     *  @param   {number} rowIndex 
-     *  @param   {number} columnIndex 
-     *  @returns {number}
-     */
-    const gerResponseValue = (rowIndex, columnIndex) => {
-        var empty = false,
-            rric = buildRRIC(columnIndex, rowIndex),
-            responseValue,
-            value;
-
-        responseValue = idValueMap[rric.get()];
-
-        if (isDefined(responseValue)) {
-            value = getValue(responseValue);
-        } else {
-            value = -1;
-        }
-
-        return value;
-    };
-
-    const createValueLookup = (yDimensionSize, xDimensionSize) => {
-
-        const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
-
-        for (var i=0, y=0; i < rowAxis.size; i++, y++) {
-
-            if (doColSubTotals() && (y + 1) % (rowUniqueFactor + 1) === 0) y++;
-
-            for (var j=0, x=0, value; j < colAxis.size; j++, x++) {
-
-                if (doRowSubTotals() && (x + 1) % (colUniqueFactor + 1) === 0) x++;
-
-                value = gerResponseValue(i, j);
-
-                lookup[y][x] = value;
-
-                // calculate sub totals
-                if (doColSubTotals())                     lookup[nextSubRowIndex(i)][x]     += value;
-                if (doRowSubTotals())                     lookup[y][nextSubColumnIndex(j)]  += value;
-
-                // calculate grand totals
-                if (doColTotals())                        lookup[nextTotalRowIndex()][x]    += value;
-                if (doRowTotals())                        lookup[y][nextTotalColumnIndex()] += value;
-
-                // calculate intersection totals
-                if (doRowTotals() && doColTotals())       lookup[nextTotalRowIndex()][nextTotalColumnIndex()] += value;
-                if (doColSubTotals() && doRowSubTotals()) lookup[nextSubRowIndex(i)][nextSubColumnIndex(j)]   += value;
-
-                if (doRowTotals() && doRowSubTotals())    lookup[nextTotalRowIndex()][nextSubColumnIndex(j)]  += value;
-                if (doColSubTotals() && doColTotals())    lookup[nextSubRowIndex(i)][nextTotalColumnIndex()]  += value;
-
-            }
-        }
-        return lookup;
-    };
-
-    const createTypeLookup = (yDimensionSize, xDimensionSize) => {
-        const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
-        for (let y = 0; y < yDimensionSize; y++) {
-            for (let x = 0, type; x < xDimensionSize; x++) {
-
-                // calculate sub totals
-                if (isRowSubTotal(y))                                  lookup[y][x] = 1;
-                if (isColumnSubTotal(x))                               lookup[y][x] = 2;
-
-                // calculate grand totals
-                if (isRowGrandTotal(y))                                lookup[y][x] = 3;
-                if (isColumnGrandTotal(x))                             lookup[y][x] = 4;
-                
-                // calculate intersection totals
-                if (isColumnSubTotal(x) && isRowSubTotal(y))           lookup[y][x] = 5;
-                if (isColumnGrandTotal(x) && isRowGrandTotal(y))       lookup[y][x] = 6;
-            }
-        }
-        return lookup;
-    };
-
-    /** @description creates value cell.
-     *  @param   {number} columnIndex 
-     *  @param   {number} rowIndex 
-     *  @returns {object}
-     */
-    const createValueCell = (columnIndex, rowIndex) => {
-        const rric  = buildRRIC(columnIndex, rowIndex),
-              value = valueLookup[rowIndex][columnIndex],
-              uuids = [];
-        
-        rric.add(colAxis.type ? colAxis.ids[rowIndex] : '');
-        rric.add(rowAxis.type ? rowAxis.ids[columnIndex] : '');
-        
-        // if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
-        // if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
-
-        let cell = ValueCell(value, response, rric, uuids);
-
-        uuidDimUuidsMap[cell.uuid] = uuids;
-
-        return cell;
-    };
-    
     /** @description gets value cell based on its type.
      *  @param   {number} columnIndex 
      *  @param   {number} rowIndex 
@@ -572,123 +326,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const getValueCell = (columnIndex, rowIndex) => {
         let value = valueLookup[rowIndex][columnIndex];
         switch(typeLookup[rowIndex][columnIndex]) {
-            case 0:                 return createValueCell(columnIndex, rowIndex);
-            case 1: case 2: case 5: return ValueSubTotalCell(value);
-            case 3: case 4: case 6: return ValueGrandTotalCell(value);
-            default: return null;;
+            case 0: return createValueCell(value, columnIndex, rowIndex);
+            case 1: return ValueSubTotalCell(value);
+            case 2: return ValueTotalCell(value);
+            default: return null;
         }
-    };
-
-    /** @description hides emprt columns in table
-     *  @param {array} table 
-     */
-    const hideEmptyColumns = () => {
-        for (let i = rowAxis.dims + 1, dimLeaf; i < currentTable[1].length - 1; i++) {
-            if (isColumnEmpty(i - (rowAxis.dims + 1))) {
-                if (t.rowStart < colAxis.dims) {
-                    dimLeaf = currentTable[colAxis.dims - t.rowStart][i];
-                    if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[1][i].collapsed = true;
-                    }
-
-                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
-                        recursiveReduce(dimLeaf);
-                    }
-                }
-                
-                for (let j = 1; j < currentTable.length - 1; j++) {
-                    currentTable[j][i].collapsed = true;
-                }
-            }
-        }
-    };
-
-    /** @description hides emprt rows in table
-     *  @param {array} table 
-     */
-    const hideEmptyRows = () => {
-        for (let i = colAxis.dims + 1 - t.rowStart, dimLeaf; i < currentTable.length - 1; i++) {
-            if (isRowEmpty(i - (colAxis.dims + 1))) {
-                if (t.columnStart < rowAxis.dims) {
-                    dimLeaf = currentTable[i][rowAxis.dims - t.columnStart];
-                    if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[i][1].collapsed = true;
-                    }
-
-                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
-                        recursiveReduce(dimLeaf);
-                    }
-                }
-
-                for (let j = 1; j < currentTable[i].length - 1; j++) {
-                    currentTable[i][j].collapsed = true;
-                }
-            }            
-        }
-    };
-
-    /** @description transforms values in columns to percentages.
-     *  @param {array} table 
-     */
-    const transformColPercentage = (table) => {
-        for (let i = 0; i < table.length; i++) {
-            for (let j = 0; j < table[i].length; j++) {
-                if (!table[i][j].empty) {
-                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[getTableRowSize() - 1][j]);
-                }
-                if (valueLookup[getTableRowSize() - 1][j] === 0) {
-                    table[i][j].empty = true;
-                    table[i][j].htmlValue = '&nbsp;';
-                }
-            }
-        }
-    };
-
-    /** @description transforms values in rows to percentages.
-     *  @param {array} table 
-     */
-    const transformRowPercentage = (table) => {
-        for (let i = 0; i < table.length; i++) {
-            for (let j = 0; j < table[i].length; j++) {
-                if (!table[i][j].empty) {
-                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[i][getTableColumnSize() - 1]);
-                }
-                if (valueLookup[i][getTableColumnSize() - 1] === 0) {
-                    table[i][j].empty = true;
-                    table[i][j].htmlValue = '&nbsp;';
-                }
-            }
-        }
-    };
-
-    /** @description gets the index of the next column sub total from the given column index.
-     *  @param   {number} columnIndex 
-     *  @returns {number}
-     */
-    const nextSubColumnIndex = (columnIndex) => {
-        return columnIndex + Math.floor(columnIndex / colUniqueFactor) + (colUniqueFactor - (columnIndex % colUniqueFactor));
-    };
-
-    /** @description gets the index of the next row sub total from the given row index.
-     *  @param   {number} rowIndex 
-     *  @returns {number}
-     */
-    const nextSubRowIndex = (rowIndex) => {
-        return rowIndex + Math.floor(rowIndex / (rowUniqueFactor)) + (rowUniqueFactor - (rowIndex % rowUniqueFactor));
-    };
-
-    /** @description gets the next column grand total cell.
-     *  @returns {number}
-     */
-    const nextTotalColumnIndex = () => {
-        return getTableColumnSize() - 1;
-    };
-
-    /** @description gets the next row grand total cell.
-     *  @returns {number}
-     */
-    const nextTotalRowIndex = () => {
-        return getTableRowSize() - 1;
     };
 
     /** @description finds the last row to render based on the start row and table render size.
@@ -751,6 +393,143 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return (getTableColumnSize() - t.columnEnd) * cellWidth;
     };
 
+    /** @description gets the index of the next column sub total from the given column index.
+     *  @param   {number} columnIndex 
+     *  @returns {number}
+     */
+    const getNextSubColumnIndex = (columnIndex) => {
+        return columnIndex + Math.floor(columnIndex / colUniqueFactor) + (colUniqueFactor - (columnIndex % colUniqueFactor));
+    };
+
+    /** @description gets the index of the next row sub total from the given row index.
+     *  @param   {number} rowIndex 
+     *  @returns {number}
+     */
+    const getNextSubRowIndex = (rowIndex) => {
+        return rowIndex + Math.floor(rowIndex / (rowUniqueFactor)) + (rowUniqueFactor - (rowIndex % rowUniqueFactor));
+    };
+
+    /** @description gets the next column grand total cell.
+     *  @returns {number}
+     */
+    const getNextTotalColumnIndex = () => {
+        return getTableColumnSize() - 1;
+    };
+
+    /** @description gets the next row grand total cell.
+     *  @returns {number}
+     */
+    const getNextTotalRowIndex = () => {
+        return getTableRowSize() - 1;
+    };
+
+     /** @description gets the number of horizontal cells that can be rendered within the current window size.
+     *  @returns {number}
+     */
+    const getTableRenderWidth = () => {
+        return Math.floor(t.horizontalWindowSize / cellWidth) + 1;
+    };
+
+    /** @description get the number of vertical cells that can be rendered within the current window size.
+     *  @returns {number}
+     */
+    const getTableRenderHeight = () => {
+        return Math.floor(t.verticalWindowSize / cellHeight) + 1;
+    };
+
+    /** @description
+     * @param   {number} rowStart 
+     * @param   {number} rowEnd 
+     * @returns {number}
+     */
+    const getVisibleEmptyRows = (rowStart, rowEnd) => {
+        let counter = 0;
+        for (let y = rowStart; y < rowEnd; y++) {
+            counter += isRowEmpty(y) ? 1 : 0;
+        }
+        return counter;
+    }
+
+    /** @description
+     *  @param   {number} columnStart 
+     *  @param   {number} columnEnd 
+     *  @returns {number}
+     */
+    const getVisibleEmptyColumns = (columnStart, columnEnd) => {
+        let counter = 0;
+        for (let y = columnStart; y < columnEnd; y++) {
+            counter += isColumnEmpty(y) ? 1 : 0;
+        }
+        return counter;
+    }
+
+    const getLegendSetId = (id) => {
+        return response.metaData.items[id].legendSet;
+    }
+
+    const getClippingStyle = (config) => {
+        const style = [];
+        style.push(`min-width:${config.width}px!important;`);
+        style.push(`min-height:${config.height}px!important;`);
+        style.push(`max-width:${config.width}px!important;`);
+        style.push(`max-height:${config.height}px!important;`);
+        style.push(`width:${config.width}px!important;`);
+        style.push(`height:${config.height}px!important;`);
+        style.push(`white-space: nowrap!important;`);
+        style.push(`overflow: hidden!important;`);
+        style.push(`text-overflow: ellipsis!important;`);
+        return style;
+    }
+
+    /** @description gets integer representation cell.
+     *  @param   {number} rowIndex 
+     *  @param   {number} columnIndex 
+     *  @returns {number}
+     */
+    const getValue = (rowIndex, columnIndex) => {
+
+        const rric  = buildRRIC(columnIndex, rowIndex),
+              value = idValueMap[rric.get()],
+              n = parseFloat(value);
+
+        if (isBoolean(value)) {
+            return 1;
+        }
+
+        if (!isNumber(n) || n != value) {
+            return -1;
+        }
+
+        return n;
+    };
+
+
+        /** @description
+     * @param   {object} cell
+     * @param   {number} y
+     * @returns {object}
+     */
+    const getAdjustedColSpan = (cell, y) => {
+        if (cell.children) {
+            return cell.oldestSibling.children * colAxis.span[y + 1] - cell.siblingPosition;
+        }
+
+        return cell.colSpan;;
+    };
+    
+    /** @description
+     * @param   {object} cell
+     * @param   {number} x
+     * @returns {object}
+     */
+    const getAdjustedRowSpan = (cell, x) => {
+        if (cell.children) {
+            return cell.oldestSibling.children * rowAxis.span[x + 1] - cell.siblingPosition;
+        }
+
+        return cell.rowSpan;;
+    };
+
     /** @description
      *  @param   {number} span 
      *  @returns {number}
@@ -770,32 +549,248 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return span;
     };
 
-     /** @description gets the number of horizontal cells that can be rendered within the current window size.
-     *  @returns {number}
+    /** @description sets the height of current render area in pixels.
+     *  @param {number} heightInPixels 
      */
-    const getTableRenderWidth = () => {
-        return Math.floor(t.renderWidth / cellWidth) + 1;
-    };
-
-    /** @description get the number of vertical cells that can be rendered within the current window size.
-     *  @returns {number}
-     */
-    const getTableRenderHeight = () => {
-        return Math.floor(t.renderHeight / cellHeight) + 1;
+    const setVerticalWindowSize = (heightInPixels) => {
+        if (typeof heightInPixels !== 'number') {
+            t.verticalWindowSize = window.innerHeight;
+        } else {
+            t.verticalWindowSize = heightInPixels;
+        }
     };
 
     /** @description sets the width of current render area in pixels.
      *  @param {number} widthInPixels 
      */
-    const setWindowRenderWidth = (widthInPixels) => {
-        t.renderWidth = widthInPixels;
+    const setHorizontalWindowSize = (widthInPixels) => {
+        if (typeof widthInPixels !== 'number') {
+            t.horizontalWindowSize = window.innerWidth;
+        } else {
+            t.horizontalWindowSize = widthInPixels;
+        }
     };
 
-    /** @description sets the height of current render area in pixels.
-     *  @param {number} heightInPixels 
+    /** @description
+     *  @param {number} horizontal 
+     *  @param {number} vertical 
      */
-    const setWindowRenderHeight = (heightInPixels) => {
-        t.renderHeight = heightInPixels;
+    const setWindowSize = (widthInPixels, heightInPixels) => {
+        setHorizontalWindowSize(widthInPixels);
+        setVerticalWindowSize(heightInPixels);
+    };
+
+    const setColumnStart = (position) => {
+        t.columnStart = Math.max(0, position);
+    };
+
+    const setRowStart = (position) => {
+        t.rowStart = Math.max(0, position);
+    };
+
+    const setColumnEnd = (position) => {
+        t.columnEnd = Math.min(getTableColumnSize() + rowAxis.dims - 1, position);
+    };
+
+    const setRowEnd = (position) => {
+        t.rowEnd = Math.min(getTableRowSize() + colAxis.dims - 1, position);
+    };
+
+    /** @description collapses parents of given object.
+     *  @param {object} obj 
+     */
+    const recursiveReduce = (obj) => {
+        if (!obj.children) {
+            obj.collapsed = true;
+
+            if (obj.parent && obj.parent.oldestSibling) {
+                obj.parent.oldestSibling.children--;
+                obj.parent.knicked = true;
+            }
+        }
+
+        if (obj.parent) {
+            recursiveReduce(obj.parent);
+        }
+    };
+
+    /** @description builds an rric object
+     *  @param   {number} columnIndex 
+     *  @param   {number} rowIndex 
+     *  @returns {object}
+     */
+    const buildRRIC = (columnIndex, rowIndex) => {
+        const rric = new ResponseRowIdCombination();
+
+        rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
+        rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
+
+        return rric;
+    }
+
+    const createValueLookup = (yDimensionSize, xDimensionSize) => {
+
+        const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
+
+        for (var i=0, y=0; i < rowAxis.size; i++, y++) {
+
+            if (doColSubTotals() && (y + 1) % (rowUniqueFactor + 1) === 0) y++;
+
+            for (var j=0, x=0, value; j < colAxis.size; j++, x++) {
+
+                if (doRowSubTotals() && (x + 1) % (colUniqueFactor + 1) === 0) x++;
+
+                value = getValue(i, j);
+
+                lookup[y][x] = value;
+
+                // calculate sub totals
+                if (doColSubTotals())                     lookup[getNextSubRowIndex(i)][x]     += value;
+                if (doRowSubTotals())                     lookup[y][getNextSubColumnIndex(j)]  += value;
+
+                // calculate grand totals
+                if (doColTotals())                        lookup[getNextTotalRowIndex()][x]    += value;
+                if (doRowTotals())                        lookup[y][getNextTotalColumnIndex()] += value;
+
+                // calculate intersection totals
+                if (doRowTotals() && doColTotals())       lookup[getNextTotalRowIndex()][getNextTotalColumnIndex()] += value;
+                if (doColSubTotals() && doRowSubTotals()) lookup[getNextSubRowIndex(i)][getNextSubColumnIndex(j)]   += value;
+
+                if (doRowTotals() && doRowSubTotals())    lookup[getNextTotalRowIndex()][getNextSubColumnIndex(j)]  += value;
+                if (doColSubTotals() && doColTotals())    lookup[getNextSubRowIndex(i)][getNextTotalColumnIndex()]  += value;
+
+            }
+        }
+        return lookup;
+    };
+
+    const createTypeLookup = (yDimensionSize, xDimensionSize) => {
+        const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
+        for (let y = 0; y < yDimensionSize; y++) {
+            for (let x = 0, type; x < xDimensionSize; x++) {
+
+                // calculate sub totals
+                if (isRowSubTotal(y))                                  lookup[y][x] = 1;
+                if (isColumnSubTotal(x))                               lookup[y][x] = 1;
+
+                // calculate grand totals
+                if (isRowGrandTotal(y))                                lookup[y][x] = 2;
+                if (isColumnGrandTotal(x))                             lookup[y][x] = 2;
+                
+                // calculate intersection totals
+                if (isColumnSubTotal(x) && isRowSubTotal(y))           lookup[y][x] = 1;
+                if (isColumnGrandTotal(x) && isRowGrandTotal(y))       lookup[y][x] = 2;
+            }
+        }
+        return lookup;
+    };
+
+    /** @description creates value cell.
+     *  @param   {number} columnIndex 
+     *  @param   {number} rowIndex 
+     *  @returns {object}
+     */
+    const createValueCell = (value, columnIndex, rowIndex) => {
+        let rric,
+            uuids = [];
+
+        columnIndex -= Math.floor(columnIndex / (colUniqueFactor + 1));
+        rowIndex    -= Math.floor(rowIndex / (rowUniqueFactor + 1));
+        
+        rric = buildRRIC(columnIndex, rowIndex);
+        
+        if (colAxis.type) uuids.push(...colAxis.objects.all[colAxis.dims - 1][columnIndex].uuids);
+        if (rowAxis.type) uuids.push(...rowAxis.objects.all[rowAxis.dims - 1][rowIndex].uuids);
+
+        let cell = ValueCell(value, response, rric, uuids);
+
+        uuidDimUuidsMap[cell.uuid] = uuids;
+
+        return cell;
+    };
+
+    /** @description hides emprt columns in table
+     *  @param {array} table 
+     */
+    const hideEmptyColumns = () => {
+        for (let i = rowAxis.dims + 1, dimLeaf; i < currentTable[1].length - 1; i++) {
+            if (isColumnEmpty(i - (rowAxis.dims + 1))) {
+                
+                if (t.rowStart < colAxis.dims) {
+                    dimLeaf = currentTable[colAxis.dims - t.rowStart][i];
+                    if (dimLeaf.type === 'dimensionSubtotal') {
+                        currentTable[1][i].collapsed = true;
+                    }
+
+                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
+                        recursiveReduce(dimLeaf);
+                    }
+                }
+                
+                for (let j = 1; j < currentTable.length - 1; j++) {
+                    currentTable[j][i].collapsed = true;
+                }
+            }
+        }
+    };
+
+    /** @description hides emprt rows in table
+     *  @param {array} table 
+     */
+    const hideEmptyRows = () => {
+        for (let i = colAxis.dims + 1 - t.rowStart, dimLeaf; i < currentTable.length - 1; i++) {
+            if (isRowEmpty(i - (colAxis.dims + 1 - t.rowStart))) {
+                if (t.columnStart < rowAxis.dims) {
+                    dimLeaf = currentTable[i][rowAxis.dims - t.columnStart];
+                    if (dimLeaf.type === 'dimensionSubtotal') {
+                        currentTable[i][1].collapsed = true;
+                    }
+
+                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
+                        recursiveReduce(dimLeaf);
+                    }
+                }
+
+                currentTable[i][0].collapsed = true;
+                for (let j = 1; j < currentTable[i].length; j++) {
+                    currentTable[i][j].collapsed = true;
+                }
+            }            
+        }
+    };
+
+    /** @description transforms values in columns to percentages.
+     *  @param {array} table 
+     */
+    const transformColPercentage = (table) => {
+        for (let i = 0; i < table.length; i++) {
+            for (let j = 0; j < table[i].length; j++) {
+                if (!table[i][j].empty) {
+                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[getTableRowSize() - 1][j]);
+                }
+                if (valueLookup[getTableRowSize() - 1][j] === 0) {
+                    table[i][j].empty = true;
+                    table[i][j].htmlValue = '&nbsp;';
+                }
+            }
+        }
+    };
+
+    /** @description transforms values in rows to percentages.
+     *  @param {array} table 
+     */
+    const transformRowPercentage = (table) => {
+        for (let i = 0; i < table.length; i++) {
+            for (let j = 0; j < table[i].length; j++) {
+                if (!table[i][j].empty) {
+                    table[i][j].htmlValue = getPercentageHtml(table[i][j].value, valueLookup[i][getTableColumnSize() - 1]);
+                }
+                if (valueLookup[i][getTableColumnSize() - 1] === 0) {
+                    table[i][j].empty = true;
+                    table[i][j].htmlValue = '&nbsp;';
+                }
+            }
+        }
     };
 
     /** @description places a new column at the right side of the table.
@@ -829,7 +824,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const prependTableRow = (rowIndex, columnStart, columnEnd) => {
         let row = buildTableRow(rowIndex, columnStart, columnEnd);
-        addRowPaddingToRow(row);
+        padRow(row);
         currentTable.splice(1, 0, row);
     };
 
@@ -840,14 +835,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const appendTableRow = (rowIndex, columnStart, columnEnd) => {
         let row = buildTableRow(rowIndex, columnStart, columnEnd);
-        addRowPaddingToRow(row);
+        padRow(row);
         currentTable.splice(currentTable.length - 1, 0, row);
     };
 
     /** @description adds padding cells to given row.
      *  @param {any} row 
      */
-    const addRowPaddingToRow = (row) => {
+    const padRow = (row) => {
         let leftPad   = getLeftPadding(),
             rightPad  = getRightPadding(),
             leftCell  = PaddingCell(getLeftPadding(), 25, 1, 1, leftPad <= 0),
@@ -885,19 +880,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} span 
      *  @returns {array}
      */
-    const getFilterHtmlArray = (span) => {
+    const buildTableFilter = (span) => {
         if (!layout.filters) return;
 
         var text = layout.filters.getRecordNames(false, layout.getResponse(), true),
             row = new Array(1);
 
-        row[0] = getTdHtml({
-            type: 'filter',
-            cls: 'pivot-filter cursor-default',
-            colSpan: getTopBarSpan(span),
-            title: text,
-            htmlValue: text
-        });
+        row[0] = buildHtmlCell(FilterCell(text, getTopBarSpan(span)));
 
         return [row];
     };
@@ -913,13 +902,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         var text = layout.title,
             row = new Array(1);
 
-        row[0] = getTdHtml({
-            type: 'filter',
-            cls: 'pivot-filter cursor-default',
-            colSpan: getTopBarSpan(span),
-            title: text,
-            htmlValue: text,
-        });
+        row[0] = buildHtmlCell(FilterCell(text, getTopBarSpan(span)));
 
         return [row];
     };
@@ -1339,6 +1322,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         let table = buildTable2D(rowEnd - rowStart + 1, columnEnd - columnStart + 1);
 
         for (let i=0, y=rowStart; i < table.length; i++, y++) {
+            if (isRowEmpty(y)) numberOfEmptyRows++;
             for (let j=0, x=columnStart; j < table[i].length; j++, x++) {
 
                 if (doSortableColumnHeaders()) {
@@ -1363,16 +1347,110 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param   {number} columnEnd 
      *  @returns {array}
      */
-    const buildTable = (rowStart, rowEnd, columnStart, columnEnd) => {
-        let rowAxis = buildRowAxis(rowStart, rowEnd, columnStart),
-            colAxis = buildColumnAxis(columnStart, columnEnd, rowStart),
-            values  = buildValueTable(rowStart, rowEnd, columnStart, columnEnd);
+    const buildTable = () => {
+
+        if (doHideEmptyRows()) {
+            t.rowEnd += getVisibleEmptyRows(t.rowStart, t.rowEnd);
+            t.rowEnd = Math.min(getTableRowSize(), t.rowEnd);
+        }
+
+        if (doHideEmptyColumns()) {
+            t.columnEnd += getVisibleEmptyColumns(t.columnStart, t.columnEnd);
+            t.columnEnd = Math.min(getTableColumnSize(), t.columnEnd);
+        }
+
+        let rowAxis = buildRowAxis(t.rowStart, t.rowEnd, t.columnStart),
+            colAxis = buildColumnAxis(t.columnStart, t.columnEnd, t.rowStart),
+            values  = buildValueTable(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
 
         for (let i = 0; i < rowAxis.length; i++) {
             rowAxis[i].push(...values[i]);
         }
         
-        return toRow(colAxis).concat(rowAxis);
+        const table = toRow(colAxis).concat(rowAxis);
+
+        if (doTableClipping()) {
+            for (let i=0; i < table.length; i++) {
+                table[i].push(PaddingCell());
+                table[i].unshift(PaddingCell());
+            }
+            table.push([PaddingCell()]);
+            table.unshift([PaddingCell()]);
+        }
+        
+        return table;
+    };
+
+
+    /** @description 
+     *  @param   {object} config 
+     *  @param   {string} metaDataId 
+     *  @returns {object}
+     */
+    const buildHtmlCell = (config, metaDataId) => {
+
+        // validation
+        if (!isObject(config) || config.hidden || config.collapsed) {
+            return '';
+        }
+
+        // count number of cells
+        tdCount += 1;
+
+        let attributes = [],
+            style = [];
+
+        // html value
+        let htmlValue = getHtmlValue(config);
+
+        if (isString(config.sort)) {
+            sortableIdObjects.push({
+                id: config.sort,
+                uuid: config.uuid
+            });
+        }
+
+        if (config.isValue && legendSet) {
+
+            let legends = legendSet.legends,
+                bgColor;
+
+            if (doLegendDisplayByDataItem() && config.dxId && response.metaData.items[config.dxId].legendSet) {
+                legends = appManager.getLegendSetById(getLegendSetId(config.dxId)).legends;
+            }
+
+            for (var i = 0; i < legends.length; i++) {
+                if (numberConstrain(config.value, legends[i].startValue, legends[i].endValue) === config.value) {
+                    bgColor = legends[i].color;
+                }
+            }
+        
+            if (doLegendDisplayStyleFill() && bgColor) {
+                style.push('background-color:' + bgColor + '; color: ' + isColorBright(bgColor) ? 'black' : 'white' + '; ');
+            }
+
+            if (doLegendDisplayStyleText() && bgColor) {
+                style.push('color:' + bgColor + '; ');
+            }
+        }
+        
+        if (doTableClipping()) {
+            style.push(...getClippingStyle(config));
+        }
+
+        // attributes
+        style = arrayClean(style);
+
+        attributes.push(                 'data-ou-id="' + (config.ouId || '') + '"');
+        attributes.push(                 'data-period-id="' + (config.peId || '') + '"');
+        attributes.push(                 'class="' + config.cls + '"');
+        attributes.push(config.uuid    ? 'id="' + config.uuid + '"' : null);
+        attributes.push(config.title   ? 'title="' + config.title + '"' : null);
+        attributes.push(style.length   ? 'style="' + style.join(' ') + '"' : null);
+        attributes.push(config.colSpan ? 'colspan="' + config.colSpan + '"' : null);
+        attributes.push(config.rowSpan ? 'rowSpan="' + config.rowSpan + '"' : null);
+
+        return '<td ' + arrayClean(attributes).join(' ') + '>' + htmlValue + '</td>';
     };
 
     /** @description turns a table of objects into a table of html strings.
@@ -1383,7 +1461,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         const html = [];
         for (let i=0; i < objectArray.length; i++) {
             for (var j=0, htmlRow=[]; j < objectArray[i].length; j++) {
-                htmlRow.push(getTdHtml(objectArray[i][j]));
+                htmlRow.push(buildHtmlCell(objectArray[i][j]));
             }
             html.push(htmlRow);
         }
@@ -1414,32 +1492,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     };
 
     /** @description
-     * @param   {object} cell
-     * @param   {number} y
-     * @returns {object}
-     */
-    const getAdjustedColSpan = (cell, y) => {
-        if (cell.children) {
-            return cell.oldestSibling.children * colAxis.span[y + 1] - cell.siblingPosition;
-        }
-
-        return cell.colSpan;;
-    };
-    
-    /** @description
-     * @param   {object} cell
-     * @param   {number} x
-     * @returns {object}
-     */
-    const getAdjustedRowSpan = (cell, x) => {
-        if (cell.children) {
-            return cell.oldestSibling.children * rowAxis.span[x + 1] - cell.siblingPosition;
-        }
-
-        return cell.rowSpan;;
-    };
-    
-    /** @description
      *  @param   {object} cell
      *  @param   {number} i
      *  @param   {number} j
@@ -1451,13 +1503,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 return false;
             }
             
-            case 'rowDimension':
-            case 'columnDimension': {
+            case 'dimension': {
                 return !(cell.oldest || j === 1);
             }
 
-            case 'valueTotalSubgrandtotal':
-            case 'dimensionSubtotal': {
+            case 'dimensionSubtotal':
+            case 'dimensionTotal': {
                 return i !== 1;
             }
 
@@ -1535,6 +1586,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     };
 
+    /** @description
+     */
+    const updateDimensionSpan = () => {
+        updateColumnAxisDimensionSpan();
+        updateRowAxisDimensionSpan();
+    }
+
     /** @description updates padding cells of current table.
      */
     const updatePaddingCells = () => {
@@ -1560,33 +1618,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             currentTable[i][currentTable[i].length - 1].width = rightPad;
             currentTable[i][currentTable[i].length - 1].hidden = rightPad <= 0;
         }
-    };
-
-    /** @description adds padding cells to given table.
-     *  @param {array} table 
-     *  @param {number} columnStart 
-     *  @param {number} columnEnd 
-     *  @param {number} rowStart 
-     *  @param {number} rowEnd 
-     */
-    const addPaddingCells = (table, columnStart, columnEnd, rowStart, rowEnd) => {
-
-        let leftPadding   = getLeftPadding(),
-            rightPadding  = getRightPadding(),
-            topPadding    = getTopPadding(),
-            bottomPadding = getBottomPadding(),
-            leftCell      = PaddingCell(leftPadding, 25, 1, 1, leftPadding <= 0),
-            rightCell     = PaddingCell(rightPadding, 25, 1, 1, rightPadding <= 0),
-            topCell       = PaddingCell(120, topPadding, (columnEnd - columnStart) + 1, 1, topPadding <= 0),
-            bottomCell    = PaddingCell(120, bottomPadding, (columnEnd - columnStart) + 1, 1, bottomPadding <= 0);
-
-        for (let i=0; i < table.length; i++) {
-            table[i].push(rightCell);
-            table[i].unshift(leftCell);
-        }
-
-        table.push([bottomCell]);
-        table.unshift([topCell]);
     };
 
     /** @description
@@ -1645,66 +1676,62 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const renderTable = (rowStart=0, columnStart=0) => {
 
-        t.columnStart = columnStart;
-        t.columnEnd = getColumnEnd(columnStart);
-
-        t.rowStart = rowStart;
-        t.rowEnd = getRowEnd(rowStart);
-
-        // build initial state of table
-        currentTable = buildTable(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
-
-        // add padding cells to each side of table
-        addPaddingCells(currentTable, t.columnStart, t.columnEnd, t.rowStart, t.rowEnd);
+        if (!doTableClipping()) {
+            setColumnStart(0);
+            setColumnEnd(getTableColumnSize() + rowAxis.dims);
         
-        if (doHideEmptyRows()) {
-            hideEmptyRows();
+            setRowStart(0);
+            setRowEnd(getTableRowSize() + colAxis.dims);
+        } else {
+            setColumnStart(columnStart);
+            setColumnEnd(columnStart + getTableRenderWidth());
+        
+            setRowStart(rowStart);
+            setRowEnd(rowStart + getTableRenderHeight());
         }
 
-        if (doHideEmptyColumns()) {
-            hideEmptyColumns();
-        }
+        currentTable = buildTable();
 
-        // resize column axis span to fit current table layout
-        updateColumnAxisDimensionSpan();
+        updateTableParameters();
 
-        // resize row axis span to fit current table layout
-        updateRowAxisDimensionSpan();
-
-        console.log(currentTable);
-
-        // create html array
-        let htmlArray = arrayClean([].concat(
-            // options.skipTitle ? [] : buildTableTitle(currentTable[1].length) || [],
-            // getFilterHtmlArray(currentTable[1].length) || [],
-            buildHtmlRows(currentTable)
-        ));
-
-        currentHtmlTable = htmlArray;
-
-        return buildHtmlTable(htmlArray);
+        return buildHtmlTable(buildHtmlArray());
     };
-
 
     /** @description updates the table given a start row and start column.
      *  @param   {number} columnStart 
      *  @param   {number} rowStart 
      *  @returns {array}
      */
-    const updateTable = function(columnStart, rowStart) {
+    const updateTable = (columnStart, rowStart) => {
 
         const columnEnd = getColumnEnd(columnStart),
-              rowEnd = getRowEnd(rowStart),
-              numberOfVerticalUpdates = Math.abs(rowStart - t.rowStart),
-              numberOfHorizontalUpdatres = Math.abs(columnStart - t.columnStart);
+              rowEnd    = getRowEnd(rowStart);
 
-        for (let i = 0; i < numberOfVerticalUpdates; i++) {
+        const hUpdates = Math.abs(columnStart - t.columnStart),
+              vUpdates = Math.abs(rowStart - t.rowStart)
+
+        for (let i = 0; i < vUpdates; i++) {
             applyChangesToTable(columnStart, columnEnd, rowStart, rowEnd);
         }
 
-        for (let i = 0; i < numberOfHorizontalUpdatres; i++) {
+        for (let i = 0; i < hUpdates; i++) {
             applyChangesToTable(columnStart, columnEnd, rowStart, rowEnd) ;
         }
+
+        updateTableParameters();
+
+        return buildHtmlTable(buildHtmlArray());
+    };
+
+    const buildHtmlArray = () => {
+        return arrayClean([].concat(
+            // options.skipTitle ? [] : buildTableTitle(currentTable[1].length) || [],
+            // getFilterHtmlArray(currentTable[1].length) || [],
+            buildHtmlRows(currentTable)
+        ));
+    };
+
+    const updateTableParameters = () => {
 
         if (doHideEmptyColumns()) {
             hideEmptyColumns();
@@ -1714,19 +1741,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             hideEmptyRows();
         }
 
-        updatePaddingCells();
-
-        updateColumnAxisDimensionSpan();
-        updateRowAxisDimensionSpan();
-
-        let htmlArray = arrayClean([].concat(
-            // options.skipTitle ? [] : buildTableTitle(currentTable[1].length) || [],
-            // getFilterHtmlArray(currentTable[1].length) || [],
-            buildHtmlRows(currentTable)
-        ));
-
-        return buildHtmlTable(htmlArray);
-    };
+        if (doTableClipping()) {
+            updatePaddingCells();
+            updateDimensionSpan();
+        }
+    }
     
     (function() {
         colUniqueFactor = getUniqueFactor(colAxis);
@@ -1744,7 +1763,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
 
-    t.isDynamic = doDynamicTableUpdate();
+    t.clipping = doTableClipping();
     t.idValueMap = idValueMap;
     t.tdCount = tdCount;
     t.layout = layout;
@@ -1752,8 +1771,42 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     t.colAxis = colAxis;
     t.rowAxis = rowAxis;
 
-    t.setWindowWidth = setWindowRenderWidth;
-    t.setWindowHeight = setWindowRenderHeight;
+    // public functions
+    t.setWindowSize = setWindowSize;
+
+    const initialize = (rowStart=0, columnStart=0) => {
+
+        const columnRenderSize = getTableColumnSize(),
+              rowRenderSize    = getTableRowSize();
+    
+        colUniqueFactor = getUniqueFactor(colAxis);
+        rowUniqueFactor = getUniqueFactor(rowAxis);
+        columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
+        rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [];
+    
+        valueLookup = createValueLookup(rowRenderSize, columnRenderSize);
+        typeLookup  = createTypeLookup(rowRenderSize, columnRenderSize);
+    
+        setColumnStart(columnStart);
+        setColumnEnd(columnStart + columnRenderSize);
+    
+        setRowStart(rowStart);
+        setRowEnd(rowStart + rowRenderSize);
+    
+        currentTable = buildTable();
+    
+        if (doHideEmptyColumns()) {
+            hideEmptyColumns();
+        }
+
+        if (doHideEmptyRows()) {
+            hideEmptyRows();
+        }
+
+        if (doTableClipping()) {
+            updateDimensionSpan();
+        }
+    }
 };
 
 PivotTable.prototype.getUuidObjectMap = function() {
@@ -1763,27 +1816,3 @@ PivotTable.prototype.getUuidObjectMap = function() {
 
 
 
-
-
-const applyTableModifications = () => {
-    if (doHideEmptyColumns()) {
-        hideEmptyColumns();
-    }
-
-    if (doHideEmptyRows()) {
-        hideEmptyRows();
-    }
-
-    updatePaddingCells();
-
-    updateColumnAxisDimensionSpan();
-    updateRowAxisDimensionSpan();
-}
-
-const initialize = (rowStart=0, columnStart=0) => {
-    t.columnStart = columnStart;
-    t.columnEnd = getColumnEnd(columnStart);
-
-    t.rowStart = rowStart;
-    t.rowEnd = getRowEnd(rowStart);
-}
