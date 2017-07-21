@@ -19,7 +19,22 @@ EastRegion = function(c) {
         path = appManager.getPath(),
         apiPath = appManager.getApiPath();
 
-    var descriptionMaxNumberCharacter = 200;
+    var descriptionMaxNumberCharacter = 500;
+
+    var openInterpretationWindow = function(id, interpretation, success) {
+        var favoriteId = id || instanceManager.getStateFavoriteId();
+        instanceManager.getSharingById(favoriteId, function(r) {
+            InterpretationWindow(c, r, interpretation, success).show();
+        }, {allowForbidden: true});
+    };
+
+    var userCanManageInterpretation = function(interpretation) {
+        return interpretation.user.id == appManager.userAccount.id || appManager.isAdmin;
+    };
+
+    var userCanManageComment = function(comment) {
+        return comment.user.id == appManager.userAccount.id || appManager.isAdmin;
+    };
 
     var getLink = function(text, isBold, isBrackets) {
         return (isBrackets ? '<span class="bold">[</span> ' : '') +
@@ -35,7 +50,7 @@ EastRegion = function(c) {
         // Favorite loaded ->  Add favorite detail panel and update
         // Otherwise -> Display No Favorite Panel
         var detailsPanelItems;
-        if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
+        if (instanceManager.isStateFavorite()) {
 
             var moreText = i18n.show_more;
             var lessText = i18n.show_less;
@@ -58,7 +73,7 @@ EastRegion = function(c) {
                     cls: 'interpretationActions'
                 });
 
-                // Longer than 200 characters -> Create More/Less link
+                // Longer than [descriptionMaxNumberCharacter] characters -> Create More/Less link
                 if (isTooLongDescription) {
                     var longDescription = description;
 
@@ -87,19 +102,21 @@ EastRegion = function(c) {
                 }
 
                 // Change Link
-                descriptionItems.push({
-                    xtype: 'label',
-                    html: getLink(editText, false, true),
-                    cls: 'interpretationActions',
-                    style: 'margin: 1px 3px 0;',
-                    listeners: {
-                        'render': function(label) {
-                            label.getEl().on('click', function() {
-                                RenameWindow(c, instanceManager.getStateFavorite()).show();
-                            }, label);
+                if (layout && layout.permission === "write") {
+                    descriptionItems.push({
+                        xtype: 'label',
+                        html: getLink(editText, false, true),
+                        cls: 'interpretationActions',
+                        style: 'margin: 1px 3px 0;',
+                        listeners: {
+                            'render': function(label) {
+                                label.getEl().on('click', function() {
+                                    RenameWindow(c, instanceManager.getStateFavorite()).show();
+                                }, label);
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 return descriptionItems;
             };
@@ -148,6 +165,8 @@ EastRegion = function(c) {
             }
 
             // Favorite Details Panel content when favorite loaded
+            var userCanEditSharing = layout && layout.permission === 'write';
+
             detailsPanelItems = [{
                 xtype: 'panel',
                 itemId: 'descriptionPanel',
@@ -197,16 +216,19 @@ EastRegion = function(c) {
                 fieldLabel: i18n.sharing,
                 labelStyle: 'padding-top:0',
                 style: 'margin-bottom:3px',
-                value: getSharingText(layout) + '<span style="padding-left:10px">' + getLink(editText, false, true) + '</span>',
+                value: getSharingText(layout) + (userCanEditSharing ? 
+                    '<span style="padding-left:10px">' + getLink(editText, false, true) + '</span>' : ''),
                 cls: 'interpretationDetailsField',
                 listeners: {
                     'render': function(label) {
-                        label.getEl().on('click', function() {
-                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r)  {
-                                SharingWindow(c, r).show();
-                            });
-                        }, label);
-                    }
+                        if (userCanEditSharing) {
+                            label.getEl().on('click', function() {
+                                instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
+                                    SharingWindow(c, r).show();
+                                });
+                            }, label);
+                        }
+                    } 
                 }
             }];
         } else {
@@ -239,7 +261,6 @@ EastRegion = function(c) {
         itemId: 'detailsPanel',
 
         addAndUpdateFavoritePanel: function(layout) {
-
             // Remove any previous panel
             this.removeAll(true);
 
@@ -255,22 +276,17 @@ EastRegion = function(c) {
      */
 
     // Create interpretation panel depending on interpretation
-    var getInterpretationPanel = function(interpretation, displayingComments) {
+    var getInterpretationPanel = function(layout, interpretation, displayingComments) {
 
         var numberOfCommentsToDisplay = 3;
 
-        // Create inner comments panel depending on comments
-        var getCommentsPanel = function(comments) {
-
-            var commentsPanel = [];
-
-            // Textarea to comment
-            commentsPanel.push({
+        var getWriteCommentBox = function(comment, visible) {
+            return {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 layout: 'column',
-                itemId: 'commentPanel',
-                hidden: true,
+                itemId: 'commentPanel-' + (comment ? comment.id : "new"),
+                hidden: !visible || (!layout || layout.permission === "none"),
                 style: 'margin-top: 1px;',
                 cls: 'comment greyBackground',
                 items: [{
@@ -293,6 +309,7 @@ EastRegion = function(c) {
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
+                        value : comment && comment.text,
                         submitEmptyText: false,
                         flex: 1,
                         border: 0,
@@ -300,35 +317,65 @@ EastRegion = function(c) {
                         listeners: {
                             keypress: function(f, e) {
                                 if (e.getKey() == e.ENTER && !e.shiftKey) {
-                                    commentInterpretation(f);
+                                    commentInterpretation(f, comment);
                                 }
                             }
                         }
                     }, {
-                        xtype: 'label',
-                        html: getLink(i18n.post_comment),
-                        cls: 'link',
-                        listeners: {
-                            'render': function(label) {
-                                label.getEl().on('click', function() {
-                                    commentInterpretation(this.up("[xtype='panel']").down('#commentArea'))
-                                }, label);
+                        xtype: 'panel',
+                        bodyStyle: 'border-style:none',
+                        items: [{
+                            xtype: 'label',
+                            html: getLink(i18n.post_comment),
+                            cls: 'link',
+                            listeners: {
+                                'render': function(label) {
+                                    label.getEl().on('click', function() {
+                                        commentInterpretation(this.up("panel").up("panel").down('#commentArea'), comment)
+                                    }, label);
+                                }
                             }
-                        }
+                        }, {
+                            xtype: 'label',
+                            text: '·',
+                            hidden: !comment,
+                            style: 'margin-left: 5px; margin-right: 5px;'
+                        }, {
+                            xtype: 'label',
+                            html: getLink(i18n.cancel),
+                            hidden: !comment,
+                            cls: 'link',
+                            listeners: {
+                                'render': function(label) {
+                                    label.getEl().on('click', function() {
+                                        cancelCommentEdit(this, comment);
+                                    }, label);
+                                }
+                            }
+                        }]
                     }],
                     columnWidth: 0.89
                 }]
-            });
+            };
+        };
+
+        // Create inner comments panel depending on comments
+        var getCommentsPanel = function(comments) {
+
+            var commentsPanel = [];
+
+            // Textarea to comment
+            commentsPanel.push(getWriteCommentBox(null, true));
 
             // Comments
             // Sorting by last updated
             arraySort(comments, 'DESC', 'lastUpdated');
             for (var i = 0; i < comments.length; i++) {
                 var comment = comments[i];
-
                 commentsPanel.push({
                     xtype: 'panel',
                     bodyStyle: 'border-style:none;',
+                    id: 'commentContent-' + comment.id,
                     cls: 'comment greyBackground',
                     layout: 'column',
                     hidden: (i > numberOfCommentsToDisplay - 1),
@@ -368,10 +415,48 @@ EastRegion = function(c) {
                             xtype: 'label',
                             style: 'color: #666',
                             text: DateManager.getTimeDifference(comment.lastUpdated) + ' ' + i18n.ago
+                        }, {
+                            xtype: 'label',
+                            html: getLink(i18n.edit),
+                            hidden: !userCanManageComment(comment),
+                            style: 'margin-right: 5px; margin-left: 5px',
+                            listeners: {
+                                'render': (function(comment_) {
+                                    return function(label) {
+                                        label.getEl().on('click', function() {
+                                            editComment(this, comment_);
+                                        }, this);
+                                    };
+                                })(comment)
+                            }
+                        }, {
+                            xtype: 'label',
+                            text: '·',
+                            style: 'margin-right: 5px;'
+                        }, {
+                            xtype: 'label',
+                            html: getLink(i18n.delete_),
+                            style: 'margin-right: 5px;',
+                            hidden: !userCanManageComment(comment),
+                            listeners: {
+                                'render': (function(comment_) {
+                                    return function(label) {
+                                        label.getEl().on('click', function() {
+                                            var label = this;
+                                            uiManager.confirmCommentDelete(function() {
+                                                deleteComment(label, comment_);
+                                            });
+                                        }, this);
+                                    };
+                                })(comment)
+                            }
                         }],
                         columnWidth: 0.89
                     }]
                 });
+
+                // Box to edit the comment
+                commentsPanel.push(getWriteCommentBox(comment, false));
             }
 
             // Show more comments
@@ -414,7 +499,8 @@ EastRegion = function(c) {
 
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
-                url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[lastUpdated,text,user[id,displayName]]'),
+                url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
+                    '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {
@@ -448,24 +534,67 @@ EastRegion = function(c) {
         };
 
         // Call comment interpretation, update data model and update/reload panel
-        var commentInterpretation = function(f) {
-            if (f.getValue().trim() != '') {
+        var commentInterpretation = function(f, comment) {
+            var text = f.getValue();
+            
+            if (text.trim() != '') {
+                var commentsUrl = encodeURI(apiPath + '/interpretations/' + interpretation.id + '/comments')
                 Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '/comments'),
-                    method: 'POST',
-                    params: f.getValue(),
+                    url: comment ? commentsUrl + '/' + comment.id : commentsUrl,
+                    method: comment ? 'PUT' : 'POST',
+                    params: text,
                     headers: {
                         'Content-Type': 'text/plain'
                     },
                     success: function() {
-                        // Clear up comment textarea
-                        f.reset();
-
-                        // Refreshing interpretation panel
                         refreshInterpretationDataModel(f.up('#interpretationPanel' + interpretation.id));
                     }
                 });
             }
+        };
+
+        // Update an interpretation update data model and update/reload panel
+        var editInterpretation = function(el) {
+            openInterpretationWindow(null, interpretation, function() {
+                var interpretationPanel = el.up('#interpretationPanel' + interpretation.id);
+                interpretationPanel.updateInterpretationPanelItems(interpretation);
+            });
+        };
+
+        // Delete an interpretation and return to main interpretations panel
+        var deleteInterpretation = function() {
+            Ext.Ajax.request({
+                url: encodeURI(apiPath + '/interpretations/' + interpretation.id),
+                method: 'DELETE',
+                success: function() {
+                    instanceManager.getById(instanceManager.getStateCurrent().id);
+                }
+            });
+        };
+
+        // Delete a comment interpretation, update data model and update/reload panel
+        var deleteComment = function(el, comment) {
+            Ext.Ajax.request({
+                url: encodeURI(apiPath + '/interpretations/' + interpretation.id + '/comments/' + comment.id),
+                method: 'DELETE',
+                success: function() {
+                    refreshInterpretationDataModel(el.up('#interpretationPanel' + interpretation.id));
+                }
+            });
+        };
+
+        var editComment = function(label, comment) {
+            var commentBox = label.up('#commentContent-' + comment.id);
+            var editableCommentBox = commentBox.next();
+            commentBox.hide();
+            editableCommentBox.show();
+        };
+
+        var cancelCommentEdit = function(label, comment) {
+            var editableCommentBox = label.up('#commentPanel-' + comment.id);
+            var commentBox = editableCommentBox.prev();
+            editableCommentBox.hide();
+            commentBox.show();
         };
 
         // Create tooltip for Like link
@@ -531,11 +660,12 @@ EastRegion = function(c) {
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
                     style: 'margin-bottom: 5px;',
+                    hidden: !layout || layout.permission === "none",
+
                     items: [{
                         xtype: 'label',
                         html: isLiked(interpretation) ? getLink(i18n.unlike) : getLink(i18n.like),
                         style: 'margin-right: 5px;',
-
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', likeUnlikeInterpretation, this);
@@ -552,8 +682,42 @@ EastRegion = function(c) {
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', function() {
-                                    this.up('#interpretationPanel' + interpretation.id).down('#commentPanel').show();
+                                    this.up('#interpretationPanel' + interpretation.id).down('#commentPanel-new').show();
                                     this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();
+                                }, this);
+                            }
+                        }
+                    }, {
+                        xtype: 'label',
+                        text: '·',
+                        style: 'margin-right: 5px;'
+                    }, {
+                        xtype: 'label',
+                        html: getLink(i18n.edit),
+                        hidden: !userCanManageInterpretation(interpretation),
+                        style: 'margin-right: 5px;',
+                        listeners: {
+                            'render': function(label) {
+                                label.getEl().on('click', function() {
+                                    editInterpretation(this);
+                                }, this);
+                            }
+                        }
+                    }, {
+                        xtype: 'label',
+                        text: '·',
+                        style: 'margin-right: 5px;'
+                    }, {
+                        xtype: 'label',
+                        html: getLink(i18n.delete_),
+                        hidden: !userCanManageInterpretation(interpretation),
+                        style: 'margin-right: 5px;',
+                        listeners: {
+                            'render': function(label) {
+                                label.getEl().on('click', function() {
+                                    uiManager.confirmInterpretationDelete(function() {
+                                        deleteInterpretation();
+                                    });
                                 }, this);
                             }
                         }
@@ -649,14 +813,14 @@ EastRegion = function(c) {
         return interpretationPanel;
     };
 
-    var getTopInterpretationsPanel = function(interpretations, displayingInterpretation) {
+    var getTopInterpretationsPanel = function(layout, interpretations, displayingInterpretation) {
         var topInterpretationPanelItems = [];
 
         var shareInterpretationPanel = {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
             style: 'padding:6px; border-width:0 0 1px 0; border-style:solid;',
-            hidden: displayingInterpretation,
+            hidden: displayingInterpretation || (!layout || layout.permission === "none"),
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
@@ -664,11 +828,7 @@ EastRegion = function(c) {
                 cls: 'interpretationActions',
                 listeners: {
                     'render': function(label) {
-                        label.getEl().on('click', function() {
-                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
-                                InterpretationWindow(c, r).show();
-                            });
-                        }, label);
+                        label.getEl().on('click', function() { openInterpretationWindow() }, label);
                     }
                 }
             }]
@@ -754,12 +914,14 @@ EastRegion = function(c) {
             var interpretationId = layout.interpretationId;
 
             //Get top interpretations panel depending on interpretations and if we are displaying an interpretation
-            this.add(this.getTopInterpretationsPanel(interpretations, interpretationId != undefined));
+            this.add(this.getTopInterpretationsPanel(layout, interpretations, interpretationId != undefined));
 
             // Add an interpretation panel per interpretation
             if (interpretations != undefined && interpretations.length > 0) {
                 for (var i = 0; i < interpretations.length; i++) {
-                    this.add(this.getInterpretationPanel(interpretations[i], (interpretations[i].id == interpretationId)));
+                    if (interpretations[i].id == interpretationId || interpretationId == undefined){
+                        this.add(this.getInterpretationPanel(layout, interpretations[i], (interpretations[i].id == interpretationId)));
+                    }
                 }
             }
         },
@@ -773,6 +935,7 @@ EastRegion = function(c) {
      */
     return Ext.create('Ext.panel.Panel', {
         region: 'east',
+        openInterpretationWindow: openInterpretationWindow,
         preventHeader: true,
         collapsible: true,
         collapseMode: 'mini',
@@ -782,10 +945,10 @@ EastRegion = function(c) {
         items: [detailsPanel, interpretationsPanel],
         cls: 'eastPanel',
         setState: function(layout) {
-
             this.getComponent('detailsPanel').addAndUpdateFavoritePanel(layout);
 
             // Favorite loaded with interpretations ->  Add interpretation panel and update
+    
             this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         },
         listeners: {

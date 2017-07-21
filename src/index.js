@@ -49,6 +49,7 @@ import { WestRegionTrackerItems } from './ui/WestRegionTrackerItems.js';
 
 import { i18nInit } from './init/i18nInit.js';
 import { authViewUnapprovedDataInit } from './init/authViewUnapprovedDataInit.js';
+import { isAdminInit } from './init/isAdminInit.js';
 import { rootNodesInit } from './init/rootNodesInit.js';
 import { organisationUnitLevelsInit } from './init/organisationUnitLevelsInit.js';
 import { legendSetsInit } from './init/legendSetsInit.js';
@@ -124,6 +125,7 @@ export {
 
     i18nInit,
     authViewUnapprovedDataInit,
+    isAdminInit,
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,
@@ -210,6 +212,7 @@ export const ui = {
 export const init = {
     i18nInit,
     authViewUnapprovedDataInit,
+    isAdminInit,
     rootNodesInit,
     organisationUnitLevelsInit,
     legendSetsInit,

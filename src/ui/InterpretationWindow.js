@@ -2,7 +2,7 @@ import { SharingWindow } from './SharingWindow';
 
 export var InterpretationWindow;
 
-InterpretationWindow = function(c, sharing) {
+InterpretationWindow = function(c, sharing, interpretation, success) {
     var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
@@ -19,6 +19,7 @@ InterpretationWindow = function(c, sharing) {
         fieldStyle: 'padding-left:3px; padding-top:3px',
         emptyText: i18n.write_your_interpretation + '..',
         enableKeyEvents: true,
+        value: interpretation ? interpretation.text : undefined,
         listeners: {
             keyup: function() {
                 shareButton.xable();
@@ -26,59 +27,76 @@ InterpretationWindow = function(c, sharing) {
         }
     });
 
-    var sharingCmp = new SharingWindow(c, sharing, true);
+    var sharingCmp = sharing ? new SharingWindow(c, sharing, true) : null;
 
     var sharingCt = Ext.create('Ext.container.Container', {
-        style: 'padding-top:10px',
-        items: sharingCmp.items
+        style: 'padding-top:10px; padding-bottom:25px',
+        items: sharingCmp ? sharingCmp.items : []
     });
 
+    var method = interpretation ? 'PUT' : 'POST';
+
+    var interpretationSuccess = function(text) {
+        if (interpretation) {
+            interpretation.text = text;
+        }
+        if (success) {
+            success();
+        } else {
+            instanceManager.getById(null, function(layout, isFavorite) {
+                instanceManager.getReport(layout, isFavorite, false, false, function() {
+                    uiManager.unmask();
+                });
+            });
+        }
+    };
+
+    var updateSharing = function(obj, text) {
+        var interpretationId = interpretation ? interpretation.id :
+                (obj.getResponseHeader('location') || '').split('/').pop(),
+            sharingId = sharing.object.id,
+            sharingBody = sharingCmp.getBody();
+
+        Ext.Ajax.request({
+            url: encodeURI(apiPath + '/sharing?type=interpretation&id=' + interpretationId),
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: Ext.encode(sharingBody),
+            callback: function() {
+                Ext.Ajax.request({
+                    url: encodeURI(apiPath + '/sharing?type=' + apiResource + '&id=' + sharingId),
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    params: Ext.encode(sharingBody),
+                    callback: function() { interpretationSuccess(text); }
+                });
+            }
+        });
+    };
+
     var shareButton = Ext.create('Ext.button.Button', {
-        text: i18n.share,
-        disabled: true,
+        text: interpretation ? i18n.update : i18n.share,
+        disabled: !interpretation,
         xable: function() {
             this.setDisabled(!textArea.getValue());
         },
         handler: function() {
-            if (textArea.getValue()) {
+            var text = textArea.getValue();
+            var interpretationPath = interpretation ? '/interpretations/' + interpretation.id :
+                '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId();
+
+            if (text) {
                 Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId()),
-                    method: 'POST',
-                    params: textArea.getValue(),
+                    url: encodeURI(apiPath + interpretationPath),
+                    method: method,
+                    params: text,
                     headers: {'Content-Type': 'text/html'},
                     success: function(obj) {
-                        var interpretationId = (obj.getResponseHeader('location') || '').split('/').pop(),
-                            sharingId = sharing.object.id,
-                            sharingBody = sharingCmp.getBody();
-
-                        Ext.Ajax.request({
-                            url: encodeURI(apiPath + '/sharing?type=interpretation&id=' + interpretationId),
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            params: Ext.encode(sharingBody),
-                            callback: function() {
-                                Ext.Ajax.request({
-                                    url: encodeURI(apiPath + '/sharing?type=' + apiResource + '&id=' + sharingId),
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    params: Ext.encode(sharingBody),
-                                    callback: function() {
-                                        instanceManager.getById(null, function(layout, isFavorite) {
-                                            instanceManager.getReport(layout, isFavorite, false, false, function() {
-                                                uiManager.unmask();
-                                            });
-                                        });
-                                    }
-                                });
-                            }
-                        });
-
-
-
+                        sharing ? updateSharing(obj, text) : interpretationSuccess(text);
                         textArea.reset();
                         window.destroy();
                     }

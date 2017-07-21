@@ -493,6 +493,17 @@ Viewport = function(refs, cmp, config) {
         setScroll: function(fn) {
             this.onScroll = fn;
         },
+        setSidePanelsUIState: function(favoriteId, interpretationId) {
+            // If there is an interpretation loaded, collapse left panel and expand right panel
+            if (interpretationId) {
+                Ext.getCmp('toggleEastRegionButton').handler();
+                Ext.getCmp('toggleWestRegionButton').handler();
+
+                if (favoriteId && interpretationId == "new") {
+                    eastRegion.openInterpretationWindow(favoriteId);
+                }
+            }
+        },
         scrollTo: function(x, y) {
             this.body.scrollTo(x, y);
         },
@@ -503,6 +514,7 @@ Viewport = function(refs, cmp, config) {
             },
             items: [
                 {
+                    id: "toggleWestRegionButton",
                     text: ' ',
                     width: 26,
                     padding: '3',
@@ -538,6 +550,7 @@ Viewport = function(refs, cmp, config) {
                 '->',
                 ...integrationButtons,
                 {
+                    id: "toggleEastRegionButton",
                     text: ' ',
                     width: 26,
                     padding: '3',
@@ -669,11 +682,11 @@ Viewport = function(refs, cmp, config) {
                 // look for url params
                 var id = appManager.getUrlParam('id'),
                     session = appManager.getUrlParam('s'),
-                    interpretationId = appManager.getUrlParam('interpretationId'),
+                    interpretationId = appManager.getUrlParam('interpretationid'),
                     layout;
 
                 if (id) {
-                    if (interpretationId) {
+                    if (interpretationId && interpretationId != "new") {
                         instanceManager.getById(id, function(layout) {
                             instanceManager.getInterpretationById(interpretationId, function(interpretation) {
                                 uiManager.updateInterpretation(interpretation, layout);
@@ -697,6 +710,8 @@ Viewport = function(refs, cmp, config) {
 
                 Ext.getBody().setStyle('background', '#fff');
                 Ext.getBody().setStyle('opacity', 0);
+
+                centerRegion.setSidePanelsUIState(id, interpretationId);
 
                 // fade in
                 Ext.defer( function() {
