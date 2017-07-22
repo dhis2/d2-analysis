@@ -992,13 +992,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         for (let i = 0, y = rowStart; y < rowEnd; i++, y++) {
 
             if (isRowSubTotal(y)) {
-                column[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - columnIndex, 1, true, t.columnStart !== columnIndex);
+                column[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - columnIndex, 1, true, t.columnStart !== columnIndex, 'row');
                 continue;
             }
 
             if (isRowGrandTotal(y)) {
                 if (t.columnStart === columnIndex) column[i] = DimensionGrandTotalCell('Total', rowAxis.dims - columnIndex, 1, false, false);
-                else                               column[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - columnIndex, 1, true, true);
+                else                               column[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - columnIndex, 1, true, true, 'row');
                 continue;
             }
 
@@ -1082,16 +1082,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if (isRowSubTotal(rowIndex)) {
             for (let i=0, x=columnStart; x < rowAxis.dims; i++, x++) {
-                if (i === 0) row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, false);
-                else         row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
+                if (i === 0) row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, false, 'row');
+                else         row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true, 'row');
             }
             return row;
         }
 
         if (isRowGrandTotal(rowIndex)) {
             for (let i=0, x=columnStart; x < rowAxis.dims; i++, x++) {
-                if (i === 0) row[i] = DimensionGrandTotalCell('Total', rowAxis.dims - x, 1, false, false);
-                else         row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true);
+                if (i === 0) row[i] = DimensionGrandTotalCell('Total', rowAxis.dims - x, 1, false, false, 'row');
+                else         row[i] = DimensionSubTotalCell('&nbsp;', rowAxis.dims - x, 1, true, true, 'row');
             }
             return row;
         }
@@ -1259,20 +1259,20 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if (rowIndex === colAxis.dims - 1) {
             for (let i=columnStart; i < rowAxis.dims - 1; i++) {
-                row[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]));
+                row[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]), i);
             }
 
             let colAxisLabel = colAxis.type ? response.getNameById(columnDimensionNames[rowAxis.dims - 1]) : null,
                 rowAxisLabel = rowAxis.type ? response.getNameById(rowDimensionNames[colAxis.dims - 1]) : null;
 
-            row[rowAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
+            row[rowAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''), rowAxis.dims - 1);
         }
 
         else {
             for (let i=columnStart; i < rowAxis.dims - 1; i++) {
-                row[i] = DimensionLabelCell('&nbsp;');
+                row[i] = DimensionLabelCell('&nbsp;', i);
             }
-            row[rowAxis.dims - 1] = DimensionLabelCell(response.getNameById(columnDimensionNames[rowIndex]))
+            row[rowAxis.dims - 1] = DimensionLabelCell(response.getNameById(columnDimensionNames[rowIndex]), rowAxis.dims - 1);
         }
 
         return row;
@@ -1296,20 +1296,20 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if (columnIndex === rowAxis.dims - 1) {
             for (let i=rowStart; i < colAxis.dims - 1; i++) {
-                column[i] = DimensionLabelCell(response.getNameById(columnDimensionNames[i]));
+                column[i] = DimensionLabelCell(response.getNameById(columnDimensionNames[i]), columnIndex);
             }
 
             let colAxisLabel = colAxis.type ? response.getNameById(columnDimensionNames[colAxis.dims - 1]) : null,
                 rowAxisLabel = rowAxis.type ? response.getNameById(rowDimensionNames[rowAxis.dims - 1]) : null;
 
-            column[colAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
+            column[colAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''), columnIndex);
         }
 
         else {
             for (let i=rowStart; i < colAxis.dims - 1; i++) {
-                column[i] = DimensionLabelCell('&nbsp;');
+                column[i] = DimensionLabelCell('&nbsp;', columnIndex);
             }
-            column[colAxis.dims - 1] = DimensionLabelCell(response.getNameById(rowDimensionNames[columnIndex]))
+            column[colAxis.dims - 1] = DimensionLabelCell(response.getNameById(rowDimensionNames[columnIndex]), columnIndex)
         }
 
         return column;
@@ -1454,14 +1454,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
         
-        // if (doTableClipping() && false) {
+        if (doTableClipping() || true) {
             style.push(...getClippingStyle(config));
-        // }
-
-
-        if (doStickyRows() && config.axis === 'row') {
-            style.push(`position: absolute;`);
-            style.push(`left: ${cellWidth * config.dim}px`);
         }
 
         // attributes
@@ -1494,15 +1488,22 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return html;
     };
 
-    /** @description
-     *  @param   {array} htmlArray 
-     *  @returns {string}
-     */
-    const buildHtmlTableHeader = (htmlArray) => {
-        let   table = [],
-              cls = 'pivot pivot-header';
+    const buildHtmlRowDimension = (htmlArray) => {
+        let table = '<table class="pivot pivot-row-sticky">';
+        
+        for (var i = 0, htmlRow; i < htmlArray.length; i++) {
+            htmlRow = htmlArray[i].splice(0, rowAxis.dims).join('');
+            if (htmlRow.length > 0) {
+                table += '<tr>' + htmlRow + '</tr>';
+            }
+        }
 
-        table = `<thead>`;
+        return table += '</table>';
+    }
+
+    const buildHtmlColumnDimension = (htmlArray) => {
+        let table =  `<thead>`,
+            cls   = 'pivot pivot-header';
         
         for (var i = 0, htmlRow; i < colAxis.dims; i++) {
             htmlRow = htmlArray[i].join('');
@@ -1519,25 +1520,38 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {string}
      */
     const buildHtmlTable = (htmlArray) => {
-        var cls   = 'pivot user-select',
-            tbodyStyle = doStickyColumns() ? `height: calc(100% - ${colAxis.dims * cellHeight}px)` : '',
-            table;
+        var cls        = 'pivot user-select',
+            tbodyStyle = '',
+            divCls     = '',
+            table      = '';
+
+        if (doStickyRows()) {
+            divCls += ' sticky-scroller';
+            table  += buildHtmlRowDimension(htmlArray);
+        }
+
+        if (doStickyColumns()) {
+            cls        += ' pivot-fixed';
+            divCls     += 'table-wrapper';
+            tbodyStyle += `height: calc(100% - ${colAxis.dims * cellHeight}px);`
+        }
 
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
         cls += layout.fontSize ? ' fontsize-' + layout.fontSize : '';
-        cls += doStickyColumns() ? ' pivot-fixed' : '';
 
-        table = '<table class="' + cls + '">' + buildHtmlTableHeader(htmlArray)
-        table += '<tbody style="' + tbodyStyle + '">';
+        table += `<div class="${divCls}")>`;
+        table += `<table class="${cls}"> `;
+        table += buildHtmlColumnDimension(htmlArray)
+        table += `<tbody style="${tbodyStyle}">`;
 
         for (var i = colAxis.dims, htmlRow; i < htmlArray.length; i++) {
             htmlRow = htmlArray[i].join('');
             if (htmlRow.length > 0) {
                 table += '<tr>' + htmlRow + '</tr>';
             }   
-        }
+        };
 
-        return table += '</tbody></table>';
+        return table += '</tbody></table></div>';
     };
 
     /** @description
@@ -1740,6 +1754,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         currentTable = buildTable();
+
+        console.log(currentTable);
 
         updateTableParameters();
 

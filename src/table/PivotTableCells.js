@@ -128,7 +128,7 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
  *  @param   {boolean} hidden 
  *  @returns {object}
  */
-export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) => {
+export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden, axis) => {
     const cell = DefaultCell();
 
     cell.value     = value;
@@ -141,6 +141,9 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) =>
     cell.empty     = empty;
     cell.hidden    = hidden;
 
+    cell.axis      = axis;
+    cell.dim       = 0;
+
     return cell;
 };
 
@@ -152,7 +155,7 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) =>
  *  @param {boolean} generateUuid 
  *  @returns 
  */
-export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid) => {
+export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid, axis) => {
     const cell = DefaultCell();
 
     cell.value   = value;
@@ -164,6 +167,9 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
 
     cell.sort    = sort ? 'total' : null;
     cell.uuid    = generateUuid ? uuid() : null;
+
+    cell.axis      = axis;
+    cell.dim       = 0;
 
     cell.htmlValue = value;
 
@@ -195,12 +201,15 @@ export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
  *  @param   {string} value 
  *  @returns {object} 
  */
-export const DimensionLabelCell = (value) => {
+export const DimensionLabelCell = (value, dim) => {
     const cell = DefaultCell();
 
     cell.value = value;
     cell.type  = 'labeled';
     cell.cls   = 'pivot-dim-label';
+
+    cell.dim = dim;
+    cell.axis = 'row';
 
     cell.htmlValue = value;
 
