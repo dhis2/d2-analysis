@@ -71,7 +71,12 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     cell.height    = 25;
 
     cell.type      = 'dimension';
-    cell.cls       = 'pivot-dim td-nobreak' + (showHierarchy ? ' align-left' : '');
+    cell.axis      = 'row';
+    cell.cls       = 'pivot-dim pivot-row-dim td-nobreak'
+
+    if (showHierarchy) {
+        cell.csl += ' align-left';
+    } 
 
     cell.noBreak   = true;
     cell.hidden    = hidden;
@@ -99,7 +104,8 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
     cell.height    = 25;
 
     cell.type      = 'dimension';
-    cell.cls       = 'pivot-dim';
+    cell.axis      = 'column';
+    cell.cls       = 'pivot-dim pivot-col-dim';
 
     cell.noBreak   = false;
     cell.hidden    = hidden;
@@ -230,8 +236,9 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
 export const FilterCell = (text, colSpan) => {
     const cell = DefaultCell();
 
-    cell.type      = 'filter',
     cell.cls       = 'pivot-filter cursor-default',
+    cell.type      = 'filter',
+    
     cell.colSpan   = colSpan,
     cell.title     = text,
     cell.htmlValue = text
