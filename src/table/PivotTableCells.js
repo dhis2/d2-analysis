@@ -18,6 +18,28 @@ const DefaultCell = () => {
     };
 };
 
+export const ValueCell = (value, response, rric, uuids) => {
+    const cell  = DefaultCell();
+    
+    cell.uuid       = uuid();
+    cell.uuids      = uuids;
+
+    cell.empty      = value === -1;
+    cell.value      = value === -1 ? 0        : value;
+    cell.htmlValue  = value === -1 ? '&nbsp;' : value;
+
+    cell.isValue    = !cell.empty;
+
+    cell.type       = 'value';
+    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
+
+    cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
+    cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
+    cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
+
+    return cell;
+};
+
 /** @description factory function for value sub total cells.
  *  @param   {number} value 
  *  @returns {object}
@@ -128,7 +150,7 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
  *  @param   {boolean} hidden 
  *  @returns {object}
  */
-export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden, axis) => {
+export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) => {
     const cell = DefaultCell();
 
     cell.value     = value;
@@ -141,9 +163,6 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden, ax
     cell.empty     = empty;
     cell.hidden    = hidden;
 
-    cell.axis      = axis;
-    cell.dim       = 0;
-
     return cell;
 };
 
@@ -155,7 +174,7 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden, ax
  *  @param {boolean} generateUuid 
  *  @returns 
  */
-export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid, axis) => {
+export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid) => {
     const cell = DefaultCell();
 
     cell.value   = value;
@@ -167,9 +186,6 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
 
     cell.sort    = sort ? 'total' : null;
     cell.uuid    = generateUuid ? uuid() : null;
-
-    cell.axis      = axis;
-    cell.dim       = 0;
 
     cell.htmlValue = value;
 
@@ -191,6 +207,9 @@ export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
 
     cell.colSpan   = colSpan;
     cell.rowSpan   = rowSpan;
+
+    cell.width     = colSpan * 120;
+    cell.height    = rowSpan * 25;
 
     cell.hidden    = hidden;
 
@@ -254,31 +273,6 @@ export const FilterCell = (text, colSpan) => {
 
     return cell;
 }
-
-
-// TODO: THESE NEED WORK
-
-export const ValueCell = (value, response, rric, uuids) => {
-    const cell  = DefaultCell();
-    
-    cell.uuid       = uuid();
-    cell.uuids      = uuids;
-
-    cell.empty      = value === -1;
-    cell.value      = value === -1 ? 0        : value;
-    cell.htmlValue  = value === -1 ? '&nbsp;' : value;
-
-    cell.isValue    = !cell.empty;
-
-    cell.type       = 'value';
-    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
-
-    cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
-    cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
-    cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
-
-    return cell;
-};
 
 
 
