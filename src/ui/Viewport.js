@@ -561,6 +561,9 @@ Viewport = function(refs, cmp, config) {
         },
         bbar: statusBar,
         listeners: {
+            change: function() {
+                console.log("hello, world");
+            },
             afterrender: function(p) {
                 p.update(uiManager.getIntroHtml());
             },

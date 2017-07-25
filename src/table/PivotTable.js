@@ -168,7 +168,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {boolean}
      */
     const doTableClipping = () => {
-        return false;
+        return layout.enableTableClipping;;
     };
 
     /** @description checks if sticky columns is enabled.
@@ -1488,12 +1488,24 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return html;
     };
 
-    const buildHtmlRowDimension = (htmlArray) => {
-        let table = '<table class="pivot pivot-sticky-row">',
+    /** @description builds html for row dimension
+     *  @param   {array} htmlArray 
+     *  @returns {string}
+     */
+    const buildHtmlRowDimensionTable = (htmlArray) => {
+        let table = '',
+            cls   = '',
+            style = '',
             startIndex = doTableClipping() ? 1 : 0,
             htmlRow;
+
+        if (doStickyRows()) {
+            cls += ' pivot pivot-sticky-row';
+        }
         
-        if (!doShowDimensionLabels() && colAxis.dims > 1) {
+        table += `<table class="${cls}" style="${style}">`;
+        
+        if (!doShowDimensionLabels() && colAxis.dims > 0) {
             htmlRow     = htmlArray[startIndex].splice(0, rowAxis.dims).join('');
             table      += `<tr style="height:${colAxis.dims * cellHeight}px;">${htmlRow}</tr>`;
             startIndex += 1;
@@ -1506,22 +1518,56 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
 
-        return table += '</table>';
+        table += '</table>';
+
+        return table;
     }
 
-    const buildHtmlColumnDimension = (htmlArray) => {
-        let table      = ``,
-            startIndex = doTableClipping() ? 1 : 0,
-            cls        = 'pivot pivot-header';
+    /** @description builds html for column dimension
+     * @param   {array} htmlArray 
+     * @returns {string}
+     */
+    const buildHtmlTableHead = (htmlArray) => {
+        let thead      = '',
+            cls        = '',
+            style      = '';
 
-        for (var i = startIndex, htmlRow; i < colAxis.dims + (doTableClipping() ? 1 : 0); i++) {
+        thead += `<thead class="${cls}" style="${style}">`;
+
+        for (var i = 0, htmlRow; i < colAxis.dims - t.rowStart + (doTableClipping() ? 1 : 0); i++) {
             htmlRow = htmlArray[i].join('');
             if (htmlRow.length > 0) {
-                table += '<tr>' + htmlRow + '</tr>';
+                thead += '<tr>' + htmlRow + '</tr>';
             }
         }
 
-        return table;
+        thead += '</thead>';
+
+        return thead;
+    }
+
+    const buildHtmlTableBody = (htmlArray) => {
+        let tbody      = '',
+            cls        = '',
+            style      = '';
+
+        if (doStickyColumns()) {
+            style += `height: calc(100% - ${colAxis.dims * cellHeight}px);`;
+        }
+
+        tbody += `<tbody class="${cls}" style="${style}"`;
+
+        for (let i = Math.max(0, colAxis.dims  - t.rowStart + (doTableClipping() ? 1 : 0)), htmlRow; i < htmlArray.length; i++) {
+            htmlRow = htmlArray[i].join('');
+            if (htmlRow.length > 0) {
+                tbody += '<tr>' + htmlRow + '</tr>';
+            }   
+        };
+
+        tbody += '</tbody>';
+        
+        return tbody;
+
     }
     
     /** @description builds an html array from a table of html strings.
@@ -1529,41 +1575,32 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {string}
      */
     const buildHtmlTable = (htmlArray) => {
-        let cls        = 'pivot user-select',
-            tbodyStyle = '',
-            divStyle   = '',
-            divCls     = '',
-            table      = '';
+        let table    = '',
+            cls      = 'pivot user-select',
+            divStyle = '',
+            divCls   = '';
 
         if (doStickyRows()) {
             divCls   += ' sticky-wrapper';
             divStyle += `width: calc(100% - ${rowAxis.dims * cellWidth}px);`;
-            divStyle += `margin-left: ${rowAxis.dims * cellWidth}px`;
-            table    += buildHtmlRowDimension(htmlArray);
+            divStyle += `margin-left: ${rowAxis.dims * cellWidth}px;`;
+            table    += buildHtmlRowDimensionTable(htmlArray);
         }
-
+        
         if (doStickyColumns()) {
-            cls        += ' pivot-sticky-column';
-            divCls     += ' table-wrapper';
-            tbodyStyle += `height: calc(100% - ${colAxis.dims * cellHeight}px);`
+            cls    += ' pivot-sticky-column';
+            divCls += ' table-wrapper';
         }
 
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
-        cls += layout.fontSize ? ' fontsize-' + layout.fontSize : '';
+        cls += layout.fontSize       ? ' fontsize-' + layout.fontSize : '';
 
-        table += `<div style="${divStyle}" class="${divCls}")>`;
-        table += `<table class="${cls}"> `;
-        table += buildHtmlColumnDimension(htmlArray);
-        table += `<tbody style="${tbodyStyle}">`;
+        table += `<div style="${divStyle}" class="${divCls}")><table class="${cls}">`;
+        table += buildHtmlTableHead(htmlArray);
+        table += buildHtmlTableBody(htmlArray);
+        table += '</table></div>';
 
-        for (let i = colAxis.dims + (doTableClipping() ? 1 : 0), htmlRow; i < htmlArray.length; i++) {
-            htmlRow = htmlArray[i].join('');
-            if (htmlRow.length > 0) {
-                table += '<tr>' + htmlRow + '</tr>';
-            }   
-        };
-
-        return table += '</tbody></table></div>';
+        return table;
     };
 
     /** @description
@@ -1588,7 +1625,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
 
             default: {
-                return !(i === 1 && j === 1)
+                return !(i === 1 && j === 1);
             }
         }
     };
@@ -1766,8 +1803,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         currentTable = buildTable();
-
-        console.log(currentTable);
 
         updateTableParameters();
 
