@@ -1029,9 +1029,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             x = columnStart;
 
         if (x < rowAxis.dims) {
-            for (i, x; x < rowAxis.dims; i++, x++) {
-                if (i === 0) row[i] = DimensionEmptyCell(rowAxis.dims - x, colAxis.dims - rowIndex, columnStart === t.columnStart);
-                else         row[i] = DimensionEmptyCell(rowAxis.dims - x, colAxis.dims - rowIndex, true);
+            let corner = buildCornerAxisRow(rowIndex, columnStart);
+            for (i, x; i < corner.length; i++, x++) {
+                row[i] = corner[i];
             }
         }
 
@@ -1258,21 +1258,24 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         if (rowIndex === colAxis.dims - 1) {
-            for (let i=columnStart; i < rowAxis.dims - 1; i++) {
+            let i = 0;
+
+            for (let x=columnStart; x < rowAxis.dims - 1; i++, x++) {
                 row[i] = DimensionLabelCell(response.getNameById(rowDimensionNames[i]));
             }
 
             let colAxisLabel = colAxis.type ? response.getNameById(columnDimensionNames[rowAxis.dims - 1]) : null,
                 rowAxisLabel = rowAxis.type ? response.getNameById(rowDimensionNames[colAxis.dims - 1]) : null;
 
-            row[rowAxis.dims - 1] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
+            row[i] = DimensionLabelCell(rowAxisLabel + (colAxisLabel ? '&nbsp;/&nbsp;' + colAxisLabel : ''));
         }
 
         else {
-            for (let i=columnStart; i < rowAxis.dims - 1; i++) {
+            let i = 0;
+            for (let x=columnStart; x < rowAxis.dims - 1; i++, x++) {
                 row[i] = DimensionLabelCell('&nbsp;');
             }
-            row[rowAxis.dims - 1] = DimensionLabelCell(response.getNameById(columnDimensionNames[rowIndex]));
+            row[i] = DimensionLabelCell(response.getNameById(columnDimensionNames[rowIndex]));
         }
 
         return row;
@@ -1404,10 +1407,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     /** @description 
      *  @param   {object} config 
-     *  @param   {string} metaDataId 
      *  @returns {object}
      */
-    const buildHtmlCell = (config, metaDataId) => {
+    const buildHtmlCell = (config) => {
 
         // validation
         if (!isObject(config) || config.hidden || config.collapsed) {
@@ -1417,8 +1419,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         // count number of cells
         tdCount += 1;
 
-        let attributes = [],
-            style = [];
+        const style = [];
 
         // html value
         let htmlValue = getHtmlValue(config);
@@ -1439,7 +1440,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 legends = appManager.getLegendSetById(getLegendSetId(config.dxId)).legends;
             }
 
-            for (var i = 0; i < legends.length; i++) {
+            for (let i=0; i < legends.length; i++) {
                 if (numberConstrain(config.value, legends[i].startValue, legends[i].endValue) === config.value) {
                     bgColor = legends[i].color;
                 }
@@ -1454,23 +1455,23 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         }
         
-        // if (doTableClipping()) {
+        if (doTableClipping() || doStickyColumns() || doStickyRows()) {
             style.push(...getClippingStyle(config));
-        // }
+        }
 
-        // attributes
-        style = arrayClean(style);
-
-        attributes.push(                 'data-ou-id="'     + (config.ouId || '') + '"');
-        attributes.push(                 'data-period-id="' + (config.peId || '') + '"');
-        attributes.push(                 'class="'          + config.cls + '"');
-        attributes.push(config.uuid    ? 'id="'             + config.uuid + '"' : null);
-        attributes.push(config.title   ? 'title="'          + config.title + '"' : null);
-        attributes.push(style.length   ? 'style="'          + style.join(' ') + '"' : null);
-        attributes.push(config.colSpan ? 'colspan="'        + config.colSpan + '"' : null);
-        attributes.push(config.rowSpan ? 'rowSpan="'        + config.rowSpan + '"' : null);
-
-        return '<td ' + arrayClean(attributes).join(' ') + '>' + htmlValue + '</td>';
+        return `
+            <td data-ou-id="${config.ouId || ''}"
+                data-period-id="${config.peId || ''}"
+                class="${config.cls}"
+                id="${config.uuid || ''}"
+                title="${config.title || ''}"
+                style="${style.length ? style.join(' ') : ''}"
+                colspan="${config.colSpan || ''}"
+                rowSpan="${config.rowSpan || ''}"
+            >
+                ${htmlValue}
+            </td>
+        `;
     };
 
     /** @description turns a table of objects into a table of html strings.
@@ -1487,6 +1488,25 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
         return html;
     };
+
+    /** @description
+     *  @param   {array} htmlArray 
+     *  @param   {number} start 
+     *  @param   {number} end 
+     *  @returns {string}
+     */
+    const buildHtmlTableRows = (htmlArray, start, end) => {
+        let rows = '';
+        
+        for (let i = start, htmlRow; i < end; i++) {
+            htmlRow = htmlArray[i].join('');
+            if (htmlRow.length > 0) {
+                rows += '<tr>' + htmlRow + '</tr>';
+            }
+        }
+
+        return rows;
+    }
 
     /** @description builds html for row dimension
      *  @param   {array} htmlArray 
@@ -1524,59 +1544,47 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     /** @description builds html for column dimension
-     * @param   {array} htmlArray 
-     * @returns {string}
+     *  @param   {array} htmlArray 
+     *  @returns {string}
      */
     const buildHtmlTableHead = (htmlArray) => {
-        let thead      = '',
-            cls        = '',
+        let cls        = '',
             style      = '';
 
-        thead += `<thead class="${cls}" style="${style}">`;
-
-        for (var i = 0, htmlRow; i < colAxis.dims - t.rowStart + (doTableClipping() ? 1 : 0); i++) {
-            htmlRow = htmlArray[i].join('');
-            if (htmlRow.length > 0) {
-                thead += '<tr>' + htmlRow + '</tr>';
-            }
-        }
-
-        thead += '</thead>';
-
-        return thead;
+        return `
+            <thead class="${cls}" style="${style}">
+                ${buildHtmlTableRows(htmlArray, 0, colAxis.dims - t.rowStart + (doTableClipping() ? 1 : 0))}
+            </thead>
+        `;
     }
 
+    /** @description 
+     *  @param   {array} htmlArray 
+     *  @returns {string}
+     */
     const buildHtmlTableBody = (htmlArray) => {
-        let tbody      = '',
-            cls        = '',
-            style      = '';
+        let cls           = '',
+            style         = '',
+            startRowIndex = Math.max(0, colAxis.dims  - t.rowStart + (doTableClipping() ? 1 : 0)),
+            endRowIndex   = htmlArray.length;
 
         if (doStickyColumns()) {
             style += `height: calc(100% - ${colAxis.dims * cellHeight}px);`;
         }
 
-        tbody += `<tbody class="${cls}" style="${style}"`;
-
-        for (let i = Math.max(0, colAxis.dims  - t.rowStart + (doTableClipping() ? 1 : 0)), htmlRow; i < htmlArray.length; i++) {
-            htmlRow = htmlArray[i].join('');
-            if (htmlRow.length > 0) {
-                tbody += '<tr>' + htmlRow + '</tr>';
-            }   
-        };
-
-        tbody += '</tbody>';
-        
-        return tbody;
-
-    }
+        return `
+            <tbody class="${cls}" style="${style}"
+                ${buildHtmlTableRows(htmlArray, startRowIndex, endRowIndex)}
+            </tbody>
+        `;
+    };
     
     /** @description builds an html array from a table of html strings.
      *  @param   {array} htmlArray 
      *  @returns {string}
      */
     const buildHtmlTable = (htmlArray) => {
-        let table    = '',
-            cls      = 'pivot user-select',
+        let cls      = 'pivot user-select',
             divStyle = '',
             divCls   = '';
 
@@ -1584,7 +1592,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             divCls   += ' sticky-wrapper';
             divStyle += `width: calc(100% - ${rowAxis.dims * cellWidth}px);`;
             divStyle += `margin-left: ${rowAxis.dims * cellWidth}px;`;
-            table    += buildHtmlRowDimensionTable(htmlArray);
         }
         
         if (doStickyColumns()) {
@@ -1595,12 +1602,15 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
         cls += layout.fontSize       ? ' fontsize-' + layout.fontSize : '';
 
-        table += `<div style="${divStyle}" class="${divCls}")><table class="${cls}">`;
-        table += buildHtmlTableHead(htmlArray);
-        table += buildHtmlTableBody(htmlArray);
-        table += '</table></div>';
-
-        return table;
+        return `
+            ${doStickyRows() ? buildHtmlRowDimensionTable(htmlArray) : ''}
+            <div style="${divStyle}" class="${divCls}")>
+                <table class="${cls}">
+                    ${buildHtmlTableHead(htmlArray)}
+                    ${buildHtmlTableBody(htmlArray)}
+                </table>
+            </div>
+        `;
     };
 
     /** @description
@@ -1698,7 +1708,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     };
 
-    /** @description
+    /** @description updates columnd and row dimension spans.
      */
     const updateDimensionSpan = () => {
         updateColumnAxisDimensionSpan();
