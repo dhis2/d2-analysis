@@ -674,8 +674,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     setTotalCells = function (table) {
 
-        var columnTotals = new Array(table[1].length).fill(0),
-            columnSubTotals = new Array(table[1].length).fill(0);
+        console.log(table);
+
+        var columnTotals = new Array(table[0].length).fill(0),
+            columnSubTotals = new Array(table[0].length).fill(0);
 
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotal=0, rowSubTotal=0, intersectRow = 0; j < table[i].length; j++) {
@@ -740,8 +742,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     setEmptyCells = function (table) {
 
-        var columnTotalEmpties = new Array(table[1].length).fill(0),
-            columnSubEmpties = new Array(table[1].length).fill(0);
+        var columnTotalEmpties = new Array(table[0].length).fill(0),
+            columnSubEmpties = new Array(table[0].length).fill(0);
 
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotalEmpty=0, rowSubEmpty=0, rowIntesectEmpty = 0; j < table[i].length; j++) {
