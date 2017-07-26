@@ -573,7 +573,7 @@ Layout.prototype.sort = function(table) {
         direction = this.sorting.direction,
         dimension = this.rows[0],
         response = this.getResponse(),
-        idValueMap = table ? table.idValueMap : response.getIdValueMap(),
+        idValueMap = table ? table.idValueMap : response.getIdValueMap(t),
         records = [],
         ids,
         sortingId,
