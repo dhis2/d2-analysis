@@ -775,6 +775,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } continue;
 
                     case 'value-column-total': {
+                        console.log(columnTotalEmpties[j], rowAxis.size);
                         if (columnTotalEmpties[j] >= rowAxis.size) setCellEmpty(cell);
                     } continue;
 
@@ -795,18 +796,22 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 rowTotalEmpty += cell.empty ? 1 : 0;
                 columnSubEmpties[j] += cell.empty ? 1 : 0;
                 columnTotalEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
 
-                if (colUniqueFactor > 1 && doColSubTotals()) {
+                if(doRowTotals()) {
+                    columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
+                }
+
+                if (colUniqueFactor >= 1 && doRowSubTotals()) {
                     columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
                 }
 
-                if (colUniqueFactor > 1 && doColTotals()) {
+                if (colUniqueFactor >= 1 && doRowSubTotals()) {
                     columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
                 }
 
             }
         }
+
     }
 
     getValueObjectArray = function() {
