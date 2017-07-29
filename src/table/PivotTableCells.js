@@ -261,6 +261,34 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
     return cell;
 };
 
+export const HorizontalPaddingCell = (width=0, hidden) => {
+    const cell = DefaultCell();
+    
+    cell.value     = '&nbsp;';
+    cell.type      = 'padding';
+    cell.cls       = 'pivot-padding';
+
+    cell.width     = width;
+
+    cell.hidden    = hidden;
+
+    return cell;
+}
+
+export const VerticalPaddingCell = (height=0, hidden) => {
+    const cell = DefaultCell();
+    
+    cell.value     = '&nbsp;';
+    cell.type      = 'padding';
+    cell.cls       = 'pivot-padding';
+
+    cell.height    = height;
+
+    cell.hidden    = hidden;
+
+    return cell;
+}
+
 export const FilterCell = (text, colSpan) => {
     const cell = DefaultCell();
 

@@ -81,7 +81,7 @@ export const deleteRow = (table, rowIndex, quantity=1) => {
  *  @param {number} [quantity=1] 
  */
 export const deleteColumn = (table, columnIndex, quantity=1) => {
-    for (let i = 1; i < table.length - 1; i++) {
+    for (let i = 0; i < table.length; i++) {
         table[i].splice(columnIndex, quantity);
     }
 };
