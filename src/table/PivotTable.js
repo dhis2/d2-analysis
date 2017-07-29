@@ -601,13 +601,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     /** @description collapses parents of given object.
      *  @param {object} obj 
      */
-    const recursiveReduce = (obj) => {
+    const recursiveReduce = (obj, span) => {
         if (!obj.children) {
             obj.collapsed = true;
 
             if (obj.parent && obj.parent.oldestSibling) {
                 obj.parent.oldestSibling.children--;
-                obj.parent.knicked = true;
+                obj.parent.oldestSibling[span]--;
             }
         }
 
@@ -715,21 +715,23 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param {array} table 
      */
     const hideEmptyColumns = () => {
-        for (let i = rowAxis.dims + 1, dimLeaf; i < currentTable[1].length - 1; i++) {
-            if (isColumnEmpty(i - (rowAxis.dims + 1))) {
+        for (let i = rowAxis.dims, dimLeaf; i < currentTable[1].length - 1; i++) {
+            if (isColumnEmpty(i - (rowAxis.dims))) {
                 
                 if (t.rowStart < colAxis.dims) {
-                    dimLeaf = currentTable[colAxis.dims - t.rowStart][i];
+
+                    dimLeaf = currentTable[colAxis.dims - 1 -  t.rowStart][i];
+
                     if (dimLeaf.type === 'dimensionSubtotal') {
                         currentTable[1][i].collapsed = true;
                     }
 
-                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
-                        recursiveReduce(dimLeaf);
+                    if (dimLeaf) {
+                        recursiveReduce(dimLeaf, 'colSpan');
                     }
                 }
                 
-                for (let j = 0; j < currentTable.length - 1; j++) {
+                for (let j = 0; j < currentTable.length; j++) {
                     currentTable[j][i].collapsed = true;
                 }
             }
@@ -740,16 +742,19 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param {array} table 
      */
     const hideEmptyRows = () => {
-        for (let i = colAxis.dims + 1 - t.rowStart, dimLeaf; i < currentTable.length - 1; i++) {
-            if (isRowEmpty(i - (colAxis.dims + 1 - t.rowStart))) {
+        for (let i = colAxis.dims - t.rowStart, dimLeaf; i < currentTable.length; i++) {
+            
+            if (isRowEmpty(i - (colAxis.dims - t.rowStart))) {
+
                 if (t.columnStart < rowAxis.dims) {
-                    dimLeaf = currentTable[i][rowAxis.dims - t.columnStart];
+                    dimLeaf = currentTable[i][rowAxis.dims - 1 - t.columnStart];
+
                     if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[i][1].collapsed = true;
+                        currentTable[i][0].collapsed = true;
                     }
 
-                    if (dimLeaf.parent && !dimLeaf.parent.knicked) {
-                        recursiveReduce(dimLeaf);
+                    if (dimLeaf) {
+                        recursiveReduce(dimLeaf, 'rowSpan');
                     }
                 }
 
@@ -775,7 +780,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 }
 
                 if (dimLeaf.parent && !dimLeaf.parent.knicked) {
-                    recursiveReduce(dimLeaf);
+                    recursiveReduce(dimLeaf, 'colSpan');
                 }
             }            
         }
@@ -856,7 +861,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const appendTableRow = (rowIndex, columnStart, columnEnd) => {
         let row = buildTableRow(rowIndex, columnStart, columnEnd);
-        console.l
         currentTable.splice(currentTable.length, 0, row);
     };
 
@@ -1360,12 +1364,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const buildTable = () => {
 
-        if (doHideEmptyRows()) {
+        if (doHideEmptyRows() && doTableClipping()) {
             t.rowEnd += getVisibleEmptyRows(t.rowStart, t.rowEnd);
             t.rowEnd = Math.min(getTableRowSize(), t.rowEnd);
         }
 
-        if (doHideEmptyColumns()) {
+        if (doHideEmptyColumns() && doTableClipping()) {
             t.columnEnd += getVisibleEmptyColumns(t.columnStart, t.columnEnd);
             t.columnEnd = Math.min(getTableColumnSize(), t.columnEnd);
         }
@@ -1859,8 +1863,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         updateTableParameters();
-
-        console.log(currentTable);
 
         return buildHtmlTable(buildHtmlArray());
     };
