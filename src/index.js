@@ -1,3 +1,6 @@
+import 'core-js/fn/array/fill';
+import 'core-js/fn/array/find';
+
 import { Record } from './api/Record.js';
 import { Dimension } from './api/Dimension.js';
 import { Axis } from './api/Axis.js';
