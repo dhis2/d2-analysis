@@ -264,6 +264,10 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
 export const HorizontalPaddingCell = (width=0, hidden) => {
     const cell = DefaultCell();
     
+    if (typeof hidden === 'undefined') {
+        hidden = width <= 0;
+    }
+
     cell.value     = '&nbsp;';
     cell.type      = 'padding';
     cell.cls       = 'pivot-padding';
@@ -273,11 +277,15 @@ export const HorizontalPaddingCell = (width=0, hidden) => {
     cell.hidden    = hidden;
 
     return cell;
-}
+};
 
 export const VerticalPaddingCell = (height=0, hidden) => {
     const cell = DefaultCell();
     
+    if (typeof hidden === 'undefined') {
+        hidden = height <= 0;
+    }
+
     cell.value     = '&nbsp;';
     cell.type      = 'padding';
     cell.cls       = 'pivot-padding';
@@ -287,7 +295,7 @@ export const VerticalPaddingCell = (height=0, hidden) => {
     cell.hidden    = hidden;
 
     return cell;
-}
+};
 
 export const FilterCell = (text, colSpan) => {
     const cell = DefaultCell();
@@ -300,100 +308,4 @@ export const FilterCell = (text, colSpan) => {
     cell.htmlValue = text
 
     return cell;
-}
-
-
-
-
-
-    const updateLeftHtmlColumn = () => {
-        replaceColumns(currentHtmlTable, 0, 2, getHtmlTableColumns(0, 2));
-    }
-
-    const updateRightHtmlColumn = () => {
-        replaceColumns(currentHtmlTable, currentHtmlTable[2].length, currentHtmlTable[2].length - 2, getHtmlTableColumns(currentHtmlTable[2].length, currentHtmlTable[2].length - 2));
-    }
-
-    const updateTopHtmlRow = () => {
-        replaceRows(currentHtmlTable, 0, 2, getHtmlTableColumns(0, 2));
-    }
-
-    const updateBottomHtmlRow = () => {
-        replaceRows(currentHtmlTable, currentHtmlTable.lenght - 2, currentHtmlTable.lenght, getHtmlTableColumns(currentHtmlTable.lenght - 2, currentHtmlTable.lenght));            
-    }
-
-    const replaceRows = (table, startReplace, endReplace, items) => {
-        table.splice(startReplace, endReplace, ...items);
-    }
-
-    const replaceColumns = (table, startReplace, endReplace, items) => {
-        table.map((value, index) => { return value.splice(startReplace, endReplace, ...items[index]) });
-    }
-
-    const appendColumn = (table, column) => {
-        table.map((value, index) => { value.push(column[index]) });
-    }
-
-    const prependColumn = (table, column) => {
-        table.map((value, index) => { value.unshift(column[index]) });
-    }
-
-    const appendRow = (table, row) => {
-        table.push(row);
-    } 
-
-    const prependRow = (table, row) => {
-        table.unshift(row);
-    } 
-
-    const replaceColumnDimensionHtml = (table, rowStart, columns) => {
-        replaceColumns(table, 0, colAxis.dims - rowStart + 1, columns);
-    }
-
-    const replaceRowDimensionHtml = (table, columnStart, rows) => {
-        replaceRows(table, 0, rowAxis.dims - columnStart + 1, rows);
-    }
-
-    const getColumnDimensionHtml = (rowStart) => {
-        return getHtmlTableColumns(0, rowAxis.dims - rowStart + 1)
-    }
-
-    const getRowDimensionHtml = (columnStart) => {
-        return getHtmlTableRows(0, colAxis.dims - columnStart + 1)
-    }
-
-    const getHtmlTableColumns = (startColumn, endColumn) => {
-        return buildHtmlRows(currentTable.map((value) =>  { return value.slice(startColumn, endColumn)}));
-    }
-
-    const getHtmlTableRows = (rowStart, rowEnd) => {
-        return buildHtmlRows(currentTable.slice(rowStart, rowEnd));
-    }
-
-    const appendHtmlColumn = (table, column) => {
-        table.map((value, index) => { return value.push(column[index]) });
-    }
-
-    const prependHtmlColumn = () => {
-        table.map((value, index) => { return value.unshift(column[index]) });
-    }
-
-    const deleteLeftHtmlColumn = () => {
-        return array.map((value) => { return val.slice(0, -1)  });
-    }
-
-    const updateHtmlTable = () => {
-
-        if (t.columnStart < rowAxis.dims) {
-            replaceRowDimensionHtml(currentHtmlTable, 0, getRowDimensionHtml(0));
-        }
-
-        if (t.rowStart < colAxis.dims) {
-            replaceColumnDimensionHtml(currentHtmlTable, 0, getColumnDimensionHtml(0));
-        }
-
-        updateLeftHtmlColumn();
-        updateRightHtmlColumn();
-        updateTopHtmlRow();
-        updateBottomHtmlRow();
-    }
+};
