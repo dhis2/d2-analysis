@@ -75,9 +75,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         isRowEmpty,
         isSingleRowEmpty,
         isColumnEmpty,
+        getTrueTotal,
+        getRowObjectTotal,
         getRowTotal,
-        getSingleRowTotal,
+        getRowSubTotal,
         getColumnTotal,
+        getColumnSubTotal,
+        getIntersectTotal,
+        getIntersectSubTotal,
         setCellValue,
         setCellEmpty,
 
@@ -441,36 +446,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return true;
     }
 
-    getRowTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table[index].length; i++) {
-            if (table[index][i].type === 'value') {
-                total += table[index][i].value;
-            }
-        }
-        return total;
-    }
-
-    getSingleRowTotal = function (row) {
-        let total = 0;
-        for (var i=0; i < row.length; i++) {
-            if (row[i].type === 'value') {
-                total += row[i].value;
-            }
-        }
-        return total;
-    }
-
-    getColumnTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table.length; i++) {
-            if(table[i][index].type === 'value') {
-                total += table[i][index].value;
-            }
-        }
-        return total;
-    }
-
     hideEmptyRows = function(table, axisObjects) {
         for(var i = 0, dimLeaf; i < table.length; i++) {
             if (isRowEmpty(table, i)) {
@@ -674,11 +649,31 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return colAxisArray;
     };
 
-    const getTrueTotal = (numerator, denominator, factor) => {
+    getTrueTotal = (numerator, denominator, factor) => {
         return numerator * factor / denominator;
     }
+
+    getRowObjectTotal = (row) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=0; i < row.length; i++) {
+            if (row[i].type === 'value') {
+                counter += 1;
+                dSum    += row[i].denominator;
+                nSum    += row[i].numerator;
+                fSum    += row[i].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
     
-    const _getRowTotal = (table, rowIndex) => {
+    getRowTotal = (table, rowIndex) => {
         let row     = table[rowIndex],
             counter = 0,
             dSum    = 0,
@@ -699,7 +694,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return getTrueTotal(nSum, dSum, (fSum / counter));
     }
 
-    const _getColumnTotal = (table, columnIndex) => {
+    getColumnTotal = (table, columnIndex) => {
         let counter = 0,
             dSum    = 0,
             nSum    = 0,
@@ -719,7 +714,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return getTrueTotal(nSum, dSum, (fSum / counter));
     }
 
-    const _getColumnSubTotal = (table, rowIndex, columnIndex) => {
+    getColumnSubTotal = (table, rowIndex, columnIndex) => {
         let counter = 0,
             dSum    = 0,
             nSum    = 0,
@@ -739,7 +734,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return getTrueTotal(nSum, dSum, (fSum / counter));
     }
 
-    const _getRowSubTotal = (table, rowIndex, columnIndex) => {
+    getRowSubTotal = (table, rowIndex, columnIndex) => {
         let row     = table[rowIndex],
             counter = 0,
             dSum    = 0,
@@ -760,7 +755,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return getTrueTotal(nSum, dSum, (fSum / counter));
     }
 
-    const _getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+    getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
         let counter = 0,
             dSum    = 0,
             nSum    = 0,
@@ -784,7 +779,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return getTrueTotal(nSum, dSum, (fSum / counter));
     }
 
-    const _getIntersectTotal = (table) => {
+    getIntersectTotal = (table) => {
         let counter = 0,
             dSum    = 0,
             nSum    = 0,
@@ -814,35 +809,35 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        setCellValue(cell, _getRowSubTotal(table, i, j));
+                        setCellValue(cell, getRowSubTotal(table, i, j));
                     } continue;
 
                     case 'value-column-subtotal': {
-                        setCellValue(cell, _getColumnSubTotal(table, i, j));
+                        setCellValue(cell, getColumnSubTotal(table, i, j));
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        setCellValue(cell, _getIntersectSubTotal(table, i - rowUniqueFactor, i, j - colUniqueFactor, j));
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-row-total':{
-                        setCellValue(cell, _getRowTotal(table, i));
+                        setCellValue(cell, getRowTotal(table, i));
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        setCellValue(cell, _getIntersectSubTotal(table, i - rowUniqueFactor, i, 0, table[i].length));
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, 0, table[i].length));
                     } continue;
 
                     case 'value-column-total': {
-                        setCellValue(cell, _getColumnTotal(table, j));
+                        setCellValue(cell, getColumnTotal(table, j));
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        setCellValue(cell, _getIntersectSubTotal(table, 0, table.length, j - colUniqueFactor, j));
+                        setCellValue(cell, getIntersectSubTotal(table, 0, table.length, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-intersect-total': {
-                        setCellValue(cell, _getIntersectTotal(table));
+                        setCellValue(cell, getIntersectTotal(table));
                     } continue;
                 }
             }
@@ -1003,7 +998,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                     if (doSortableColumnHeaders()) {
                         totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getSingleRowTotal(row);
+                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getRowObjectTotal(row);
                     }
                 }
 

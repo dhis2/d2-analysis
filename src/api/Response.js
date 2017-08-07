@@ -538,6 +538,8 @@ Response.prototype.getIdValueMap = function(layout) {
 
         responseRow.setIdCombination(idCombination);
 
+        console.log(responseRow);
+
         idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
     });
 
