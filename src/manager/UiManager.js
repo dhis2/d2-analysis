@@ -154,6 +154,10 @@ UiManager = function(refs) {
         updateFn(content, elementId);
     };
 
+    t.toggleCollapseRegion = function(region) {
+        t.get(region).toggleCollapse();
+    }
+
     t.updateInterpretation = function(interpretation) {
         updateInterpretationFn(interpretation);
     };
