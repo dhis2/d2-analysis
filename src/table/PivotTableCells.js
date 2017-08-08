@@ -8,11 +8,14 @@ import uuid from 'd2-utilizr/lib/uuid';
 const DefaultCell = () => {
     return {
         htmlValue: '&nbsp;',
+
         collapsed: false,
         hidden:    false,
         empty:     false,
+        
         colSpan:   1,
         rowSpan:   1,
+        
         width:     120,
         height:    25,
     };
@@ -261,6 +264,11 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
     return cell;
 };
 
+ /** @description factor function for horizontal padding cells.
+ *   @param   {number} width 
+ *   @param   {boolean} hidden 
+ *   @returns {object}
+ */
 export const HorizontalPaddingCell = (width=0, hidden) => {
     const cell = DefaultCell();
     
@@ -279,6 +287,11 @@ export const HorizontalPaddingCell = (width=0, hidden) => {
     return cell;
 };
 
+ /** @description factory function for vertical padding cells.
+ *   @param   {number} height 
+ *   @param   {boolean} hidden 
+ *   @returns {object}
+ */
 export const VerticalPaddingCell = (height=0, hidden) => {
     const cell = DefaultCell();
     
@@ -297,6 +310,11 @@ export const VerticalPaddingCell = (height=0, hidden) => {
     return cell;
 };
 
+ /** @description factory function for filter cells.
+ *   @param   {string} text 
+ *   @param   {number} colSpan 
+ *   @returns {object}
+ */
 export const FilterCell = (text, colSpan) => {
     const cell = DefaultCell();
 

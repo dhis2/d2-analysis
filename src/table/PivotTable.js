@@ -169,7 +169,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {boolean}
      */
     const doShowDimensionLabels = () => {
-        return layout.showDimensionLabels;
+        return layout.showDimensionLabels && false;
     };
 
     /** @description checks if clipping table is enabled.
