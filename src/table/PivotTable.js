@@ -75,9 +75,14 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         isRowEmpty,
         isSingleRowEmpty,
         isColumnEmpty,
+        getTrueTotal,
+        getRowObjectTotal,
         getRowTotal,
-        getSingleRowTotal,
+        getRowSubTotal,
         getColumnTotal,
+        getColumnSubTotal,
+        getIntersectTotal,
+        getIntersectSubTotal,
         setCellValue,
         setCellEmpty,
 
@@ -108,6 +113,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
         objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout),
+        idNumeratorMap = response.getIdNumeratorMap(layout),
+        idDenominatorMap = response.getIdDenominatorMap(layout),
+        idFactorMap = response.getIdFactorMap(layout),
         sortableIdObjects = [], //todo
         tdCount = 0,
         ignoreDimensionIds = ['dy'];
@@ -438,36 +446,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return true;
     }
 
-    getRowTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table[index].length; i++) {
-            if (table[index][i].type === 'value') {
-                total += table[index][i].value;
-            }
-        }
-        return total;
-    }
-
-    getSingleRowTotal = function (row) {
-        let total = 0;
-        for (var i=0; i < row.length; i++) {
-            if (row[i].type === 'value') {
-                total += row[i].value;
-            }
-        }
-        return total;
-    }
-
-    getColumnTotal = function(table, index) {
-        let total = 0;
-        for(var i = 0; i < table.length; i++) {
-            if(table[i][index].type === 'value') {
-                total += table[i][index].value;
-            }
-        }
-        return total;
-    }
-
     hideEmptyRows = function(table, axisObjects) {
         for(var i = 0, dimLeaf; i < table.length; i++) {
             if (isRowEmpty(table, i)) {
@@ -671,68 +649,196 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return colAxisArray;
     };
 
+    getTrueTotal = (numerator, denominator, factor) => {
+        return numerator * factor / denominator;
+    }
+
+    getRowObjectTotal = (row) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=0; i < row.length; i++) {
+            if (row[i].type === 'value') {
+                counter += 1;
+                dSum    += row[i].denominator;
+                nSum    += row[i].numerator;
+                fSum    += row[i].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+    
+    getRowTotal = (table, rowIndex) => {
+        let row     = table[rowIndex],
+            counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=0; i < row.length; i++) {
+            if (row[i].type === 'value') {
+                counter += 1;
+                dSum    += row[i].denominator;
+                nSum    += row[i].numerator;
+                fSum    += row[i].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+
+    getColumnTotal = (table, columnIndex) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=0; i < table.length; i++) {
+            if (table[i][columnIndex].type === 'value') {
+                counter += 1;
+                dSum    += table[i][columnIndex].denominator;
+                nSum    += table[i][columnIndex].numerator;
+                fSum    += table[i][columnIndex].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+
+    getColumnSubTotal = (table, rowIndex, columnIndex) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
+            if (table[i][columnIndex].type === 'value') {
+                counter += 1;
+                dSum    += table[i][columnIndex].denominator;
+                nSum    += table[i][columnIndex].numerator;
+                fSum    += table[i][columnIndex].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+
+    getRowSubTotal = (table, rowIndex, columnIndex) => {
+        let row     = table[rowIndex],
+            counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
+            if (row[i].type === 'value') {
+                counter += 1;
+                dSum    += row[i].denominator;
+                nSum    += row[i].numerator;
+                fSum    += row[i].factor;
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+
+    getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=rowStart; i < rowEnd; i++) {
+            for (let j=columnStart; j < columnEnd; j++) {
+                
+                if (table[i][j].type === 'value') {
+                    counter += 1;
+                    dSum    += table[i][j].denominator;
+                    nSum    += table[i][j].numerator;
+                    fSum    += table[i][j].factor;
+                }
+                
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
+
+    getIntersectTotal = (table) => {
+        let counter = 0,
+            dSum    = 0,
+            nSum    = 0,
+            fSum    = 0;
+
+        for (let i=0; i < table.length; i++) {
+            for (let j=0; j < table[i].length; j++) {
+                if (table[i][j].type === 'value') {
+                    counter += 1;
+                    dSum    += table[i][j].denominator;
+                    nSum    += table[i][j].numerator;
+                    fSum    += table[i][j].factor;
+                }
+            }
+        }
+
+        if (dSum === 0) dSum = 1;
+
+        return getTrueTotal(nSum, dSum, (fSum / counter));
+    }
 
     setTotalCells = function (table) {
-
-        var columnTotals = new Array(table[1].length).fill(0),
-            columnSubTotals = new Array(table[1].length).fill(0);
-
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotal=0, rowSubTotal=0, intersectRow = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
+                var cell = table[i][j];
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        setCellValue(cell, rowSubTotal);
-                        rowSubTotal = 0;
+                        setCellValue(cell, getRowSubTotal(table, i, j));
                     } continue;
 
                     case 'value-column-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        intersectRow += columnSubTotals[j];
-                        columnSubTotals[j] = 0;
+                        setCellValue(cell, getColumnSubTotal(table, i, j));
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        columnSubTotals[j] = 0;
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-row-total':{
-                        setCellValue(cell, rowTotal);
+                        setCellValue(cell, getRowTotal(table, i));
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        setCellValue(cell, intersectRow);
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, 0, table[i].length));
                     } continue;
 
                     case 'value-column-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getColumnTotal(table, j));
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getIntersectSubTotal(table, 0, table.length, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getIntersectTotal(table));
                     } continue;
-                }
-
-                rowTotal += cell.value;
-                rowSubTotal += cell.value;
-                columnSubTotals[j] += cell.value;
-                columnTotals[j] += cell.value;
-                columnTotals[table[i].length - 1] += cell.value;
-
-                if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubTotals[nextSubCell] += cell.value;
-                }
-
-                if (colUniqueFactor > 1 && doColTotals()) {
-                    columnTotals[nextSubCell] += cell.value;
                 }
             }
         }
@@ -807,6 +913,18 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
     }
 
+    const getFactorValue = (value) => {
+        return parseFloat(value) ? parseFloat(value) : 1
+    }
+
+    const getNumeratorValue = (value, val) => {
+        return parseFloat(value) ? parseFloat(value) : val
+    }
+
+    const getDenominatorValue = (value) => {
+        return parseFloat(value) ? parseFloat(value) : 0
+    }
+    
     getValueObjectArray = function() {
         const colAxisSize = colAxis.type ? colAxis.size : 1,
               rowAxisSize = rowAxis.type ? rowAxis.size : 1,
@@ -856,6 +974,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     type: 'value',
                     cls: 'pivot-value' + (empty ? ' cursor-default' : ''),
                     value: value,
+                    numerator: getNumeratorValue(idNumeratorMap[rric.get()], value),
+                    denominator: getDenominatorValue(idDenominatorMap[rric.get()]),
+                    factor: getFactorValue(idFactorMap[rric.get()]),
                     htmlValue: htmlValue,
                     empty: empty,
                     uuids: uuids,
@@ -877,7 +998,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                     if (doSortableColumnHeaders()) {
                         totalIdComb = new ResponseRowIdCombination(refs, ['total', rowAxis.ids[i]]);
-                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getSingleRowTotal(row);
+                        idValueMap[totalIdComb.get()] = isSingleRowEmpty(row) ? null : getRowObjectTotal(row);
                     }
                 }
 
