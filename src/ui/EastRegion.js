@@ -246,6 +246,15 @@ EastRegion = function(c) {
             this.add(getDetailsPanelItems(layout));
         },
 
+        tools: [{
+            type: 'triple-chevron-right',
+            cls: 'tool-triple-chevron-right',
+            handler: () => {
+                uiManager.toggleCollapseRegion('eastRegion');
+                uiManager.get('centerRegion').toggleEastRegion();
+            }
+        }],
+
         // By default no favorite details panel is displayed
         items: getDetailsPanelItems()
     };

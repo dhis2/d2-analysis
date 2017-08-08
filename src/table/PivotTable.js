@@ -674,8 +674,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     setTotalCells = function (table) {
 
-        console.log(table);
-
         var columnTotals = new Array(table[0].length).fill(0),
             columnSubTotals = new Array(table[0].length).fill(0);
 
@@ -775,7 +773,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     } continue;
 
                     case 'value-column-total': {
-                        console.log(columnTotalEmpties[j], rowAxis.size);
                         if (columnTotalEmpties[j] >= rowAxis.size) setCellEmpty(cell);
                     } continue;
 
