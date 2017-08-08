@@ -21,6 +21,13 @@ const DefaultCell = () => {
     };
 };
 
+/** @description
+ *  @param   {number} value 
+ *  @param   {object} response 
+ *  @param   {object} rric 
+ *  @param   {array} uuids 
+ *  @returns {object}
+ */
 export const ValueCell = (value, response, rric, uuids) => {
     const cell  = DefaultCell();
     

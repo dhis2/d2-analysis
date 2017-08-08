@@ -246,6 +246,15 @@ EastRegion = function(c) {
             this.add(getDetailsPanelItems(layout));
         },
 
+        tools: [{
+            type: 'triple-chevron-right',
+            cls: 'tool-triple-chevron-right',
+            handler: () => {
+                uiManager.toggleCollapseRegion('eastRegion');
+                uiManager.get('centerRegion').toggleEastRegion();
+            }
+        }],
+
         // By default no favorite details panel is displayed
         items: getDetailsPanelItems()
     };
@@ -767,11 +776,11 @@ EastRegion = function(c) {
         // By default no interpretations panel is displayed
         items: getTopInterpretationsPanel()
     };
-
+    
     /*
      * RIGHT PANEL CONTAINER
      */
-    return Ext.create('Ext.panel.Panel', {
+    const rightPanel = Ext.create('Ext.panel.Panel', {
         region: 'east',
         preventHeader: true,
         collapsible: true,
@@ -794,4 +803,6 @@ EastRegion = function(c) {
             }
         }
     });
+
+    return rightPanel
 };

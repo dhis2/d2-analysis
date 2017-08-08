@@ -41,14 +41,13 @@ import { ValueSubTotalCell,
 export var PivotTable;
 
 PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
+    var t = this;
 
-    console.log(response);
+    var { appManager, uiManager, dimensionConfig, optionConfig } = refs;
 
-    const t = this;
+    var { ResponseRowIdCombination } = refs.api;
 
-    const { appManager, uiManager, dimensionConfig, optionConfig } = refs,
-          { ResponseRowIdCombination } = refs.api,
-          { unclickable } = options;
+    var { unclickable } = options;
 
     options = options || {};
 
@@ -98,6 +97,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         dimensionNameMap = dimensionConfig.getDimensionNameMap(),
         objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout),
+        idNumeratorMap = response.getIdNumeratorMap(layout),
+        idDenominatorMap = response.getIdDenominatorMap(layout),
+        idFactorMap = response.getIdFactorMap(layout),
         sortableIdObjects = [], //todo
         tdCount = 0,
         ignoreDimensionIds = ['dy'];

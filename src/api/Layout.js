@@ -575,7 +575,7 @@ Layout.prototype.sort = function(table) {
         direction = this.sorting.direction,
         dimension = this.rows[0],
         response = this.getResponse(),
-        idValueMap = table ? table.idValueMap : response.getIdValueMap(),
+        idValueMap = table ? table.idValueMap : response.getIdValueMap(t),
         records = [],
         ids,
         sortingId,
@@ -759,6 +759,17 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
                 if (fn) {
                     fn(id, success, r);
                 }
+            },
+            error: function(r) {
+                if (arrayContains([403], parseInt(r.httpStatusCode))) {
+                    r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
+                }
+
+                if (doMask) {
+                    uiManager.unmask();
+                }
+    
+                uiManager.alert(r);
             }
         });
 
@@ -939,6 +950,8 @@ Layout.prototype.data = function(source, format) {
 
     metaDataRequest.add('skipData=true');
     dataRequest.add('skipMeta=true');
+
+    dataRequest.add('includeNumDen=true');
 
     metaDataRequest.setError(errorFn);
     dataRequest.setError(Function.prototype);
