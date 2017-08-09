@@ -881,6 +881,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         if (this.relativePeriodDate) {
             request.add('relativePeriodDate=' + this.relativePeriodDate);
         }
+
+        // measure criteria
+        if (this.measureCriteria) {
+            request.add(`measureCriteria=${ this.measureCriteria }`);
+        }
     }
     else {
 
