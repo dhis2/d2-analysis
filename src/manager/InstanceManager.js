@@ -105,7 +105,7 @@ InstanceManager = function(refs) {
     };
 };
 
-InstanceManager.prototype.getLayout = function(layoutConfig) {
+InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     var t = this,
         favorite = t.getStateFavorite(),
         layout;
@@ -115,7 +115,9 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     layout = new t.api.Layout(t.refs, layoutConfig);
 
     if (layout) {
-        layout.apply(favorite);
+        layout = favorite && fromFavorite ? 
+            favorite.apply(layout, Object.keys(layout)) : 
+            layout.apply(favorite);
     }
 
     return layout;
@@ -334,7 +336,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
 
     // layout
     if (!layout) {
-        layout = t.getLayout();
+        layout = t.getLayout(undefined, true);
 
         if (!layout) {
             return;

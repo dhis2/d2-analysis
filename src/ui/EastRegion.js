@@ -50,7 +50,7 @@ EastRegion = function(c) {
         // Favorite loaded ->  Add favorite detail panel and update
         // Otherwise -> Display No Favorite Panel
         var detailsPanelItems;
-        if (instanceManager.isStateFavorite() && !instanceManager.isStateDirty()) {
+        if (instanceManager.isStateFavorite()) {
 
             var moreText = i18n.show_more;
             var lessText = i18n.show_less;
