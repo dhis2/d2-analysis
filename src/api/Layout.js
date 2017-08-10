@@ -923,7 +923,8 @@ Layout.prototype.data = function(source, format) {
     var errorFn = function(r) {
 
         // 409
-        if (isObject(r) && r.status == 409) {
+        // DHIS2-2020: 503 error (perhaps analytics maintenance mode)
+        if (isObject(r) && (r.status == 409 || r.status === 503)) {
             uiManager.unmask();
 
             if (isString(r.responseText)) {
@@ -939,7 +940,7 @@ Layout.prototype.data = function(source, format) {
     dataRequest.add('skipMeta=true');
 
     metaDataRequest.setError(errorFn);
-    dataRequest.setError(Function.prototype);
+    dataRequest.setError(errorFn);
 
     return {
         metaData: metaDataRequest.run(),
