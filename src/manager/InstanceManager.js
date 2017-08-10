@@ -1,4 +1,4 @@
-import isFunction from 'd2-utilizr/lib/isString';
+import isFunction from 'd2-utilizr/lib/isFunction';
 import isString from 'd2-utilizr/lib/isString';
 import isObject from 'd2-utilizr/lib/isObject';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
@@ -109,7 +109,7 @@ InstanceManager = function(refs) {
     };
 };
 
-InstanceManager.prototype.getLayout = function(layoutConfig) {
+InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     var t = this,
         refs = t.getRefs(),
         favorite = t.getStateFavorite(),
@@ -122,7 +122,9 @@ InstanceManager.prototype.getLayout = function(layoutConfig) {
     layout = new Layout(refs, layoutConfig);
 
     if (layout) {
-        layout.apply(favorite);
+        layout = favorite && fromFavorite ? 
+            favorite.apply(layout, Object.keys(layout)) : 
+            layout.apply(favorite);
     }
 
     return layout;
@@ -163,11 +165,22 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
             }
         },
         success: function(r) {
-            var layout = new Layout(refs, r);
-
-            if (layout) {
-                fn(layout, true);
-            }
+            $.ajax({
+                url: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
+                type: 'PATCH',
+                data: JSON.stringify({}),
+                dataType: 'json',
+                headers: appManager.defaultRequestHeaders,
+                success: function(sharing) {
+                    var layout = new Layout(refs, r, {permission: "write"});
+                    fn(layout, true);
+                },
+                error: function(xhr) {
+                    var permission = xhr.status === 404 ? "none" : "read";
+                    var layout = new Layout(refs, r, {permission: permission});
+                    fn(layout, true);
+                }
+            });
         },
         error: function(r) {
             if (arrayContains([403], parseInt(r.httpStatusCode))) {
@@ -225,9 +238,10 @@ InstanceManager.prototype.delById = function(id, fn, doMask, doUnmask) {
     request.run();
 };
 
-InstanceManager.prototype.getSharingById = function(id, fn) {
+InstanceManager.prototype.getSharingById = function(id, fn, options) {
     var t = this,
         refs = this.getRefs();
+    options = options || {};
 
     var { Request } = refs.api;
 
@@ -239,8 +253,14 @@ InstanceManager.prototype.getSharingById = function(id, fn) {
         success: function(r) {
             fn && fn(r);
         },
-        error: function() {
-            t.uiManager.unmask();
+        error: function(res) {
+            // If allowForbidden enabled, call the callback anyway, with an empty object
+            if (res.status == 403 && options.allowForbidden) {
+                success(null);
+            } else {
+                t.uiManager.alert(res);
+                t.uiManager.unmask();
+            }
         }
     });
 
@@ -346,7 +366,7 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
 
     // layout
     if (!layout) {
-        layout = t.getLayout();
+        layout = t.getLayout(undefined, true);
 
         if (!layout) {
             return;
