@@ -61,6 +61,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         'valueSubtotal': 1,
         'valueTotal':    2,
     };
+    
+    const ignoreDimensionIds = [
+        'dy'
+    ];
 
     // inititalize global variables
     let currentTable,
@@ -94,15 +98,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         legendDisplayStrategy = layout.legendDisplayStrategy,
 
         // utils
-        dimensionNameMap = dimensionConfig.getDimensionNameMap(),
-        objectNameMap = dimensionConfig.getObjectNameMap(),
         idValueMap = response.getIdValueMap(layout),
         idNumeratorMap = response.getIdNumeratorMap(layout),
         idDenominatorMap = response.getIdDenominatorMap(layout),
         idFactorMap = response.getIdFactorMap(layout),
         sortableIdObjects = [], //todo
-        tdCount = 0,
-        ignoreDimensionIds = ['dy'];
+        tdCount = 0;
 
     /** @description checks if show column totals is enabled.
      *  @returns {boolean}
@@ -186,49 +187,49 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      */
     const doStickyColumns = () => {
         return layout.stickyColumnDimension;
-    }
+    };
 
     /** @description checks if sticky rows enabled.
      *  @returns {boolean}
      */
     const doStickyRows = () => {
         return layout.stickyRowDimension;
-    }
+    };
 
     /** @description checks for show hierarchy.
      *  @returns {boolean}
      */
     const doShowHierarchy = () => {
         return !!layout.showHierarchy;
-    }
+    };
 
     /** @description
      *  @returns {boolean}
      */
     const doLegendDisplayByDataItem = () => {
         return legendDisplayStrategy === optionConfig.getLegendDisplayStrategy('by_data_item').id;
-    }
+    };
 
     /** @description
      *  @returns {boolean}
      */
     const doLegendDisplay = () => {
         return legendDisplayStrategy !== optionConfig.getLegendDisplayStrategy('fixed').id;
-    }
+    };
 
     /** @description
      *  @returns {boolean}
      */
     const doLegendDisplayStyleFill = () => {
         return legendDisplayStyle === optionConfig.getLegendDisplayStyle('fill').id;
-    }
+    };
 
     /** @description
      *  @returns {boolean}
      */
     const doLegendDisplayStyleText = () => {
         return legendDisplayStyle === optionConfig.getLegendDisplayStyle('text').id;
-    }
+    };
 
     /** @description checks if the cell at the given column index is a column sub total cell.
      *  @param   {number} columnIndex 
@@ -469,22 +470,12 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return counter;
     }
 
+    /** @description
+     *  @param   {any} id 
+     *  @returns {number}
+     */
     const getLegendSetId = (id) => {
         return response.metaData.items[id].legendSet;
-    }
-
-    const getClippingStyle = (config) => {
-        const style = [];
-        style.push(`min-width:${config.width}px!important;`);
-        style.push(`min-height:${config.height}px!important;`);
-        style.push(`max-width:${config.width}px!important;`);
-        style.push(`max-height:${config.height}px!important;`);
-        style.push(`width:${config.width}px!important;`);
-        style.push(`height:${config.height}px!important;`);
-        style.push(`white-space: nowrap!important;`);
-        style.push(`overflow: hidden!important;`);
-        style.push(`text-overflow: ellipsis!important;`);
-        return style;
     }
 
     /** @description gets integer representation cell.
@@ -503,14 +494,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         }
 
         if (!isNumber(n) || n != value) {
-            return -1;
+            return  0;
         }
 
         return n;
     };
 
-
-        /** @description
+    /** @description
      * @param   {object} cell
      * @param   {number} y
      * @returns {object}
@@ -586,18 +576,30 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         setVerticalWindowSize(heightInPixels);
     };
 
+    /** @description
+     *  @param {number} position
+     */
     const setColumnStart = (position) => {
         t.columnStart = Math.max(0, position);
     };
 
+    /** @description
+     *  @param {number} position
+     */
     const setRowStart = (position) => {
         t.rowStart = Math.max(0, position);
     };
 
+    /** @description
+     *  @param {number} position
+     */
     const setColumnEnd = (position) => {
         t.columnEnd = Math.min(getTableColumnSize() + rowAxis.dims - 1, position);
     };
 
+    /** @description
+     *  @param {number} position
+     */
     const setRowEnd = (position) => {
         t.rowEnd = Math.min(getTableRowSize() + colAxis.dims - 1, position);
     };
@@ -634,6 +636,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return rric;
     }
 
+    /** @description
+     *  @param {any} yDimensionSize 
+     *  @param {any} xDimensionSize 
+     *  @returns 
+     */
     const createValueLookup = (yDimensionSize, xDimensionSize) => {
 
         const lookup       = buildTable2D(yDimensionSize, xDimensionSize, 0);
@@ -731,6 +738,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 if (t.rowStart < colAxis.dims) {
 
                     dimLeaf = currentTable[colAxis.dims - 1 -  t.rowStart][i];
+                    
+                    if (dimLeaf.collapsed) continue;
 
                     if (dimLeaf.type === 'dimensionSubtotal') {
                         currentTable[1][i].collapsed = true;
@@ -764,6 +773,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 if (t.columnStart < rowAxis.dims) {
                     dimLeaf = currentTable[i][rowAxis.dims - 1 - t.columnStart];
 
+                    if (dimLeaf.collapsed) continue;
+
                     if (dimLeaf.type === 'dimensionSubtotal') {
                         currentTable[i][0].collapsed = true;
                     }
@@ -787,9 +798,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const hideEmptyRows2 = () => {
         for (let i = 0, dimLeaf; i < valueLookup.length; i++) {
             if (isRowEmpty(i)) {
+
                 deleteRow(valueLookup, i);
                 
                 dimLeaf = currentTable[i][rowAxis.dims - t.columnStart];
+                
                 if (dimLeaf.type === 'dimensionSubtotal') {
                     currentTable[i][0].collapsed = true;
                 }
@@ -1414,7 +1427,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             });
         }
 
-        const style = [];
+        let style = '';
 
         if (config.isValue && legendSet) {
 
@@ -1432,16 +1445,26 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
         
             if (doLegendDisplayStyleFill() && bgColor) {
-                style.push(`background-color:${bgColor}; color:${isColorBright(bgColor) ? 'black' : 'white'};`);
+                style += `background-color:${bgColor}; color:${isColorBright(bgColor) ? 'black' : 'white'};`;
             }
 
             if (doLegendDisplayStyleText() && bgColor) {
-                style.push(`color:${bgColor};`)
+                style += `color:${bgColor};`;
             }
         }
         
         if (doTableClipping() || doStickyColumns() || doStickyRows()) {
-            style.push(...getClippingStyle(config));
+            style += `
+                min-width:${config.width}px!important;
+                min-height:${config.height}px!important;
+                max-width:${config.width}px!important;
+                max-height:${config.height}px!important;
+                width:${config.width}px!important;
+                height:${config.height}px!important;
+                white-space: nowrap!important;
+                overflow: hidden!important;
+                text-overflow: ellipsis!important;
+            `;
         }
 
         return `
@@ -1450,7 +1473,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 class="${config.cls}"
                 id="${config.uuid || ''}"
                 title="${config.title || ''}"
-                style="${style.length ? style.join(' ') : ''}"
+                style="${style}"
                 colspan="${config.colSpan || ''}"
                 rowSpan="${config.rowSpan || ''}"
             >
@@ -1623,8 +1646,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if (doStickyRows()) {
             divCls   += ' sticky-wrapper';
-            divStyle += `width: calc(100% - ${rowAxis.dims * CELL_WIDTH}px);`;
-            divStyle += `margin-left: ${rowAxis.dims * CELL_WIDTH}px;`;
+            divStyle += `
+                width: calc(100% - ${rowAxis.dims * CELL_WIDTH}px);
+                margin-left: ${rowAxis.dims * CELL_WIDTH}px;
+            `;
         }
         
         if (doStickyColumns()) {

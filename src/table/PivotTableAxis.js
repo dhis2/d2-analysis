@@ -8,11 +8,16 @@ import uuid from 'd2-utilizr/lib/uuid';
 export var PivotTableAxis;
 
 PivotTableAxis = function(refs, layout, response, type) {
-    var spanType,
+
+    const ignoreKeys = [
+        'dy', 'longitude', 'latitude'
+    ];
+    
+    var aaUniqueFloorIds,
+        spanType,
         aDimensions = [],
         nAxisWidth = 1,
         nAxisHeight,
-        aaUniqueFloorIds,
         aUniqueFloorWidth = [],
         aAccFloorWidth = [],
         aFloorSpan = [],
@@ -20,8 +25,7 @@ PivotTableAxis = function(refs, layout, response, type) {
         aaAllFloorIds = [],
         aCondoId = [],
         aaAllFloorObjects = [],
-        uuidObjectMap = {},
-        ignoreKeys = ['dy', 'longitude', 'latitude'];
+        uuidObjectMap = {};
 
     if (type === 'col') {
         aDimensions = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
@@ -40,6 +44,9 @@ PivotTableAxis = function(refs, layout, response, type) {
     aaUniqueFloorIds = function() {
         var a = [],
             dimensionNameIdsMap = layout.getDimensionNameIdsMap(response);
+
+        var b = aDimensions.map((dimension) => dimension.sorted ? arrayPluck(dimension.items, 'id') : 
+                                                                  dimensionNameIdsMap[dimension.dimension])
 
         aDimensions.forEach(function(dimension) {
             if (dimension.sorted) {
@@ -300,7 +307,7 @@ PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    var abc = {
+    return {
         type: type,
         items: aDimensions,
         xItems: {
@@ -317,8 +324,4 @@ PivotTableAxis = function(refs, layout, response, type) {
         size: nAxisWidth,
         uuidObjectMap: uuidObjectMap
     };
-
-    //console.log(abc);
-
-    return abc
 };
