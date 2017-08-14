@@ -592,7 +592,7 @@ Viewport = function(refs, cmp, config) {
         bbar: statusBar,
         listeners: {
             afterrender: function(p) {
-                p.update(uiManager.getIntroHtml());
+                //p.update(uiManager.getIntroHtml());
             },
             render: function(p) {
                 p.body.on('scroll', function(e){
@@ -724,6 +724,9 @@ Viewport = function(refs, cmp, config) {
                     if (layout) {
                         instanceManager.getReport(layout, false, false, true);
                     }
+                }
+                else {
+                    uiManager.update();
                 }
 
                 var initEl = document.getElementById('init');
