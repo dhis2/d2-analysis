@@ -785,11 +785,12 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         uiManager.mask();
     }
 
-    $.ajax({
-        url: encodeURI(url),
-        type: 'PATCH',
+    var patchRequest = new refs.api.Request(refs, {
+        baseUrl: url,
+        type: 'ajax',
+        method: 'PATCH',
         data: JSON.stringify(properties),
-        dataType: 'json',
+        dataType: 'text',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
             if (doUnmask) {
@@ -801,6 +802,8 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
             }
         }
     });
+
+    patchRequest.run();
 };
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
