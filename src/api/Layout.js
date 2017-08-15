@@ -128,6 +128,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.publicAccess = c.publicAccess;
     }
 
+        //permission
+    if (isString(c.permission)) {
+        t.permission = c.permission;
+    }
+
         //user group accesses
     if (arrayFrom(c.userGroupAccesses).length) {
         t.userGroupAccesses = c.userGroupAccesses;
@@ -198,11 +203,11 @@ Layout.prototype.alert = function(text, noError) {
 };
 
 Layout.prototype.apply = function(obj, keys) {
-    if (!isObject(obj)) {
-        return;
-    }
-
     var t = this;
+
+    if (!isObject(obj)) {
+        return t;
+    }
 
     var preservedProps = ['name', 'description'];
 
@@ -446,6 +451,7 @@ Layout.prototype.toPlugin = function(el) {
             'created',
             'user',
             'publicAccess',
+            'permission',
             'userGroupAccesses',
             'prototype',
             'url'
@@ -552,6 +558,7 @@ Layout.prototype.toPostSuper = function() {
     delete this.created;
     delete this.user;
     delete this.publicAccess;
+    delete this.permission,
     delete this.userGroupAccesses;
 };
 
@@ -798,11 +805,12 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         uiManager.mask();
     }
 
-    $.ajax({
-        url: encodeURI(url),
-        type: 'PATCH',
+    var patchRequest = new refs.api.Request(refs, {
+        baseUrl: url,
+        type: 'ajax',
+        method: 'PATCH',
         data: JSON.stringify(properties),
-        dataType: 'json',
+        dataType: 'text',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
             if (doUnmask) {
@@ -814,6 +822,8 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
             }
         }
     });
+
+    patchRequest.run();
 };
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
@@ -883,6 +893,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         if (this.relativePeriodDate) {
             request.add('relativePeriodDate=' + this.relativePeriodDate);
         }
+
+        // measure criteria
+        if (this.measureCriteria) {
+            request.add(`measureCriteria=${ this.measureCriteria }`);
+        }
     }
     else {
 
@@ -936,7 +951,8 @@ Layout.prototype.data = function(source, format) {
     var errorFn = function(r) {
 
         // 409
-        if (isObject(r) && r.status == 409) {
+        // DHIS2-2020: 503 error (perhaps analytics maintenance mode)
+        if (isObject(r) && (r.status == 409 || r.status === 503)) {
             uiManager.unmask();
 
             if (isString(r.responseText)) {
@@ -954,7 +970,7 @@ Layout.prototype.data = function(source, format) {
     dataRequest.add('includeNumDen=true');
 
     metaDataRequest.setError(errorFn);
-    dataRequest.setError(Function.prototype);
+    dataRequest.setError(errorFn);
 
     return {
         metaData: metaDataRequest.run(),

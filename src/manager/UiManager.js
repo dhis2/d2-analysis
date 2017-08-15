@@ -162,8 +162,8 @@ UiManager = function(refs) {
         t.get(region).toggleCollapse();
     }
 
-    t.updateInterpretation = function(interpretation) {
-        updateInterpretationFn(interpretation);
+    t.updateInterpretation = function(interpretation, layout) {
+        updateInterpretationFn(interpretation, layout);
     };
 
     // state
@@ -177,7 +177,7 @@ UiManager = function(refs) {
 
             // set url state
             if (favoriteState) {
-                t.setUrlState(('?id=' + favoriteState.id) + (favoriteState.interpretationId ? '&interpretationId=' + favoriteState.interpretationId : ''));
+                t.setUrlState(('?id=' + favoriteState.id) + (favoriteState.interpretationId ? '&interpretationid=' + favoriteState.interpretationId : ''));
             }
             else {
                 t.setUrlState('.');
@@ -528,6 +528,18 @@ UiManager = function(refs) {
 
     t.confirmCustom = function(title, msg, btnText, fn, applyConfig) {
         ConfirmWindow(refs, title, msg, btnText, fn, applyConfig).show();
+    };
+
+    t.confirmInterpretationDelete = function(fn) {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+        ConfirmWindow(refs, i18n.are_you_sure,
+            i18n.this_interpretation_will_be_deleted_continue, null, fn).show();
+    };
+
+    t.confirmCommentDelete = function(fn) {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+        ConfirmWindow(refs, i18n.are_you_sure,
+            i18n.this_comment_will_be_deleted_continue, null, fn).show();
     };
 
     // redirect
