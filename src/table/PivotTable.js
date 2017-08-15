@@ -1626,9 +1626,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             style         = '',
             startRowIndex = 0, //Math.max(0, colAxis.dims  - t.rowStart),
             endRowIndex   = htmlArray.length;
-
+            
         return `
             <tbody class="${cls}" style="${style}"
+                ${doTableClipping() ? buildTopPaddingHtmlRow() : ''}
                 ${buildHtmlTableRows(htmlArray, startRowIndex, endRowIndex)}
                 ${doTableClipping() ? buildBottomPaddingHtmlRow() : ''}
             </tbody>
@@ -1640,16 +1641,19 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {string}
      */
     const buildHtmlTable = (htmlArray) => {
-        let cls      = 'pivot user-select',
-            divStyle = '',
-            divCls   = '';
+        let cls = 'pivot user-select',
+            overflow = 'visible';
         
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
         cls += layout.fontSize       ? ' fontsize-' + layout.fontSize : '';
 
+        if (doStickyRows()) {
+            overflow = 'auto';
+        }
+
         return `
             ${doStickyColumns() ? buildHtmlColumnDimensionTable(htmlArray) : ''}
-            <div style="display:flex!important;overflow: visible;">
+            <div style="display:flex!important;overflow: ${overflow};">
                 ${doStickyRows() ? buildHtmlRowDimensionTable(htmlArray) : ''}
                 <table class="${cls}">
                     ${buildHtmlTableBody(htmlArray)}
