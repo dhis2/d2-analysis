@@ -1605,6 +1605,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         let cls        = '',
             style      = '';
 
+        if (doStickyColumns()) {
+            cls += 'pivot-sticky-column-2';
+        }
+
         return `
             <thead class="${cls}" style="${style}">
                 ${doTableClipping() ? buildTopPaddingHtmlRow() : ''}
@@ -1620,12 +1624,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const buildHtmlTableBody = (htmlArray) => {
         let cls           = '',
             style         = '',
-            startRowIndex = Math.max(0, colAxis.dims  - t.rowStart),
+            startRowIndex = 0, //Math.max(0, colAxis.dims  - t.rowStart),
             endRowIndex   = htmlArray.length;
-
-        if (doStickyColumns()) {
-            style += `height: calc(100% - ${colAxis.dims * CELL_HEIGHT}px);`;
-        }
 
         return `
             <tbody class="${cls}" style="${style}"
@@ -1643,33 +1643,44 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         let cls      = 'pivot user-select',
             divStyle = '',
             divCls   = '';
-
-        if (doStickyRows()) {
-            divCls   += ' sticky-wrapper';
-            divStyle += `
-                width: calc(100% - ${rowAxis.dims * CELL_WIDTH}px);
-                margin-left: ${rowAxis.dims * CELL_WIDTH}px;
-            `;
-        }
         
-        if (doStickyColumns()) {
-            cls    += ' pivot-sticky-column';
-            divCls += ' table-wrapper';
-        }
-
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
         cls += layout.fontSize       ? ' fontsize-' + layout.fontSize : '';
 
         return `
-            ${doStickyRows() ? buildHtmlRowDimensionTable(htmlArray) : ''}
-            <div style="${divStyle}" class="${divCls}")>
+            ${doStickyColumns() ? buildHtmlColumnDimensionTable(htmlArray) : ''}
+            <div style="display:flex!important;overflow: visible;">
+                ${doStickyRows() ? buildHtmlRowDimensionTable(htmlArray) : ''}
                 <table class="${cls}">
-                    ${buildHtmlTableHead(htmlArray)}
                     ${buildHtmlTableBody(htmlArray)}
                 </table>
             </div>
         `;
     };
+
+    const buildHtmlColumnDimensionTable = (htmlArray) => {
+        let table = '',
+            cls   = '',
+            style = '',
+            rows  = htmlArray.splice(0, colAxis.dims);
+
+        if (doStickyColumns()) {
+            cls += ' pivot pivot-sticky-column-2';
+        }
+        
+        table += `<table class="${cls}" style="${style}">`;
+        
+        for (var i = 0, htmlRow; i < rows.length; i++) {
+            htmlRow = rows[i].join('');
+            if (htmlRow.length > 0) {
+                table += '<tr>' + htmlRow + '</tr>';
+            }
+        }
+
+        table += '</table>';
+
+        return table;
+    }
 
     /** @description builds html for row dimension
      *  @param   {array} htmlArray 
