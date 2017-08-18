@@ -1114,7 +1114,54 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
-    var weeks = Ext.create('Ext.container.Container', {
+    var days = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: {
+            labelSeparator: '',
+            style: 'margin-bottom:0',
+            listeners: intervalListeners
+        },
+        items: [
+            {
+                xtype: 'label',
+                text: i18n['days'],
+                cls: 'ns-label-period-heading'
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'TODAY',
+                boxLabel: i18n['today'],
+                index: 0
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'YESTERDAY',
+                boxLabel: i18n['yesterday'],
+                index: 1
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_3_DAYS',
+                boxLabel: i18n['last_3_days'],
+                index: 2
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_7_DAYS',
+                boxLabel: i18n['last_7_days'],
+                index: 3
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_14_DAYS',
+                boxLabel: i18n['last_14_days'],
+                index: 4
+            }
+        ]
+    });
+
+    var weeks = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1159,7 +1206,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var months = Ext.create('Ext.container.Container', {
+    var months = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1205,7 +1253,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var biMonths = Ext.create('Ext.container.Container', {
+    var biMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1240,7 +1289,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var quarters = Ext.create('Ext.container.Container', {
+    var quarters = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1275,7 +1325,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var sixMonths = Ext.create('Ext.container.Container', {
+    var sixMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1305,8 +1356,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var financialYears = Ext.create('Ext.container.Container', {
-        style: 'margin-top: 36px',
+    var financialYears = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1336,7 +1387,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var years = Ext.create('Ext.container.Container', {
+    var years = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1366,19 +1418,26 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var relativePeriod = Ext.create('Ext.container.Container', {
+    var relativePeriod = Ext.create('Ext.panel.Panel', {
         layout: 'column',
         hideCollapseTool: true,
         autoScroll: true,
-        style: 'border:0 none',
+        bodyStyle: 'border:0 none',
         items: [
             {
                 xtype: 'container',
                 columnWidth: 0.34,
-                style: 'margin-left: 8px',
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
+                bodyStyle: 'border-style:none',
+                items: [
+                    days,
+                    biMonths,
+                    financialYears
+                ]
+            },
+            {
+                xtype: 'container',
+                columnWidth: 0.33,
+                bodyStyle: 'border-style:none',
                 items: [
                     weeks,
                     quarters,
@@ -1388,23 +1447,10 @@ WestRegionTrackerItems = function(refs) {
             {
                 xtype: 'container',
                 columnWidth: 0.33,
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
+                bodyStyle: 'border-style:none',
                 items: [
                     months,
                     sixMonths
-                ]
-            },
-            {
-                xtype: 'container',
-                columnWidth: 0.33,
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
-                items: [
-                    biMonths,
-                    financialYears
                 ]
             }
         ],
@@ -1577,7 +1623,7 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var periods = Ext.create('Ext.container.Container', {
+    var periods = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none',
         getRecords: function() {
             var selectedRecords = [],
@@ -1601,8 +1647,15 @@ WestRegionTrackerItems = function(refs) {
             };
         },
         items: [
-            fixedPeriodSettings,
-            fixedPeriodAvailableSelected,
+            {
+                xtype: 'panel',
+                layout: 'column',
+                bodyStyle: 'border-style:none; padding-bottom:2px',
+                items: [
+                    fixedPeriodSettings,
+                    fixedPeriodAvailableSelected,
+                ]
+            },
             relativePeriod
         ]
     });
