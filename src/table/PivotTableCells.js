@@ -50,6 +50,16 @@ export const ValueCell = (value, response, rric, uuids) => {
     return cell;
 };
 
+export const PlainValueCell = (value) => {
+    const cell = DefaultCell();
+
+    cell.value      = value;
+    cell.type       = 'value';
+    cell.htmlValue  = value === 0 ? '&nbsp;' : value;
+
+    return cell;
+}
+
 /** @description factory function for value sub total cells.
  *  @param   {number} value 
  *  @returns {object}

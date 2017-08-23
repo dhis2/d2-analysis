@@ -32,6 +32,7 @@ import { ValueSubTotalCell,
          DimensionEmptyCell,
          DimensionLabelCell,
          ValueCell,
+         PlainValueCell,
          PaddingCell,
          FilterCell,
          HorizontalPaddingCell,
@@ -179,7 +180,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @returns {boolean}
      */
     const doTableClipping = () => {
-        return layout.enableTableClipping;
+        return layout.enableTableClipping || true;
     };
 
     /** @description checks if sticky columns is enabled.
@@ -333,7 +334,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     const getValueCell = (columnIndex, rowIndex) => {
         let value = valueLookup[rowIndex][columnIndex];
         switch(typeLookup[rowIndex][columnIndex]) {
-            case 0: return createValueCell(value, columnIndex, rowIndex);
+            case 0: return createValueCell2(value, columnIndex, rowIndex);
             case 1: return ValueSubTotalCell(value);
             case 2: return ValueTotalCell(value);
             default: return null;
@@ -728,6 +729,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return cell;
     };
 
+    const createValueCell2 = (value, columnIndex, rowIndex) => {
+
+        columnIndex -= Math.floor(columnIndex / (colUniqueFactor + 1));
+        rowIndex    -= Math.floor(rowIndex / (rowUniqueFactor + 1));
+
+        let cell = PlainValueCell(value);
+
+        return cell;
+    };
+
     /** @description hides emprt columns in table
      *  @param {array} table 
      */
@@ -742,7 +753,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                     if (dimLeaf.collapsed) continue;
 
                     if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[1][i].collapsed = true;
+                        currentTable[0][i].collapsed = true;
                     }
 
                     if (dimLeaf) {
@@ -965,17 +976,17 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         columnIndex -= rowAxis.dims
 
         if (isColumnSubTotal(columnIndex)) {
-            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
-                if (i === 0) column[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, false);
-                else         column[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+            column[0] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - rowStart, true, false);
+            for (let i=1, y=rowStart + 1; y < colAxis.dims; i++, y++) {
+                column[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
             }
             return column;
         }
 
         if (isColumnGrandTotal(columnIndex)) {
-            for (let i=0, y=rowStart; y < colAxis.dims; i++, y++) {
-                if (i === 0) column[i] = DimensionGrandTotalCell('Total', 1, colAxis.dims - y, doSortableColumnHeaders(), false);
-                else         column[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
+            column[0] = DimensionGrandTotalCell('Total', 1, colAxis.dims - rowStart, doSortableColumnHeaders(), false);
+            for (let i=1, y=rowStart + 1; y < colAxis.dims; i++, y++) {
+                column[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - y, true, true);
             }
             return column;
         }
@@ -1058,7 +1069,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         x         -= rowAxis.dims;
         columnEnd -= rowAxis.dims;
 
-        for(i, x; x < columnEnd; i++, x++) {
+        for (i, x; x < columnEnd; i++, x++) {
 
             if (isColumnSubTotal(x)) {
                 if (i === 0) row[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - rowIndex, true, false);
@@ -1422,6 +1433,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         if (isString(config.sort)) {
             sortableIdObjects.push({
+                
                 id: config.sort,
                 uuid: config.uuid
             });
@@ -1508,7 +1520,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         
         for (let i = start, htmlRow; i < end; i++) {
             htmlRow = htmlArray[i].join('');
-            if (htmlRow.length > 0) {
+            if (htmlRow && htmlRow.length > 0) {
                 rows += `<tr> ${htmlRow} </tr>`;
             }
         }
@@ -1957,6 +1969,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         valueLookup = createValueLookup(getTableRowSize(), getTableColumnSize());
         typeLookup  = createTypeLookup(getTableRowSize(), getTableColumnSize());
+        
+        console.log("rows:", valueLookup.length, "columns:", valueLookup[0].length, "cells", valueLookup.length * valueLookup[0].length);
     }());
 
     // constructor

@@ -3,17 +3,16 @@ import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayUnique from 'd2-utilizr/lib/arrayUnique';
+import arrayRepeat from 'd2-utilizr/lib/arrayRepeat';
 import uuid from 'd2-utilizr/lib/uuid';
 
-export var PivotTableAxis;
-
-PivotTableAxis = function(refs, layout, response, type) {
+export const PivotTableAxis = function(refs, layout, response, type) {
 
     const ignoreKeys = [
         'dy', 'longitude', 'latitude'
     ];
     
-    var aaUniqueFloorIds,
+    let aaUniqueFloorIds,
         spanType,
         aDimensions = [],
         nAxisWidth = 1,
@@ -42,149 +41,54 @@ PivotTableAxis = function(refs, layout, response, type) {
 
     // aaUniqueFloorIds: array of arrays with unique ids for each dimension floor
     aaUniqueFloorIds = function() {
-        var a = [],
-            dimensionNameIdsMap = layout.getDimensionNameIdsMap(response);
+        let dimensionNameIdsMap = layout.getDimensionNameIdsMap(response),
+            dims;
+            
+        return aDimensions.map((dimension, index) => {
+            if (dimension.sorted) dims = arrayPluck(dimension.items, 'id');
+            else                  dims = dimensionNameIdsMap[dimension.dimension];
 
-        var b = aDimensions.map((dimension) => dimension.sorted ? arrayPluck(dimension.items, 'id') : 
-                                                                  dimensionNameIdsMap[dimension.dimension])
+            nAxisWidth *= dims.length;
+            aUniqueFloorWidth.push(dims.length);
+            aAccFloorWidth.push(nAxisWidth);
+            aFloorSpan.unshift(nAxisWidth / aAccFloorWidth[Math.max(0, index - 1)]);
 
-        aDimensions.forEach(function(dimension) {
-            if (dimension.sorted) {
-                a.push(arrayPluck(dimension.items, 'id'));
-            }
-            else {
-                a.push(dimensionNameIdsMap[dimension.dimension]);
-            }
+            return dims;
         });
-
-        return a;
     }();
-    //aaUniqueFloorIds  = [ [de-id1, de-id2, de-id3],
-    //                      [pe-id1],
-    //                      [ou-id1, ou-id2, ou-id3, ou-id4] ]
 
     // nAxisHeight
     nAxisHeight = aaUniqueFloorIds.length;
-    //nAxisHeight = 3
 
+    aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
+        if (index == 0) return ids;
+        else            return arrayRepeat(ids, aAccFloorWidth[index - 1]);
+    });
 
-    // aUniqueFloorWidth, nAxisWidth, aAccFloorWidth
-    for (var i = 0, nUniqueFloorWidth; i < nAxisHeight; i++) {
-        nUniqueFloorWidth = aaUniqueFloorIds[i].length;
+    aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
+        return arrayRepeat(id, aFloorSpan[index], true);
+    });
 
-        aUniqueFloorWidth.push(nUniqueFloorWidth);
-        nAxisWidth = nAxisWidth * nUniqueFloorWidth;
-        aAccFloorWidth.push(nAxisWidth);
-    }
-    //aUniqueFloorWidth = [3, 1, 4]
-    //nAxisWidth        = 12 (3 * 1 * 4)
-    //aAccFloorWidth    = [3, 3, 12]
-
-    // aFloorSpan
-    if(aUniqueFloorWidth[0] === 1) {
-        aFloorSpan.push(nAxisWidth);
-    }
-
-    for (var i = aFloorSpan.length; i < nAxisHeight; i++) {
-        //if just one item and not top level, use same span as top level TODO: don't think this is necessary
-        if (aUniqueFloorWidth[i] === 1 && !layout.hideEmptyRows && type !== 'row') {
-            aFloorSpan.push(aFloorSpan[0]);
-        }
-        else {
-            aFloorSpan.push(nAxisWidth / aAccFloorWidth[i]);
-        }
-    }
-
-    //aFloorSpan = [4, 12, 1]
-
-    // aaGuiFloorIds
-    aaGuiFloorIds.push(aaUniqueFloorIds[0]);
-
-    for (var i = 1, n; i < nAxisHeight; i++) {
-        var a = [];
-        n = aUniqueFloorWidth[i] === 1 ? aUniqueFloorWidth[0] : aAccFloorWidth[i - 1];
-
-        for (var j = 0; j < n; j++) {
-            a = a.concat(aaUniqueFloorIds[i]);
-        }
-
-        aaGuiFloorIds.push(a);
-        //aaGuiFloorIds.push(Array(20).concat.apply([], aaUniqueFloorIds[i]));
-    }
-
-    //aaGuiFloorIds = [ [d1, d2, d3], (3)
-    //                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (15)
-    //                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2...] (30)
-    //                ]
-    // aaAllFloorIds
-
-    for (var i = 0, aAllFloorIds, aUniqueFloorIds, span, factor; i < nAxisHeight; i++) {
-        aAllFloorIds = [];
-        aUniqueFloorIds = aaUniqueFloorIds[i];
-        span = aFloorSpan[i];
-        factor = nAxisWidth / (span * aUniqueFloorIds.length);
-        //console.log(factor, aUniqueFloorIds.length);
-
-        for (var j = 0; j < factor; j++) {
-            for (var k = 0; k < aUniqueFloorIds.length; k++) {
-                aAllFloorIds.push(...Array(span).fill(aUniqueFloorIds[k]));
-            }
-        }
-        aaAllFloorIds.push(aAllFloorIds);
-    }
-
-    //console.log(aaAllFloorIds, aaGuiFloorIds)
-
-
-/*    console.log("begin")
-    console.log(nAxisWidth / (span * aUniqueFloorIds.length));
-    console.log(aaUniqueFloorIds);
-    console.log(aUniqueFloorIds);
-    console.log(aaAllFloorIds);
-    console.log(aFloorSpan);
-    console.log("end")*/
-
-    //aaAllFloorIds = [ [d1, d1, d1, d1, d1, d1, d1, d1, d1, d1, d2, d2, d2, d2, d2, d2, d2, d2, d2, d2, d3, d3, d3, d3, d3, d3, d3, d3, d3, d3], (30)
-    //                  [p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5, p1, p2, p3, p4, p5], (30)
-    //                  [o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2, o1, o2] (30)
-    //                ]
+    aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
+        return ids.map((id, j) => {
+            return {
+                id: aaAllFloorIds[i][j],
+                uuid: uuid(),
+                dim: i,
+                leaf: i === aaAllFloorIds.length - 1,
+                axis: type,
+                isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou'),
+            };
+        });
+    });
 
     // aCondoId
-    for (var i = 0, ids; i < nAxisWidth; i++) {
-        ids = [];
-
-        for (var j = 0; j < nAxisHeight; j++) {
-            ids.push(aaAllFloorIds[j][i]);
-        }
+    for (let i = 0, ids; i < nAxisWidth; i++) {
+        ids = aaAllFloorIds.map((id) => id[i]);
 
         if (ids.length) {
             aCondoId.push(ids.join('-'));
         }
-    }
-    //aCondoId = [ id11+id21+id31, id12+id22+id32, ... ]
-
-    // allObjects
-    for (var i = 0, allFloor; i < aaAllFloorIds.length; i++) {
-        allFloor = [];
-
-        for (var j = 0, obj; j < aaAllFloorIds[i].length; j++) {
-            obj = {
-                id: aaAllFloorIds[i][j],
-                uuid: uuid(),
-                dim: i,
-                axis: type,
-                isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou')
-            };
-
-            // leaf?
-            if (i === aaAllFloorIds.length - 1) {
-                obj.leaf = true;
-            }
-
-            allFloor.push(obj);
-        }
-
-        aaAllFloorObjects.push(allFloor);
     }
 
     // add span and children
@@ -241,6 +145,7 @@ PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
+    console.log(6)
     // add parents if more than 1 floor
     if (nAxisHeight > 1) {
         for (var i = 1, aAllFloor; i < nAxisHeight; i++) {
@@ -306,6 +211,9 @@ PivotTableAxis = function(refs, layout, response, type) {
             uuidObjectMap[object.uuid] = object;
         }
     }
+
+
+    console.log(7)
 
     return {
         type: type,

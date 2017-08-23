@@ -770,9 +770,9 @@ cryptiles@2.x.x:
   dependencies:
     boom "2.x.x"
 
-d2-utilizr@0.2.13:
-  version "0.2.13"
-  resolved "https://registry.yarnpkg.com/d2-utilizr/-/d2-utilizr-0.2.13.tgz#aff6dfb054f92e2c974cf69f38f4fdc13699a6d3"
+d2-utilizr@v0.2.15:
+  version "0.2.15"
+  resolved "https://registry.yarnpkg.com/d2-utilizr/-/d2-utilizr-0.2.15.tgz#377fba849edf03f927ca7bd9e0fdd6339c293e0d"
   dependencies:
     lodash.isboolean "^3.0.3"
     lodash.isfunction "^3.0.8"
