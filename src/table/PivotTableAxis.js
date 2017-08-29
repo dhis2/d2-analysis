@@ -12,18 +12,14 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         'dy', 'longitude', 'latitude'
     ];
     
-    let aaUniqueFloorIds,
-        spanType,
+    let spanType,
         aDimensions = [],
         nAxisWidth = 1,
         nAxisHeight,
         aUniqueFloorWidth = [],
         aAccFloorWidth = [],
         aFloorSpan = [],
-        aaGuiFloorIds = [],
-        aaAllFloorIds = [],
         aCondoId = [],
-        aaAllFloorObjects = [],
         uuidObjectMap = {};
 
     if (type === 'col') {
@@ -39,8 +35,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         return;
     }
 
-    // aaUniqueFloorIds: array of arrays with unique ids for each dimension floor
-    aaUniqueFloorIds = function() {
+    const aaUniqueFloorIds = function() {
         let dimensionNameIdsMap = layout.getDimensionNameIdsMap(response),
             dims;
             
@@ -57,21 +52,74 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         });
     }();
 
-    // nAxisHeight
     nAxisHeight = aaUniqueFloorIds.length;
 
-    aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
-        if (index == 0) return ids;
-        else            return arrayRepeat(ids, aAccFloorWidth[index - 1]);
+    // const aaGuiFloorIds = new Array(aaUniqueFloorIds.length);
+    // for(let i = 0; i < aaGuiFloorIds.length; i++) {
+    //     aaGuiFloorIds[i] = arrayRepeat(aaUniqueFloorIds[i], aAccFloorWidth[i - 1]);
+    // }
+    const aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
+        return arrayRepeat(ids, aAccFloorWidth[index - 1]);
     });
 
-    aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
+    // const aaAllFloorIds = new Array(aaGuiFloorIds.length);
+    // for(let i = 0; i < aaAllFloorIds.length; i++) {
+    //     aaAllFloorIds[i] = arrayRepeat(aaGuiFloorIds[i], aFloorSpan[i], true);
+    // }
+    const aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
         return arrayRepeat(id, aFloorSpan[index], true);
     });
 
-    aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
+    // const aaAllFloorObjects = new Array(aaAllFloorIds.length);
+    // for(let i=0; i < aaAllFloorObjects.length; i++) {
+        
+    //     let siblingPosition = 0,
+    //         oldestObj,
+    //         row = new Array(aaAllFloorIds[i].length);
+
+    //     for (let j=0; j < row.length; j++) {
+
+    //         let obj = {
+    //             id: aaAllFloorIds[i][j],
+    //             uuid: uuid(),
+    //             dim: i,
+    //             leaf: i === aaAllFloorIds.length - 1,
+    //             axis: type,
+    //             isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou'),
+    //         };
+
+    //         uuidObjectMap[obj.uuid] = obj;
+
+    //         if (j % aFloorSpan[i] === 0) {
+    //             obj[spanType] = aFloorSpan[i];
+    //             obj.children = obj.leaf ? 0 : null;
+    //             obj.oldest = true;
+    //             obj.root = i === 0;
+    //             oldestObj = obj;
+    //             siblingPosition = 0;
+    //         }
+
+    //         obj.oldestSibling = oldestObj;;
+    //         obj.siblingPosition = siblingPosition++
+            
+    //         if ((aaUniqueFloorIds.length - 1) > i) {
+    //             obj.children = aaUniqueFloorIds[i + 1].length;
+    //         }
+
+    //         row[j] = obj;
+    //     }
+
+    //     aaAllFloorObjects[i] = row;
+    // }
+
+    const aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
+        
+        let siblingPosition = 0,
+            oldestObj;
+
         return ids.map((id, j) => {
-            return {
+
+            let obj = {
                 id: aaAllFloorIds[i][j],
                 uuid: uuid(),
                 dim: i,
@@ -79,6 +127,26 @@ export const PivotTableAxis = function(refs, layout, response, type) {
                 axis: type,
                 isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou'),
             };
+
+            uuidObjectMap[obj.uuid] = obj;
+
+            if (j % aFloorSpan[i] === 0) {
+                obj[spanType] = aFloorSpan[i];
+                obj.children = obj.leaf ? 0 : null;
+                obj.oldest = true;
+                obj.root = i === 0;
+                oldestObj = obj;
+                siblingPosition = 0;
+            }
+
+            obj.oldestSibling = oldestObj;;
+            obj.siblingPosition = siblingPosition++
+            
+            if ((aaUniqueFloorIds.length - 1) > i) {
+                obj.children = aaUniqueFloorIds[i + 1].length;
+            }
+
+            return obj;
         });
     });
 
@@ -91,129 +159,50 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    // add span and children
-    for (var i = 0, aAboveFloorObjects, doorIds, uniqueDoorIds; i < aaAllFloorObjects.length; i++) {
-        doorIds = [];
-
-        for (var j = 0, obj, doorCount = 0, siblingPosition = 0, oldestObj; j < aaAllFloorObjects[i].length; j++) {
-
-            obj = aaAllFloorObjects[i][j];
-            doorIds.push(obj.id);
-
-            if (doorCount === 0) {
-
-                // span
-                obj[spanType] = aFloorSpan[i];
-
-                // children
-                if (obj.leaf) {
-                    obj.children = 0;
-                }
-
-                // first sibling
-                obj.oldest = true;
-
-                // root?
-                if (i === 0) {
-                    obj.root = true;
-                }
-
-                // tmp oldest uuid
-                oldestObj = obj;
-            }
-
-            obj.oldestSibling = oldestObj;
-            obj.siblingPosition = siblingPosition++;
-
-            if (aaAllFloorObjects[i][j + 1] && obj.id !== aaAllFloorObjects[i][j + 1].id) {
-                siblingPosition = 0;
-            }
-
-            if (++doorCount === aFloorSpan[i]) {
-                doorCount = 0;
-            }
-        }
-
-        // set above floor door children to number of unique door ids on this floor
-        if (i > 0) {
-            aAboveFloorObjects = aaAllFloorObjects[i-1];
-            uniqueDoorIds = arrayUnique(doorIds);
-
-            for (var j = 0; j < aAboveFloorObjects.length; j++) {
-                aAboveFloorObjects[j].children = uniqueDoorIds.length;
-            }
-        }
-    }
-
-    console.log(6)
-    // add parents if more than 1 floor
-    if (nAxisHeight > 1) {
-        for (var i = 1, aAllFloor; i < nAxisHeight; i++) {
-            aAllFloor = aaAllFloorObjects[i];
-
-            //for (var j = 0, obj, doorCount = 0, span = aFloorSpan[i - 1], parentObj = aaAllFloorObjects[i - 1][0]; j < aAllFloor.length; j++) {
-            for (var j = 0, doorCount = 0, span = aFloorSpan[i - 1]; j < aAllFloor.length; j++) {
-                aAllFloor[j].parent = aaAllFloorObjects[i - 1][j];
-
-                //doorCount++;
-
-                //if (doorCount === span) {
-                    //parentObj = aaAllFloorObjects[i - 1][j + 1];
-                    //doorCount = 0;
-                //}
-            }
-        }
-    }
-
     // add uuids array to leaves
-    if (aaAllFloorObjects.length) {
+    // if (aaAllFloorObjects.length) {
 
-        // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-        var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
-            aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
+    //     // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
+    //     var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
+    //         aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
-        for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
-            leaf = aAllFloorObjectsLast[i];
-            leafUuids.push(leaf.uuid);
-            parentUuids = [];
-            obj = leaf;
+    //     for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
+    //         leaf = aAllFloorObjectsLast[i];
+    //         leafUuids.push(leaf.uuid);
+    //         parentUuids = [];
+    //         obj = leaf;
 
-            // get the uuid of the oldest sibling
-            while (obj.parent) {
-                obj = obj.parent;
-                if(!obj.root && obj.oldestSibling) {
-                    parentUuids.push(obj.oldestSibling.uuid);
-                } else {
-                    parentUuids.push(obj.uuid);
-                }
-            }
+    //         // get the uuid of the oldest sibling
+    //         while (obj.parent) {
+    //             obj = obj.parent;
+    //             if(!obj.root && obj.oldestSibling) {
+    //                 parentUuids.push(obj.oldestSibling.uuid);
+    //             } else {
+    //                 parentUuids.push(obj.uuid);
+    //             }
+    //         }
 
-            // add parent uuids to leaf
-            leaf.uuids = parentUuids.slice();
+    //         // add parent uuids to leaf
+    //         leaf.uuids = parentUuids.slice();
 
-            // add uuid for all leaves
-            if (leafUuids.length === nSpan) {
-                for (var j = (i - nSpan) + 1, leaf; j <= i; j++) {
-                    leaf = aAllFloorObjectsLast[j];
-                    leaf.uuids = leaf.uuids.concat(leafUuids);
-                }
+    //         // add uuid for all leaves
+    //         if (leafUuids.length === nSpan) {
+    //             for (var j = (i - nSpan) + 1, leaf; j <= i; j++) {
+    //                 leaf = aAllFloorObjectsLast[j];
+    //                 leaf.uuids.push(...leafUuids);
+    //             }
 
-                leafUuids = [];
-            }
-        }
-    }
+    //             leafUuids = [];
+    //         }
 
-    // populate uuidObject map
-    for (var i = 0; i < aaAllFloorObjects.length; i++) {
-        for (var j = 0, object; j < aaAllFloorObjects[i].length; j++) {
-            object = aaAllFloorObjects[i][j];
+    //         if(i % 1000 === 0) {
+    //             console.log(leafUuids.length)
+    //         }
+    //     }
 
-            uuidObjectMap[object.uuid] = object;
-        }
-    }
+    // }
 
-
-    console.log(7)
+    console.log(aaAllFloorObjects);
 
     return {
         type: type,
