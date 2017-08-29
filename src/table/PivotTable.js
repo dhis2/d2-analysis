@@ -886,9 +886,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param {number} rowEnd 
      */
     const appendTableColumn = (columnIndex, rowStart, rowEnd) => {
-        let column = buildTableColumn(columnIndex, rowStart, rowEnd);
+        // let column = buildTableColumn(columnIndex, rowStart, rowEnd);
+        // for (let i = 0; i < column.length; i++) {
+        //     currentTable[i].splice(currentTable[i].length, 0, column[i]);
+        // }
+        const column = buildTableColumn(columnIndex, rowStart, rowEnd);
         for (let i = 0; i < column.length; i++) {
-            currentTable[i].splice(currentTable[i].length, 0, column[i]);
+            currentTable[i].push(column[i]);
         }
     };
 
@@ -898,9 +902,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
      *  @param {number} rowEnd 
      */
     const prependTableColumn = (columnIndex, rowStart, rowEnd) => {
-        let column = buildTableColumn(columnIndex, rowStart, rowEnd);
+        // let column = buildTableColumn(columnIndex, rowStart, rowEnd);
+        // for (let i = 0; i < column.length; i++) {
+        //     currentTable[i].splice(0, 0, column[i]);
+        // }
+        const column = buildTableColumn(columnIndex, rowStart, rowEnd);
         for (let i = 0; i < column.length; i++) {
-            currentTable[i].splice(0, 0, column[i]);
+            currentTable[i].unshift(column[i]);
         }
     };
 
