@@ -12,7 +12,7 @@ dataApprovalLevelsInit = function(c) {
         baseUrl: apiPath + '/dataApprovalLevels.json',
         params: [
             'order=level:asc',
-            'fields=id,' + displayPropertyUrl + ',level',
+            'fields=id,displayName~rename(name),level',
             'paging=false'
         ],
         success: function(r) {

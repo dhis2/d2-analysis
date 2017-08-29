@@ -201,6 +201,7 @@ AppManager.prototype.init = function(callbackFn) {
                 'key=keyAnalysisRelativePeriod',
                 'key=keyHideUnapprovedDataInAnalytics',
                 'key=keyAnalysisDigitGroupSeparator',
+                'key=keyIgnoreAnalyticsApprovalYearThreshold'
             ],
             success: function (response) {
                 t.systemSettings = response;

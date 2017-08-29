@@ -785,11 +785,12 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         uiManager.mask();
     }
 
-    $.ajax({
-        url: encodeURI(url),
-        type: 'PATCH',
+    var patchRequest = new refs.api.Request(refs, {
+        baseUrl: url,
+        type: 'ajax',
+        method: 'PATCH',
         data: JSON.stringify(properties),
-        dataType: 'json',
+        dataType: 'text',
         headers: appManager.defaultRequestHeaders,
         success: function(obj, success, r) {
             if (doUnmask) {
@@ -801,6 +802,8 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
             }
         }
     });
+
+    patchRequest.run();
 };
 
 Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilterAsDimension) {
@@ -923,7 +926,8 @@ Layout.prototype.data = function(source, format) {
     var errorFn = function(r) {
 
         // 409
-        if (isObject(r) && r.status == 409) {
+        // DHIS2-2020: 503 error (perhaps analytics maintenance mode)
+        if (isObject(r) && (r.status == 409 || r.status === 503)) {
             uiManager.unmask();
 
             if (isString(r.responseText)) {
@@ -939,7 +943,7 @@ Layout.prototype.data = function(source, format) {
     dataRequest.add('skipMeta=true');
 
     metaDataRequest.setError(errorFn);
-    dataRequest.setError(Function.prototype);
+    dataRequest.setError(errorFn);
 
     return {
         metaData: metaDataRequest.run(),
