@@ -725,7 +725,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 rowSubTotal += cell.value;
                 columnSubTotals[j] += cell.value;
                 columnTotals[j] += cell.value;
-                columnTotals[table[i].length - 1] += cell.value;
+
+                if (doRowTotals()) {
+                    columnTotals[table[i].length - 1] += cell.value;
+                }
 
                 if (colUniqueFactor > 1 && doColSubTotals()) {
                     columnSubTotals[nextSubCell] += cell.value;
@@ -736,6 +739,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 }
             }
         }
+        console.log(0, columnTotals)
     }
 
     setEmptyCells = function (table) {
