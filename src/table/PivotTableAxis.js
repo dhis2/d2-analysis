@@ -35,9 +35,19 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         return;
     }
 
+    const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response),
+          tableSize = Object.keys(dimensionNameIdsMap).reduce((sum, id) => {
+              return sum * dimensionNameIdsMap[id].length;
+          }, 1);
+
+
+
+    if (tableSize > 5000) {
+        console.log(layout);
+    }
+
     const aaUniqueFloorIds = function() {
-        let dimensionNameIdsMap = layout.getDimensionNameIdsMap(response),
-            dims;
+        let dims;
             
         return aDimensions.map((dimension, index) => {
             if (dimension.sorted) dims = arrayPluck(dimension.items, 'id');
@@ -111,59 +121,6 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-
-    // const aaGuiFloorIds = new Array(aaUniqueFloorIds.length);
-    // for(let i = 0; i < aaGuiFloorIds.length; i++) {
-    //     aaGuiFloorIds[i] = arrayRepeat(aaUniqueFloorIds[i], aAccFloorWidth[i - 1]);
-    // }
-    
-    // const aaAllFloorIds = new Array(aaGuiFloorIds.length);
-    // for(let i = 0; i < aaAllFloorIds.length; i++) {
-    //     aaAllFloorIds[i] = arrayRepeat(aaGuiFloorIds[i], aFloorSpan[i], true);
-    // }
-
-    // const aaAllFloorObjects = new Array(aaAllFloorIds.length);
-    // for(let i=0; i < aaAllFloorObjects.length; i++) {
-        
-    //     let siblingPosition = 0,
-    //         oldestObj,
-    //         row = new Array(aaAllFloorIds[i].length);
-
-    //     for (let j=0; j < row.length; j++) {
-
-    //         let obj = {
-    //             id: aaAllFloorIds[i][j],
-    //             uuid: uuid(),
-    //             dim: i,
-    //             leaf: i === aaAllFloorIds.length - 1,
-    //             axis: type,
-    //             isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou'),
-    //         };
-
-    //         uuidObjectMap[obj.uuid] = obj;
-
-    //         if (j % aFloorSpan[i] === 0) {
-    //             obj[spanType] = aFloorSpan[i];
-    //             obj.children = obj.leaf ? 0 : null;
-    //             obj.oldest = true;
-    //             obj.root = i === 0;
-    //             oldestObj = obj;
-    //             siblingPosition = 0;
-    //         }
-
-    //         obj.oldestSibling = oldestObj;;
-    //         obj.siblingPosition = siblingPosition++
-            
-    //         if ((aaUniqueFloorIds.length - 1) > i) {
-    //             obj.children = aaUniqueFloorIds[i + 1].length;
-    //         }
-
-    //         row[j] = obj;
-    //     }
-
-    //     aaAllFloorObjects[i] = row;
-    // }
-
     // add uuids array to leaves
     // if (aaAllFloorObjects.length) {
 
@@ -199,12 +156,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
     //             leafUuids = [];
     //         }
-
-    //         if(i % 1000 === 0) {
-    //             console.log(leafUuids.length)
-    //         }
     //     }
-
     // }
 
     return {

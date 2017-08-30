@@ -92,6 +92,7 @@ Viewport = function(refs, cmp, config) {
         iconCls: 'ns-button-icon-arrowlefttriple',
         iconState: 1,
         setIconState: function() {
+            console.log(this);
             switch (this.iconState++ % 2) {
                 case 1: this.el.dom.style.visibility = "hidden"; break;
                 case 0: this.el.dom.style.visibility = "visible"; break;
@@ -570,23 +571,7 @@ Viewport = function(refs, cmp, config) {
                 embedButton,
                 '->',
                 ...integrationButtons,
-                {
-                    id: "toggleEastRegionButton",
-                    text: ' ',
-                    width: 26,
-                    padding: '3',
-                    iconCls: 'ns-button-icon-arrowlefttriple',
-                    iconClsLeft: 'ns-button-icon-arrowlefttriple',
-                    iconClsRight: 'ns-button-icon-arrowrighttriple',
-                    iconState: 1,
-                    setIconState: function() {
-                        this.setIconCls(this.iconState++ % 2 ? this.iconClsRight : this.iconClsLeft);
-                    },
-                    handler: function(b) {
-                        eastRegion.toggleCollapse();
-                        this.setIconState();
-                    }
-                }
+                detailsButton,
             ]
         },
         bbar: statusBar,
