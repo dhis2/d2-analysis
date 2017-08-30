@@ -25,6 +25,7 @@ const windowWidth = 700;
 const borderWidth = 14;
 const windowCmpWidth = windowWidth - borderWidth;
 
+const createdColWidth = 120;
 const lastUpdatedColWidth = 120;
 const buttonColWidth = 60;
 const paddingColWidth = 8;
@@ -39,6 +40,7 @@ export default {
     windowWidth,
     borderWidth,
     windowCmpWidth,
+    createdColWidth,
     lastUpdatedColWidth,
     buttonColWidth,
     paddingColWidth
