@@ -48,10 +48,10 @@ FavoriteWindow = function(c, action) {
         windowItems,
         favoriteWindow,
 
-        nameColWidth = fs.windowCmpWidth - fs.lastUpdatedColWidth - fs.buttonColWidth - fs.paddingColWidth - 2,
+        nameColWidth = fs.windowCmpWidth - fs.createdColWidth - fs.lastUpdatedColWidth - fs.buttonColWidth - fs.paddingColWidth - 2,
 
-        storeFields = 'id,name,lastUpdated,access,title,description',
-        urlFields = 'id,displayName~rename(name),lastUpdated,access,title,description',
+        storeFields = 'id,name,created,lastUpdated,access,title,description',
+        urlFields = 'id,displayName~rename(name),created,lastUpdated,access,title,description',
         sortField = 'name',
         sortDirection = 'asc',
 
@@ -329,6 +329,20 @@ FavoriteWindow = function(c, action) {
                 }
             },
             {
+                text: i18n.created,
+                textAlign: 'left',
+                width: fs.createdColWidth,
+                height: 20,
+                direction: 'asc',
+                handler: function() {
+                    var url = getStoreUrl('created'),
+                        store = favoriteStore;
+
+                    store.page = 1;
+                    store.loadStore(url);
+                }
+            },
+            {
                 text: i18n.last_updated,
                 textAlign: 'left',
                 width: fs.lastUpdatedColWidth,
@@ -424,6 +438,14 @@ FavoriteWindow = function(c, action) {
                 sortable: true,
                 width: nameColWidth,
                 renderer: renderers[action]
+            },
+            {
+                dataIndex: 'created',
+                sortable: true,
+                width: fs.createdColWidth,
+                renderer: function(value) {
+                    return (value || '').substring(0, 16).split('T').join(', ');
+                }
             },
             {
                 dataIndex: 'lastUpdated',
