@@ -92,7 +92,6 @@ Viewport = function(refs, cmp, config) {
         iconCls: 'ns-button-icon-arrowlefttriple',
         iconState: 1,
         setIconState: function() {
-            console.log(this);
             switch (this.iconState++ % 2) {
                 case 1: this.el.dom.style.visibility = "hidden"; break;
                 case 0: this.el.dom.style.visibility = "visible"; break;
