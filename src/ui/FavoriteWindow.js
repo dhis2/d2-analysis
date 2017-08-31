@@ -21,6 +21,8 @@ FavoriteWindow = function(c, action) {
     var getDirection,
         getStoreUrl,
         favoriteStore,
+        filtersStore,
+        getFilterUrlParam,
 
         NameWindow,
         nameWindow,
@@ -33,6 +35,7 @@ FavoriteWindow = function(c, action) {
         showFavoritesLink,
         showFavoritesLinkCt,
         searchTextfield,
+        filtersComboBox,
         descriptionPanel,
         saveButtonHandler,
         saveButton,
@@ -50,8 +53,8 @@ FavoriteWindow = function(c, action) {
 
         nameColWidth = fs.windowCmpWidth - fs.createdColWidth - fs.lastUpdatedColWidth - fs.buttonColWidth - fs.paddingColWidth - 2,
 
-        storeFields = 'id,name,created,lastUpdated,access,title,description',
-        urlFields = 'id,displayName~rename(name),created,lastUpdated,access,title,description',
+        storeFields = 'id,name,created,lastUpdated,access,title,description,user',
+        urlFields = 'id,displayName~rename(name),created,lastUpdated,access,title,description,user',
         sortField = 'name',
         sortDirection = 'asc',
 
@@ -68,7 +71,19 @@ FavoriteWindow = function(c, action) {
         sortField = field || sortField;
 
         var value = action === 'open' ? searchTextfield.getValue() : null;
-        return apiPath + '/' + apiEndpoint + '.json?fields=' + urlFields + (value ? '&filter=displayName:ilike:' + value : '') + '&order=' + sortField + ':' + getDirection(keepDir);
+
+        var url = apiPath + '/' + apiEndpoint + '.json?fields='
+            + urlFields
+            + (value ? '&filter=displayName:ilike:' + value : '')
+            + '&order=' + sortField + ':' + getDirection(keepDir);
+
+        var filterParam = getFilterUrlParam(filtersComboBox.value);
+
+        if (filterParam) {
+            url += '&filter=' + filterParam;
+        }
+
+        return url;
     };
 
     favoriteStore = Ext.create('Ext.data.Store', {
@@ -133,6 +148,28 @@ FavoriteWindow = function(c, action) {
         }
     });
 
+    filtersStore = Ext.create('Ext.data.Store', {
+        fields: ['id', 'name'],
+        data: [
+            { id: 'SHOW_ALL', name: i18n.show_all },
+            { id: 'CREATED_BY_ME', name: i18n.created_by_me },
+            { id: 'CREATED_NOT_BY_ME', name: i18n.created_not_by_me }
+        ]
+    });
+
+    getFilterUrlParam = function(filterId) {
+        switch(filterId) {
+            case 'SHOW_ALL':
+                return null;
+            case 'CREATED_BY_ME':
+                return 'user.id:eq:' + appManager.userAccount.id;
+            case 'CREATED_NOT_BY_ME':
+                return 'user.id:neq:' + appManager.userAccount.id;
+            default:
+                return null;
+        }
+    };
+
     textfieldKeyUpHandlers = {
         search: function(cmp, e) {
             var t = cmp,
@@ -192,9 +229,9 @@ FavoriteWindow = function(c, action) {
     });
 
     searchTextfield = Ext.create('Ext.form.field.Text', {
-        width: fs.windowCmpWidth,
+        width: fs.windowCmpWidth - fs.filtersComboBoxWidth,
         height: 27,
-        style: 'margin-bottom: 1px',
+        style: 'margin-bottom: 1px; display: inline-block',
         fieldStyle: fs.textfieldStyle.concat([
             'color: #333'
         ]).join(';'),
@@ -211,6 +248,29 @@ FavoriteWindow = function(c, action) {
         }
     });
     cmpToToggle.push(searchTextfield);
+
+    filtersComboBox = Ext.create('Ext.form.field.ComboBox', {
+        width: fs.filtersComboBoxWidth,
+        height: 27,
+        style: 'display: inline-block; top: 7px; right: 5px',
+        fieldLabel: 'Filter',
+        labelWidth: 30,
+        store: filtersStore,
+        displayField: 'name',
+        valueField: 'id',
+        value: 'SHOW_ALL',
+        editable: false,
+        listeners: {
+            select: function({ value }) {
+                var url = getStoreUrl(null, true, [getFilterUrlParam(value)]),
+                    store = favoriteStore;
+
+                store.page = store.page <= 1 ? 1 : store.page - 1;
+                store.loadStore(url);
+            }
+        }
+    });
+    cmpToToggle.push(filtersComboBox);
 
     saveButton = Ext.create('Ext.button.Button', {
         text: i18n.save,
@@ -479,7 +539,7 @@ FavoriteWindow = function(c, action) {
 
                             if (record.data.access.update) {
                                 fn = function() {
-                                    favoriteStore.loadStore();
+                                    favoriteStore.loadStore(getStoreUrl(null, true));
                                 };
 
                                 listeners.show = function() {
@@ -631,7 +691,7 @@ FavoriteWindow = function(c, action) {
             items.push(nameTextField, descriptionTextField, showFavoritesLinkCt);
         }
 
-        items.push(searchTextfield, gridHeaders, grid);
+        items.push(searchTextfield, filtersComboBox, gridHeaders, grid);
 
         return items;
     }();
