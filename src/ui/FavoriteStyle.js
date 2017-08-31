@@ -23,6 +23,7 @@ const toggleBtnMarginLeft = 10;
 
 const windowWidth = 700;
 const borderWidth = 14;
+const filtersComboBoxWidth = 160;
 const windowCmpWidth = windowWidth - borderWidth;
 
 const createdColWidth = 120;
@@ -40,6 +41,7 @@ export default {
     windowWidth,
     borderWidth,
     windowCmpWidth,
+    filtersComboBoxWidth,
     createdColWidth,
     lastUpdatedColWidth,
     buttonColWidth,
