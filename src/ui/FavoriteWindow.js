@@ -153,7 +153,7 @@ FavoriteWindow = function(c, action) {
         data: [
             { id: 'SHOW_ALL', name: i18n.show_all },
             { id: 'CREATED_BY_ME', name: i18n.created_by_me },
-            { id: 'CREATED_NOT_BY_ME', name: i18n.created_not_by_me }
+            { id: 'CREATED_BY_OTHERS', name: i18n.created_by_others }
         ]
     });
 
@@ -163,7 +163,7 @@ FavoriteWindow = function(c, action) {
                 return null;
             case 'CREATED_BY_ME':
                 return 'user.id:eq:' + appManager.userAccount.id;
-            case 'CREATED_NOT_BY_ME':
+            case 'CREATED_BY_OTHERS':
                 return 'user.id:neq:' + appManager.userAccount.id;
             default:
                 return null;
