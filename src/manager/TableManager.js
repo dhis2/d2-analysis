@@ -335,24 +335,21 @@ TableManager = function(c) {
     };
 
     t.setValueMouseHandlers = function(layout, table) {
-        var uuidDimUuidsMap = table.uuidDimUuidsMap,
+        var uuids = table.valueUuids,
             valueEl;
 
-        for (var key in uuidDimUuidsMap) {
-            if (uuidDimUuidsMap.hasOwnProperty(key)) {
-                valueEl = Ext.get(key);
+        for (var uuid in uuids) {
+            valueEl = Ext.get(uuids[uuid]);
 
-
-                if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
-                    valueEl.dom.onValueMouseClick = onValueMouseClick;
-                    valueEl.dom.onValueMouseOver = onValueMouseOver;
-                    valueEl.dom.onValueMouseOut = onValueMouseOut;
-                    valueEl.dom.layout = layout;
-                    valueEl.dom.table = table;
-                    valueEl.dom.setAttribute('onclick', 'this.onValueMouseClick(this.layout, this.table, this.id);');
-                    valueEl.dom.setAttribute('onmouseover', 'this.onValueMouseOver(this);');
-                    valueEl.dom.setAttribute('onmouseout', 'this.onValueMouseOut(this);');
-                }
+            if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
+                valueEl.dom.onValueMouseClick = onValueMouseClick;
+                valueEl.dom.onValueMouseOver = onValueMouseOver;
+                valueEl.dom.onValueMouseOut = onValueMouseOut;
+                valueEl.dom.layout = layout;
+                valueEl.dom.table = table;
+                valueEl.dom.setAttribute('onclick', 'this.onValueMouseClick(this.layout, this.table, this.id);');
+                valueEl.dom.setAttribute('onmouseover', 'this.onValueMouseOver(this);');
+                valueEl.dom.setAttribute('onmouseout', 'this.onValueMouseOut(this);');
             }
         }
     };
