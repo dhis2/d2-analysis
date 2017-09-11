@@ -127,43 +127,43 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    // add uuids array to leaves
-    if (aaAllFloorObjects.length) {
+    // // add uuids array to leaves
+    // if (aaAllFloorObjects.length) {
 
-        // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-        var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
-            aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
+    //     // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
+    //     var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
+    //         aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
-        for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
-            leaf = aAllFloorObjectsLast[i];
-            leafUuids.push(leaf.uuid);
-            parentUuids = [];
-            obj = leaf;
+    //     for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
+    //         leaf = aAllFloorObjectsLast[i];
+    //         leafUuids.push(leaf.uuid);
+    //         parentUuids = [];
+    //         obj = leaf;
 
-            // get the uuid of the oldest sibling
-            while (obj.parent) {
-                obj = obj.parent;
-                if(!obj.root && obj.oldestSibling) {
-                    parentUuids.push(obj.oldestSibling.uuid);
-                } else {
-                    parentUuids.push(obj.uuid);
-                }
-            }
+    //         // get the uuid of the oldest sibling
+    //         while (obj.parent) {
+    //             obj = obj.parent;
+    //             if(!obj.root && obj.oldestSibling) {
+    //                 parentUuids.push(obj.oldestSibling.uuid);
+    //             } else {
+    //                 parentUuids.push(obj.uuid);
+    //             }
+    //         }
 
-            // add parent uuids to leaf
-            leaf.uuids = parentUuids.slice();
+    //         // add parent uuids to leaf
+    //         leaf.uuids = parentUuids.slice();
 
-            // add uuid for all leaves
-            if (leafUuids.length === nSpan) {
-                for (var j = (i - nSpan) + 1, leaf; j <= i; j++) {
-                    leaf = aAllFloorObjectsLast[j];
-                    leaf.uuids.push(...leafUuids);
-                }
+    //         // add uuid for all leaves
+    //         if (leafUuids.length === nSpan) {
+    //             for (var j = (i - nSpan) + 1, leaf; j <= i; j++) {
+    //                 leaf = aAllFloorObjectsLast[j];
+    //                 leaf.uuids.push(...leafUuids);
+    //             }
 
-                leafUuids = [];
-            }
-        }
-    }
+    //             leafUuids = [];
+    //         }
+    //     }
+    // }
 
     return {
         type: type,

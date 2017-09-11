@@ -286,7 +286,7 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
  *   @param   {boolean} hidden 
  *   @returns {object}
  */
-export const HorizontalPaddingCell = (width=0, hidden) => {
+export const HorizontalPaddingCell = (width=0, cls='', hidden) => {
     const cell = DefaultCell();
     
     if (typeof hidden === 'undefined') {
@@ -295,7 +295,9 @@ export const HorizontalPaddingCell = (width=0, hidden) => {
 
     cell.value     = '&nbsp;';
     cell.type      = 'padding';
-    cell.cls       = 'pivot-padding';
+    cell.cls       = 'pivot-padding ';
+
+    cell.cls       += cls;
 
     cell.width     = width;
 
@@ -309,7 +311,7 @@ export const HorizontalPaddingCell = (width=0, hidden) => {
  *   @param   {boolean} hidden 
  *   @returns {object}
  */
-export const VerticalPaddingCell = (height=0, hidden) => {
+export const VerticalPaddingCell = (height=0, cls='', hidden) => {
     const cell = DefaultCell();
     
     if (typeof hidden === 'undefined') {
@@ -318,7 +320,9 @@ export const VerticalPaddingCell = (height=0, hidden) => {
 
     cell.value     = '&nbsp;';
     cell.type      = 'padding';
-    cell.cls       = 'pivot-padding';
+    cell.cls       = 'pivot-padding ';
+
+    cell.cls       += cls;
 
     cell.height    = height;
 

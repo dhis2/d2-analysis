@@ -44,13 +44,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     const { ResponseRowIdCombination } = refs.api;
 
-    const { unclickable } = options;
-
     options = options || {};
-
-    // constant variables
-    const CELL_WIDTH = 120,
-          CELL_HEIGHT = 25;
 
     // cell type enum
     const cellType = {
@@ -58,10 +52,21 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         'valueSubtotal': 1,
         'valueTotal':    2,
     };
+
+    // initialize constants
+    const uuidDimUuidsMap = {},
     
-    const ignoreDimensionIds = [
-        'dy'
-    ];
+          // legend set
+          legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
+          legendDisplayStyle = layout.legendDisplayStyle,
+          legendDisplayStrategy = layout.legendDisplayStrategy,
+    
+          // utils
+          idValueMap = response.getIdValueMap(layout),
+          idNumeratorMap = response.getIdNumeratorMap(layout),
+          idDenominatorMap = response.getIdDenominatorMap(layout),
+          idFactorMap = response.getIdFactorMap(layout),
+          sortableIdObjects = []; //todo
 
     // inititalize global variables
     let currentTable,
@@ -76,8 +81,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         colUniqueFactor,
         numberOfEmptyColumns = 0,
 
-        // uid
-        uuidDimUuidsMap = {},
 
         // lookups
         valueLookup,
@@ -93,17 +96,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         tableRowSize,
         tableColumnSize,
 
-        // legend set
-        legendSet = isObject(layout.legendSet) ? appManager.getLegendSetById(layout.legendSet.id) : null,
-        legendDisplayStyle = layout.legendDisplayStyle,
-        legendDisplayStrategy = layout.legendDisplayStrategy,
-
-        // utils
-        idValueMap = response.getIdValueMap(layout),
-        idNumeratorMap = response.getIdNumeratorMap(layout),
-        idDenominatorMap = response.getIdDenominatorMap(layout),
-        idFactorMap = response.getIdFactorMap(layout),
-        sortableIdObjects = [], //todo
         tdCount = 0;
 
     /** @description checks if show column totals is enabled.
@@ -173,14 +165,14 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {boolean}
      */
     const doShowDimensionLabels = () => {
-        return layout.showDimensionLabels && false;
+        return layout.showDimensionLabels
     };
 
     /** @description checks if clipping table is enabled.
      *  @returns {boolean}
      */
     const doTableClipping = () => {
-        return layout.enableTableClipping || true;
+        return !!options.dynamic || true;
     };
 
     /** @description checks if sticky columns is enabled.
@@ -334,7 +326,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const getValueCell = (columnIndex, rowIndex) => {
         let value = valueLookup[rowIndex][columnIndex];
         switch(typeLookup[rowIndex][columnIndex]) {
-            case 0: return createValueCell(value, columnIndex, rowIndex);
+            case 0: return PlainValueCell(value);
             case 1: return ValueSubTotalCell(value);
             case 2: return ValueTotalCell(value);
             default: return null;
@@ -377,28 +369,33 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {number}
      */
     const getTopPadding = () => {
-        return t.rowStart * CELL_HEIGHT;
+
+        if (t.rowStart > 0 && !options.skipTitle) {
+            return (t.rowStart + 1) * t.cellHeight;
+        }
+
+        return t.rowStart * t.cellHeight;
     };
 
     /** @description
      *  @returns {number}
      */
     const getLeftPadding = () => {
-        return t.columnStart * CELL_WIDTH;
+        return t.columnStart * t.cellWidth;
     };
 
     /** @description
      *  @returns {number}
      */
     const getBottomPadding = () => {
-        return (tableRowSize - t.rowEnd) * CELL_HEIGHT;
+        return (tableRowSize - t.rowEnd) * t.cellHeight;
     };
 
     /** @description
      *  @returns {number}
      */
     const getRightPadding = () => {
-        return (tableColumnSize - t.columnEnd) * CELL_WIDTH;
+        return (tableColumnSize - t.columnEnd) * t.cellWidth;
     };
 
     /** @description gets the index of the next column sub total from the given column index.
@@ -435,14 +432,14 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {number}
      */
     const getTableRenderWidth = () => {
-        return Math.floor(t.horizontalWindowSize / CELL_WIDTH) + 1;
+        return Math.floor(t.horizontalWindowSize / t.cellWidth) + 1;
     };
 
     /** @description get the number of vertical cells that can be rendered within the current window size.
      *  @returns {number}
      */
     const getTableRenderHeight = () => {
-        return Math.floor(t.verticalWindowSize / CELL_HEIGHT) + 1;
+        return Math.floor(t.verticalWindowSize / t.cellHeight) + 1;
     };
 
     /** @description
@@ -532,7 +529,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {number}
      */
     const getTopBarSpan = (span) => {
-        var rowDims = rowAxis.dims || 0;
+        let rowDims = rowAxis.dims || 0;
 
         if (!doShowDimensionLabels()) {
             if (!colAxis.type && rowAxis.type) {
@@ -685,23 +682,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         return lookup;
     };
 
-
-    const createValueLookup2 = (xDim, yDim) => {
-        
-        const lookup = buildTable2D(yDim / rowUniqueFactor, xDim / colUniqueFactor, 0);
-
-
-        for (let i=0; i < lookup.length; i++) {
-            for (let j=0; j < lookup[i].length; j++) {
-
-                
-
-            }
-        } 
-
-        return lookup;
-    }
-
     const createTypeLookup = (yDimensionSize, xDimensionSize) => {
         const lookup = buildTable2D(yDimensionSize, xDimensionSize, 0);
         for (let y = 0; y < yDimensionSize; y++) {
@@ -796,6 +776,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         visibleEmptyRows = 0;
 
+        let offset = 0,
+            hiddenRows = 0;
+
         for (let i = Math.max(0, colAxis.dims - t.rowStart), dimLeaf; i < currentTable.length; i++) {
             
             if (isRowEmpty(i - (colAxis.dims - t.rowStart))) {
@@ -811,7 +794,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
                         currentTable[i][0].collapsed = true;
                     }
 
-                    if (dimLeaf) {
+                    if (dimLeaf && !dimLeaf.knicked) {
+                        dimLeaf.knicked = true;
                         recursiveReduce(dimLeaf, 'rowSpan');
                     }
                 }
@@ -820,7 +804,13 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
                 for (let j = 0; j < currentTable[i].length; j++) {
                     currentTable[i][j].collapsed = true;
                 }
-            }            
+
+                hiddenRows++;
+            }
+        }
+
+        for (let i = 0; i < hiddenRows; i++) {
+            appendTableRow(currentTable.length + hiddenRows, t.columnStart, t.columnEnd);
         }
     };
 
@@ -935,7 +925,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const buildTableFilter = (span) => {
         if (!layout.filters) return;
 
-        var text = layout.filters.getRecordNames(false, layout.getResponse(), true),
+        let text = layout.filters.getRecordNames(false, layout.getResponse(), true),
             row = new Array(1);
 
         row[0] = buildHtmlCell(FilterCell(text, getTopBarSpan(span)));
@@ -1275,7 +1265,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         }
         
         for (let i=0,y=rowStart; y <= rowEnd - rowStart; i++, y++) {
-            if (doHideEmptyRows() && isRowEmpty(y)) rowEnd++;
+            if (doHideEmptyRows() && isRowEmpty(y)) {
+                rowEnd++;
+                continue;
+            }
             axis.push(buildRowAxisRow(y, columnStart));
         }
 
@@ -1441,7 +1434,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     };
 
 
-        /** @description Builds the value table of the table.
+    /** @description Builds the value table of the table.
      *  @param   {number} rowStart 
      *  @param   {number} rowEnd 
      *  @param   {number} columnStart 
@@ -1455,7 +1448,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         let table = [];
 
         for (let i=0, y=rowStart; i < rowEnd - rowStart + 1; i++, y++) {
-            if (doHideEmptyRows() && isRowEmpty(y)) rowEnd++;
+            if (doHideEmptyRows() && isRowEmpty(y)) {
+                rowEnd++;
+                continue;
+            } 
             table.push([])
             for (let j=0, x=columnStart; j < columnEnd - columnStart + 1; j++, x++) {
                 if (doHideEmptyColumns() && isColumnEmpty(x)) columnEnd++;
@@ -1465,7 +1461,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
                     idValueMap[totalIdComb.get()] = isRowEmpty(y) ? null : getRowTotal(y);
                 }
 
-                table[i].push(getValueCell(x, y));
+                table[table.length - 1].push(getValueCell(x, y));
             }
         }
         
@@ -1484,9 +1480,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const buildTable = () => {
 
-        let rowAxis = buildRowAxis2(t.rowStart, t.rowEnd, t.columnStart),
-            colAxis = buildColumnAxis2(t.columnStart, t.columnEnd, t.rowStart),
-            values  = buildValueTable2(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
+        let rowAxis = buildRowAxis(t.rowStart, t.rowEnd, t.columnStart),
+            colAxis = buildColumnAxis(t.columnStart, t.columnEnd, t.rowStart),
+            values  = buildValueTable(t.rowStart, t.rowEnd, t.columnStart, t.columnEnd);
 
         for (let i = 0; i < rowAxis.length; i++) {
             rowAxis[i].push(...values[i]);
@@ -1607,7 +1603,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
                 rows += `<tr> ${htmlRow} </tr>`;
             }
         }
-        
+    
         // TODO: cleaner?
         // htmlArray.filter((item, index) => item.length > 0 && index >= start && index < end).reduce((rows, row) => {
         //     return rows += `<tr> ${row.join('')} </tr>`;
@@ -1668,28 +1664,44 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {string}
      */
     const buildTopPaddingHtmlCell = () => {
-        return buildHtmlCell(VerticalPaddingCell(getTopPadding()))
+
+        const padding = getTopPadding(),
+              cell    = VerticalPaddingCell(padding, 'top-padding');
+
+        return buildHtmlCell(cell);
     }
 
     /** @description
      *  @returns {string}
      */
     const buildBottomPaddingHtmlCell = () => {
-        return buildHtmlCell(VerticalPaddingCell(getBottomPadding()));
+
+        const padding = getBottomPadding(),
+              cell    = VerticalPaddingCell(padding, 'bottom-padding');
+
+        return buildHtmlCell(cell);
     }
 
     /** @description
      *  @returns {string}
      */
     const buildLeftPaddingHtmlCell = () => {
-        return buildHtmlCell(HorizontalPaddingCell(getLeftPadding()));
+
+        const padding = getLeftPadding(),
+              cell    = HorizontalPaddingCell(padding, 'left-padding');
+
+        return buildHtmlCell(cell);
     }
 
     /** @description
      *  @returns {string}
      */
     const buildRightPaddingHtmlCell = () => {
-        return buildHtmlCell(HorizontalPaddingCell(getRightPadding()));
+
+        const padding = getRightPadding(),
+              cell    = HorizontalPaddingCell(padding, 'right-padding');
+
+        return buildHtmlCell(cell);
     }
 
     /** @description builds html for column dimension
@@ -1697,15 +1709,14 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {string}
      */
     const buildHtmlTableHead = (htmlArray) => {
-        let cls        = '',
-            style      = '';
+        let cls        = '';
 
         if (doStickyColumns()) {
             cls += 'pivot-sticky-column-2';
         }
 
         return `
-            <thead class="${cls}" style="${style}">
+            <thead class="${cls}">
                 ${doTableClipping() ? buildTopPaddingHtmlRow() : ''}
                 ${buildHtmlTableRows(htmlArray, 0, colAxis.dims - t.rowStart)}
             </thead>
@@ -1718,12 +1729,12 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const buildHtmlTableBody = (htmlArray) => {
         let cls           = '',
-            style         = '',
             startRowIndex = 0, //Math.max(0, colAxis.dims  - t.rowStart),
             endRowIndex   = htmlArray.length;
+
             
         return `
-            <tbody class="${cls}" style="${style}"
+            <tbody class="${cls}">
                 ${doTableClipping() ? buildTopPaddingHtmlRow() : ''}
                 ${buildHtmlTableRows(htmlArray, startRowIndex, endRowIndex)}
                 ${doTableClipping() ? buildBottomPaddingHtmlRow() : ''}
@@ -1736,7 +1747,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {string}
      */
     const buildHtmlTable = (htmlArray) => {
-        let cls = 'pivot user-select',
+        let cls      = 'pivot user-select',
+            style    = '',
             overflow = 'visible';
         
         cls += layout.displayDensity ? ' displaydensity-' + layout.displayDensity : '';
@@ -1746,9 +1758,11 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             overflow = 'auto';
         }
 
+        style += `display:flex!important;overflow:${overflow};`;
+
         return `
             ${doStickyColumns() ? buildHtmlColumnDimensionTable(htmlArray) : ''}
-            <div style="display:flex!important;overflow: ${overflow};">
+            <div style="${style}">
                 ${doStickyRows() ? buildHtmlRowDimensionTable(htmlArray) : ''}
                 <table class="${cls}">
                     ${buildHtmlTableBody(htmlArray)}
@@ -1758,27 +1772,14 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     };
 
     const buildHtmlColumnDimensionTable = (htmlArray) => {
-        let table = '',
-            cls   = '',
-            style = '',
+        let cls   = 'pivot pivot-sticky-column-2',
             rows  = htmlArray.splice(0, colAxis.dims);
-
-        if (doStickyColumns()) {
-            cls += ' pivot pivot-sticky-column-2';
-        }
         
-        table += `<table class="${cls}" style="${style}">`;
-        
-        for (var i = 0, htmlRow; i < rows.length; i++) {
-            htmlRow = rows[i].join('');
-            if (htmlRow.length > 0) {
-                table += '<tr>' + htmlRow + '</tr>';
-            }
-        }
-
-        table += '</table>';
-
-        return table;
+        return `
+            <table class="${cls}">
+                ${buildHtmlTableRows(htmlArray, 0, colAxis.dims)}
+            </table>
+        `;
     }
 
     /** @description builds html for row dimension
@@ -1788,26 +1789,23 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const buildHtmlRowDimensionTable = (htmlArray) => {
         let table = '',
             cls   = '',
-            style = '',
-            startIndex = doTableClipping() ? 1 : 0,
             htmlRow;
 
         if (doStickyRows()) {
-            cls += ' pivot pivot-sticky-row';
+            cls += 'pivot pivot-sticky-row';
         }
         
-        table += `<table class="${cls}" style="${style}">`;
+        table += `<table class="${cls}">`;
         
         if (!doShowDimensionLabels() && colAxis.dims > 0) {
-            htmlRow     = htmlArray[startIndex].splice(0, rowAxis.dims).join('');
-            table      += `<tr style="height:${colAxis.dims * CELL_HEIGHT}px;">${htmlRow}</tr>`;
-            startIndex += 1;
+            htmlRow     = htmlArray[0].splice(0, rowAxis.dims).join('');
+            table      += `<tr style="height:${colAxis.dims * t.cellHeight}px;">${htmlRow}</tr>`;
         }
         
-        for (var i = startIndex; i < htmlArray.length; i++) {
+        for (var i = 0; i < htmlArray.length; i++) {
             htmlRow = htmlArray[i].splice(0, rowAxis.dims).join('');
             if (htmlRow.length > 0) {
-                table += '<tr>' + htmlRow + '</tr>';
+                table += `<tr>${htmlRow}</tr>`;
             }
         }
 
@@ -1967,6 +1965,22 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         }
     };
 
+    const renderFull = () => {
+        setColumnStart(columnStart);
+        setColumnEnd(columnStart + getTableRenderWidth());
+    
+        setRowStart(rowStart);
+        setRowEnd(rowStart + getTableRenderHeight());
+        
+        currentTable = buildTable();
+        
+        updateTableParameters();
+
+        let htmlArray = buildHtmlArray();
+
+        return buildHtmlTable(htmlArray);
+    }
+
     /** @description renders table given a rowstart and column start.
      *  @param   {number} [rowStart=0]
      *  @param   {number} [columnStart=0]
@@ -1990,9 +2004,13 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         currentTable = buildTable();
 
+        console.log(currentTable);
+
         updateTableParameters();
 
-        return buildHtmlTable(buildHtmlArray());
+        let htmlArray = buildHtmlArray();
+
+        return buildHtmlTable(htmlArray);
     };
 
     /** @description updates the table given a start row and start column.
@@ -2002,28 +2020,34 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const updateTable = (columnStart, rowStart) => {
 
+        if (rowStart > 0 && !options.skipTitle) {
+            rowStart -= 1;
+        }
+
         const columnEnd = getColumnEnd(columnStart),
               rowEnd    = getRowEnd(rowStart);
 
-        const hUpdates = Math.abs(columnStart - t.columnStart),
-              vUpdates = Math.abs(rowStart - t.rowStart);
+        const horizontalUpdates = Math.abs(columnStart - t.columnStart),
+              verticalUpdates = Math.abs(rowStart - t.rowStart);
 
-        for (let i = 0; i < vUpdates; i++) {
+        for (let i = 0; i < horizontalUpdates; i++) {
             applyChangesToTable(columnStart, columnEnd, rowStart, rowEnd);
         }
 
-        for (let i = 0; i < hUpdates; i++) {
+        for (let i = 0; i < verticalUpdates; i++) {
             applyChangesToTable(columnStart, columnEnd, rowStart, rowEnd) ;
         }
 
         updateTableParameters();
 
-        return buildHtmlTable(buildHtmlArray());
+        let htmlArray = buildHtmlArray();
+
+        return buildHtmlTable(htmlArray);
     };
 
     const buildHtmlArray = () => {
         return arrayClean([].concat(
-            options.skipTitle ? [] : buildTableTitle(currentTable[0].length) || [],
+            options.skipTitle || t.rowStart > 0 ? [] : buildTableTitle(currentTable[0].length) || [],
             buildTableFilter(currentTable[0].length) || [],
             buildHtmlRows(currentTable)
         ));
@@ -2065,13 +2089,16 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     t.uuidDimUuidsMap = uuidDimUuidsMap;
     t.sortableIdObjects = sortableIdObjects;
 
-    t.clipping = doTableClipping();
+    t.dynamic = doTableClipping();
     t.idValueMap = idValueMap;
     t.tdCount = tdCount;
     t.layout = layout;
     t.response = response;
     t.colAxis = colAxis;
     t.rowAxis = rowAxis;
+
+    t.cellWidth = 120;
+    t.cellHeight = 25;
 
     // public functions
     t.setWindowSize = setWindowSize;
