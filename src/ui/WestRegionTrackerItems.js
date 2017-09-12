@@ -175,7 +175,6 @@ WestRegionTrackerItems = function(refs) {
 
     // components
     var onTypeClick = function(type) {
-
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
@@ -379,6 +378,7 @@ WestRegionTrackerItems = function(refs) {
             uiManager.get('aggregateLayoutWindow').value.resetData();
         }
 
+        dataElementType.enable();
         dataElementSearch.enable();
         dataElementSearch.hideFilter();
 
@@ -465,7 +465,9 @@ WestRegionTrackerItems = function(refs) {
         valueField: 'id',
         displayField: 'name',
         queryMode: 'local',
+        lastQuery: '',
         width: (accBaseWidth / 2) - 32,
+        disabled: true,
         listConfig: {loadMask: false},
         style: 'padding-bottom:1px; border-bottom:1px solid #ddd; margin-bottom:1px',
         value: 'all',
