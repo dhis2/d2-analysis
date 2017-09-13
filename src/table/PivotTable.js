@@ -69,10 +69,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
           sortableIdObjects = []; //todo
 
     // inititalize global variables
-    let currentTable,
-
-        // row axis
-        rowUniqueFactor,
+    let rowUniqueFactor,
         rowDimensionNames,
         numberOfEmptyRows = 0,
 
@@ -89,8 +86,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         columnTotalLookup,
 
         // counteres
-        visibleEmptyRows,
-        visibleEmptyColumns,
+        visibleEmptyRows = 0,
+        visibleEmptyColumns = 0,
 
         // size
         tableRowSize,
@@ -338,7 +335,12 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {number}
      */
     const getRowEnd = (rowStart) => { 
-        return Math.min(getTableRenderHeight() + rowStart, tableRowSize + colAxis.dims - 1);
+
+        if (doTableClipping()) {
+            return Math.min(getTableRenderHeight() + rowStart, tableRowSize + colAxis.dims - 1);
+        }
+    
+        return tableRowSize + colAxis.dims - 1; 
     };
 
     /** @description finds the last column to render based on the start column and table render size.
@@ -346,7 +348,12 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {number} 
      */
     const getColumnEnd = (columnStart) => { 
-        return Math.min(getTableRenderWidth() + columnStart, tableColumnSize + rowAxis.dims - 1);
+
+        if (doTableClipping()) {
+            return Math.min(getTableRenderWidth() + columnStart, tableColumnSize + rowAxis.dims - 1);
+        }
+
+        return tableColumnSize + rowAxis.dims - 1; 
     };
 
     /** @description gets the total sum of all cells in given column index.
@@ -364,6 +371,158 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const getRowTotal = (rowIndex) => {
         return valueLookup[rowIndex][tableColumnSize - 1];
     };
+    
+    const getTrueTotal = (numerator, denominator, factor) => {
+        return numerator * factor / denominator;
+    }
+
+    // const getRowObjectTotal = (row) => {
+    //     let counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=0; i < row.length; i++) {
+    //         if (row[i].type === 'value') {
+    //             counter += 1;
+    //             dSum    += row[i].denominator;
+    //             nSum    += row[i].numerator;
+    //             fSum    += row[i].factor;
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+    
+    // const getRowTotal = (table, rowIndex) => {
+    //     let row     = table[rowIndex],
+    //         counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=0; i < row.length; i++) {
+    //         if (row[i].type === 'value') {
+    //             counter += 1;
+    //             dSum    += row[i].denominator;
+    //             nSum    += row[i].numerator;
+    //             fSum    += row[i].factor;
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+
+    // const getColumnTotal = (table, columnIndex) => {
+    //     let counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=0; i < table.length; i++) {
+    //         if (table[i][columnIndex].type === 'value') {
+    //             counter += 1;
+    //             dSum    += table[i][columnIndex].denominator;
+    //             nSum    += table[i][columnIndex].numerator;
+    //             fSum    += table[i][columnIndex].factor;
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+
+    // const getColumnSubTotal = (table, rowIndex, columnIndex) => {
+    //     let counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
+    //         if (table[i][columnIndex].type === 'value') {
+    //             counter += 1;
+    //             dSum    += table[i][columnIndex].denominator;
+    //             nSum    += table[i][columnIndex].numerator;
+    //             fSum    += table[i][columnIndex].factor;
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+
+    // const getRowSubTotal = (table, rowIndex, columnIndex) => {
+    //     let row     = table[rowIndex],
+    //         counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
+    //         if (row[i].type === 'value') {
+    //             counter += 1;
+    //             dSum    += row[i].denominator;
+    //             nSum    += row[i].numerator;
+    //             fSum    += row[i].factor;
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+
+    // const getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+    //     let counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=rowStart; i < rowEnd; i++) {
+    //         for (let j=columnStart; j < columnEnd; j++) {
+                
+    //             if (table[i][j].type === 'value') {
+    //                 counter += 1;
+    //                 dSum    += table[i][j].denominator;
+    //                 nSum    += table[i][j].numerator;
+    //                 fSum    += table[i][j].factor;
+    //             }
+                
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
+
+    // const getIntersectTotal = (table) => {
+    //     let counter = 0,
+    //         dSum    = 0,
+    //         nSum    = 0,
+    //         fSum    = 0;
+
+    //     for (let i=0; i < table.length; i++) {
+    //         for (let j=0; j < table[i].length; j++) {
+    //             if (table[i][j].type === 'value') {
+    //                 counter += 1;
+    //                 dSum    += table[i][j].denominator;
+    //                 nSum    += table[i][j].numerator;
+    //                 fSum    += table[i][j].factor;
+    //             }
+    //         }
+    //     }
+
+    //     if (dSum === 0) dSum = 1;
+
+    //     return getTrueTotal(nSum, dSum, (fSum / counter));
+    // }
 
     /** @description
      *  @returns {number}
@@ -600,6 +759,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const setRowEnd = (position) => {
         t.rowEnd = Math.min(tableRowSize + colAxis.dims - 1, position);
+        return t.rowEnd;
     };
 
     /** @description collapses parents of given object.
@@ -742,30 +902,47 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         visibleEmptyColumns = 0;
 
-        for (let i = Math.max(0, rowAxis.dims - t.columnStart), dimLeaf; i < currentTable[1].length; i++) {
+        let recursive = false,
+            hiddenColumns = 0;
+
+        for (let i = Math.max(0, rowAxis.dims - t.columnStart), dimLeaf; i < t.table[1].length; i++) {
             if (isColumnEmpty(i - (rowAxis.dims - t.columnStart))) {
 
                 visibleEmptyColumns += 1;
                 
                 if (t.rowStart < colAxis.dims) {
-                    dimLeaf = currentTable[colAxis.dims - 1 - t.rowStart][i];
+                    dimLeaf = t.table[colAxis.dims - 1 - t.rowStart][i];
                     
                     if (dimLeaf.collapsed) continue;
 
                     if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[0][i].collapsed = true;
+                        t.table[0][i].collapsed = true;
                     }
 
-                    if (dimLeaf) {
+                    if (dimLeaf && !dimLeaf.knicked) {
+                        hiddenColumns++;                
+                        dimLeaf.knicked = true;
                         recursiveReduce(dimLeaf, 'colSpan');
                     }
                 }
                 
-                currentTable[0][i].collapsed = true;
-                for (let j = 0; j < currentTable.length; j++) {
-                    currentTable[j][i].collapsed = true;
+                t.table[0][i].collapsed = true;
+                for (let j = 0; j < t.table.length; j++) {
+                    t.table[j][i].collapsed = true;
                 }
             }
+        }
+
+        for (let i = 0; i < hiddenColumns; i++) {
+            if (isColumnEmpty(t.columnEnd)) {
+                recursive = true;
+            }
+            setColumnEnd(t.columnEnd + 1)
+            appendTableColumn(t.columnEnd, t.rowStart, t.rowEnd);
+        }
+
+        if (recursive) {
+            hideEmptyColumns();
         }
     };
 
@@ -776,41 +953,48 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         visibleEmptyRows = 0;
 
-        let offset = 0,
+        let recursive = false,
             hiddenRows = 0;
 
-        for (let i = Math.max(0, colAxis.dims - t.rowStart), dimLeaf; i < currentTable.length; i++) {
+        for (let i = Math.max(0, colAxis.dims - t.rowStart), dimLeaf; i < t.table.length; i++) {
             
             if (isRowEmpty(i - (colAxis.dims - t.rowStart))) {
                 
                 visibleEmptyRows += 1;
 
                 if (t.columnStart < rowAxis.dims) {
-                    dimLeaf = currentTable[i][rowAxis.dims - 1 - t.columnStart];
+                    dimLeaf = t.table[i][rowAxis.dims - 1 - t.columnStart];
 
                     if (dimLeaf.collapsed) continue;
 
                     if (dimLeaf.type === 'dimensionSubtotal') {
-                        currentTable[i][0].collapsed = true;
+                        t.table[i][0].collapsed = true;
                     }
 
                     if (dimLeaf && !dimLeaf.knicked) {
+                        hiddenRows++;                
                         dimLeaf.knicked = true;
                         recursiveReduce(dimLeaf, 'rowSpan');
                     }
                 }
 
-                currentTable[i][0].collapsed = true;
-                for (let j = 0; j < currentTable[i].length; j++) {
-                    currentTable[i][j].collapsed = true;
+                t.table[i][0].collapsed = true;
+                for (let j = 0; j < t.table[i].length; j++) {
+                    t.table[i][j].collapsed = true;
                 }
-
-                hiddenRows++;
             }
         }
 
         for (let i = 0; i < hiddenRows; i++) {
-            appendTableRow(currentTable.length + hiddenRows, t.columnStart, t.columnEnd);
+            if (isRowEmpty(t.rowEnd)) {
+                recursive = true;
+            }
+            setRowEnd(t.rowEnd + 1)
+            appendTableRow(t.rowEnd, t.columnStart, t.columnEnd);
+        }
+
+        if (recursive) {
+            hideEmptyRows();
         }
     };
 
@@ -856,7 +1040,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const appendTableColumn = (columnIndex, rowStart, rowEnd) => {
         const column = buildTableColumn(columnIndex, rowStart, rowEnd);
         for (let i = 0; i < column.length; i++) {
-            currentTable[i].push(column[i]);
+            t.table[i].push(column[i]);
         }
     };
 
@@ -868,7 +1052,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const prependTableColumn = (columnIndex, rowStart, rowEnd) => {
         const column = buildTableColumn(columnIndex, rowStart, rowEnd);
         for (let i = 0; i < column.length; i++) {
-            currentTable[i].unshift(column[i]);
+            t.table[i].unshift(column[i]);
         }
     };
 
@@ -878,7 +1062,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @param {number} columnEnd 
      */
     const prependTableRow = (rowIndex, columnStart, columnEnd) => {
-        currentTable.unshift(buildTableRow(rowIndex, columnStart, columnEnd))
+        t.table.unshift(buildTableRow(rowIndex, columnStart, columnEnd))
     };
 
     /** @description places a new row at the bottom of the table.
@@ -887,35 +1071,35 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @param {number} columnEnd 
      */
     const appendTableRow = (rowIndex, columnStart, columnEnd) => {
-        currentTable.push(buildTableRow(rowIndex, columnStart, columnEnd));
+        t.table.push(buildTableRow(rowIndex, columnStart, columnEnd));
     };
 
     /** @description removes a column from the left side of the table
      */
     const deleteLeftColumn = () => {
-        for (let i = 0; i < currentTable.length; i++) {
-            currentTable[i].shift();
+        for (let i = 0; i < t.table.length; i++) {
+            t.table[i].shift();
         }
     };
 
     /** @description removes a column from the right side of the table
      */
     const deleteRightColumn = () => {
-        for (let i = 0; i < currentTable.length; i++) {
-            currentTable[i].pop();
+        for (let i = 0; i < t.table.length; i++) {
+            t.table[i].pop();
         }
     };
 
     /** @description removes a column from the bottom of the table
      */
     const deleteBottomRow = () => {
-        currentTable.pop();
+        t.table.pop();
     };
 
     /** @description removes a column from the top of the table
      */
     const deleteTopRow = () => {
-        currentTable.shift();
+        t.table.shift();
     };
 
     /** @description
@@ -1847,9 +2031,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         const rowSpanLimit = t.rowEnd - t.rowStart + 1;
 
         for (let i=0, x=t.columnStart, cell; i < rowAxis.dims - t.columnStart; i++, x++) {
-            for (let j=0, rowSpanCounter=0; j < currentTable.length; j++) {
+            for (let j=0, rowSpanCounter=0; j < t.table.length; j++) {
 
-                cell = currentTable[j][i];
+                cell = t.table[j][i];
 
                 if (cell.collapsed) continue;
 
@@ -1881,9 +2065,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         const colSpanLimit = t.columnEnd - t.columnStart + 1;
 
         for (let i=0, y=t.rowStart, cell; i < colAxis.dims - t.rowStart; i++, y++) {
-            for (let j=0, colSpanCounter=0; j < currentTable[i].length; j++) {
+            for (let j=0, colSpanCounter=0; j < t.table[i].length; j++) {
 
-                cell = currentTable[i][j];
+                cell = t.table[i][j];
 
                 if (cell.collapsed) continue;
 
@@ -1929,7 +2113,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             prependTableColumn(t.columnStart, t.rowStart, t.rowEnd);
         }
 
-        if (t.columnEnd < columnEnd) {
+        if (t.columnEnd < columnEnd + visibleEmptyColumns) {
             t.columnEnd++;
             appendTableColumn(t.columnEnd, t.rowStart, t.rowEnd);
         }
@@ -1939,7 +2123,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             prependTableRow(t.rowStart, t.columnStart, t.columnEnd);
         }
 
-        if (t.rowEnd < rowEnd) {
+        if (t.rowEnd < rowEnd + visibleEmptyRows) {
             t.rowEnd++;
             appendTableRow(t.rowEnd, t.columnStart, t.columnEnd);
         }
@@ -1949,7 +2133,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             deleteTopRow();
         }
 
-        if (t.rowEnd > rowEnd) {
+        if (t.rowEnd > rowEnd + visibleEmptyRows) {
             t.rowEnd--;
             deleteBottomRow();
         }
@@ -1959,27 +2143,11 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             deleteLeftColumn();
         } 
 
-        if (t.columnEnd > columnEnd) {
+        if (t.columnEnd > columnEnd  + visibleEmptyColumns) {
             t.columnEnd--;
             deleteRightColumn();
         }
     };
-
-    const renderFull = () => {
-        setColumnStart(columnStart);
-        setColumnEnd(columnStart + getTableRenderWidth());
-    
-        setRowStart(rowStart);
-        setRowEnd(rowStart + getTableRenderHeight());
-        
-        currentTable = buildTable();
-        
-        updateTableParameters();
-
-        let htmlArray = buildHtmlArray();
-
-        return buildHtmlTable(htmlArray);
-    }
 
     /** @description renders table given a rowstart and column start.
      *  @param   {number} [rowStart=0]
@@ -1988,23 +2156,16 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const renderTable = (rowStart=0, columnStart=0) => {
 
-        if (!doTableClipping()) {
-            setColumnStart(0);
-            setColumnEnd(tableColumnSize + rowAxis.dims);
-        
-            setRowStart(0);
-            setRowEnd(tableRowSize + colAxis.dims);
-        } else {
-            setColumnStart(columnStart);
-            setColumnEnd(columnStart + getTableRenderWidth());
-        
-            setRowStart(rowStart);
-            setRowEnd(rowStart + getTableRenderHeight());
-        }
+        const renderWidth = getColumnEnd(columnStart),
+              renderHeight = getRowEnd(rowStart);
 
-        currentTable = buildTable();
+        setColumnStart(columnStart);
+        setColumnEnd(renderWidth);
+    
+        setRowStart(rowStart);
+        setRowEnd(renderHeight);
 
-        console.log(currentTable);
+        t.table = buildTable();
 
         updateTableParameters();
 
@@ -2047,9 +2208,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     const buildHtmlArray = () => {
         return arrayClean([].concat(
-            options.skipTitle || t.rowStart > 0 ? [] : buildTableTitle(currentTable[0].length) || [],
-            buildTableFilter(currentTable[0].length) || [],
-            buildHtmlRows(currentTable)
+            options.skipTitle || t.rowStart > 0 ? [] : buildTableTitle(t.table[0].length) || [],
+            buildTableFilter(t.table[0].length) || [],
+            buildHtmlRows(t.table)
         ));
     };
 
@@ -2107,7 +2268,3 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 PivotTable.prototype.getUuidObjectMap = function() {
     return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
 };
-
-
-
-
