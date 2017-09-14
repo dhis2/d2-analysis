@@ -353,7 +353,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             return Math.min(getTableRenderWidth() + columnStart, tableColumnSize + rowAxis.dims - 1);
         }
 
-        return tableColumnSize + rowAxis.dims - 1; 
+        return tableColumnSize + rowAxis.dims - 1;
     };
 
     /** @description gets the total sum of all cells in given column index.
@@ -372,158 +372,16 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         return valueLookup[rowIndex][tableColumnSize - 1];
     };
     
+    /** @description
+     *  @param   {any} numerator 
+     *  @param   {any} denominator 
+     *  @param   {any} factor 
+     *  @returns 
+     */
     const getTrueTotal = (numerator, denominator, factor) => {
         return numerator * factor / denominator;
     }
-
-    // const getRowObjectTotal = (row) => {
-    //     let counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=0; i < row.length; i++) {
-    //         if (row[i].type === 'value') {
-    //             counter += 1;
-    //             dSum    += row[i].denominator;
-    //             nSum    += row[i].numerator;
-    //             fSum    += row[i].factor;
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
     
-    // const getRowTotal = (table, rowIndex) => {
-    //     let row     = table[rowIndex],
-    //         counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=0; i < row.length; i++) {
-    //         if (row[i].type === 'value') {
-    //             counter += 1;
-    //             dSum    += row[i].denominator;
-    //             nSum    += row[i].numerator;
-    //             fSum    += row[i].factor;
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
-    // const getColumnTotal = (table, columnIndex) => {
-    //     let counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=0; i < table.length; i++) {
-    //         if (table[i][columnIndex].type === 'value') {
-    //             counter += 1;
-    //             dSum    += table[i][columnIndex].denominator;
-    //             nSum    += table[i][columnIndex].numerator;
-    //             fSum    += table[i][columnIndex].factor;
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
-    // const getColumnSubTotal = (table, rowIndex, columnIndex) => {
-    //     let counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
-    //         if (table[i][columnIndex].type === 'value') {
-    //             counter += 1;
-    //             dSum    += table[i][columnIndex].denominator;
-    //             nSum    += table[i][columnIndex].numerator;
-    //             fSum    += table[i][columnIndex].factor;
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
-    // const getRowSubTotal = (table, rowIndex, columnIndex) => {
-    //     let row     = table[rowIndex],
-    //         counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
-    //         if (row[i].type === 'value') {
-    //             counter += 1;
-    //             dSum    += row[i].denominator;
-    //             nSum    += row[i].numerator;
-    //             fSum    += row[i].factor;
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
-    // const getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
-    //     let counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=rowStart; i < rowEnd; i++) {
-    //         for (let j=columnStart; j < columnEnd; j++) {
-                
-    //             if (table[i][j].type === 'value') {
-    //                 counter += 1;
-    //                 dSum    += table[i][j].denominator;
-    //                 nSum    += table[i][j].numerator;
-    //                 fSum    += table[i][j].factor;
-    //             }
-                
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
-    // const getIntersectTotal = (table) => {
-    //     let counter = 0,
-    //         dSum    = 0,
-    //         nSum    = 0,
-    //         fSum    = 0;
-
-    //     for (let i=0; i < table.length; i++) {
-    //         for (let j=0; j < table[i].length; j++) {
-    //             if (table[i][j].type === 'value') {
-    //                 counter += 1;
-    //                 dSum    += table[i][j].denominator;
-    //                 nSum    += table[i][j].numerator;
-    //                 fSum    += table[i][j].factor;
-    //             }
-    //         }
-    //     }
-
-    //     if (dSum === 0) dSum = 1;
-
-    //     return getTrueTotal(nSum, dSum, (fSum / counter));
-    // }
-
     /** @description
      *  @returns {number}
      */
@@ -789,8 +647,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         const rric = new ResponseRowIdCombination();
 
         // TODO: THIS NEEDS FIXING: PERFORMANCE BOTTLENECK
-        rric.add(colAxis.type ? colAxis.ids[columnIndex] : '');
-        rric.add(rowAxis.type ? rowAxis.ids[rowIndex] : '');
+        if (colAxis.type) rric.add(colAxis.ids[columnIndex]);
+        if (rowAxis.type) rric.add(rowAxis.ids[rowIndex]);
 
         return rric;
     }
@@ -2240,6 +2098,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         valueLookup = createValueLookup(tableRowSize, tableColumnSize);
         typeLookup  = createTypeLookup(tableRowSize, tableColumnSize);
+
+        console.log(idValueMap);
 
         console.log("rows:", valueLookup.length, "columns:", valueLookup[0].length, "cells", valueLookup.length * valueLookup[0].length);
     }());
