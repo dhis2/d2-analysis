@@ -126,6 +126,9 @@ WestRegionTrackerItems = function(refs) {
             this.clearFilter();
 
             if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
+                // reset to all to avoid the situation where in ER if PI is selected is shown
+                // as selected also when switching to the aggregate tab
+                dataElementType.select('all');
                 dataElementType.store.filterBy(record => { return record.data.id != 'pi' });
 
                 this.filterBy(function(record) {
