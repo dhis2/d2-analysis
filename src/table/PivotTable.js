@@ -73,6 +73,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         recursiveReduce,
         getUniqueFactor,
         isRowEmpty,
+        isSubRowEmpty,
+        isSubColumnEmpty,
+        isIntersectSubEmpty,
+        isIntersectTotalEmpty,
         isSingleRowEmpty,
         isColumnEmpty,
         getTrueTotal,
@@ -380,7 +384,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     //TODO: have all cell creation go through this function
-    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
+    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=true, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
         var cell = {}
 
         cell.uuid = _uuid || generateUuid ? uuid() : null;
@@ -425,6 +429,43 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         for (var i = 0; i < table[index].length; i++) {
             if (!table[index][i].empty) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    isSubRowEmpty = (table, rowIndex, columnIndex) => {
+        for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
+            if (!table[rowIndex][i].empty) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    isSubColumnEmpty = (table, rowIndex, columnIndex) => {
+        for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
+            if (!table[i][columnIndex].empty) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    isIntersectSubEmpty = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+        for (let i=rowStart; i < rowEnd; i++) {
+            for (let j=columnStart; j < columnEnd; j++) {
+                if (!table[i][j].empty) return false;
+            }
+        }
+        return true;
+    }
+
+    isIntersectTotalEmpty = (table) => {
+        for (let i=0; i < table.length; i++) {
+            for (let j=0; j < table[i].length; j++) {
+                if (table[i][j].empty) return false;
             }
         }
         return true;
@@ -845,70 +886,44 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     setEmptyCells = function (table) {
-
-        var columnTotalEmpties = new Array(table[1].length).fill(0),
-            columnSubEmpties = new Array(table[1].length).fill(0);
-
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotalEmpty=0, rowSubEmpty=0, rowIntesectEmpty = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
+                var cell = table[i][j];
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        if (rowSubEmpty >= colUniqueFactor) setCellEmpty(cell);
-                        rowSubEmpty = 0;
+                        if (isSubRowEmpty(table, i, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-subtotal': {
-                        if (columnSubEmpties[j] >= rowUniqueFactor) {
-                            setCellEmpty(cell);
-                            rowIntesectEmpty++;
-                        }
-                        columnSubEmpties[j] = 0;
+                        if (isSubColumnEmpty(table, i, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        if (columnSubEmpties[j] >= rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
-                        columnSubEmpties[j] = 0;
+                        if (isIntersectSubEmpty(table, i - rowUniqueFactor, i, j - colUniqueFactor, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-row-total':{
-                        if (rowTotalEmpty >= colAxis.size) setCellEmpty(cell);
+                        if (isRowEmpty(table, i)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size) setCellEmpty(cell);
+                        if (isColumnEmpty(table, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        if (rowIntesectEmpty >= colAxis.size) setCellEmpty(cell);
+                        if (isIntersectSubEmpty(table, i - rowUniqueFactor, i, 0, table[i].length)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size * colUniqueFactor) setCellEmpty(cell);
+                        if (isIntersectSubEmpty(table, 0, table.length, j - colUniqueFactor, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-intersect-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size * colAxis.size) setCellEmpty(cell);
+                        if (isIntersectTotalEmpty(table)) setCellEmpty(cell);
                     } continue;
                 }
-
-                rowSubEmpty += cell.empty ? 1 : 0;
-                rowTotalEmpty += cell.empty ? 1 : 0;
-                columnSubEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
-
-                if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
-                if (colUniqueFactor > 1 && doColTotals()) {
-                    columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
             }
         }
     }
