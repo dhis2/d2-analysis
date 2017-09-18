@@ -1,16 +1,16 @@
 import style from './Style';
 
-const ShowAsEpiCurve = function (refs) {
+const NoSpaceBetweenColumns = function (refs) {
     const i18n = refs.i18nManager.get();
 
     return Ext.create('Ext.form.field.Checkbox', {
-        boxLabel: i18n.show_as_epi_curve,
+        boxLabel: i18n.no_space_between_columns,
         style: 'margin-bottom:' + style.checkboxBottomMargin + 'px'
     });
 };
 
 export {
-    ShowAsEpiCurve
+    NoSpaceBetweenColumns
 };
 
-export default ShowAsEpiCurve;
+export default NoSpaceBetweenColumns;
