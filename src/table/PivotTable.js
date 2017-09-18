@@ -73,11 +73,19 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         recursiveReduce,
         getUniqueFactor,
         isRowEmpty,
+        isSubRowEmpty,
+        isSubColumnEmpty,
+        isIntersectSubEmpty,
+        isIntersectTotalEmpty,
         isSingleRowEmpty,
         isColumnEmpty,
         getRowTotal,
-        getSingleRowTotal,
+        getRowSubTotal,
         getColumnTotal,
+        getColumnSubTotal,
+        getIntersectTotal,
+        getIntersectSubTotal,
+        getSingleRowTotal,
         setCellValue,
         setCellEmpty,
 
@@ -422,6 +430,52 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         return true;
     }
 
+    isSubRowEmpty = (table, rowIndex, columnIndex) => {
+        for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
+            if (!table[rowIndex][i].empty) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    isSubColumnEmpty = (table, rowIndex, columnIndex) => {
+        for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
+            if (!table[i][columnIndex].empty) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    isIntersectSubEmpty = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+        for (let i=rowStart; i < rowEnd; i++) {
+            for (let j=columnStart; j < columnEnd; j++) {
+                if (!table[i][j].empty) return false;
+            }
+        }
+        return true;
+    }
+
+    isIntersectTotalEmpty = (table) => {
+        for (let i=0; i < table.length; i++) {
+            for (let j=0; j < table[i].length; j++) {
+                if (!table[i][j].empty) return false;
+            }
+        }
+        return true;
+    }
+
+    isRowEmpty = function(table, index) {
+        for (var i = 0; i < table[index].length; i++) {
+            if (!table[index][i].empty) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     isSingleRowEmpty = function (row) {
         for (var i=0; i < row.length; i++) {
             if(!row[i].empty && row[i].type === 'value') return false;
@@ -443,6 +497,60 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         for(var i = 0; i < table[index].length; i++) {
             if (table[index][i].type === 'value') {
                 total += table[index][i].value;
+            }
+        }
+        return total;
+    }
+
+    getRowTotal = (table, rowIndex) => {
+        let total = 0,
+            row   = table[rowIndex];
+        for (let i=0; i < row.length; i++) {
+            if (row[i].type === 'value') total += row[i].value;
+        }
+        return total;
+    }
+
+    getColumnTotal = (table, columnIndex) => {
+        let total = 0;
+        for (let i=0; i < table.length; i++) {
+            if (table[i][columnIndex].type === 'value') total += table[i][columnIndex].value;
+        }
+        return total;
+    }
+
+    getColumnSubTotal = (table, rowIndex, columnIndex) => {
+        let total = 0;
+        for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
+            if (table[i][columnIndex].type === 'value') total += table[i][columnIndex].value;
+        }
+        return total;
+    }
+
+    getRowSubTotal = (table, rowIndex, columnIndex) => {
+        let row   = table[rowIndex],
+            total = 0;
+        for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
+            if (row[i].type === 'value') total += row[i].value;
+        }
+        return total;
+    }
+
+    getIntersectSubTotal = (table, rowStart, rowEnd, columnStart, columnEnd) => {
+        let total = 0;
+        for (let i=rowStart; i < rowEnd; i++) {
+            for (let j=columnStart; j < columnEnd; j++) {
+                if (table[i][j].type === 'value') total += table[i][j].value    
+            }
+        }
+        return total;
+    }
+
+    getIntersectTotal = (table) => {
+        let total = 0;
+        for (let i=0; i < table.length; i++) {
+            for (let j=0; j < table[i].length; j++) {
+                if (table[i][j].type === 'value') total += table[i][j].value;
             }
         }
         return total;
@@ -673,146 +781,91 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
 
     setTotalCells = function (table) {
-
-        var columnTotals = new Array(table[0].length).fill(0),
-            columnSubTotals = new Array(table[0].length).fill(0);
-
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotal=0, rowSubTotal=0, intersectRow = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
+                const cell = table[i][j];
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        setCellValue(cell, rowSubTotal);
-                        rowSubTotal = 0;
+                        setCellValue(cell, getRowSubTotal(table, i, j));
                     } continue;
 
                     case 'value-column-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        intersectRow += columnSubTotals[j];
-                        columnSubTotals[j] = 0;
+                        setCellValue(cell, getColumnSubTotal(table, i, j));
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        setCellValue(cell, columnSubTotals[j]);
-                        columnSubTotals[j] = 0;
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-row-total':{
-                        setCellValue(cell, rowTotal);
+                        setCellValue(cell, getRowTotal(table, i));
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        setCellValue(cell, intersectRow);
+                        setCellValue(cell, getIntersectSubTotal(table, i - rowUniqueFactor, i, 0, table[i].length));
                     } continue;
 
                     case 'value-column-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getColumnTotal(table, j));
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getIntersectSubTotal(table, 0, table.length, j - colUniqueFactor, j));
                     } continue;
 
                     case 'value-intersect-total': {
-                        setCellValue(cell, columnTotals[j]);
+                        setCellValue(cell, getIntersectTotal(table));
+                        console.log(cell);
                     } continue;
-                }
-
-                rowTotal += cell.value;
-                rowSubTotal += cell.value;
-                columnSubTotals[j] += cell.value;
-                columnTotals[j] += cell.value;
-
-                if (doRowTotals()) {
-                    columnTotals[table[i].length - 1] += cell.value;
-                }
-
-                if (colUniqueFactor > 1 && doColSubTotals()) {
-                    columnSubTotals[nextSubCell] += cell.value;
-                }
-
-                if (colUniqueFactor > 1 && doColTotals()) {
-                    columnTotals[nextSubCell] += cell.value;
                 }
             }
         }
-        console.log(0, columnTotals)
     }
 
     setEmptyCells = function (table) {
 
-        var columnTotalEmpties = new Array(table[0].length).fill(0),
-            columnSubEmpties = new Array(table[0].length).fill(0);
-
         for (var i=0; i < table.length; i++) {
             for (var j=0, rowTotalEmpty=0, rowSubEmpty=0, rowIntesectEmpty = 0; j < table[i].length; j++) {
 
-                var cell = table[i][j],
-                    nextSubCell = j + ((colUniqueFactor + 1) - (j % (colUniqueFactor + 1))) - 1;
+                const cell = table[i][j];
 
                 switch (cell.type) {
                     case 'value-row-subtotal': {
-                        if (rowSubEmpty >= colUniqueFactor) setCellEmpty(cell);
-                        rowSubEmpty = 0;
+                        if (isSubRowEmpty(table, i, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-subtotal': {
-                        if (columnSubEmpties[j] >= rowUniqueFactor) {
-                            setCellEmpty(cell);
-                            rowIntesectEmpty++;
-                        }
-                        columnSubEmpties[j] = 0;
+                        if (isSubColumnEmpty(table, i, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-intersect-subtotal': {
-                        if (columnSubEmpties[j] >= rowUniqueFactor * colUniqueFactor) setCellEmpty(cell);
-                        columnSubEmpties[j] = 0;
+                        if (isIntersectSubEmpty(table, i - rowUniqueFactor, i, j - colUniqueFactor, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-row-total':{
-                        if (rowTotalEmpty >= colAxis.size) setCellEmpty(cell);
+                        if (isRowEmpty(table, i)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size) setCellEmpty(cell);
+                        if (isColumnEmpty(table, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-row-intersect-total': {
-                        if (rowIntesectEmpty >= colAxis.size) setCellEmpty(cell);
+                        if (isIntersectSubEmpty(table, i - rowUniqueFactor, i, 0, table[i].length)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-column-intersect-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size * colUniqueFactor) setCellEmpty(cell);
+                        if (isIntersectSubEmpty(table, 0, table.length, j - colUniqueFactor, j)) setCellEmpty(cell);
                     } continue;
 
                     case 'value-intersect-total': {
-                        if (columnTotalEmpties[j] >= rowAxis.size * colAxis.size) setCellEmpty(cell);
+                        if (isIntersectTotalEmpty(table)) setCellEmpty(cell);
                     } continue;
                 }
-
-                rowSubEmpty += cell.empty ? 1 : 0;
-                rowTotalEmpty += cell.empty ? 1 : 0;
-                columnSubEmpties[j] += cell.empty ? 1 : 0;
-                columnTotalEmpties[j] += cell.empty ? 1 : 0;
-
-                if(doRowTotals()) {
-                    columnTotalEmpties[table[i].length - 1] += cell.empty ? 1 : 0;
-                }
-
-                if (colUniqueFactor >= 1 && doRowSubTotals()) {
-                    columnSubEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
-                if (colUniqueFactor >= 1 && doRowSubTotals()) {
-                    columnTotalEmpties[nextSubCell] += cell.empty ? 1 : 0;
-                }
-
             }
         }
-
     }
 
     getValueObjectArray = function() {
@@ -1070,6 +1123,8 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         // build value table
         valueAllObjects = getValueObjectArray();
+
+        console.log("hello")
 
         // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
