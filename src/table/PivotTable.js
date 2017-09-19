@@ -423,7 +423,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isRowEmpty = function(table, index) {
         for (var i = 0; i < table[index].length; i++) {
-            if (!table[index][i].empty) {
+            if (!table[index][i].empty && table[index][i].type === "value") {
                 return false;
             }
         }
@@ -432,7 +432,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSubRowEmpty = (table, rowIndex, columnIndex) => {
         for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
-            if (!table[rowIndex][i].empty) {
+            if (!table[rowIndex][i].empty && table[rowIndex][i].type === "value") {
                 return false;
             }
         }
@@ -442,7 +442,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSubColumnEmpty = (table, rowIndex, columnIndex) => {
         for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
-            if (!table[i][columnIndex].empty) {
+            if (!table[i][columnIndex].empty && table[i][columnIndex].type === "value") {
                 return false;
             }
         }
@@ -452,7 +452,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     isIntersectSubEmpty = (table, rowStart, rowEnd, columnStart, columnEnd) => {
         for (let i=rowStart; i < rowEnd; i++) {
             for (let j=columnStart; j < columnEnd; j++) {
-                if (!table[i][j].empty) return false;
+                if (!table[i][j].empty  && table[i][j].type === "value") {
+                    return false;
+                }
             }
         }
         return true;
@@ -461,16 +463,9 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     isIntersectTotalEmpty = (table) => {
         for (let i=0; i < table.length; i++) {
             for (let j=0; j < table[i].length; j++) {
-                if (!table[i][j].empty) return false;
-            }
-        }
-        return true;
-    }
-
-    isRowEmpty = function(table, index) {
-        for (var i = 0; i < table[index].length; i++) {
-            if (!table[index][i].empty) {
-                return false;
+                if (!table[i][j].empty && table[i][j].type === "value"){
+                    return false;
+                } 
             }
         }
         return true;
@@ -478,14 +473,16 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSingleRowEmpty = function (row) {
         for (var i=0; i < row.length; i++) {
-            if(!row[i].empty && row[i].type === 'value') return false;
+            if(!row[i].empty && row[i].type === "value") {
+                return false;
+            }
         }
         return true;
     }
 
     isColumnEmpty = function(table, index) {
         for (var i = 0; i < table.length; i++) {
-            if (!table[i][index].empty) {
+            if (!table[i][index].empty && table[i][index].type === "value") {
                 return false;
             }
         }
@@ -495,7 +492,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     getRowTotal = function(table, index) {
         let total = 0;
         for(var i = 0; i < table[index].length; i++) {
-            if (table[index][i].type === 'value') {
+            if (table[index][i].type === "value") {
                 total += table[index][i].value;
             }
         }
@@ -506,7 +503,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
         let total = 0,
             row   = table[rowIndex];
         for (let i=0; i < row.length; i++) {
-            if (row[i].type === 'value') total += row[i].value;
+            if (row[i].type === "value") total += row[i].value;
         }
         return total;
     }
@@ -706,18 +703,21 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     getColAxisObjectArray = function() {
-        var colAxisArray = []
+        let colAxisArray = [];
+        
         if (!colAxis.type) {
             // show row dimension labels
             if (rowAxis.type && layout.showDimensionLabels) {
+
                 colAxisArray.push([]);
                 // colAxisArray from row object names
                 for (var i = 0; i < rowDimensionNames.length; i++) {
-                    colAxisArray[i].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
+                    colAxisArray[0].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
                 }
             }
             return colAxisArray;
         }
+
 
         // for each col dimension
         for (var i = 0; i < colAxis.dims; i++) {
@@ -730,9 +730,11 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             else if (colAxis.type && rowAxis.type) {
                 if(i === 0) {
                     colAxisArray[i].push(createCell('&nbsp;', 'pivot-empty', 'empty', {colSpan: rowAxis.dims, rowSpan: colAxis.dims}));
-                    for (var j = 0; j < rowAxis.dims - 1; j++) colAxisArray[i].push(createCell('', 'pivot-empty', 'empty', {hidden: true}));
+                    for (var j = 0; j < rowAxis.dims - 1; j++)
+                        colAxisArray[i].push(createCell('', 'pivot-empty', 'empty', {hidden: true}));
                 } else {
-                    for (var j = 1; j <= rowAxis.dims; j++) colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true, colSpan: rowAxis.dims, rowSpan: colAxis.dims - j}));
+                    for (var j = 1; j <= rowAxis.dims; j++)
+                        colAxisArray[i].push(createCell(null, 'pivot-empty', 'empty', {hidden: true, colSpan: rowAxis.dims, rowSpan: colAxis.dims - j}));
                 }
             }
 
@@ -817,7 +819,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
                     case 'value-intersect-total': {
                         setCellValue(cell, getIntersectTotal(table));
-                        console.log(cell);
                     } continue;
                 }
             }
@@ -1123,8 +1124,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         // build value table
         valueAllObjects = getValueObjectArray();
-
-        console.log("hello")
 
         // combine axes with value table
         completeTableObjects = combineTable(rowAxisAllObjects, colAxisAllObjects, valueAllObjects);
