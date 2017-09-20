@@ -122,7 +122,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     layout = new Layout(refs, layoutConfig);
 
     if (layout) {
-        favorite && fromFavorite ? 
+        layout = favorite && fromFavorite ? 
             favorite.apply(layout, Object.keys(layout)) : 
             layout.apply(favorite);
     }

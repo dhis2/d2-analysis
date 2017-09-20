@@ -203,11 +203,12 @@ Layout.prototype.alert = function(text, noError) {
 };
 
 Layout.prototype.apply = function(obj, keys) {
-    if (!isObject(obj)) {
-        return;
-    }
-
+    
     var t = this;
+
+    if (!isObject(obj)) {
+        return t;
+    }
 
     var preservedProps = ['name', 'description'];
 
