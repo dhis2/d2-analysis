@@ -412,7 +412,7 @@ EastRegion = function(c) {
                                 listeners: {
                                     render: function() {
                                         this.getEl().on('click', function() {
-                                            window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id;
+                                            window.location.href = path + '/dhis-web-messaging/profile.action?id=' + comment.user.id;
                                         });
                                     }
                                 }
@@ -631,7 +631,7 @@ EastRegion = function(c) {
                             var element = this.getEl();
 
                             element.on('click', function() {
-                                window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
+                                window.location.href = path + '/dhis-web-messaging/profile.action?id=' + interpretation.user.id;
                             });
                         }
                     }
