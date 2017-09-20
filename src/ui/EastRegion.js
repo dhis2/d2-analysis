@@ -62,8 +62,13 @@ EastRegion = function(c) {
                 if (description == undefined) {
                     description = i18n.no_description;
                 }
+
                 var isTooLongDescription = (description.length > descriptionMaxNumberCharacter);
                 var shortDescription = description.substring(0, descriptionMaxNumberCharacter) + ' ... ';
+
+                // DHIS2-2210: render line breaks
+                description = description.replace(/\n/g, '<br />');
+                shortDescription = shortDescription.replace(/\n/g, '<br />');
 
                 // Description label
                 descriptionItems.push({
