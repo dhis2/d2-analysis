@@ -169,7 +169,8 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
                 url: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
                 type: 'PATCH',
                 data: JSON.stringify({}),
-                dataType: 'json',
+                // avoid jQuery choke on empty 200 Success response
+                dataType: 'text',
                 headers: appManager.defaultRequestHeaders,
                 success: function(sharing) {
                     var layout = new Layout(refs, r, {permission: "write"});
