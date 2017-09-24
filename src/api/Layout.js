@@ -766,6 +766,17 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
                 if (fn) {
                     fn(id, success, r);
                 }
+            },
+            error: function(r) {
+                if (arrayContains([403], parseInt(r.httpStatusCode))) {
+                    r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
+                }
+
+                if (doMask) {
+                    uiManager.unmask();
+                }
+    
+                uiManager.alert(r);
             }
         });
 
