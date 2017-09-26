@@ -501,6 +501,11 @@ WestRegionTrackerItems = function(refs) {
         switch (type) {
             case 'all':
                 store.clearFilter();
+
+                // filter out PI if in aggregated tab
+                if (uiManager.disallowProgramIndicators || (uiManager.get('dataTypeToolbar').getDataType() === dimensionConfig.dataType['aggregated_values'])) {
+                    store.filterBy(record => ( ! record.data.isProgramIndicator ));
+                }
                 break;
             case 'de':
                 store.filterBy(record => {
