@@ -62,7 +62,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     }
 
     const aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
-        return arrayRepeat(ids, aAccFloorWidth[index - 1]);
+        return  arrayRepeat(ids, aAccFloorWidth[index - 1]);
     });
 
     const aaAllFloorIds = aaGuiFloorIds.map((id, index) => {

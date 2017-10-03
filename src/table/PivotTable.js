@@ -18,7 +18,6 @@ import { ResponseRowIdCombination } from '../api/ResponseRowIdCombination';
 import { isColorBright } from '../util/colorUtils';
 
 import { toRow,
-         deleteRow,
          getPercentageHtml,
          buildTable2D } from './PivotTableUtils';
 
@@ -968,11 +967,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         if (!layout.filters) return;
 
         let text = layout.filters.getRecordNames(false, layout.getResponse(), true),
-            row = new Array(1);
 
-        row[0] = buildHtmlCell(FilterCell(text, getTopBarSpan(span)));
-
-        return [row];
+        return [
+            [buildHtmlCell(FilterCell(text, getTopBarSpan(span)))]
+        ];
     };
 
     /** @description builds the title row of the table which will be placed at the top.
@@ -982,13 +980,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      */
     const buildTableTitle = (span) => {
         if (!layout.title) return;
-
-        var text = layout.title,
-            row = new Array(1);
-
-        row[0] = buildHtmlCell(FilterCell(text, getTopBarSpan(span)));
-
-        return [row];
+        return [
+            [buildHtmlCell(FilterCell(layout.title, getTopBarSpan(span)))]
+        ];
     };
 
     /** @description builds a single column of the column axis.
@@ -1551,8 +1545,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         let htmlValue = getHtmlValue(config);
 
         if (isString(config.sort)) {
-            sortableIdObjects.push({
-                
+            sortableIdObjects.push({     
                 id: config.sort,
                 uuid: config.uuid
             });
@@ -2090,6 +2083,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     (function() {
         colUniqueFactor = getUniqueFactor(colAxis);
         rowUniqueFactor = getUniqueFactor(rowAxis);
+        
         columnDimensionNames = colAxis.type ? layout.columns.getDimensionNames(response) : [];
         rowDimensionNames = rowAxis.type ? layout.rows.getDimensionNames(response) : [];
 
@@ -2098,8 +2092,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         valueLookup = createValueLookup(tableRowSize, tableColumnSize);
         typeLookup  = createTypeLookup(tableRowSize, tableColumnSize);
-
-        console.log(idValueMap);
 
         console.log("rows:", valueLookup.length, "columns:", valueLookup[0].length, "cells", valueLookup.length * valueLookup[0].length);
     }());

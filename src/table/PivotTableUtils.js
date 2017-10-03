@@ -66,26 +66,6 @@ export const getNumberOfDecimals = (number) => {
     return (str.indexOf('.') > -1) ? (str.length - str.indexOf('.') - 1) : 0;
 };
 
-/** @description deletes a number of rows of given table at given row index.
- *  @param {array} table 
- *  @param {number} rowIndex
- *  @param {number} [quantity=1] 
- */
-export const deleteRow = (table, rowIndex, quantity=1) => {
-    table.splice(rowIndex, quantity);
-};
-
-/** @description deletes a number of columns of given table at given column index.
- *  @param {array} table 
- *  @param {number} columnIndex 
- *  @param {number} [quantity=1] 
- */
-export const deleteColumn = (table, columnIndex, quantity=1) => {
-    for (let i = 0; i < table.length; i++) {
-        table[i].splice(columnIndex, quantity);
-    }
-};
-
 /** @description returns the rounded value of the given float.
  *  @param   {number} value 
  *  @param   {number} [dec=2] 
