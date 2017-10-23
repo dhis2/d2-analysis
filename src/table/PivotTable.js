@@ -61,10 +61,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
           legendDisplayStrategy = layout.legendDisplayStrategy,
     
           // utils
-          idValueMap = response.getIdValueMap(layout),
-          idNumeratorMap = response.getIdNumeratorMap(layout),
-          idDenominatorMap = response.getIdDenominatorMap(layout),
-          idFactorMap = response.getIdFactorMap(layout),
+          idValueMap = response.getIdMap(layout, 'value', 'idValueMap'),
+        //   idNumeratorMap = response.getIdNumeratorMap(layout),
+        //   idDenominatorMap = response.getIdDenominatorMap(layout),
+        //   idFactorMap = response.getIdFactorMap(layout),
           sortableIdObjects = []; //todo
 
     // inititalize global variables
@@ -90,9 +90,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         // size
         tableRowSize,
-        tableColumnSize,
-
-        tdCount = 0;
+        tableColumnSize;
 
     /** @description checks if show column totals is enabled.
      *  @returns {boolean}
@@ -168,7 +166,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
      *  @returns {boolean}
      */
     const doTableClipping = () => {
-        return !!options.dynamic || true;
+        return !!options.dynamic;
     };
 
     /** @description checks if sticky columns is enabled.
@@ -372,16 +370,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     };
     
     /** @description
-     *  @param   {any} numerator 
-     *  @param   {any} denominator 
-     *  @param   {any} factor 
-     *  @returns 
-     */
-    const getTrueTotal = (numerator, denominator, factor) => {
-        return numerator * factor / denominator;
-    }
-    
-    /** @description
      *  @returns {number}
      */
     const getTopPadding = () => {
@@ -528,9 +516,9 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     };
     
     /** @description
-     * @param   {object} cell
-     * @param   {number} x
-     * @returns {object}
+     *  @param   {object} cell
+     *  @param   {number} x
+     *  @returns {object}
      */
     const getAdjustedRowSpan = (cell, x) => {
         if (cell.children) {
@@ -709,12 +697,12 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
                 if (isColumnSubTotal(x))                               lookup[y][x] = 1;
 
                 // calculate grand totals
-                if (isRowGrandTotal(y))                                lookup[y][x] = 2;
                 if (isColumnGrandTotal(x))                             lookup[y][x] = 2;
+                if (isRowGrandTotal(y))                                lookup[y][x] = 2;
                 
                 // calculate intersection totals
-                if (isColumnSubTotal(x) && isRowSubTotal(y))           lookup[y][x] = 1;
-                if (isColumnGrandTotal(x) && isRowGrandTotal(y))       lookup[y][x] = 2;
+                if (isColumnSubTotal(x) && isRowSubTotal(y))     lookup[y][x] = 1;
+                if (isColumnGrandTotal(x) && isRowGrandTotal(y)) lookup[y][x] = 2;
             }
         }
         return lookup;
@@ -743,14 +731,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         return cell;
     };
-
-    const getRowValuePosition = (rowIndex) => {
-        return rowIndex - Math.floor(rowIndex / (rowUniqueFactor + 1));
-    }
-
-    const getColumnValuePosition = (columnIndex) => {
-        return columnIndex - Math.floor(columnIndex / (colUniqueFactor + 1));
-    }
 
     /** @description hides empty columns in table
      *  @param {array} table 
@@ -966,7 +946,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     const buildTableFilter = (span) => {
         if (!layout.filters) return;
 
-        let text = layout.filters.getRecordNames(false, layout.getResponse(), true),
+        let text = layout.filters.getRecordNames(false, layout.getResponse(), true);
 
         return [
             [buildHtmlCell(FilterCell(text, getTopBarSpan(span)))]
@@ -1106,7 +1086,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
             if (isColumnGrandTotal(x)) {
                 if (rowIndex === t.rowStart) row[i] = DimensionGrandTotalCell('Total', 1, colAxis.dims - rowIndex, doSortableColumnHeaders(), false);
-                else         row[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - rowIndex, true, true);
+                else                         row[i] = DimensionSubTotalCell('&nbsp;', 1, colAxis.dims - rowIndex, true, true);
                 continue
             }
 
@@ -1538,9 +1518,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
             return '';
         }
 
-        // count number of cells
-        tdCount += 1;
-
         // html value
         let htmlValue = getHtmlValue(config);
 
@@ -1728,7 +1705,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         return buildHtmlCell(cell);
     }
 
-    /** @description
+    /** @description 
      *  @returns {string}
      */
     const buildRightPaddingHtmlCell = () => {
@@ -1766,7 +1743,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         let cls           = '',
             startRowIndex = 0, //Math.max(0, colAxis.dims  - t.rowStart),
             endRowIndex   = htmlArray.length;
-
             
         return `
             <tbody class="${cls}">
@@ -1807,8 +1783,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     };
 
     const buildHtmlColumnDimensionTable = (htmlArray) => {
-        let cls   = 'pivot pivot-sticky-column-2',
-            rows  = htmlArray.splice(0, colAxis.dims);
+        let cls  = 'pivot pivot-sticky-column-2',
+            rows = htmlArray.splice(0, colAxis.dims);
         
         return `
             <table class="${cls}">
@@ -2092,9 +2068,14 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
         valueLookup = createValueLookup(tableRowSize, tableColumnSize);
         typeLookup  = createTypeLookup(tableRowSize, tableColumnSize);
-
-        console.log("rows:", valueLookup.length, "columns:", valueLookup[0].length, "cells", valueLookup.length * valueLookup[0].length);
+        
+        console.log(
+            "rows:", valueLookup.length,
+            "columns:", valueLookup[0].length,
+            "cells", valueLookup.length * valueLookup[0].length);
     }());
+
+
 
     // constructor
     t.render = renderTable;
@@ -2104,7 +2085,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     t.dynamic = doTableClipping();
     t.idValueMap = idValueMap;
-    t.tdCount = tdCount;
     t.layout = layout;
     t.response = response;
     t.colAxis = colAxis;
@@ -2113,10 +2093,12 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     t.cellWidth = 120;
     t.cellHeight = 25;
 
-    // public functions
     t.setWindowSize = setWindowSize;
 };
 
 PivotTable.prototype.getUuidObjectMap = function() {
-    return objectApplyIf((this.colAxis ? this.colAxis.uuidObjectMap || {} : {}), (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {}));
+    return objectApplyIf(
+        (this.colAxis ? this.colAxis.uuidObjectMap || {} : {}),
+        (this.rowAxis ? this.rowAxis.uuidObjectMap || {} : {})
+    );
 };

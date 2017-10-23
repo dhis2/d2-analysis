@@ -29,7 +29,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     else if (type === 'row') {
         aDimensions = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'rowSpan';
-    }
+    }   
 
     if (!(isArray(aDimensions) && aDimensions.length)) {
         return;

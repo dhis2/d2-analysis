@@ -53,6 +53,7 @@ export const toRow = (array) => {
             row[j].push(array[i][j]);
         }
     }
+    
     return row;
 }
 
