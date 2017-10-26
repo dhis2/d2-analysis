@@ -391,10 +391,10 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         cell.cls = cls;
         cell.value = value ? value : '';
+        cell.empty = empty;
         cell.cls += (empty ? ' cursor-default' : '');
         cell.colSpan = colSpan;
         cell.rowSpan = rowSpan;
-        cell.empty = empty;
         cell.hidden = hidden;
         cell.type = type;
         cell.dxId = dxId;
@@ -416,6 +416,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     setCellValue = function(cell, value) {
         cell.value = value;
+        cell.empty = value ? false : true;
         cell.htmlValue = getRoundedHtmlValue(value);
     }
 
