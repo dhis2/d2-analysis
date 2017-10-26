@@ -129,11 +129,9 @@ WestRegionTrackerItems = function(refs) {
                 // reset to all to avoid the situation where in ER if PI is selected is shown
                 // as selected also when switching to the aggregate tab
                 dataElementType.select('all');
-                dataElementType.store.filterBy(record => { return record.data.id != 'pi' });
+                dataElementType.store.filterBy(record => ( record.data.id != 'pi' ));
 
-                this.filterBy(function(record) {
-                    return !record.data.isProgramIndicator;
-                });
+                this.filterBy(record => ( ! record.data.isProgramIndicator ));
             }
             else {
                 dataElementType.store.clearFilter();
@@ -501,21 +499,20 @@ WestRegionTrackerItems = function(refs) {
         switch (type) {
             case 'all':
                 store.clearFilter();
+
+                // filter out PI if in aggregated tab
+                if (uiManager.disallowProgramIndicators || (uiManager.get('dataTypeToolbar').getDataType() === dimensionConfig.dataType['aggregated_values'])) {
+                    store.filterBy(record => ( ! record.data.isProgramIndicator ));
+                }
                 break;
             case 'de':
-                store.filterBy(record => {
-                    return ! record.data.isAttribute && ! record.data.isProgramIndicator;
-                });
+                store.filterBy(record => ( ! record.data.isAttribute && ! record.data.isProgramIndicator ));
                 break;
             case 'pa':
-                store.filterBy(record => {
-                    return record.data.isAttribute;
-                });
+                store.filterBy(record => ( record.data.isAttribute ));
                 break;
             case 'pi':
-                store.filterBy(record => {
-                    return record.data.isProgramIndicator;
-                });
+                store.filterBy(record => ( record.data.isProgramIndicator ));
                 break;
         }
     };
