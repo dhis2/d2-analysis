@@ -554,12 +554,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
             if (obj.parent && obj.parent.oldestSibling) {
                 obj.parent.oldestSibling.children--;
-                span && obj.parent.oldestSibling[span]--;
             }
+        } else {
+            span && obj.oldestSibling[span]--;
         }
 
         if (obj.parent) {
-            recursiveReduce(obj.parent.oldestSibling);
+            recursiveReduce(obj.parent.oldestSibling, span);
         }
     };
 
