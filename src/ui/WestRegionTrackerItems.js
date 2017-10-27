@@ -1999,6 +1999,7 @@ WestRegionTrackerItems = function(c) {
             }
         }
     });
+    uiManager.reg(treePanel, 'treePanel');
 
     var userOrganisationUnit = Ext.create('Ext.form.field.Checkbox', {
         columnWidth: 0.25,
