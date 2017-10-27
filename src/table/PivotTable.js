@@ -380,7 +380,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     }
 
     //TODO: have all cell creation go through this function
-    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=false, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
+    createCell = function(value, cls, type, {collapsed=false, hidden=false, empty=true, colSpan=1, rowSpan=1, generateUuid=false, numeric=false, _uuid, title, width, height, sort = null, noBreak, dxId, uuids, htmlValue}) {
         var cell = {}
 
         cell.uuid = _uuid || generateUuid ? uuid() : null;
@@ -412,6 +412,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     setCellValue = function(cell, value) {
         cell.value = value;
+        cell.empty = value ? false : true;
         cell.htmlValue = getRoundedHtmlValue(value);
     }
 
@@ -423,7 +424,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isRowEmpty = function(table, index) {
         for (var i = 0; i < table[index].length; i++) {
-            if (!table[index][i].empty && table[index][i].type === "value") {
+            if (!table[index][i].empty) {
                 return false;
             }
         }
@@ -432,7 +433,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSubRowEmpty = (table, rowIndex, columnIndex) => {
         for (let i=columnIndex - colUniqueFactor; i < columnIndex; i++) {
-            if (!table[rowIndex][i].empty && table[rowIndex][i].type === "value") {
+            if (!table[rowIndex][i].empty) {
                 return false;
             }
         }
@@ -442,7 +443,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSubColumnEmpty = (table, rowIndex, columnIndex) => {
         for (let i=rowIndex - rowUniqueFactor; i < rowIndex; i++) {
-            if (!table[i][columnIndex].empty && table[i][columnIndex].type === "value") {
+            if (!table[i][columnIndex].empty) {
                 return false;
             }
         }
@@ -452,7 +453,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     isIntersectSubEmpty = (table, rowStart, rowEnd, columnStart, columnEnd) => {
         for (let i=rowStart; i < rowEnd; i++) {
             for (let j=columnStart; j < columnEnd; j++) {
-                if (!table[i][j].empty  && table[i][j].type === "value") {
+                if (!table[i][j].empty) {
                     return false;
                 }
             }
@@ -463,7 +464,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     isIntersectTotalEmpty = (table) => {
         for (let i=0; i < table.length; i++) {
             for (let j=0; j < table[i].length; j++) {
-                if (!table[i][j].empty && table[i][j].type === "value"){
+                if (!table[i][j].empty){
                     return false;
                 } 
             }
@@ -473,7 +474,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isSingleRowEmpty = function (row) {
         for (var i=0; i < row.length; i++) {
-            if(!row[i].empty && row[i].type === "value") {
+            if(!row[i].empty) {
                 return false;
             }
         }
@@ -482,7 +483,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
     isColumnEmpty = function(table, index) {
         for (var i = 0; i < table.length; i++) {
-            if (!table[i][index].empty && table[i][index].type === "value") {
+            if (!table[i][index].empty) {
                 return false;
             }
         }
@@ -639,12 +640,13 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
             if (obj.parent && obj.parent.oldestSibling) {
                 obj.parent.oldestSibling.children--;
-                span && obj.parent.oldestSibling[span]--;
             }
+        } else {
+            span && obj.oldestSibling[span]--;
         }
 
         if (obj.parent) {
-            recursiveReduce(obj.parent.oldestSibling);
+            recursiveReduce(obj.parent.oldestSibling, span);
         }
     };
 
@@ -717,7 +719,6 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
             }
             return colAxisArray;
         }
-
 
         // for each col dimension
         for (var i = 0; i < colAxis.dims; i++) {
@@ -987,7 +988,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
 
         // update totals
         setTotalCells(table);
-
+        
         // update empties
         setEmptyCells(table);
 
