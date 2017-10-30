@@ -466,7 +466,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
     isIntersectTotalEmpty = (table) => {
         for (let i=0; i < table.length; i++) {
             for (let j=0; j < table[i].length; j++) {
-                if (table[i][j].empty) return false;
+                if (!table[i][j].empty) return false;
             }
         }
         return true;
@@ -626,7 +626,7 @@ PivotTable = function(refs, layout, response, colAxis, rowAxis, options = {}) {
                 colAxisArray.push([]);
                 // colAxisArray from row object names
                 for (var i = 0; i < rowDimensionNames.length; i++) {
-                    colAxisArray[i].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
+                    colAxisArray[0].push(createCell(response.getNameById(rowDimensionNames[i]), 'pivot-dim-label', 'empty',  {}));
                 }
             }
             return colAxisArray;
