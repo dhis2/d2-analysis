@@ -2105,6 +2105,10 @@ WestRegionTrackerItems = function(refs) {
                 treePanel.enable();
             }
             else if (param === 'group') {
+                // DHIS2-561: avoid showing the group ids in the combobox when
+                // loading a favorite and expanding the OU panel
+                organisationUnitGroupStore.load();
+
                 userOrganisationUnit.hide();
                 userOrganisationUnitChildren.hide();
                 userOrganisationUnitGrandChildren.hide();
@@ -2208,7 +2212,7 @@ WestRegionTrackerItems = function(refs) {
                     else if (record.id.substr(0,5) === 'LEVEL') {
                         levels.push(parseInt(record.id.split('-')[1]));
                     }
-                    else if (record.id === 'OU_GROUP') {
+                    else if (record.id.substr(0,8) === 'OU_GROUP') {
                         groups.push(record.id.split('-')[1]);
                     }
                     else {
