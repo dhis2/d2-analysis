@@ -2118,6 +2118,10 @@ WestRegionTrackerItems = function(c) {
                 treePanel.enable();
             }
             else if (param === 'group') {
+                // DHIS2-561: avoid showing the group ids in the combobox when
+                // loading a favorite and expanding the OU panel
+                organisationUnitGroupStore.load();
+
                 userOrganisationUnit.hide();
                 userOrganisationUnitChildren.hide();
                 userOrganisationUnitGrandChildren.hide();
@@ -2177,6 +2181,154 @@ WestRegionTrackerItems = function(c) {
         title: '<div class="ns-panel-title-organisationunit">' + i18n.organisation_units + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
+        dimension: dimensionConfig.get('organisationUnit').objectName,
+        collapsed: false,
+        clearDimension: function(doClear, skipTree) {
+            if (doClear) {
+                toolMenu.clickHandler(toolMenu.menuValue);
+
+                if (!skipTree) {
+                    treePanel.reset();
+                }
+
+                userOrganisationUnit.setValue(false);
+                userOrganisationUnitChildren.setValue(false);
+                userOrganisationUnitGrandChildren.setValue(false);
+
+                organisationUnitLevel.clearValue();
+                organisationUnitGroup.clearValue();
+            }
+        },
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
+                var dimension = layout.getDimension(this.dimension, true),
+                    parentGraphMap = layout.parentGraphMap;
+
+                var records = dimension.getRecords(),
+                    ids = [],
+                    levels = [],
+                    groups = [],
+                    isOu,
+                    isOuc,
+                    isOugc;
+
+                records.forEach(function(record) {
+                    if (record.id === 'USER_ORGUNIT') {
+                        isOu = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
+                        isOuc = true;
+                    }
+                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                        isOugc = true;
+                    }
+                    else if (record.id.substr(0,5) === 'LEVEL') {
+                        levels.push(parseInt(record.id.split('-')[1]));
+                    }
+                    else if (record.id.substr(0,8) === 'OU_GROUP') {
+                        groups.push(record.id.split('-')[1]);
+                    }
+                    else {
+                        ids.push(record.id);
+                    }
+                });
+
+                if (levels.length) {
+                    toolMenu.clickHandler('level');
+                    organisationUnitLevel.setValue(levels);
+                }
+                else if (groups.length) {
+                    toolMenu.clickHandler('group');
+                    organisationUnitGroup.setValue(groups);
+                }
+                else {
+                    toolMenu.clickHandler('orgunit');
+                    userOrganisationUnit.setValue(isOu);
+                    userOrganisationUnitChildren.setValue(isOuc);
+                    userOrganisationUnitGrandChildren.setValue(isOugc);
+                }
+
+                if (!(isOu || isOuc || isOugc)) {
+                    if (isObject(parentGraphMap)) {
+                        treePanel.selectGraphMap(parentGraphMap);
+                    }
+                }
+            }
+            else {
+                this.clearDimension(true);
+            }
+        },
+        getDimension: function() {
+            var r = treePanel.getSelectionModel().getSelection(),
+                config = {
+                    dimension: organisationUnitObjectName,
+                    items: []
+                };
+
+            if (toolMenu.menuValue === 'orgunit') {
+                if (userOrganisationUnit.getValue() || userOrganisationUnitChildren.getValue() || userOrganisationUnitGrandChildren.getValue()) {
+                    if (userOrganisationUnit.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_CHILDREN',
+                            name: ''
+                        });
+                    }
+                    if (userOrganisationUnitGrandChildren.getValue()) {
+                        config.items.push({
+                            id: 'USER_ORGUNIT_GRANDCHILDREN',
+                            name: ''
+                        });
+                    }
+                }
+                else {
+                    for (var i = 0; i < r.length; i++) {
+                        config.items.push({id: r[i].data.id});
+                    }
+                }
+            }
+            else if (toolMenu.menuValue === 'level') {
+                var levels = organisationUnitLevel.getValue();
+
+                for (var i = 0; i < levels.length; i++) {
+                    config.items.push({
+                        id: 'LEVEL-' + levels[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+            else if (toolMenu.menuValue === 'group') {
+                var groupIds = organisationUnitGroup.getValue();
+
+                for (var i = 0; i < groupIds.length; i++) {
+                    config.items.push({
+                        id: 'OU_GROUP-' + groupIds[i],
+                        name: ''
+                    });
+                }
+
+                for (var i = 0; i < r.length; i++) {
+                    config.items.push({
+                        id: r[i].data.id,
+                        name: ''
+                    });
+                }
+            }
+
+            return config.items.length ? config : null;
+        },
         items: [
             {
                 layout: 'column',
