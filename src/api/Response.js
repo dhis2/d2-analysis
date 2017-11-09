@@ -16,9 +16,7 @@ import isString from 'd2-utilizr/lib/isString';
 
 import getParseMiddleware from '../util/getParseMiddleware';
 
-export var Response;
-
-Response = function(refs, config) {
+export const Response = function(refs, config) {
     var t = this;
 
     config = isObject(config) ? config : {};
@@ -34,10 +32,10 @@ Response = function(refs, config) {
         '1': i18n.yes || 'Yes'
     };
 
-    var OUNAME = 'ouname';
-    var OU = 'ou';
+    const OUNAME = 'ouname',
+          OU = 'ou';
 
-    var DEFAULT_COLLECT_IGNORE_HEADERS = [
+    const DEFAULT_COLLECT_IGNORE_HEADERS = [
         'psi',
         'ps',
         'eventdate',
@@ -49,7 +47,7 @@ Response = function(refs, config) {
         'eventdate'
     ];
 
-    var DEFAULT_PREFIX_IGNORE_HEADERS = [
+    const DEFAULT_PREFIX_IGNORE_HEADERS = [
         'dy',
         ...DEFAULT_COLLECT_IGNORE_HEADERS
     ];
@@ -81,13 +79,8 @@ Response = function(refs, config) {
         return isEmpty(dimensions);
     };
 
-    var getHeader = (name) => {
-        return t.headers.find(header => header.name === name);
-    };
-
-    var hasHeader = (name) => {
-        return getHeader(name) !== undefined;
-    };
+    var getHeader = name => t.headers.find(header => header.name === name);
+    var hasHeader = name => getHeader(name) !== undefined;
 
     t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
 
@@ -244,12 +237,11 @@ Response.prototype.sortOrganisationUnitsHierarchy = function() {
 };
 
 Response.prototype.clone = function() {
-    var t = this,
-        refs = t.getRefs();
+    const refs = this.getRefs();
 
     var { Response } = refs.api;
 
-    return new Response(refs, t);
+    return new Response(refs, this);
 };
 
 Response.prototype.getHeaderByName = function(name) {
@@ -398,31 +390,17 @@ Response.prototype.getOrganisationUnitsIds = function() {
 };
 
 // dep 1
-
 Response.prototype.getHeaderNameByIndex = function(index) {
-    this.getHeaderByIndex(index).name;
+    return this.getHeaderByIndex(index).name;
 };
 
 Response.prototype.getHeaderIndexOrder = function(dimensionNames) {
-    var t = this,
-        headerIndexOrder = [];
-
-    dimensionNames.forEach(function(name) {
-        headerIndexOrder.push(t.getHeaderIndexByName(name));
-    });
-
-    return headerIndexOrder;
+    return dimensionNames.map(name => this.getHeaderIndexByName(name));
 };
 
 Response.prototype.getIdsByDimensionNames = function(dimensionName) {
-    var t = this,
-        ids = [];
-
-    dimensionName.forEach(function(name) {
-        ids = ids.concat(t.getIdsByDimensionName(name) || []);
-    });
-
-    return arrayClean(ids);
+    return arrayClean(dimensionName.reduce((ids, name) => 
+        ids.concat(this.getIdsByDimensionName(name) || []), []));
 };
 
 Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
@@ -430,21 +408,11 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
-    var t = this,
-        refs = t.getRefs();
+    var refs = this.getRefs(),
+        { Record } = refs.api;
 
-    var { Record } = refs.api;
-
-    var metaData = this.metaData,
-        ids = this.getIdsByDimensionName(dimensionName) || [],
-        records = [];
-
-    ids.forEach(function(id) {
-        records.push((new Record(refs, {
-            id: id,
-            name: t.getNameById(id)
-        })).val());
-    });
+    var ids = this.getIdsByDimensionName(dimensionName) || [],
+        records = ids.map(id => (new Record(refs, { id: id, name: this.getNameById(id) })).val());
 
     return arrayClean(records);
 };
@@ -470,7 +438,6 @@ Response.prototype.hasIdByDimensionName = function(id, dimensionName) {
 };
 
 // dep 2
-
 Response.prototype.getValueHeaderIndex = function() {
     return this.getValueHeader() ? this.getValueHeader().getIndex() : null;
 };
@@ -488,7 +455,6 @@ Response.prototype.getFactorHeaderIndex = function() {
 };
 
 // dep 3
-
 Response.prototype.getSortedRows = function() {
     if (this.sortedRows) {
         return this.sortedRows;
@@ -509,168 +475,54 @@ Response.prototype.getSortedRows = function() {
 };
 
 Response.prototype.getIdValueMap = function(layout) {
-    if (this.idValueMap) {
-        return this.idValueMap;
-    }
-
-    var t = this,
-        refs = t.getRefs();
-
-    var { ResponseRowIdCombination } = refs.api;
-
-    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
-        idValueMap = {},
-        idCombination;
-
-    var dimensions = t.metaData.dimensions;
-
-    this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination(refs);
-
-        headerIndexOrder.forEach(function(index) {
-            var header = t.getHeaderByIndex(index);
-            var rowValue = responseRow.getAt(index);
-
-            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
-
-            idCombination.add(key);
-        });
-
-        responseRow.setIdCombination(idCombination);
-
-        idValueMap[idCombination.get()] = responseRow.getAt(t.getValueHeaderIndex());
-    });
-
-    return this.idValueMap = idValueMap;
-};
-
-Response.prototype.getIdNumeratorMap = function(layout) {
-    if (this.idNumeratorMap) {
-        return this.idNumeratorMap;
-    }
-
-    var t = this,
-        refs = t.getRefs();
-
-    var { ResponseRowIdCombination } = refs.api;
-
-    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
-        idNumeratorMap = {},
-        idCombination;
-
-    var dimensions = t.metaData.dimensions;
-
-    this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination(refs);
-
-        headerIndexOrder.forEach(function(index) {
-            var header = t.getHeaderByIndex(index);
-            var rowValue = responseRow.getAt(index);
-
-            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
-
-            idCombination.add(key);
-        });
-
-        responseRow.setIdCombination(idCombination);
-
-        idNumeratorMap[idCombination.get()] = responseRow.getAt(t.getNumeratorHeaderIndex());
-    });
-
-    return this.idNumeratorMap = idNumeratorMap;
+    return this.idValueMap = getIdMap(layout, 'value');
 };
 
 Response.prototype.getIdDenominatorMap = function(layout) {
-    if (this.idDenominatorMap) {
-        return this.idDenominatorMap;
-    }
+    return this.idDenominatorMap = getIdMap(layout, 'denominator');
+};
 
-    var t = this,
-        refs = t.getRefs();
-
-    var { ResponseRowIdCombination } = refs.api;
-
-    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
-        idDenominatorMap = {},
-        idCombination;
-
-    var dimensions = t.metaData.dimensions;
-
-    this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination(refs);
-
-        headerIndexOrder.forEach(function(index) {
-            var header = t.getHeaderByIndex(index);
-            var rowValue = responseRow.getAt(index);
-
-            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
-
-            idCombination.add(key);
-        });
-
-        responseRow.setIdCombination(idCombination);
-
-        idDenominatorMap[idCombination.get()] = responseRow.getAt(t.getDenominatorHeaderIndex());
-    });
-
-    return this.idDenominatorMap = idDenominatorMap;
+Response.prototype.getIdNumeratorMap = function(layout) {
+    return this.idNumeratorMap = getIdMap(layout, 'numerator');
 };
 
 Response.prototype.getIdFactorMap = function(layout) {
-    if (this.idFactorMap) {
-        return this.idFactorMap;
-    }
+    return this.idFactorMap = getIdMap(layout, 'factor');
+};
 
-    var t = this,
-        refs = t.getRefs();
+Response.prototype.getIdMap = function(layout, name) {
 
-    var { ResponseRowIdCombination } = refs.api;
+    const refs = this.getRefs(),
+          { ResponseRowIdCombination } = refs.api,
+          headerIndexOrder = arrayClean(this.getHeaderIndexOrder(layout.getDimensionNames())),
+          idMap = {};
 
-    var headerIndexOrder = arrayClean(t.getHeaderIndexOrder(layout.getDimensionNames())),
-    idFactorMap = {},
-        idCombination;
+    this.rows.forEach(responseRow => {
+        let idCombination = new ResponseRowIdCombination(refs),
+            key,
+            rowValue,
+            header;
 
-    var dimensions = t.metaData.dimensions;
+        headerIndexOrder.forEach(index => {
+            header = this.getHeaderByIndex(index);
+            rowValue = responseRow.getAt(index);
 
-    this.rows.forEach(function(responseRow) {
-        idCombination = new ResponseRowIdCombination(refs);
-
-        headerIndexOrder.forEach(function(index) {
-            var header = t.getHeaderByIndex(index);
-            var rowValue = responseRow.getAt(index);
-
-            var key = header.isPrefix ? t.getPrefixedId(rowValue, header.name) : rowValue;
+            key = header.isPrefix ? this.getPrefixedId(rowValue, header.name) : rowValue;
 
             idCombination.add(key);
         });
 
         responseRow.setIdCombination(idCombination);
-
-        idFactorMap[idCombination.get()] = responseRow.getAt(t.getFactorHeaderIndex());
+        idMap[idCombination.get()] = responseRow.getAt(this.getHeaderByName(name).getIndex());
     });
-
-    return this.idFactorMap = idFactorMap;
-};
-
-Response.prototype.getTotal = function() {
-    var valueHeaderIndex = this.getValueHeaderIndex();
-
-    if (!isNumber(valueHeaderIndex)) {
-        return;
-    }
-
-    return this.rows.reduce((total, row) => total + parseFloat(row[valueHeaderIndex]), 0);
-};
+    
+    return idMap;
+}
 
 // dep 4
-
 Response.prototype.getValue = function(param, layout) {
-    var t = this,
-        refs = t.getRefs();
-
-    var { ResponseRowIdCombination } = refs.api;
-
-    var id = param instanceof ResponseRowIdCombination ? param.get() : param;
+    const {refs: { api: ResponseRowIdCombination } } = this.getRefs(),
+          id = param instanceof ResponseRowIdCombination ? param.get() : param;
 
     return this.getIdValueMap(layout)[id];
 };
@@ -680,9 +532,8 @@ Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
     isTop = isBoolean(isTop) ? isTop : true;
     isBottom = isBoolean(isBottom) ? isBottom : true;
 
-    var sortedRows = this.getSortedRows();
-
-    var len = sortedRows.length;
+    var sortedRows = this.getSortedRows(),
+        len = sortedRows.length;
 
     return [
         ...(isTop ? sortedRows.slice(0, limit) : []),
@@ -691,17 +542,6 @@ Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
 };
 
 // dep 5
-
 Response.prototype.getValues = function(paramArray, layout) {
-    var t = this,
-        values = [],
-        id;
-
-    paramArray = arrayFrom(paramArray);
-
-    paramArray.forEach(function(param) {
-        values.push(t.getValue(param, layout));
-    });
-
-    return values;
+    return arrayFrom(paramArray).map(param => this.getValue(param, layout));
 };

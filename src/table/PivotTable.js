@@ -47,6 +47,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         ...options,
+        dynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -68,7 +69,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.filters = layout.filters
     this.response = response;
-    this.options = options;
     this.appManager = refs.appManager;
     this.optionConfig = refs.optionConfig
 
@@ -201,7 +201,7 @@ PivotTable.prototype.doShowDimensionLabels = function() {
 };
 
 PivotTable.prototype.doTableClipping = function() {
-    return this.options.dynamic && false;
+    return this.options.dynamic;
 };
 
 PivotTable.prototype.doStickyColumns = function() {
@@ -730,7 +730,7 @@ PivotTable.prototype.buildColumnAxis = function(columnStart, columnEnd, rowStart
 };
 
 PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
-    const axisObject = this.getColumnAxisObject(rowIndex, this.normalizeColumnIndex(columnIndex));
+    const axisObject = this.getColumnAxisObject(rowIndex, columnIndex);
 
     return ColumnAxisCell(
         axisObject,
@@ -741,7 +741,7 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
 };
 
 PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
-    const axisObject = this.getRowAxisObject(columnIndex, this.normalizeRowIndex(rowIndex));
+    const axisObject = this.getRowAxisObject(columnIndex, rowIndex);
 
     return RowAxisCell(
         axisObject,
@@ -859,7 +859,7 @@ PivotTable.prototype.buildCornerAxisColumn = function(columnIndex, rowStart) {
 
     if (!this.doShowDimensionLabels()) {
         column[0] = DimensionEmptyCell(this.rowAxis.dims - columnIndex, this.colAxis.dims - rowStart, columnIndex !== this.columnStart);
-        for (let i=1, y=rowStart + 1; y < colAxis.dims; i++, y++) {
+        for (let i=1, y=rowStart + 1; y < this.colAxis.dims; i++, y++) {
             column[i] = DimensionEmptyCell(this.rowAxis.dims - columnIndex, this.colAxis.dims - y, true);
         }
         return column;
