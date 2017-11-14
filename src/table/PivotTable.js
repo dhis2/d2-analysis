@@ -19,7 +19,8 @@ import { isColorBright } from '../util/colorUtils';
 
 import { toRow,
          getPercentageHtml,
-         buildTable2D } from './PivotTableUtils';
+         buildTable2D,
+         getUniqueFactor } from './PivotTableUtils';
 
 import { ValueSubTotalCell,
          ValueTotalCell,
@@ -47,7 +48,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         ...options,
-        dynamic: false,
+        renderLimit: 50000,
+        dynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -58,7 +60,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         stickyColumnDimension: !!layout.stickyColumnDimension,
         stickyRowDimension: !!layout.stickyRowDimension,
         showHierarchy: !!layout.showHierarchy,
-        numberType: layout.numberType,
+        numberType: !!layout.numberType,
     }
 
     this.title = layout.title;
@@ -89,8 +91,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.uuidDimUuidsMap = {};    
     this.sortableIdObjects = [];
 
-    this.colUniqueFactor = this.getUniqueFactor(colAxis);
-    this.rowUniqueFactor = this.getUniqueFactor(rowAxis);
+    this.colUniqueFactor = getUniqueFactor(colAxis);
+    this.rowUniqueFactor = getUniqueFactor(rowAxis);
 
     this.columnDimensionNames = colAxis.type
         ? layout.columns.getDimensionNames(response) : [];
@@ -274,12 +276,12 @@ PivotTable.prototype.getColumnAxisObject = function(rowIndex, columnIndex) {
     return this.colAxis.objects.all[rowIndex][columnIndex];
 };
 
-PivotTable.prototype.getHtmlValue = function({collapsed, htmlValue = '', type, isValue}) {
-    if (collapsed) {
+PivotTable.prototype.getHtmlValue = function(cell) {
+    if (cell.collapsed) {
         return '';
     }
     
-    return this.isTextField(type) ? this.getPrettyHtml(htmlValue) : htmlValue;
+    return this.isTextField(cell.type) ? this.getPrettyHtml(cell.htmlValue) : cell.htmlValue;
 };
 
 PivotTable.prototype.getPrettyHtml = function(htmlValue) {
@@ -435,22 +437,14 @@ PivotTable.prototype.getAdjustedRowSpan = function(cell, x) {
 
 PivotTable.prototype.getColumnEnd = function(index) {
     return this.doTableClipping() ? 
-        this.constrainWidth(this.getViewportWidthIndex() + this.columnStart) :
+        this.constrainWidth(this.getViewportWidthIndex() + (index ? index : this.columnStart)) :
         this.getColumnAxisSize();
 };
     
 PivotTable.prototype.getRowEnd = function(index) {
     return this.doTableClipping() ?
-        this.constrainHeight(this.getViewportHeightIndex() + this.rowStart) :
+        this.constrainHeight(this.getViewportHeightIndex() + (index ? index : this.rowStart)) :
         this.getRowAxisSize();
-};
-
-PivotTable.prototype.getUniqueFactor = function(xAxis) {
-    if (xAxis.xItems && xAxis.xItems.unique) {
-        return xAxis.xItems.unique.length < 2 ? 1 : 
-            (xAxis.size / xAxis.xItems.unique[0].length);
-    }
-    return null;
 };
 
 PivotTable.prototype.getRowSortId = function(index) {
@@ -538,25 +532,25 @@ PivotTable.prototype.getValue = function(rowIndex, columnIndex) {
 };
 
 PivotTable.prototype.addRight = function(columnIndex, rowStart, rowEnd) {
-    const column = this.buildTableColumn(columnIndex, rowStart, rowEnd);
+    const column = this.buildColumn(columnIndex, rowStart, rowEnd);
     for (let i = 0; i < column.length; i++) {
         this.table[i].push(column[i]);
     }
 };
 
 PivotTable.prototype.addLeft = function(columnIndex, rowStart, rowEnd) {
-    const column = this.buildTableColumn(columnIndex, rowStart, rowEnd);
+    const column = this.buildColumn(columnIndex, rowStart, rowEnd);
     for (let i = 0; i < column.length; i++) {
         this.table[i].unshift(column[i]);
     }
 };
 
 PivotTable.prototype.addTop = function(rowIndex, columnStart, columnEnd) {
-    this.table.unshift(this.buildTableRow(rowIndex, columnStart, columnEnd))
+    this.table.unshift(this.buildRow(rowIndex, columnStart, columnEnd))
 };
 
 PivotTable.prototype.addBottom = function(rowIndex, columnStart, columnEnd) {
-    this.table.push(this.buildTableRow(rowIndex, columnStart, columnEnd));
+    this.table.push(this.buildRow(rowIndex, columnStart, columnEnd));
 };
 
 PivotTable.prototype.deleteLeft = function() {
@@ -579,7 +573,7 @@ PivotTable.prototype.deleteBottom = function() {
     this.table.pop();
 };
 
-PivotTable.prototype.buildTableRow = function(rowIndex, columnStart, columnEnd) { 
+PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) { 
     let rowAxisRow = [];
 
     if (rowIndex < this.colAxis.dims) {
@@ -591,9 +585,10 @@ PivotTable.prototype.buildTableRow = function(rowIndex, columnStart, columnEnd) 
     // TODO: if statement can be removed
     if (columnStart < this.rowAxis.dims) {
         rowAxisRow = this.buildRowAxisRow(rowIndex, columnStart);
+        columnStart=0
+    } else {
+        columnStart -= this.rowAxis.dims;
     }
-
-    columnStart -= this.rowAxis.dims - (this.rowAxis.dims - columnStart);
 
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd - 1));
 };
@@ -751,16 +746,18 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 };
 
 PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, columnEnd) {
-    if (this.colAxis.dims < rowIndex) {
-        return [];
-    }
     
     const row = [];
+    
+    if (this.colAxis.dims < rowIndex) {
+        return row;
+    }
+    
     let x = columnStart;
 
     if (x < this.rowAxis.dims) {
         let corner = this.buildCornerAxisRow(rowIndex, columnStart);
-        for (let i = 0, x = columnStart; i < corner.length; i++, x++) {
+        for (let i = 0; i < corner.length; i++, x++) {
             row[i] = corner[i];
         }
     }
@@ -768,9 +765,10 @@ PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, column
     x         -= this.rowAxis.dims;
     columnEnd -= this.rowAxis.dims;
 
-    const rowspan = this.colAxis.dims - rowIndex;
+    const rowspan = this.colAxis.dims - rowIndex,
+          firstIteration = rowIndex === this.rowStart;
 
-    for (let i = row.length, x = columnStart + row.length; x < columnEnd; i++, x++) {
+    for (let i = row.length; x < columnEnd; i++, x++) {
         
         if (this.isColumnSubTotal(x)) {
             if (i === 0) row[i] = DimensionSubTotalCell('&nbsp;', 1, rowspan, true, false);
@@ -779,9 +777,9 @@ PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, column
         }
 
         if (this.isColumnGrandTotal(x)) {
-            if (rowIndex === this.rowStart) row[i] = DimensionGrandTotalCell('Total', 1, rowspan, this.doSortableColumnHeaders(), false);
-            else                         row[i] = DimensionSubTotalCell('&nbsp;', 1, rowspan, true, true);
-            continue
+            if (firstIteration) row[i] = DimensionGrandTotalCell('Total', 1, rowspan, this.doSortableColumnHeaders(), false);
+            else                row[i] = DimensionSubTotalCell('&nbsp;', 1, rowspan, true, true);
+            continue;
         }
 
         row[i] = this.buildColumnAxisCell(rowIndex, this.normalizeColumnIndex(x));
@@ -1710,7 +1708,7 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
     return column; 
 };
 
-PivotTable.prototype.buildTableColumn = function(columnIndex, rowStart, rowEnd) {
+PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
     const columnAxis = this.buildColumnAxisColumn(columnIndex, rowStart);
 
     if (rowStart > this.colAxis.dims) {

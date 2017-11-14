@@ -100,3 +100,11 @@ export const buildTable2D = (rows, columns, fill) => {
 
     return table2D;
 };
+
+export const getUniqueFactor = axis => {
+    if (axis.xItems && axis.xItems.unique) {
+        return axis.xItems.unique.length < 2 ? 1 : 
+            (axis.size / axis.xItems.unique[0].length);
+    }
+    return null;
+};
