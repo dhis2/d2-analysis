@@ -21,7 +21,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         aFloorSpan = [],
         aCondoId = [],
         uuidObjectMap = {};
-
+    
     if (type === 'col') {
         aDimensions = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'colSpan';
