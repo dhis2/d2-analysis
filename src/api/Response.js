@@ -148,8 +148,8 @@ Response = function(refs, config) {
                     dimensions[header.name].forEach((prefixedId, index) => {
                         var id = ids[index];
                         var optionSet = header.optionSet;
-
-                        var name = indexedDbManager.getCachedOptionName(ids[index], header.optionSet);
+                        
+                        var name = indexedDbManager.getCachedOptionName(id, optionSet);
 
                         items[prefixedId] = { name: name };
                     });
@@ -187,7 +187,7 @@ Response = function(refs, config) {
                 };
             }
         }
-
+        
         return metaData;
     }();
 

@@ -78,11 +78,30 @@ IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
 // dep 2
 
 IndexedDbManager.prototype.getCachedOption = function(code, optionSetId) {
-    return this.getCachedOptionSet(optionSetId).options.find(option => option.code === code);
+	var cachedOptionSet = this.getCachedOptionSet(optionSetId);
+	
+	if (!cachedOptionSet) {
+		console.log('WARNING: Option set with id "' + optionSetId + '" not found');
+		return;
+	}
+	
+	if (!cachedOptionSet.options) {
+		console.log('WARNING: Option set with id "' + optionSetId + '" has no options');
+		return;
+	}
+		
+    return cachedOptionSet.options.find(option => option.code === code);
 };
 
 // dep 3
 
 IndexedDbManager.prototype.getCachedOptionName = function(code, optionSetId) {
-    return this.getCachedOption(code, optionSetId).name;
+	var cachedOption = this.getCachedOption(code, optionSetId);
+	
+	if (!cachedOption) {
+		console.log('WARNING: Option set with id "' + optionSetId + '" has no option with code "' + code + '"');
+		return code;
+	}
+	
+    return cachedOption.name;
 };
