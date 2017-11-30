@@ -130,6 +130,11 @@ OptionConfig = function() {
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
             },
+            'last': {
+                index: 9,
+                id: 'LAST',
+                name: i18nManager.get('last') || 'Last value'
+            },
         };
     };
 
