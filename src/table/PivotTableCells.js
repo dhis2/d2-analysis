@@ -21,13 +21,6 @@ const DefaultCell = () => {
     };
 };
 
-/** @description
- *  @param   {number} value 
- *  @param   {object} response 
- *  @param   {object} rric 
- *  @param   {array} uuids 
- *  @returns {object}
- */
 export const ValueCell = (value, response, rric, uuids) => {
     const cell  = DefaultCell();
     
@@ -60,10 +53,6 @@ export const PlainValueCell = (value) => {
     return cell;
 }
 
-/** @description factory function for value sub total cells.
- *  @param   {number} value 
- *  @returns {object}
- */
 export const ValueSubTotalCell = (value) => {
     const cell = DefaultCell();
 
@@ -78,10 +67,6 @@ export const ValueSubTotalCell = (value) => {
     return cell;
 };
 
-/** @description factory function for value grand total cells.
- *  @param   {number} value 
- *  @returns {object}
- */
 export const ValueTotalCell = (value) => {
     const cell = DefaultCell();
 
@@ -96,13 +81,6 @@ export const ValueTotalCell = (value) => {
     return cell;
 };
 
-/** @description factory functon for column axis cells.
- *  @param   {any} parentCell 
- *  @param   {any} response 
- *  @param   {any} showHierarchy 
- *  @param   {any} hidden 
- *  @returns {object}
- */
 export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     const cell = axisObject;
 
@@ -128,14 +106,6 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     return cell;
 };
 
-/** @description factory function for row axis cells.
- *  @param   {object} parentCell 
- *  @param   {object} resoonse
- *  @param   {boolean} showHierarchy
- *  @param   {boolean} hidden 
- *  @param   {string} sort
- *  @returns {object}
- */
 export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort) => {
     const cell = axisObject;
 
@@ -162,14 +132,6 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
     return cell;
 };
 
-/** @description factory function for dimension sub total cells.
- *  @param   {string} value 
- *  @param   {number} colSpan 
- *  @param   {number} rowSpan 
- *  @param   {boolean} empty 
- *  @param   {boolean} hidden 
- *  @returns {object}
- */
 export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) => {
     const cell = DefaultCell();
 
@@ -186,14 +148,6 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) =>
     return cell;
 };
 
-/** @description factory function for dimension grand total cells.
- *  @param {string}  value 
- *  @param {number}  colSpan 
- *  @param {number}  rowSpan 
- *  @param {boolean} sort 
- *  @param {boolean} generateUuid 
- *  @returns 
- */
 export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid) => {
     const cell = DefaultCell();
 
@@ -212,12 +166,6 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     return cell;
 };
 
-/** @description factory function for dimension empty cells.
- *  @param   {number} colSpan 
- *  @param   {number} rowSpan 
- *  @param   {number} hidden 
- *  @returns {object}
- */
 export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
     const cell = DefaultCell();
 
@@ -236,10 +184,6 @@ export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
     return cell;
 };
 
-/** @description factory function for labeled dimension cell.
- *  @param   {string} value 
- *  @returns {object} 
- */
 export const DimensionLabelCell = (value, dim) => {
     const cell = DefaultCell();
 
@@ -255,14 +199,6 @@ export const DimensionLabelCell = (value, dim) => {
     return cell;
 };
 
-/** @description factory function for padding cells.
- *   @param   {number}  width 
- *   @param   {number}  height 
- *   @param   {number}  colSpan 
- *   @param   {number}  rowSpan 
- *   @param   {boolean} hidden 
- *   @returns {object}
- */
 export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
     const cell = DefaultCell();
 
@@ -281,11 +217,6 @@ export const PaddingCell = (width=0, height=0, colSpan, rowSpan, hidden) => {
     return cell;
 };
 
- /** @description factor function for horizontal padding cells.
- *   @param   {number} width 
- *   @param   {boolean} hidden 
- *   @returns {object}
- */
 export const HorizontalPaddingCell = (width=0, cls='', hidden) => {
     const cell = DefaultCell();
     
@@ -306,11 +237,6 @@ export const HorizontalPaddingCell = (width=0, cls='', hidden) => {
     return cell;
 };
 
- /** @description factory function for vertical padding cells.
- *   @param   {number} height 
- *   @param   {boolean} hidden 
- *   @returns {object}
- */
 export const VerticalPaddingCell = (height=0, cls='', hidden) => {
     const cell = DefaultCell();
     
@@ -331,11 +257,6 @@ export const VerticalPaddingCell = (height=0, cls='', hidden) => {
     return cell;
 };
 
- /** @description factory function for filter cells.
- *   @param   {string} text 
- *   @param   {number} colSpan 
- *   @returns {object}
- */
 export const FilterCell = (text, colSpan) => {
     const cell = DefaultCell();
 

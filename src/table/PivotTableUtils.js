@@ -1,6 +1,7 @@
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import isNumber from 'd2-utilizr/lib/isNumber';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
+import isArray from 'd2-utilizr/lib/isArray';
 
 /** @description round number if needed.
  *  @param   {number} number 
@@ -42,6 +43,11 @@ export const getValue = (str) => {
  *  @returns {array}
  */
 export const toRow = (array) => {
+
+    if (!isArray(array[0])) {
+        return [array];
+    }
+
     let row = new Array(array[0].length);
 
     for(let i=0; i < row.length; i++) {
