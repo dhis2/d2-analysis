@@ -72,7 +72,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.rowAxis = rowAxis;
 
     this.columnDimensionSize = colAxis.dims || 0;
-    this.rowDimensionSize = rowAxis.dims || 0;
+    this.rowDimensionSize = rowAxis.dims || 1;
 
     this.legendSet = isObject(layout.legendSet) 
         ? this.appManager.getLegendSetById(layout.legendSet.id) : null;
@@ -98,8 +98,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.valueLookup = this.createValueLookup();
     this.typeLookup  = this.createTypeLookup();
-
-    this.printSummary();
 }
 
 // setters
@@ -374,7 +372,7 @@ PivotTable.prototype.getLegendSetId = function(dxId) {
 PivotTable.prototype.getRowSize = function() {
 
     if (!this.rowAxis.size) {
-        return 0;
+        return 1;
     }
 
     let size = this.rowAxis.size;
@@ -393,7 +391,7 @@ PivotTable.prototype.getRowSize = function() {
 PivotTable.prototype.getColumnSize = function() {
 
     if (!this.colAxis.size) {
-        return 0;
+        return 1;
     }
 
     let size = this.colAxis.size;
@@ -490,6 +488,14 @@ PivotTable.prototype.getRowAxisLabel = function(index) {
 PivotTable.prototype.getCrossAxisLabel = function() {
     let colAxisLabel = this.getColumnAxisLabel(this.columnDimensionSize - 1),
         rowAxisLabel = this.getRowAxisLabel(this.rowDimensionSize - 1);
+
+    if (!this.rowAxis.type) {
+        return colAxisLabel;
+    }
+
+    if (!this.colAxis.type) {
+        return rowAxisLabel;
+    }
 
     if (colAxisLabel) {
         rowAxisLabel += '&nbsp;/&nbsp;' + colAxisLabel;
@@ -644,7 +650,7 @@ PivotTable.prototype.buildRowAxis = function(rowStart, rowEnd, columnStart) {
 
     if (!this.rowAxis.type) {
         if (this.doShowDimensionLabels()) {
-            axis[0] = [{ type: 'transparent', cls: 'pivot-transparent-row' }];
+            axis[0] = [DimensionEmptyCell(1, 1, false, 'visibility: hidden;')];
         }
         return axis;
     }
@@ -664,6 +670,13 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
     const column = [],
           colspan = this.rowDimensionSize - columnIndex,
           isTop  = this.columnStart !== columnIndex;
+
+    if (!this.rowAxis.type) {
+        for (let i = 0; i < rowEnd - rowStart; i++) {
+            column[i] = DimensionEmptyCell(1, 1, false, 'visibility: hidden;');
+        }
+        return column;
+    }
 
     for (let i = 0, y = rowStart; y < rowEnd; i++, y++) {
 
@@ -686,6 +699,10 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
 PivotTable.prototype.buildRowAxisRow = function(rowIndex, columnStart) {
     if (this.rowDimensionSize < columnStart) {
         return [];
+    }
+
+    if (!this.rowAxis.type) {
+        return [DimensionEmptyCell(1, 1, false, 'visibility: hidden;')];
     }
 
     if (this.isRowSubTotal(rowIndex)) {
@@ -892,7 +909,7 @@ PivotTable.prototype.buildCornerAxisColumn = function(columnIndex, rowStart) {
         for (let i=rowStart; i < this.columnDimensionSize - 1; i++) {
             column[i] = DimensionLabelCell(this.getColumnAxisLabel(i));
         }
-        column[this.columnDimensionSize - 1] = DimensionLabelCell(this.getCrossAxisLabel());
+        column.push(DimensionLabelCell(this.getCrossAxisLabel()));
         return column;
     }
 
@@ -1284,6 +1301,8 @@ PivotTable.prototype.buildHtmlCell = function(config) {
         `;
     }
 
+    style += config.style;
+
     return `
         <td data-ou-id="${config.ouId || ''}"
             data-period-id="${config.peId || ''}"
@@ -1620,6 +1639,11 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
 
 
 PivotTable.prototype.updateRowAxisDimensionSpan = function() {
+
+    if (!this.rowAxis.type) {
+        return;
+    }
+
     const rowSpanLimit = this.rowEnd - this.rowStart + 1;
 
     for (let i=0, x=this.columnStart, cell; i < this.rowDimensionSize - this.columnStart; i++, x++) {
@@ -1660,6 +1684,8 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
 
 
 PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
+
+
     const colSpanLimit = this.columnEnd - this.columnStart + 1;
 
     for (let i=0, y=this.rowStart, cell; i < this.columnDimensionSize - this.rowStart; i++, y++) {
@@ -1689,9 +1715,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
                 continue;
             }
 
-            console.log(cell.colSpan, colSpanCounter, colSpanLimit)
             if (cell.colSpan + colSpanCounter > colSpanLimit) {
-                console.log(colSpanLimit - colSpanCounter, cell);
                 cell.colSpan = colSpanLimit - colSpanCounter;
             }
 

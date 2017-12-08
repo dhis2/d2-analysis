@@ -18,6 +18,8 @@ const DefaultCell = () => {
         
         width:     120,
         height:    25,
+
+        style: '',
     };
 };
 
@@ -166,7 +168,7 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     return cell;
 };
 
-export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
+export const DimensionEmptyCell = (colSpan, rowSpan, hidden, style) => {
     const cell = DefaultCell();
 
     cell.value     = '&nbsp;';
@@ -180,6 +182,8 @@ export const DimensionEmptyCell = (colSpan, rowSpan, hidden) => {
     cell.height    = rowSpan * 25;
 
     cell.hidden    = hidden;
+
+    cell.style     = style;
 
     return cell;
 };
