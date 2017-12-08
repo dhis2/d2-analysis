@@ -302,7 +302,7 @@ WestRegionTrackerItems = function(refs) {
                     [
                         'fields=programStages[id,displayName~rename(name)]',
                         'programIndicators[id,' + displayPropertyUrl + ']',
-                        'programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSet[id,displayName~rename(name)]]]',
+                        'programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                         'categoryCombo[id,name,categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]'
                     ].join(''),
                     'paging=false'
