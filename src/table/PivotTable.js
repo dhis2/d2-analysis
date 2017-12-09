@@ -71,7 +71,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.colAxis = colAxis;
     this.rowAxis = rowAxis;
 
-    this.columnDimensionSize = colAxis.dims || 0;
+    this.columnDimensionSize = colAxis.dims || 1;
     this.rowDimensionSize = rowAxis.dims || 1;
 
     this.legendSet = isObject(layout.legendSet) 
@@ -614,8 +614,7 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
         columnStart -= this.rowDimensionSize;
     }
 
-    // TODO: UGLY HACK
-    columnEnd - 1
+    columnEnd -= 1
 
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd));
 };
@@ -1662,7 +1661,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
                 rowSpanCounter += Math.max(0, this.columnDimensionSize - this.rowStart);
                 continue;
             }
-
+            
             if (rowSpanCounter >= rowSpanLimit || cell.hidden) {
                 cell.hidden = true;
 
