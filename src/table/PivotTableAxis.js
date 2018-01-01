@@ -96,8 +96,8 @@ export const PivotTableAxis = function(refs, layout, response, type) {
                 siblingPosition = 0;
             }
 
-            obj.oldestSibling = oldestObj;;
-            obj.siblingPosition = siblingPosition++
+            obj.oldestSibling = oldestObj;
+            obj.siblingPosition = siblingPosition++;
             
             if ((aaUniqueFloorIds.length - 1) > i) {
                 obj.children = aaUniqueFloorIds[i + 1].length;

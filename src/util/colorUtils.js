@@ -1,5 +1,3 @@
-
-
 const calculateColorBrightness = function(rgb) {
     return Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
 };
@@ -7,7 +5,6 @@ const calculateColorBrightness = function(rgb) {
 const isHex = (color) => {
     return typeof color === 'string' && color.charAt(0) === "#";
 }
-
 
 export const isColorBright = (color) => {
 

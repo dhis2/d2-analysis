@@ -526,8 +526,8 @@ UiManager = function(refs) {
         ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
-    t.confirmCustom = function(title, msg, btnText, fn, applyConfig) {
-        ConfirmWindow(refs, title, msg, btnText, fn, applyConfig).show();
+    t.confirmCustom = function(title, msg, btnText, fn, applyConfig, cancelFn=Function.prototype) {
+        ConfirmWindow(refs, title, msg, btnText, fn, applyConfig, cancelFn).show();
     };
 
     t.confirmInterpretationDelete = function(fn) {
