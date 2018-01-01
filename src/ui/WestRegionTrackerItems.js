@@ -126,11 +126,12 @@ WestRegionTrackerItems = function(refs) {
             this.clearFilter();
 
             if (uiManager.disallowProgramIndicators || type === dimensionConfig.dataType['aggregated_values']) {
-                dataElementType.store.filterBy(record => { return record.data.id != 'pi' });
+                // reset to all to avoid the situation where in ER if PI is selected is shown
+                // as selected also when switching to the aggregate tab
+                dataElementType.select('all');
+                dataElementType.store.filterBy(record => ( record.data.id != 'pi' ));
 
-                this.filterBy(function(record) {
-                    return !record.data.isProgramIndicator;
-                });
+                this.filterBy(record => ( ! record.data.isProgramIndicator ));
             }
             else {
                 dataElementType.store.clearFilter();
@@ -175,7 +176,6 @@ WestRegionTrackerItems = function(refs) {
 
     // components
     var onTypeClick = function(type) {
-
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
@@ -302,7 +302,7 @@ WestRegionTrackerItems = function(refs) {
                     [
                         'fields=programStages[id,displayName~rename(name)]',
                         'programIndicators[id,' + displayPropertyUrl + ']',
-                        'programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSet[id,displayName~rename(name)]]]',
+                        'programTrackedEntityAttributes[trackedEntityAttribute[id,' + displayPropertyUrl +',valueType,confidential,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                         'categoryCombo[id,name,categories[id,' + displayPropertyUrl + ',categoryOptions[id,' + displayPropertyUrl + ']]]'
                     ].join(''),
                     'paging=false'
@@ -379,6 +379,7 @@ WestRegionTrackerItems = function(refs) {
             uiManager.get('aggregateLayoutWindow').value.resetData();
         }
 
+        dataElementType.enable();
         dataElementSearch.enable();
         dataElementSearch.hideFilter();
 
@@ -465,7 +466,9 @@ WestRegionTrackerItems = function(refs) {
         valueField: 'id',
         displayField: 'name',
         queryMode: 'local',
+        lastQuery: '',
         width: (accBaseWidth / 2) - 32,
+        disabled: true,
         listConfig: {loadMask: false},
         style: 'padding-bottom:1px; border-bottom:1px solid #ddd; margin-bottom:1px',
         value: 'all',
@@ -496,21 +499,20 @@ WestRegionTrackerItems = function(refs) {
         switch (type) {
             case 'all':
                 store.clearFilter();
+
+                // filter out PI if in aggregated tab
+                if (uiManager.disallowProgramIndicators || (uiManager.get('dataTypeToolbar').getDataType() === dimensionConfig.dataType['aggregated_values'])) {
+                    store.filterBy(record => ( ! record.data.isProgramIndicator ));
+                }
                 break;
             case 'de':
-                store.filterBy(record => {
-                    return ! record.data.isAttribute && ! record.data.isProgramIndicator;
-                });
+                store.filterBy(record => ( ! record.data.isAttribute && ! record.data.isProgramIndicator ));
                 break;
             case 'pa':
-                store.filterBy(record => {
-                    return record.data.isAttribute;
-                });
+                store.filterBy(record => ( record.data.isAttribute ));
                 break;
             case 'pi':
-                store.filterBy(record => {
-                    return record.data.isProgramIndicator;
-                });
+                store.filterBy(record => ( record.data.isProgramIndicator ));
                 break;
         }
     };
@@ -1114,7 +1116,54 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
-    var weeks = Ext.create('Ext.container.Container', {
+    var days = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: {
+            labelSeparator: '',
+            style: 'margin-bottom:0',
+            listeners: intervalListeners
+        },
+        items: [
+            {
+                xtype: 'label',
+                text: i18n['days'],
+                cls: 'ns-label-period-heading'
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'TODAY',
+                boxLabel: i18n['today'],
+                index: 0
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'YESTERDAY',
+                boxLabel: i18n['yesterday'],
+                index: 1
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_3_DAYS',
+                boxLabel: i18n['last_3_days'],
+                index: 2
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_7_DAYS',
+                boxLabel: i18n['last_7_days'],
+                index: 3
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_14_DAYS',
+                boxLabel: i18n['last_14_days'],
+                index: 4
+            }
+        ]
+    });
+
+    var weeks = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1159,7 +1208,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var months = Ext.create('Ext.container.Container', {
+    var months = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1205,7 +1255,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var biMonths = Ext.create('Ext.container.Container', {
+    var biMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1240,7 +1291,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var quarters = Ext.create('Ext.container.Container', {
+    var quarters = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1275,7 +1327,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var sixMonths = Ext.create('Ext.container.Container', {
+    var sixMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1305,8 +1358,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var financialYears = Ext.create('Ext.container.Container', {
-        style: 'margin-top: 36px',
+    var financialYears = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1336,7 +1389,8 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var years = Ext.create('Ext.container.Container', {
+    var years = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1366,19 +1420,26 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var relativePeriod = Ext.create('Ext.container.Container', {
+    var relativePeriod = Ext.create('Ext.panel.Panel', {
         layout: 'column',
         hideCollapseTool: true,
         autoScroll: true,
-        style: 'border:0 none',
+        bodyStyle: 'border:0 none',
         items: [
             {
                 xtype: 'container',
                 columnWidth: 0.34,
-                style: 'margin-left: 8px',
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
+                bodyStyle: 'border-style:none',
+                items: [
+                    days,
+                    biMonths,
+                    financialYears
+                ]
+            },
+            {
+                xtype: 'container',
+                columnWidth: 0.33,
+                bodyStyle: 'border-style:none',
                 items: [
                     weeks,
                     quarters,
@@ -1388,23 +1449,10 @@ WestRegionTrackerItems = function(refs) {
             {
                 xtype: 'container',
                 columnWidth: 0.33,
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
+                bodyStyle: 'border-style:none',
                 items: [
                     months,
                     sixMonths
-                ]
-            },
-            {
-                xtype: 'container',
-                columnWidth: 0.33,
-                defaults: {
-                    style: 'margin-top: 4px'
-                },
-                items: [
-                    biMonths,
-                    financialYears
                 ]
             }
         ],
@@ -1577,7 +1625,7 @@ WestRegionTrackerItems = function(refs) {
         ]
     });
 
-    var periods = Ext.create('Ext.container.Container', {
+    var periods = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none',
         getRecords: function() {
             var selectedRecords = [],
@@ -1601,8 +1649,15 @@ WestRegionTrackerItems = function(refs) {
             };
         },
         items: [
-            fixedPeriodSettings,
-            fixedPeriodAvailableSelected,
+            {
+                xtype: 'panel',
+                layout: 'column',
+                bodyStyle: 'border-style:none; padding-bottom:2px',
+                items: [
+                    fixedPeriodSettings,
+                    fixedPeriodAvailableSelected,
+                ]
+            },
             relativePeriod
         ]
     });
@@ -2002,6 +2057,7 @@ WestRegionTrackerItems = function(refs) {
             }
         }
     });
+    uiManager.reg(treePanel, 'treePanel');
 
     var userOrganisationUnit = Ext.create('Ext.form.field.Checkbox', {
         columnWidth: 0.25,
@@ -2120,6 +2176,10 @@ WestRegionTrackerItems = function(refs) {
                 treePanel.enable();
             }
             else if (param === 'group') {
+                // DHIS2-561: avoid showing the group ids in the combobox when
+                // loading a favorite and expanding the OU panel
+                organisationUnitGroupStore.load();
+
                 userOrganisationUnit.hide();
                 userOrganisationUnitChildren.hide();
                 userOrganisationUnitGrandChildren.hide();
@@ -2223,7 +2283,7 @@ WestRegionTrackerItems = function(refs) {
                     else if (record.id.substr(0,5) === 'LEVEL') {
                         levels.push(parseInt(record.id.split('-')[1]));
                     }
-                    else if (record.id === 'OU_GROUP') {
+                    else if (record.id.substr(0,8) === 'OU_GROUP') {
                         groups.push(record.id.split('-')[1]);
                     }
                     else {

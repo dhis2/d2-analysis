@@ -86,6 +86,7 @@ Viewport = function(refs, cmp, config) {
     var DownloadButtonItems = cmp.DownloadButtonItems;
 
     var detailsButton = Ext.create('Ext.Button', {
+        id: "toggleEastRegionButton",
         text: ' ',
         width: 26,
         padding: '3',

@@ -105,30 +105,45 @@ OptionConfig = function() {
                 id: 'AVERAGE',
                 name: i18nManager.get('average') || 'Average'
             },
+            'avg-sum-org-unit': {
+                index: 3,
+                id: 'AVERAGE_SUM_ORG_UNIT',
+                name: i18nManager.get('average_sum_org_unit') || 'Average (sum in org unit hierarchy)'
+            },
             'sum': {
-                index: 4,
+                index: 3,
                 id: 'SUM',
                 name: i18nManager.get('sum') || 'Sum'
             },
             'stddev': {
-                index: 5,
+                index: 4,
                 id: 'STDDEV',
                 name: i18nManager.get('stddev') || 'Standard deviation'
             },
             'variance': {
-                index: 6,
+                index: 5,
                 id: 'VARIANCE',
                 name: i18nManager.get('variance') || 'Variance'
             },
             'min': {
-                index: 7,
+                index: 6,
                 id: 'MIN',
                 name: i18nManager.get('min') || 'Min'
             },
             'max': {
-                index: 8,
+                index: 7,
                 id: 'MAX',
                 name: i18nManager.get('max') || 'Max'
+            },
+            'last': {
+                index: 8,
+                id: 'LAST',
+                name: i18nManager.get('last') || 'Last value'
+            },
+            'last-average-org-unit': {
+                index: 9,
+                id: 'LAST_AVERAGE_ORG_UNIT',
+                name: i18nManager.get('last_average_org_unit') || 'Last value (average in org unit hierarchy)'
             },
         };
     };

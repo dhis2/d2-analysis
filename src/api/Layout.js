@@ -358,7 +358,8 @@ Layout.prototype.removeDimensionItems = function(includeFilter) {
 };
 
 Layout.prototype.val = function(noError) {
-    var i18nManager = this.getRefs().i18nManager;
+    var refs = this.getRefs();
+    var i18nManager = refs.i18nManager;
 
     if (!(this.columns || this.rows)) {
         this.alert(i18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'), noError); //todo alert

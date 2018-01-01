@@ -16,12 +16,9 @@ SharingWindow = function(c, sharing, configOnly) {
 
         getBody,
 
-        userGroupStore,
-        userStore,
-        userGroupField,
-        userField,
-        userGroupButton,
-        userButton,
+        sharingStore,
+        sharingField,
+        sharingButton,
         userGroupRowContainer,
         userRowContainer,
         sharingContainer,
@@ -154,8 +151,8 @@ SharingWindow = function(c, sharing, configOnly) {
     };
 
     // Initialize
-    userGroupStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
+    sharingStore = Ext.create('Ext.data.Store', {
+        fields: ['id', 'name', 'isGroup'],
         proxy: {
             type: 'ajax',
             url: encodeURI(apiPath + '/sharing/search'),
@@ -166,24 +163,21 @@ SharingWindow = function(c, sharing, configOnly) {
             limitParam: false,
             reader: {
                 type: 'json',
-                root: 'userGroups'
-            }
-        }
-    });
+                getData: (data) => {
+                    // manually populate the store with the records from the response
+                    // this is to avoid having to call the endpoint 2 times, one for user groups and one for users
+                    const records = [];
 
-    userStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
-        proxy: {
-            type: 'ajax',
-            url: encodeURI(apiPath + '/sharing/search'),
-            extraParams: {
-                pageSize: 50
-            },
-            startParam: false,
-            limitParam: false,
-            reader: {
-                type: 'json',
-                root: 'users'
+                    data.userGroups.forEach(({id, name}) => {
+                        records.push({ id, name, isGroup: true });
+                    });
+
+                    data.users.forEach(({id, name}) => {
+                        records.push({ id, name, isGroup: false });
+                    });
+
+                    return records;
+                },
             }
         }
     });
@@ -200,34 +194,19 @@ SharingWindow = function(c, sharing, configOnly) {
         width: 380,
     };
 
-    userGroupField = Ext.create('Ext.form.field.ComboBox',
+    sharingField = Ext.create('Ext.form.field.ComboBox',
         Object.assign({}, comboBoxConfig, {
-            emptyText: i18n.search_for_user_groups,
-            store: userGroupStore,
+            emptyText: i18n.add_users_and_user_groups,
+            store: sharingStore,
             listeners: {
                 beforeselect: function(cb) { // beforeselect instead of select, fires regardless of currently selected item
-                    userGroupButton.enable();
+                    sharingButton.enable();
                 },
                 afterrender: function(cb) {
-                    cb.inputEl.on('keyup', function() {
-                        userGroupButton.disable();
-                    });
-                }
-            }
-        })
-    );
-
-    userField = Ext.create('Ext.form.field.ComboBox',
-        Object.assign({}, comboBoxConfig, {
-            emptyText: i18n.search_for_users,
-            store: userStore,
-            listeners: {
-                beforeselect: function(cb) { // beforeselect instead of select, fires regardless of currently selected item
-                    userButton.enable();
-                },
-                afterrender: function(cb) {
-                    cb.inputEl.on('keyup', function() {
-                        userButton.disable();
+                    cb.inputEl.on('keyup', function(e) {
+                        if (e.getKey() !== e.ENTER) {
+                            sharingButton.disable();
+                        }
                     });
                 }
             }
@@ -241,31 +220,29 @@ SharingWindow = function(c, sharing, configOnly) {
         height: 26,
     };
 
-    userGroupButton = Ext.create('Ext.button.Button',
+    sharingButton = Ext.create('Ext.button.Button',
         Object.assign({}, buttonConfig, {
             handler: function(b) {
-                userGroupRowContainer.add(SharingAccessRow({
-                    id: userGroupField.getValue(),
-                    name: userGroupField.getRawValue(),
-                    access: 'r-------'
-                }));
+                const record = sharingStore.getById(sharingField.getValue());
 
-                userGroupField.clearValue();
-                b.disable();
-            }
-        })
-    );
+                if (record && record.data) {
+                    if (record.data.isGroup) {
+                        userGroupRowContainer.add(SharingAccessRow({
+                            id: record.data.id,
+                            name: record.data.name,
+                            access: 'r-------'
+                        }));
+                    }
+                    else {
+                        userRowContainer.add(SharingAccessRow({
+                            id: record.data.id,
+                            name: record.data.name,
+                            access: 'r-------'
+                        }));
+                    }
+                }
 
-    userButton = Ext.create('Ext.button.Button',
-        Object.assign({}, buttonConfig, {
-            handler: function (b) {
-                userRowContainer.add(SharingAccessRow({
-                    id: userField.getValue(),
-                    name: userField.getRawValue(),
-                    access: 'r-------'
-                }));
-
-                userField.clearValue();
+                sharingField.clearValue();
                 b.disable();
             }
         })
@@ -350,17 +327,8 @@ SharingWindow = function(c, sharing, configOnly) {
             layout: 'column',
             bodyStyle: 'border:0 none',
             items: [
-                userGroupField,
-                userGroupButton
-            ]
-        },
-        {
-            xtype: 'container',
-            layout: 'column',
-            bodyStyle: 'border:0 none',
-            items: [
-                userField,
-                userButton
+                sharingField,
+                sharingButton
             ]
         },
         {
@@ -377,9 +345,9 @@ SharingWindow = function(c, sharing, configOnly) {
         return {
             SharingAccessRow,
             getBody,
-            userGroupStore,
-            userGroupField,
-            userGroupButton,
+            sharingStore,
+            sharingField,
+            sharingButton,
             userGroupRowContainer,
             userRowContainer,
             externalAccess,

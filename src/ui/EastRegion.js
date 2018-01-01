@@ -62,8 +62,13 @@ EastRegion = function(c) {
                 if (description == undefined) {
                     description = i18n.no_description;
                 }
+
                 var isTooLongDescription = (description.length > descriptionMaxNumberCharacter);
                 var shortDescription = description.substring(0, descriptionMaxNumberCharacter) + ' ... ';
+
+                // DHIS2-2210: render line breaks
+                description = description.replace(/\n/g, '<br />');
+                shortDescription = shortDescription.replace(/\n/g, '<br />');
 
                 // Description label
                 descriptionItems.push({
@@ -412,7 +417,7 @@ EastRegion = function(c) {
                                 listeners: {
                                     render: function() {
                                         this.getEl().on('click', function() {
-                                            window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + comment.user.id;
+                                            window.location.href = path + '/dhis-web-messaging/profile.action?id=' + comment.user.id;
                                         });
                                     }
                                 }
@@ -631,7 +636,7 @@ EastRegion = function(c) {
                             var element = this.getEl();
 
                             element.on('click', function() {
-                                window.location.href = path + '/dhis-web-dashboard-integration/profile.action?id=' + interpretation.user.id;
+                                window.location.href = path + '/dhis-web-messaging/profile.action?id=' + interpretation.user.id;
                             });
                         }
                     }

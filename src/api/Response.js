@@ -141,8 +141,8 @@ export const Response = function(refs, config) {
                     dimensions[header.name].forEach((prefixedId, index) => {
                         var id = ids[index];
                         var optionSet = header.optionSet;
-
-                        var name = indexedDbManager.getCachedOptionName(ids[index], header.optionSet);
+                        
+                        var name = indexedDbManager.getCachedOptionName(id, optionSet);
 
                         items[prefixedId] = { name: name };
                     });
@@ -180,7 +180,7 @@ export const Response = function(refs, config) {
                 };
             }
         }
-
+        
         return metaData;
     }();
 
@@ -354,7 +354,7 @@ Response.prototype.printResponseCSV = function() {
     var t = this;
 
     var headers = t.headers,
-        names = t.metaData.names,
+        items = t.metaData.items,
         rows = t.rows,
         csv = '',
         alink;
@@ -370,7 +370,7 @@ Response.prototype.printResponseCSV = function() {
             val = rows[i][j];
             isMeta = headers[j].meta;
 
-            csv += '"' + (isMeta && names[val] ? names[val] : val) + '"';
+            csv += '"' + (isMeta && items[val] && isString(items[val].name) ? items[val].name : val) + '"';
             csv += j < rows[i].length - 1 ? ',' : '\n';
         }
     }
