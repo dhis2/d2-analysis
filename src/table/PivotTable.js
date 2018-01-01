@@ -35,7 +35,7 @@ import { ValueSubTotalCell,
 export const PivotTable = function(refs, layout, response, colAxis, rowAxis, options={}) {
 
     this.options = {
-        renderLimit: 50000000,
+        renderLimit: 5,
         forceDynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
@@ -50,6 +50,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         numberType: !!layout.numberType,
         ...options,
     }
+    console.log(refs)
 
     this.cellHeight = 25;
     this.cellWidth = 120;
