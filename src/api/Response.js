@@ -475,19 +475,19 @@ Response.prototype.getSortedRows = function() {
 };
 
 Response.prototype.getIdValueMap = function(layout) {
-    return this.idValueMap = getIdMap(layout, 'value');
+    return this.idValueMap = this.getIdMap(layout, 'value');
 };
 
 Response.prototype.getIdDenominatorMap = function(layout) {
-    return this.idDenominatorMap = getIdMap(layout, 'denominator');
+    return this.idDenominatorMap = this.getIdMap(layout, 'denominator');
 };
 
 Response.prototype.getIdNumeratorMap = function(layout) {
-    return this.idNumeratorMap = getIdMap(layout, 'numerator');
+    return this.idNumeratorMap = this.getIdMap(layout, 'numerator');
 };
 
 Response.prototype.getIdFactorMap = function(layout) {
-    return this.idFactorMap = getIdMap(layout, 'factor');
+    return this.idFactorMap = this.getIdMap(layout, 'factor');
 };
 
 Response.prototype.getIdMap = function(layout, name) {
@@ -506,7 +506,6 @@ Response.prototype.getIdMap = function(layout, name) {
         headerIndexOrder.forEach(index => {
             header = this.getHeaderByIndex(index);
             rowValue = responseRow.getAt(index);
-
             key = header.isPrefix ? this.getPrefixedId(rowValue, header.name) : rowValue;
 
             idCombination.add(key);

@@ -23,16 +23,17 @@ const DefaultCell = () => {
     };
 };
 
-export const ValueCell = (value, response, rric, uuids) => {
+export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     const cell  = DefaultCell();
     
     cell.uuid       = uuid();
     cell.uuids      = uuids;
 
-    cell.empty      = value === -1;
-    cell.value      = value === -1 ? 0        : value;
-    cell.htmlValue  = value === -1 ? '&nbsp;' : value;
-
+    cell.value      = value;
+    cell.htmlValue  = value === null ? 
+        '&nbsp;' : htmlValue ? 
+            htmlValue : value;
+    
     cell.isValue    = !cell.empty;
 
     cell.type       = 'value';
@@ -45,45 +46,65 @@ export const ValueCell = (value, response, rric, uuids) => {
     return cell;
 };
 
-export const PlainValueCell = (value) => {
+export const PlainValueCell = (value, rric, response) => {
     const cell = DefaultCell();
 
     cell.value      = value;
     cell.type       = 'value';
-    cell.htmlValue  = value === 0 ? '&nbsp;' : value;
+    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
+
+    cell.htmlValue  = typeof !value ? 
+        '&nbsp;' : value;
 
     return cell;
 }
 
-export const ValueSubTotalCell = (value) => {
+export const ValueSubTotalCell = (value, htmlValue) => {
     const cell = DefaultCell();
 
     cell.value     = value;
     cell.type      = 'valueSubtotal';
     cell.cls       = 'pivot-value-subtotal';
 
-    cell.empty     = value <= 0;
+    cell.empty     = value === null;
     
-    cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    if (typeof value === 'string') {
+        cell.htmlValue = value;
+    } else {
+        cell.htmlValue = cell.empty ? 
+            '&nbsp;' : htmlValue ? 
+                htmlValue : getRoundedHtmlValue(value);
+    }
 
     return cell;
 };
 
-export const ValueTotalCell = (value) => {
+export const ValueTotalCell = (value, htmlValue) => {
     const cell = DefaultCell();
 
     cell.value     = value;
     cell.type      = 'valueTotal';
     cell.cls       = 'pivot-value-total-subgrandtotal';
 
-    cell.empty     = value <= 0;
+    cell.empty     = value === null;
 
-    cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    if (typeof value === 'string') {
+        cell.htmlValue = value;
+    } else {
+        cell.htmlValue = cell.empty ? 
+            '&nbsp;' : htmlValue ? 
+                htmlValue : getRoundedHtmlValue(value);
+    }
 
     return cell;
 };
 
 export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
+
+    if (!axisObject) {
+        return null;
+    }
+
     const cell = axisObject;
 
     cell.collapsed = false;
@@ -101,19 +122,29 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     } 
 
     cell.noBreak   = true;
-    cell.hidden    = hidden;
+    cell.hidden    = typeof hidden === 'undefined' ? 
+        !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
-    cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
+    let htmlValue = response.getItemName(cell.id, showHierarchy, true);
+
+    cell.htmlValue = htmlValue;
+    cell.title = htmlValue;
 
     return cell;
 };
 
-export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort) => {
+export const ColumnAxisCell = (axisObject, response, showHierarchy, sort, hidden) => {
+
+    if (!axisObject) {
+        return null;
+    }
+
     const cell = axisObject;
 
     cell.collapsed = false;
     cell.hidden    = false;
     cell.empty     = false;
+    
     cell.width     = 120;
     cell.height    = 25;
 
@@ -122,14 +153,18 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
     cell.cls       = 'pivot-dim pivot-col-dim';
 
     cell.noBreak   = false;
-    cell.hidden    = hidden;
+    cell.hidden    = typeof hidden === 'undefined' ? 
+        !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
     if (sort) {
-        cell.sort  = sort;
+        cell.sort = sort;
         cell.cls += ' td-sortable';
     }
     
-    cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
+    let htmlValue = response.getItemName(cell.id, showHierarchy, true);
+
+    cell.htmlValue = htmlValue;
+    cell.title = htmlValue;
 
     return cell;
 };
@@ -150,7 +185,7 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) =>
     return cell;
 };
 
-export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid) => {
+export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid, hidden=false) => {
     const cell = DefaultCell();
 
     cell.value   = value;
@@ -164,6 +199,7 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     cell.uuid    = generateUuid ? uuid() : null;
 
     cell.htmlValue = value;
+    cell.hidden    = hidden;
 
     return cell;
 };

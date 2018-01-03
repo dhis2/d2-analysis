@@ -596,11 +596,13 @@ Layout.prototype.sort = function(table) {
     ids = this.getDimensionNameIdsMap(response)[dimension.dimension];
 
     ids.forEach(function(item) {
-        sortingId = parseFloat(idValueMap[(new ResponseRowIdCombination(refs, [id, item]).get())]);
+        let validId = new ResponseRowIdCombination(refs, [id, item]).get();
+        sortingId = parseFloat(idValueMap[validId]);
 
         obj = {
             id: item,
-            sortingId: isNumber(sortingId) ? sortingId : (Number.MAX_VALUE * -1)
+            sortingId: isNumber(sortingId) ? 
+                sortingId : (Number.MAX_VALUE * -1)
         };
 
         records.push(obj);

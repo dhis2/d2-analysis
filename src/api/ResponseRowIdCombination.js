@@ -8,24 +8,25 @@ export var ResponseRowIdCombination;
 ResponseRowIdCombination = function(refs, config) {
     var t = this;
 
-    config = isArray(config) ? config : (isString(config) ? config.split('-') : null);
+    config = isArray(config) ? config.reduce((acc, cur) => (acc += (acc.length === 0 ? '' : '-') + cur), '') : null;
+    config = isString(config) ? config : '';
 
     // constructor
-    t.ids = config || [];
+    t.ids = config;
 };
 
 ResponseRowIdCombination.prototype.add = function(id) {
     if (id) {
-        this.ids = this.ids.concat(id.split('-'));
+        this.ids += (this.ids.length === 0 ? '' : '-') + id
     }
 };
 
 ResponseRowIdCombination.prototype.get = function() {
-    return this.ids.join('-');
+    return this.ids;
 };
 
 ResponseRowIdCombination.prototype.getNames = function(response, ignoreIndexes) {
-    var ids = this.ids;
+    var ids = this.ids.split('-');
 
     if (isArray(ignoreIndexes)) {
         ids = ids.filter(((id, index) => !arrayContains(ignoreIndexes, index)));
@@ -35,5 +36,5 @@ ResponseRowIdCombination.prototype.getNames = function(response, ignoreIndexes) 
 };
 
 ResponseRowIdCombination.prototype.getIdByIds = function(ids) {
-    return this.ids.filter(id => arrayContains(arrayFrom(ids), id))[0];
+    return this.ids.split('-').filter(id => arrayContains(arrayFrom(ids), id))[0];
 };

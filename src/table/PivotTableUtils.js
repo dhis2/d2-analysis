@@ -114,3 +114,19 @@ export const getUniqueFactor = axis => {
     }
     return null;
 };
+
+export const addMerge = (a, b) => {
+    Object.keys(a).forEach(key => {
+        if(b[key]) {
+            a[key] += b[key];
+        }
+    });
+};
+
+
+export const defaultProxyGenerator = defaultReturnValue => {
+    return new Proxy(
+        {}, 
+        { get: (target, name) => name in target ? target[name] : defaultReturnValue }
+    );
+};

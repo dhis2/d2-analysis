@@ -113,7 +113,8 @@ TableManager = function(c) {
         for (var i = 0, obj, axis, dimension; i < objects.length; i++) {
             obj = objects[i];
 
-            axis = obj.axis === 'col' ? layout.columns || [] : layout.rows || [];
+            axis = obj.axis === 'column' ? 
+                layout.columns || [] : layout.rows || [];
 
             if (axis.length) {
                 dimension = axis[obj.dim];
