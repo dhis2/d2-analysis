@@ -62,7 +62,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     }
 
     const aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
-        return  arrayRepeat(ids, aAccFloorWidth[index - 1]);
+        return arrayRepeat(ids, aAccFloorWidth[index - 1]);
     });
 
     const aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
@@ -109,11 +109,11 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
     // add parents if more than 1 floor
     if (nAxisHeight > 1) {
-        for (var i = 1, aAllFloor; i < nAxisHeight; i++) {
+        for (let i = 1, aAllFloor; i < nAxisHeight; i++) {
             aAllFloor = aaAllFloorObjects[i];
 
-            //for (var j = 0, obj, doorCount = 0, span = aFloorSpan[i - 1], parentObj = aaAllFloorObjects[i - 1][0]; j < aAllFloor.length; j++) {
-            for (var j = 0, doorCount = 0, span = aFloorSpan[i - 1]; j < aAllFloor.length; j++) {
+            //for (let j = 0, obj, doorCount = 0, span = aFloorSpan[i - 1], parentObj = aaAllFloorObjects[i - 1][0]; j < aAllFloor.length; j++) {
+            for (let j = 0, doorCount = 0, span = aFloorSpan[i - 1]; j < aAllFloor.length; j++) {
                 aAllFloor[j].parent = aaAllFloorObjects[i - 1][j];
             }
         }
@@ -127,43 +127,39 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    // // add uuids array to leaves
-    // if (aaAllFloorObjects.length) {
+    // add uuids array to leaves
+    if (aaAllFloorObjects.length) {
 
-    //     // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-    //     var nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
-    //         aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
+        // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
+        let nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
+            aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
-    //     for (var i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
-    //         leaf = aAllFloorObjectsLast[i];
-    //         leafUuids.push(leaf.uuid);
-    //         parentUuids = [];
-    //         obj = leaf;
+        for (let i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
+            leaf = aAllFloorObjectsLast[i];
+            leafUuids.push(leaf.uuid);
+            obj = leaf;
+            parentUuids = [];
 
-    //         // get the uuid of the oldest sibling
-    //         while (obj.parent) {
-    //             obj = obj.parent;
-    //             if(!obj.root && obj.oldestSibling) {
-    //                 parentUuids.push(obj.oldestSibling.uuid);
-    //             } else {
-    //                 parentUuids.push(obj.uuid);
-    //             }
-    //         }
+            // get the uuid of the oldest sibling
+            while (obj = obj.parent) {
+                parentUuids.push(!obj.root && obj.oldestSibling ? 
+                    obj.oldestSibling.uuid : obj.uuid);
+            }
 
-    //         // add parent uuids to leaf
-    //         leaf.uuids = parentUuids.slice();
+            // add parent uuids to leaf
+            leaf.uuids = parentUuids.slice();
 
-    //         // add uuid for all leaves
-    //         if (leafUuids.length === nSpan) {
-    //             for (var j = (i - nSpan) + 1, leaf; j <= i; j++) {
-    //                 leaf = aAllFloorObjectsLast[j];
-    //                 leaf.uuids.push(...leafUuids);
-    //             }
+            // add uuid for all leaves
+            if (leafUuids.length === nSpan) {
+                for (let j = (i - nSpan) + 1, leaf; j <= i; j++) {
+                    leaf = aAllFloorObjectsLast[j];
+                    leaf.uuids.push(...leafUuids);
+                }
 
-    //             leafUuids = [];
-    //         }
-    //     }
-    // }
+                leafUuids = [];
+            }
+        }
+    }
 
     return {
         type: type,

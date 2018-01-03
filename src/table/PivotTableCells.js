@@ -29,9 +29,11 @@ export const ValueCell = (value, response, rric, uuids) => {
     cell.uuid       = uuid();
     cell.uuids      = uuids;
 
-    cell.empty      = value === -1;
-    cell.value      = value === -1 ? 0        : value;
-    cell.htmlValue  = value === -1 ? '&nbsp;' : value;
+    // cell.empty      = value === -1;
+    // cell.value      = value === -1 ? 0        : value;
+    // cell.htmlValue  = value === -1 ? '&nbsp;' : value;
+    cell.htmlValue  = value === 0 ? '&nbsp;' : value;
+    
 
     cell.isValue    = !cell.empty;
 
@@ -45,11 +47,13 @@ export const ValueCell = (value, response, rric, uuids) => {
     return cell;
 };
 
-export const PlainValueCell = (value) => {
+export const PlainValueCell = (value, rric, response) => {
     const cell = DefaultCell();
 
     cell.value      = value;
     cell.type       = 'value';
+    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
+
     cell.htmlValue  = value === 0 ? '&nbsp;' : value;
 
     return cell;
@@ -150,7 +154,7 @@ export const DimensionSubTotalCell = (value, colSpan, rowSpan, empty, hidden) =>
     return cell;
 };
 
-export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid) => {
+export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateUuid, hidden=false) => {
     const cell = DefaultCell();
 
     cell.value   = value;
@@ -164,6 +168,7 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     cell.uuid    = generateUuid ? uuid() : null;
 
     cell.htmlValue = value;
+    cell.hidden    = hidden;
 
     return cell;
 };
