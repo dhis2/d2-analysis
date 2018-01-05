@@ -380,7 +380,7 @@ PivotTable.prototype.getTopPadding = function() {
 };
 
 PivotTable.prototype.getLeftPadding = function() {
-    return this.columnStart * this.cellWidth;
+    return (this.columnStart  - this.numberOfEmptyColumns) * this.cellWidth;
 };
 
 PivotTable.prototype.getBottomPadding = function() {
@@ -1257,6 +1257,9 @@ PivotTable.prototype.createColumnRenderMap = function() {
     for (let i = 0; i < this.valueLookup[1].length; i++) {
         if (this.valueLookup[this.rowSize - 1][i] || !this.doHideEmptyColumns()) {
             map.push(i);
+        } else {
+            this.numberOfEmptyColumns += 1;
+            this.decrementColumnAxisSpan(i - Math.floor(i / (this.colUniqueFactor + 1)), 0);
         }
     }
     return map;
@@ -1283,22 +1286,6 @@ PivotTable.prototype.createTypeLookup = function() {
     return lookup;
 };
 
-PivotTable.prototype.hideRow = function(index) {
-    
-}
-
-PivotTable.prototype.hideColumn = function(index) {
-    
-}
-
-PivotTable.prototype.showColumn = function(index) {
-
-}
-
-PivotTable.prototype.showRow = function(index) {
-
-}
-
 // utils
 PivotTable.prototype.statistics = function() {
     return {
@@ -1313,7 +1300,7 @@ PivotTable.prototype.constrainHeight = function(index) {
 };
 
 PivotTable.prototype.constrainWidth = function(index) {
-    return Math.min(this.getColumnAxisSize(), index);
+    return Math.min(this.getColumnAxisSize() - this.numberOfEmptyColumns, index);
 };
 
 PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
@@ -1329,60 +1316,6 @@ PivotTable.prototype.normalizeColumnIndex = function(columnIndex) {
     }
     return columnIndex;
 };
-
-// PivotTable.prototype.hideEmptyRows = function() {
-
-//     this.visibleEmptyRows = 0;
-    
-//     let recursive = false,
-//         hiddenRows = 0;
-
-//     for (let i = Math.max(0, this.columnDimensionSize - this.rowStart), dimLeaf; i < this.table.length; i++) {
-        
-//         if (this.isRowEmpty(i - (this.columnDimensionSize - this.rowStart))) {
-
-//             this.deleteRow(i - (this.columnDimensionSize - this.rowStart));
-//             continue;
-            
-//             this.visibleEmptyRows += 1;
-
-//             if (this.columnStart < this.rowDimensionSize) {
-//                 dimLeaf = this.table[i][this.rowDimensionSize - 1 - this.columnStart];
-
-//                 if (dimLeaf.collapsed) {
-//                     continue;
-//                 }
-
-//                 if (dimLeaf.type === 'dimensionSubtotal') {
-//                     this.table[i][0].collapsed = true;
-//                 }
-
-//                 if (dimLeaf && !dimLeaf.knicked) {
-//                     hiddenRows++;                
-//                     dimLeaf.knicked = true;
-//                     this.recursiveReduce(dimLeaf, 'rowSpan');
-//                 }
-//             }
-
-//             this.table[i][0].collapsed = true;
-//             for (let j = 0; j < this.table[i].length; j++) {
-//                 this.table[i][j].collapsed = true;
-//             }
-//         }
-//     }
-
-//     for (let i = 0; i < hiddenRows; i++) {
-//         if (this.isRowEmpty(this.rowEnd)) {
-//             recursive = true;
-//         }
-//         this.setRowEnd(this.rowEnd + 1)
-//         this.addBottom(this.rowEnd, this.columnStart, this.columnEnd);
-//     }
-
-//     if (recursive) {
-//         this.hideEmptyRows();
-//     }
-// };
 
 PivotTable.prototype.hideEmptyRows = function() {
     for (let i = Math.max(0, this.columnDimensionSize - this.rowStart), dimLeaf; i < this.table.length; i++) {
@@ -1401,69 +1334,6 @@ PivotTable.prototype.hideEmptyRows = function() {
         }
     }
 };
-
-PivotTable.prototype.hideEmptyColumns = function() {
-    
-    this.visibleEmptyColumns = 0;
-    
-    let recursive = false,
-        hiddenColumns = 0;
-
-    for (let i = Math.max(0, this.rowDimensionSize - this.columnStart), dimLeaf; i < this.table[1].length; i++) {
-        if (this.isColumnEmpty(i - (this.rowDimensionSize - this.columnStart))) {
-
-            this.visibleEmptyColumns += 1;
-            
-            if (this.rowStart < this.columnDimensionSize) {
-                dimLeaf = this.table[this.columnDimensionSize - 1 - this.rowStart][i];
-                
-                if (dimLeaf.collapsed) continue;
-
-                if (dimLeaf.type === 'dimensionSubtotal') {
-                    this.table[0][i].collapsed = true;
-                }
-
-                if (dimLeaf && !dimLeaf.knicked) {
-                    hiddenColumns++;                
-                    dimLeaf.knicked = true;
-                    this.recursiveReduce(dimLeaf, 'colSpan');
-                }
-            }
-            
-            this.table[0][i].collapsed = true;
-            for (let j = 0; j < this.table.length; j++) {
-                this.table[j][i].collapsed = true;
-            }
-        }
-    }
-
-    for (let i = 0; i < hiddenColumns; i++) {
-        if (this.isColumnEmpty(this.columnEnd)) {
-            recursive = true;
-        }
-        this.setColumnEnd(this.columnEnd + 1)
-        this.appendTableColumn(this.columnEnd, this.rowStart, this.rowEnd);
-    }
-
-    if (recursive) {
-        this.hideEmptyColumns();
-    }
-};
-
-// PivotTable.prototype.recursiveReduce = function(obj, span) {
-//     if (!obj.children) {
-//         obj.collapsed = true;
-
-//         if (obj.parent && obj.parent.oldestSibling) {
-//             obj.parent.oldestSibling.children--;
-//             obj.parent.oldestSibling[span]--;
-//         }
-//     }
-
-//     if (obj.parent) {
-//         this.recursiveReduce(obj.parent);
-//     }
-// };
 
 PivotTable.prototype.recursiveReduce = function(obj) {
     if (!obj.children) {
@@ -1939,12 +1809,24 @@ PivotTable.prototype.decremenetRowAxisSpan = function(rowIndex, dimensionId) {
     this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])] -= 1;
 };
 
+PivotTable.prototype.decrementColumnAxisSpan = function(columnIndex, dimensionId) {
+    this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])] -= 1;
+};
+
 PivotTable.prototype.getValueStartRow = function() {
     return Math.max(0, this.columnDimensionSize - this.rowStart);
 };
 
-PivotTable.prototype.getValueOffset = function() {
+PivotTable.prototype.getValueStartColumn = function() {
+    return Math.max(0, this.rowDimensionSize - this.columnStart);
+};
+
+PivotTable.prototype.getValueOffsetRow = function() {
     return Math.max(0, this.rowStart - this.columnDimensionSize);
+};
+
+PivotTable.prototype.getValueOffsetColumn = function() {
+    return Math.max(0, this.columnStart - this.rowDimensionSize);
 };
 
 PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
@@ -1956,18 +1838,28 @@ PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, tableRowIndex) 
         (valueRowIndex % this.rowAxis.span[tableRowIndex])
 };
 
+PivotTable.prototype.getColAxisSpan = function(columnIndex, dimensionId) {
+    return this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])];
+};
+
+PivotTable.prototype.getUpdatedColSpan = function(valueColumnIndex, tableRowIndex) {
+    return this.getColAxisSpan(valueColumnIndex, tableRowIndex) - 
+        (valueColumnIndex % this.colAxis.span[tableRowIndex])
+};
+
+
 PivotTable.prototype.updateRowAxisDimensionSpan = function() {
     if (!this.rowAxis.type) return;
 
     const rowSpanLimit = this.rowEnd - this.rowStart + 1;
 
     for (let i=0, x=this.columnStart; i < (this.rowDimensionSize - this.columnStart); i++, x++) {
-        for (let j=this.getValueStartRow(), y=this.getValueOffset(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, y++) {      
+        for (let j=this.getValueStartRow(), y=this.getValueOffsetRow(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, y++) {      
 
             let cell = this.table[j][i];
-            let yo = this.rowAxisLookup[y]  - Math.floor(this.rowAxisLookup[y] / (this.rowUniqueFactor + 1));
+            let yo = this.rowAxisLookup[y] - Math.floor(this.rowAxisLookup[y] / (this.rowUniqueFactor + 1));
 
-            if (cell.collapsed || this.isRowEmpty(this.rowAxisLookup[y])) {
+            if (cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.rowAxisLookup[y]))) {
                 // cell.hidden = true;
                 continue;
             }
@@ -2003,107 +1895,55 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
     }
 };
 
-PivotTable.prototype.updateRowAxisDimensionSpan1 = function() {
+PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
+    if (!this.colAxis.type) return;
 
-    if (!this.rowAxis.type) {
-        return;
-    }
+    const colSpanLimit = this.columnEnd - this.columnStart + 1;
 
-    const rowSpanLimit = this.rowEnd - this.rowStart + 1;
+    for (let i=0, y=this.rowStart; i < (this.columnDimensionSize - this.rowStart); i++, y++) {
+        for (let j=this.getValueStartColumn(), x=this.getValueOffsetColumn(), colSpanCounter=0, currentColSpan=0; j < this.table[i].length; j++, x++) {      
 
-    for (let i=0, x=this.columnStart, cell; i < this.rowDimensionSize - this.columnStart; i++, x++) {
-        for (let j=0, rowSpanCounter=0; j < this.table.length; j++) {
+            let cell = this.table[i][j];
+            let xo = this.columnAxisLookup[x]  - Math.floor(this.columnAxisLookup[x] / (this.colUniqueFactor + 1));
 
-            cell = this.table[j][i];
+            if (cell.collapsed || this.isColumnEmpty(this.columnAxisLookup[x])) {
+                // cell.hidden = true;
+                continue;
+            }
 
-            if (cell.collapsed) continue;
+            if (cell.type === 'dimensionSubtotal') {
+                colSpanCounter += 1;
+                cell.hidden =  i !== 0;
+                continue;
+            }
 
-            cell.rowSpan = this.getAdjustedRowSpan(cell, x);
-            cell.hidden  = this.checkAxisHiddenParameters(cell, i, j);
 
-            if (j === 0 && cell.type === 'empty') {
-                rowSpanCounter += Math.max(0, this.columnDimensionSize - this.rowStart);
+            currentColSpan -= 1;
+
+            if (currentColSpan <= 0) {
+                currentColSpan = this.getUpdatedColSpan(xo, y);
+                cell.hidden = this.checkAxisHiddenParameters(cell, i, j, false);
+                // if (i === 0) console.warn(currentColSpan, xo, cell, cell.hidden, this.getColAxisSpan(xo, i));
+            } else {
+                cell.hidden  = this.checkAxisHiddenParameters(cell, i, j, true);
+            }
+ 
+            cell.colSpan = currentColSpan;
+
+            if (cell.hidden) {
                 continue;
             }
             
-            if (rowSpanCounter >= rowSpanLimit || cell.hidden) {
-                cell.hidden = true;
-                if (cell.type === 'dimensionSubtotal') rowSpanCounter += 1;
-                continue;
+            if (cell.colSpan + colSpanCounter > colSpanLimit) {
+                cell.colSpan = colSpanLimit - colSpanCounter;
             }
 
-            if (cell.rowSpan + rowSpanCounter > rowSpanLimit) {
-                cell.rowSpan = rowSpanLimit - rowSpanCounter;
-            }
-
-            rowSpanCounter += cell.rowSpan;
+            colSpanCounter += cell.colSpan;
         }
     }
 };
 
-// PivotTable.prototype.updateRowAxisDimensionSpan3 = function() {
-//     if (!this.rowAxis.type) return;
-
-//     const rowSpanLimit = this.rowEnd - this.rowStart + 1;
-
-//     for (let i=0, x=this.columnStart, cell; i < this.rowDimensionSize - this.columnStart; i++, x++) {
-//         for (let j=this.getValueStartRow(), y=getValueOffset(), rowSpanCounter=0, currentRowSpan = 0, c=0; j < this.table.length; j++, y++) {
-
-//             cell = this.table[j][i];
-
-//             if (cell.collapsed || this.isRowEmpty(this.rowAxisLookup[y - c])) {
-//                 continue;
-//             }
-
-//             switch(cell.type) {
-
-//                 case 'labeled': {
-//                     cell.rowSpan = this.getAdjustedRowSpan(cell, x);
-//                     cell.hidden  = this.checkAxisHiddenParameters(cell, i, j);
-//                 } break;
-
-//                 case 'empty': {
-//                     if (j === 0) {
-//                         rowSpanCounter += Math.max(0, this.columnDimensionSize - this.rowStart);
-//                         continue;
-//                     }
-//                 } break;
-                
-//                 case 'dimensionSubtotal': {
-//                     rowSpanCounter += 1; c++; continue;
-//                 } break;
-
-//                 case 'dimension': {
-//                     currentRowSpan -= 1;
-
-//                     if (currentRowSpan <= 0) {
-//                         currentRowSpan = this.getRowAxisSpan(this.rowAxisLookup[y - c], i) - (this.rowAxisLookup[y - c] % this.getRowAxisSpan(this.rowAxisLookup[y - c], i));
-//                         // console.warn(currentRowSpan, y, j, this.rowStart, cell);
-//                     }
-//                     if (i === 0) {
-//                         // console.log(this.getRowAxisSpan(this.rowAxisLookup[y], i), y, this.getRowAxisSpan(y, i), this.getRowAxisSpan(this.rowAxisLookup[y], i) - (y % this.getRowAxisSpan(y, i)))
-//                         // console.warn(currentRowSpan, y, cell);
-//                     }
-//                     cell.rowSpan = currentRowSpan;
-//                     cell.hidden  = this.checkAxisHiddenParameters(cell, i, j);
-//                 } break;
-//             }
-
-//             if (rowSpanCounter >= rowSpanLimit || cell.hidden) {
-//                 cell.hidden = true;
-//                 continue;
-//             }
-
-//             if (cell.rowSpan + rowSpanCounter > rowSpanLimit) {
-//                 cell.rowSpan = rowSpanLimit - rowSpanCounter;
-//             }
-
-//             rowSpanCounter += cell.rowSpan;
-//         }
-//     }
-// };
-
-PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
+PivotTable.prototype.updateColumnAxisDimensionSpan1 = function() {
 
     const colSpanLimit = this.columnEnd - this.columnStart + 1;
 
