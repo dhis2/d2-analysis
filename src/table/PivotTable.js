@@ -909,7 +909,7 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 
     //TODO: check this
     rowIndex = this.rowAxisLookup[rowIndex];
-    columnIndex = this.columnAxisLookup[columnIndex];
+    // columnIndex = this.columnAxisLookup[columnIndex];
 
     if (this.isRowSubTotal(rowIndex)) {
         return DimensionSubTotalCell('&nbsp;', 
@@ -924,7 +924,7 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
     if (this.doColSubTotals()) {
         rowIndex = this.normalizeRowIndex(rowIndex);
     }
-
+    
     const axisObject = this.getRowAxisObject(columnIndex, rowIndex);
 
     if (!axisObject) {
@@ -1906,7 +1906,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
             let cell = this.table[i][j];
             let xo = this.columnAxisLookup[x]  - Math.floor(this.columnAxisLookup[x] / (this.colUniqueFactor + 1));
 
-            if (cell.collapsed || this.isColumnEmpty(this.columnAxisLookup[x])) {
+            if (cell.collapsed || (this.doHideEmptyColumns() && this.isColumnEmpty(this.columnAxisLookup[x]))) {
                 // cell.hidden = true;
                 continue;
             }
