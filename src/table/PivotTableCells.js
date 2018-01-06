@@ -68,7 +68,11 @@ export const ValueSubTotalCell = (value) => {
 
     cell.empty     = value <= 0;
     
-    cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    if (typeof value === 'string') {
+        cell.htmlValue = value;
+    } else {
+        cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    }
 
     return cell;
 };
@@ -82,7 +86,11 @@ export const ValueTotalCell = (value) => {
 
     cell.empty     = value <= 0;
 
-    cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    if (typeof value === 'string') {
+        cell.htmlValue = value;
+    } else {
+        cell.htmlValue = cell.empty ? '&nbsp;' : getRoundedHtmlValue(value);
+    }
 
     return cell;
 };
