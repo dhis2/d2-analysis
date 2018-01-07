@@ -38,7 +38,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: false,
+        forceDynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -1742,7 +1742,8 @@ PivotTable.prototype.update = function(columnStart, rowStart) {
     const columnEnd = this.getColumnEnd(columnStart),
           rowEnd    = this.getRowEnd(rowStart);
 
-    while (columnStart !== this.columnStart || rowStart !== this.rowStart) {
+    while ((columnStart !== this.columnStart || rowStart !== this.rowStart) || 
+        (columnEnd !== this.columnEnd || rowEnd !== this.rowEnd)) {
         this.applyChange(columnStart, columnEnd, rowStart, rowEnd);
     }
 

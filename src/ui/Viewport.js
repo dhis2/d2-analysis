@@ -515,6 +515,12 @@ Viewport = function(refs, cmp, config) {
         removeScroll: function() {
             this.onScroll = Function.prototype;
         },
+        setOnResize: function(fn) {
+            this.onResize = fn;
+        },
+        removeOnResize: function() {
+            this.onResize = Function.prototype;;
+        },
         setSidePanelsUIState: function(favoriteId, interpretationId) {
             // If there is an interpretation loaded, collapse left panel and expand right panel
             if (interpretationId) {
