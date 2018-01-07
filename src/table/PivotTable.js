@@ -15,7 +15,9 @@ import { isColorBright } from '../util/colorUtils';
 import { toRow,
          getPercentageHtml,
          buildTable2D,
-         getUniqueFactor } from './PivotTableUtils';
+         getUniqueFactor,
+         addMerge,
+         defaultProxyGenerator } from './PivotTableUtils';
 
 import { ValueSubTotalCell,
          ValueTotalCell,
@@ -35,7 +37,7 @@ import { ValueSubTotalCell,
 export const PivotTable = function(refs, layout, response, colAxis, rowAxis, options={}) {
 
     this.options = {
-        renderLimit: 5000000,
+        renderLimit: 50000,
         forceDynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
@@ -109,8 +111,8 @@ PivotTable.prototype.initialize = function() {
     this.rowAxisSpanMap = this.createRowSpanMap();
     this.columnAxisSpanMap = this.createColumnSpanMap();
 
-    this.valueLookup = this.createValueLookup();
     this.typeLookup  = this.createTypeLookup();
+    this.valueLookup = this.createValueLookup();
 
     this.rowAxisLookup = this.createRowRenderMap();
     this.columnAxisLookup = this.createColumnRenderMap();
@@ -278,6 +280,58 @@ PivotTable.prototype.isTextField = function(type) {
 };
 
 // getters
+PivotTable.prototype.getAdjustedColSpan = function(cell, y) {
+    if (cell.children) {
+        return cell.oldestSibling.children *
+            this.colAxis.span[y + 1] - cell.siblingPosition;
+    }
+
+    return cell.colSpan;;
+};
+    
+PivotTable.prototype.getAdjustedRowSpan = function(cell, x) {
+    if (cell.children) {
+        return cell.oldestSibling.children * 
+            this.rowAxis.span[x + 1] - cell.siblingPosition;
+    }
+
+    return cell.rowSpan;;
+};
+
+PivotTable.prototype.getValueStartRow = function() {
+    return Math.max(0, this.columnDimensionSize - this.rowStart);
+};
+
+PivotTable.prototype.getValueStartColumn = function() {
+    return Math.max(0, this.rowDimensionSize - this.columnStart);
+};
+
+PivotTable.prototype.getValueOffsetRow = function() {
+    return Math.max(0, this.rowStart - this.columnDimensionSize);
+};
+
+PivotTable.prototype.getValueOffsetColumn = function() {
+    return Math.max(0, this.columnStart - this.rowDimensionSize);
+};
+
+PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
+    return this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])];
+};
+
+PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, tableRowIndex) {
+    return this.getRowAxisSpan(valueRowIndex, tableRowIndex) - 
+        (valueRowIndex % this.rowAxis.span[tableRowIndex])
+};
+
+PivotTable.prototype.getColAxisSpan = function(columnIndex, dimensionId) {
+    return this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])];
+};
+
+PivotTable.prototype.getUpdatedColSpan = function(valueColumnIndex, tableRowIndex) {
+    return this.getColAxisSpan(valueColumnIndex, tableRowIndex) - 
+        (valueColumnIndex % this.colAxis.span[tableRowIndex])
+};
+
 PivotTable.prototype.getTrueTotal = function(numerator, denominator, factor) {
     return numerator * factor / denominator;
 }
@@ -397,36 +451,42 @@ PivotTable.prototype.getLegendSetId = function(dxId) {
     return this.response.metaData.items[dxId].legendSet;
 };
 
-PivotTable.prototype.increaseColSubTotals = function(lookup, rowIndex, columnIndex, value) {
-    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), columnIndex, value, ValueSubTotalCell);
+PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
+    const id = this.getRRIC(rowIndex, columnIndex).get();
+    return {
+        value: this.getValue(id),
+        numerator: this.getNumeratorValue(id),
+        denominator: this.getDenominatorValue(id),
+        factor: this.getFactorValue(id),
+    };
 };
 
-PivotTable.prototype.increaseRowSubTotals = function(lookup, rowIndex, columnIndex, value) {
-    this.increaseLookupCell(lookup, rowIndex, this.getNextSubColumnIndex(columnIndex), value, ValueSubTotalCell);
+PivotTable.prototype.getValue = function(id) {
+
+    const value = this.idValueMap[id],
+          n = parseFloat(value);
+
+    if (isBoolean(value)) {
+        return 1;
+    }
+
+    if (!isNumber(n) || n != value) {
+        return  0;
+    }
+    
+    return n;
 };
 
-PivotTable.prototype.increaseColTotals = function(lookup, columnIndex, value) {
-    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), columnIndex, value, ValueTotalCell);
+PivotTable.prototype.getFactorValue = function(id) {
+    return parseFloat(this.idFactorMap[id]) || 1;
 };
 
-PivotTable.prototype.increaseRowTotals = function(lookup, rowIndex, value) {
-    this.increaseLookupCell(lookup, rowIndex, this.getNextTotalColumnIndex(), value, ValueTotalCell);
+PivotTable.prototype.getNumeratorValue = function(id) {
+    return parseFloat(this.idNumeratorMap[id]) || this.getValue(id);
 };
 
-PivotTable.prototype.increaseTotalsIntersect = function(lookup, value) {
-    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), value, ValueTotalCell);
-};
-
-PivotTable.prototype.increaseSubTotalIntersect = function(lookup, rowIndex, columnIndex, value) {
-    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), this.getNextSubColumnIndex(columnIndex), value, ValueSubTotalCell);
-};
-
-PivotTable.prototype.increaseColTotalsIntersect = function(lookup, columnIndex, value) {
-    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), this.getNextSubColumnIndex(columnIndex), value, ValueTotalCell);
-};
-
-PivotTable.prototype.increaseRowTotalsIntersect = function(lookup, rowIndex, value) {
-    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), this.getNextTotalColumnIndex(), value, ValueTotalCell);
+PivotTable.prototype.getDenominatorValue = function(id) {
+    return parseFloat(this.idDenominatorMap[id]) || 0;
 };
 
 PivotTable.prototype.getRowSize = function() {
@@ -609,22 +669,46 @@ PivotTable.prototype.getVisibleEmptyColumns = function(columnStart, columnEnd) {
     return counter;
 }
 
-PivotTable.prototype.getValue = function(rowIndex, columnIndex) {
-    const rric = this.getRRIC(rowIndex, columnIndex),
-          value = this.idValueMap[rric.get()],
-          n = parseFloat(value);
 
-    if (isBoolean(value)) {
-        return 1;
-    }
+PivotTable.prototype.getRRIC = function(rowIndex, columnIndex) {
+    const rric = new ResponseRowIdCombination();
+    
+    if (this.colAxis.type) rric.add(this.colAxis.ids[columnIndex]);
+    if (this.rowAxis.type) rric.add(this.rowAxis.ids[rowIndex]);
 
-    if (!isNumber(n) || n != value) {
-        return  0;
-    }
-
-    return n;
+    return rric;
 };
 
+PivotTable.prototype.getCellUuids = function(rowIndex, columnIndex) {
+    let uuids = [];
+
+    if (this.colAxis.type) uuids = uuids.concat(this.colAxis.objects.all[this.colAxis.dims - 1][rowIndex].uuids);
+    if (this.rowAxis.type) uuids = uuids.concat(this.rowAxis.objects.all[this.rowAxis.dims - 1][columnIndex].uuids);
+
+    return uuids;
+};
+
+PivotTable.prototype.getValueCell = function(columnIndex, rowIndex) {
+    return this.cellMap[this.rowAxisLookup[rowIndex]][this.columnAxisLookup[columnIndex]];
+};
+
+PivotTable.prototype.getAdjustedRowIndex = function(index) {
+    return index - Math.floor(index / (this.rowUniqueFactor + 1));
+};
+
+PivotTable.prototype.getAdjustedColumnIndex = function(index) {
+    return index - Math.floor(index / (this.colUniqueFactor + 1));
+};
+
+PivotTable.prototype.getRowPercentage = function(value, rowIndex) {
+    return getPercentageHtml(value, this.getRowTotal(rowIndex));
+};
+
+PivotTable.prototype.getColumnPercentage = function(value, columnIndex) {
+    return getPercentageHtml(value, this.getColumnTotal(columnIndex));
+};
+
+// Table Modifiers
 PivotTable.prototype.addRight = function(columnIndex, rowStart, rowEnd) {
     const column = this.buildColumn(columnIndex, rowStart, rowEnd);
     for (let i = 0; i < column.length; i++) {
@@ -677,6 +761,7 @@ PivotTable.prototype.deleteColumn = function(index) {
     }
 }
 
+// Table Bulders
 PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) { 
     let rowAxisRow = [];
 
@@ -698,6 +783,28 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd));
 };
 
+PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
+    const columnAxis = this.buildColumnAxisColumn(columnIndex, rowStart);
+
+    if (rowStart > this.columnDimensionSize) {
+        rowStart -= this.columnDimensionSize;
+    }
+    
+    rowEnd -= this.columnDimensionSize - 1
+
+    if (columnIndex < this.rowDimensionSize) {
+        return columnAxis.concat(this.buildRowAxisColumn(columnIndex, rowStart, rowEnd));
+    }
+
+    columnIndex -= this.rowDimensionSize;
+
+    let valueTable = this.buildValueColumn(columnIndex, rowStart, rowEnd),
+        column = columnAxis.concat(valueTable);
+
+    return column;
+};
+
+// Value Table Builders
 PivotTable.prototype.buildValueRow = function(rowIndex, columnStart, columnEnd) {
     const row = [];
 
@@ -721,7 +828,36 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
     return column;
 };
 
-// row axis building functions
+PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
+
+    //TODO: check this
+    if (this.doDynamicRendering()) {
+        rowIndex = this.rowAxisLookup[rowIndex];
+        columnIndex = this.columnAxisLookup[columnIndex];
+    }
+
+    let value = this.valueLookup[rowIndex][columnIndex];
+
+    if (this.doColPercentage()) value = this.getColumnPercentage(value, columnIndex);
+    if (this.doRowPercentage()) value = this.getRowPercentage(value, rowIndex);
+
+    switch(this.typeLookup[rowIndex][columnIndex]) {
+        case 0: {
+            let rowIndexOffset = this.getAdjustedRowIndex(rowIndex),
+                columnIndexOffset = this.getAdjustedColumnIndex(columnIndex),
+                cell = ValueCell(value, this.response, this.getRRIC(rowIndexOffset , columnIndexOffset), this.getCellUuids(columnIndexOffset, rowIndexOffset));
+
+            this.uuidDimUuidsMap[cell.uuid] = cell.uuids;
+
+            return cell; 
+        };
+        case 1: return ValueSubTotalCell(value);
+        case 2: return ValueTotalCell(value);
+        default: return null;
+    }
+};
+
+// Row Axis Builders
 PivotTable.prototype.buildRowAxis = function(rowStart, rowEnd, columnStart) {
     const axis = [];
 
@@ -737,6 +873,24 @@ PivotTable.prototype.buildRowAxis = function(rowStart, rowEnd, columnStart) {
     }
 
     return axis;
+};
+
+PivotTable.prototype.buildRowAxisRow = function(rowIndex, columnStart) {
+    if (this.rowDimensionSize < columnStart) {
+        return [];
+    }
+
+    if (!this.rowAxis.type) {
+        return [DimensionEmptyCell(1, 1, false, 'visibility: hidden;')];
+    }
+
+    const row = [];
+
+    for (let i = 0, x = columnStart; x < this.rowDimensionSize; i++, x++) {
+        row[i] = this.buildRowAxisCell(x, rowIndex);
+    }
+
+    return row;
 };
 
 PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd) {
@@ -760,24 +914,6 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
     }
 
     return column;
-};
-
-PivotTable.prototype.buildRowAxisRow = function(rowIndex, columnStart) {
-    if (this.rowDimensionSize < columnStart) {
-        return [];
-    }
-
-    if (!this.rowAxis.type) {
-        return [DimensionEmptyCell(1, 1, false, 'visibility: hidden;')];
-    }
-
-    const row = [];
-
-    for (let i = 0, x = columnStart; x < this.rowDimensionSize; i++, x++) {
-        row[i] = this.buildRowAxisCell(x, rowIndex);
-    }
-
-    return row;
 };
 
 PivotTable.prototype.buildSubTotalAxisRow = function(columnStart) {
@@ -804,110 +940,6 @@ PivotTable.prototype.buildGrandTotalAxisRow = function(columnStart) {
     return row;
 };
 
-
-// column axis build functions
-PivotTable.prototype.buildColumnAxis = function(columnStart, columnEnd, rowStart) {
-    if (!this.colAxis.type) {
-        return this.buildCornerAxisRow(0, 0);
-    }
-
-    const axis = [];
-
-    for (let i=0, x=columnStart; x <= columnEnd; i++, x++) {
-        axis[i] = this.buildColumnAxisColumn(x, rowStart);
-    }
-
-    return axis;
-};
-
-PivotTable.prototype.getRRIC = function(rowIndex, columnIndex) {
-    const rric = new ResponseRowIdCombination();
-    
-    if (this.colAxis.type) rric.add(this.colAxis.ids[columnIndex]);
-    if (this.rowAxis.type) rric.add(this.rowAxis.ids[rowIndex]);
-
-    return rric;
-};
-
-PivotTable.prototype.getCellUuids = function(rowIndex, columnIndex) {
-    let uuids = [];
-
-    if (this.colAxis.type) uuids = uuids.concat(this.colAxis.objects.all[this.colAxis.dims - 1][rowIndex].uuids);
-    if (this.rowAxis.type) uuids = uuids.concat(this.rowAxis.objects.all[this.rowAxis.dims - 1][columnIndex].uuids);
-
-    return uuids;
-};
-
-PivotTable.prototype.getValueCell = function(columnIndex, rowIndex) {
-    return this.cellMap[this.rowAxisLookup[rowIndex]][this.columnAxisLookup[columnIndex]];
-};
-
-PivotTable.prototype.getAdjustedRowIndex = function(index) {
-    return index - Math.floor(index / (this.rowUniqueFactor + 1));
-};
-
-PivotTable.prototype.getAdjustedColumnIndex = function(index) {
-    return index - Math.floor(index / (this.colUniqueFactor + 1));
-};
-
-PivotTable.prototype.getRowPercentage = function(value, rowIndex) {
-    return getPercentageHtml(value, this.getRowTotal(rowIndex));
-};
-
-PivotTable.prototype.getColumnPercentage = function(value, columnIndex) {
-    return getPercentageHtml(value, this.getColumnTotal(columnIndex));
-};
-
-PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
-
-    // console.log(this.valueLookup);
-
-    // console.log(1, rowIndex, columnIndex)
-
-    //TODO: check this
-    if (this.doDynamicRendering()) {
-        rowIndex = this.rowAxisLookup[rowIndex];
-        columnIndex = this.columnAxisLookup[columnIndex];
-    }
-
-    // console.log(2, rowIndex, columnIndex)
-
-    let value = this.valueLookup[rowIndex][columnIndex];
-
-    if (this.doColPercentage()) value = this.getColumnPercentage(value, columnIndex);
-    if (this.doRowPercentage()) value = this.getRowPercentage(value, rowIndex);
-
-    switch(this.typeLookup[rowIndex][columnIndex]) {
-        case 0: {
-            let rowIndexOffset = this.getAdjustedRowIndex(rowIndex),
-                columnIndexOffset = this.getAdjustedColumnIndex(columnIndex),
-                cell = ValueCell(value, this.response, this.getRRIC(rowIndexOffset , columnIndexOffset), this.getCellUuids(columnIndexOffset, rowIndexOffset));
-
-            this.uuidDimUuidsMap[cell.uuid] = cell.uuids;
-
-            return cell; 
-        };
-        case 1: return ValueSubTotalCell(value);
-        case 2: return ValueTotalCell(value);
-        default: return null;
-    }
-};
-
-PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
-
-    //TODO: check this
-    // rowIndex = this.rowAxisLookup[rowIndex];
-    // columnIndex = this.columnAxisLookup[columnIndex];
-    
-    const axisObject = this.getColumnAxisObject(rowIndex, columnIndex);
-
-    return ColumnAxisCell(
-        axisObject,
-        this.response,
-        this.doShowHierarchy(),
-        !(axisObject.rowSpan || axisObject.colSpan),
-        this.getRowSortId(rowIndex));
-};
 
 PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 
@@ -942,6 +974,21 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
         this.response,
         this.doShowHierarchy(),
         !(axisObject.rowSpan || axisObject.colSpan));
+};
+
+// Column Axis Builders
+PivotTable.prototype.buildColumnAxis = function(columnStart, columnEnd, rowStart) {
+    if (!this.colAxis.type) {
+        return this.buildCornerAxisRow(0, 0);
+    }
+
+    const axis = [];
+
+    for (let i=0, x=columnStart; x <= columnEnd; i++, x++) {
+        axis[i] = this.buildColumnAxisColumn(x, rowStart);
+    }
+
+    return axis;
 };
 
 PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, columnEnd) {
@@ -1040,7 +1087,23 @@ PivotTable.prototype.buildGrandTotalAxisColumn = function(rowStart) {
     return column;
 };
 
-// corner axis building functions
+PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
+
+    //TODO: check this
+    // rowIndex = this.rowAxisLookup[rowIndex];
+    // columnIndex = this.columnAxisLookup[columnIndex];
+    
+    const axisObject = this.getColumnAxisObject(rowIndex, columnIndex);
+
+    return ColumnAxisCell(
+        axisObject,
+        this.response,
+        this.doShowHierarchy(),
+        !(axisObject.rowSpan || axisObject.colSpan),
+        this.getRowSortId(rowIndex));
+};
+
+// Corner Axis Bulder
 PivotTable.prototype.buildCornerAxis = function() {
     const cornerAxis = [];
 
@@ -1107,46 +1170,9 @@ PivotTable.prototype.buildCornerAxisRow = function(rowIndex, columnStart) {
     return row;
 };
 
-PivotTable.prototype.transformColPercentage = function() {
-    const table = this.table;
-    for (let i = 0; i < table.length; i++) {
-        for (let j = 0; j < table[i].length; j++) {
-            if (!table[i][j].empty) {
-                table[i][j].htmlValue = getPercentageHtml(table[i][j].value, columnTotalLookup[j]);
-            }
-            if (this.valueLookup[this.getRowSize() - 1][j] === 0) {
-                table[i][j].empty = true;
-                table[i][j].htmlValue = '&nbsp;';
-            }
-        }
-    }
-};
-
-PivotTable.prototype.transformRowPercentage = function() {
-    const table = this.table;
-    for (let i = 0; i < table.length; i++) {
-        for (let j = 0; j < table[i].length; j++) {
-            if (!table[i][j].empty) {
-                table[i][j].htmlValue = getPercentageHtml(table[i][j].value, rowTotalLookup[i]);
-            }
-            if (this.valueLookup[i][this.getColumnSize() - 1] === 0) {
-                table[i][j].empty = true;
-                table[i][j].htmlValue = '&nbsp;';
-            }
-        }
-    }
-};
-
-PivotTable.prototype.defaultProxyGenerator = function(defaultReturnValue) {
-    return new Proxy(
-        {}, 
-        { get: (target, name) => name in target ? target[name] : defaultReturnValue }
-    );
-};
-
 PivotTable.prototype.createSpanMap = function(spanValues) {
     if (!spanValues) spanValues = []
-    return Array.from(spanValues, value => this.defaultProxyGenerator(value));
+    return Array.from(spanValues, value => defaultProxyGenerator(value));
 };
 
 PivotTable.prototype.createRowSpanMap = function() {
@@ -1157,56 +1183,35 @@ PivotTable.prototype.createColumnSpanMap = function() {
     return this.createSpanMap(this.colAxis.span);
 };
 
-PivotTable.prototype.createCellMap = function() {
-    const lookup = buildTable2D(this.rowSize, this.columnSize, 0);
+PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObject, totalObject) {
 
-    for (let i=0, y=0; i < this.rowAxis.size; i++, y++) {
-
-        if (this.doColSubTotals() && (y + 1) % (this.rowUniqueFactor + 1) === 0) {
-            y++;
-        }
-
-        for (let j=0, x=0, cell; j < this.colAxis.size; j++, x++) {
-
-            if (this.doRowSubTotals() && (x + 1) % (this.colUniqueFactor + 1) === 0) {
-                x++;
-            }
-
-            let rric = this.getRRIC(i, j);
-
-            let value = this.idValueMap[rric.get()],
-                n = parseFloat(value);
-
-            if (isBoolean(value)) n = 1;
-            if (!isNumber(n) || n != value) n = 0;
-            
-            cell = ValueCell(n, this.response, rric, this.getCellUuids(j, i));
-
-            lookup[y][x] = cell;
-
-            // calculate sub totals
-            if (this.doColSubTotals()) this.increaseColSubTotals(lookup, i, x, cell.value);
-            if (this.doRowSubTotals()) this.increaseRowSubTotals(lookup, y, j, cell.value);
-
-            // calculate grand totals
-            if (this.doColTotals()) this.increaseColTotals(lookup, x, cell.value);
-            if (this.doRowTotals()) this.increaseRowTotals(lookup, y, cell.value);
-
-            // calculate intersection totals
-            if (this.doRowTotals() && this.doColTotals())       this.increaseTotalsIntersect(lookup, value);
-            if (this.doColSubTotals() && this.doRowSubTotals()) this.increaseSubTotalIntersect(lookup, i, j, value);
-
-            if (this.doRowTotals() && this.doRowSubTotals()) this.increaseColTotalsIntersect(lookup, j, value);
-            if (this.doColSubTotals() && this.doColTotals()) this.increaseRowTotalsIntersect(lookup, i, value);
-        }
+    if (!totalObject[rowIndex]) {
+        totalObject[rowIndex] = {};
     }
     
-    return lookup;
-};
+    if (!totalObject[rowIndex][columnIndex]) {
+        totalObject[rowIndex][columnIndex] = {
+            numerator: 0,
+            denominator: 0,
+            factor: 0,
+            counter: 0,
+        }
+    }
+
+    totalObject[rowIndex][columnIndex].counter++;
+
+    addMerge(totalObject[rowIndex][columnIndex], valueObject);
+}
+
+PivotTable.prototype.valueLookupRowIncrementor = function(y) {
+    return (this.doColSubTotals() && (y + 1) % (this.rowUniqueFactor + 1) === 0) ?
+        1 : 0;
+}
 
 PivotTable.prototype.createValueLookup = function() {
 
     const lookup = buildTable2D(this.rowSize, this.columnSize, 0);
+    const totalMap = {};
 
     for (let i=0, y=0; i < this.rowAxis.size; i++, y++) {
 
@@ -1214,34 +1219,45 @@ PivotTable.prototype.createValueLookup = function() {
             y++;
         }
 
-        for (let j=0, x=0, value; j < this.colAxis.size; j++, x++) {
+        for (let j=0, x=0, value, valueObject; j < this.colAxis.size; j++, x++) {
 
             if (this.doRowSubTotals() && (x + 1) % (this.colUniqueFactor + 1) === 0) {
                 x++;
             }
 
-            value = this.getValue(i, j);
-
-            lookup[y][x] = value;
+            valueObject = this.getValueObject(i, j);
+            
+            lookup[y][x] = valueObject.value;
 
             // calculate sub totals
-            if (this.doColSubTotals()) lookup[this.getNextSubRowIndex(i)][x]    += value;
-            if (this.doRowSubTotals()) lookup[y][this.getNextSubColumnIndex(j)] += value;
-
+            if (this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), x, valueObject, totalMap);
+            if (this.doRowSubTotals()) this.updateValueTotal(y, this.getNextSubColumnIndex(j), valueObject, totalMap);
+            
             // calculate grand totals
-            if (this.doColTotals()) lookup[this.getNextTotalRowIndex()][x]    += value;
-            if (this.doRowTotals()) lookup[y][this.getNextTotalColumnIndex()] += value;
-
+            if (this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), x, valueObject, totalMap);
+            if (this.doRowTotals()) this.updateValueTotal(y, this.getNextTotalColumnIndex(), valueObject, totalMap);
+            
             // calculate intersection totals
-            if (this.doRowTotals() && this.doColTotals())       lookup[this.getNextTotalRowIndex()][this.getNextTotalColumnIndex()] += value;
-            if (this.doColSubTotals() && this.doRowSubTotals()) lookup[this.getNextSubRowIndex(i)][this.getNextSubColumnIndex(j)]   += value;
-
-            if (this.doRowTotals() && this.doRowSubTotals()) lookup[this.getNextTotalRowIndex()][this.getNextSubColumnIndex(j)] += value;
-            if (this.doColSubTotals() && this.doColTotals()) lookup[this.getNextSubRowIndex(i)][this.getNextTotalColumnIndex()] += value;
+            if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
+            if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextSubColumnIndex(j), valueObject, totalMap);
+            if (this.doRowTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
+            if (this.doColSubTotals() && this.doColTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
 
         }
     }
-    
+
+    for (let i=0, rowTotalIndicies=Object.keys(totalMap); i < rowTotalIndicies.length; i++) {
+        for (let j=0, columnTotalIndicies=Object.keys(totalMap[rowTotalIndicies[i]]); j < columnTotalIndicies.length; j++) {
+
+            let y = rowTotalIndicies[i];
+            let x = columnTotalIndicies[j];
+
+            lookup[y][x] = this.getTrueTotal(
+                totalMap[y][x].numerator,
+                totalMap[y][x].denominator || 1,
+                totalMap[y][x].factor / totalMap[y][x].counter)
+        }        
+    }
     return lookup;
 };
 
@@ -1372,34 +1388,6 @@ PivotTable.prototype.hideEmptyColumns = function() {
     for (let i = this.rowDimensionSize; i < this.valueLookup[0].length  + this.rowDimensionSize; i++) {
         if (this.isColumnEmpty(i - this.rowDimensionSize)) {
             this.hideColumn(i);
-        }
-    }
-};
-
-PivotTable.prototype.transformColPercentage = function(table) {
-    for (let i = 0; i < table.length; i++) {
-        for (let j = 0; j < table[i].length; j++) {
-            if (!table[i][j].empty) {
-                table[i][j].htmlValue = getPercentageHtml(table[i][j].value, columnTotalLookup[j]);
-            }
-            if (valueLookup[this.rowSize - 1][j] === 0) {
-                table[i][j].empty = true;
-                table[i][j].htmlValue = '&nbsp;';
-            }
-        }
-    }
-};
-
-PivotTable.prototype.transformRowPercentage = function(table) {
-    for (let i = 0; i < table.length; i++) {
-        for (let j = 0; j < table[i].length; j++) {
-            if (!table[i][j].empty) {
-                table[i][j].htmlValue = getPercentageHtml(table[i][j].value, rowTotalLookup[i]);
-            }
-            if (valueLookup[i][this.columnSize - 1] === 0) {
-                table[i][j].empty = true;
-                table[i][j].htmlValue = '&nbsp;';
-            }
         }
     }
 };
@@ -1717,8 +1705,6 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
     
     const table = toRow(colAxis).concat(rowAxis);
 
-    console.log(table);
-
     this.table = table;
 };
 
@@ -1836,41 +1822,6 @@ PivotTable.prototype.decremenetRowAxisSpan = function(rowIndex, dimensionId) {
 PivotTable.prototype.decrementColumnAxisSpan = function(columnIndex, dimensionId) {
     this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])] -= 1;
 };
-
-PivotTable.prototype.getValueStartRow = function() {
-    return Math.max(0, this.columnDimensionSize - this.rowStart);
-};
-
-PivotTable.prototype.getValueStartColumn = function() {
-    return Math.max(0, this.rowDimensionSize - this.columnStart);
-};
-
-PivotTable.prototype.getValueOffsetRow = function() {
-    return Math.max(0, this.rowStart - this.columnDimensionSize);
-};
-
-PivotTable.prototype.getValueOffsetColumn = function() {
-    return Math.max(0, this.columnStart - this.rowDimensionSize);
-};
-
-PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
-    return this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])];
-};
-
-PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, tableRowIndex) {
-    return this.getRowAxisSpan(valueRowIndex, tableRowIndex) - 
-        (valueRowIndex % this.rowAxis.span[tableRowIndex])
-};
-
-PivotTable.prototype.getColAxisSpan = function(columnIndex, dimensionId) {
-    return this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])];
-};
-
-PivotTable.prototype.getUpdatedColSpan = function(valueColumnIndex, tableRowIndex) {
-    return this.getColAxisSpan(valueColumnIndex, tableRowIndex) - 
-        (valueColumnIndex % this.colAxis.span[tableRowIndex])
-};
-
 
 PivotTable.prototype.updateRowAxisDimensionSpan = function() {
     if (!this.rowAxis.type) return;
@@ -2007,24 +1958,6 @@ PivotTable.prototype.updateDimensionSpan = function() {
     this.updateRowAxisDimensionSpan();
 }
 
-PivotTable.prototype.getAdjustedColSpan = function(cell, y) {
-    if (cell.children) {
-        return cell.oldestSibling.children *
-            this.colAxis.span[y + 1] - cell.siblingPosition;
-    }
-
-    return cell.colSpan;;
-};
-    
-PivotTable.prototype.getAdjustedRowSpan = function(cell, x) {
-    if (cell.children) {
-        return cell.oldestSibling.children * 
-            this.rowAxis.span[x + 1] - cell.siblingPosition;
-    }
-
-    return cell.rowSpan;;
-};
-
 PivotTable.prototype.checkAxisHiddenParameters = function(cell, i, j, show) {
     switch (cell.type) {
         case 'labeled': {
@@ -2050,29 +1983,90 @@ PivotTable.prototype.checkAxisHiddenParameters = function(cell, i, j, show) {
     }
 };
 
-PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
-    const columnAxis = this.buildColumnAxisColumn(columnIndex, rowStart);
 
-    if (rowStart > this.columnDimensionSize) {
-        rowStart -= this.columnDimensionSize;
-    }
-    
-    rowEnd -= this.columnDimensionSize - 1
-
-    if (columnIndex < this.rowDimensionSize) {
-        return columnAxis.concat(this.buildRowAxisColumn(columnIndex, rowStart, rowEnd));
-    }
-
-    columnIndex -= this.rowDimensionSize;
-
-    let valueTable = this.buildValueColumn(columnIndex, rowStart, rowEnd),
-        column = columnAxis.concat(valueTable);
-
-    return column;
-};
+// Full Cell Map Builder
 
 PivotTable.prototype.increaseLookupCell = function(lookup, rowIndex, columnIndex, value, cellType) {
     let cell = lookup[rowIndex][columnIndex];
     if (!cell) cell = lookup[rowIndex][columnIndex] = cellType(value);
     cell.value += value;
+};
+
+PivotTable.prototype.increaseRowSubTotals = function(lookup, rowIndex, columnIndex, value) {
+    this.increaseLookupCell(lookup, rowIndex, this.getNextSubColumnIndex(columnIndex), value, ValueSubTotalCell);
+};
+
+PivotTable.prototype.increaseColTotals = function(lookup, columnIndex, value) {
+    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), columnIndex, value, ValueTotalCell);
+};
+
+PivotTable.prototype.increaseRowTotals = function(lookup, rowIndex, value) {
+    this.increaseLookupCell(lookup, rowIndex, this.getNextTotalColumnIndex(), value, ValueTotalCell);
+};
+
+PivotTable.prototype.increaseTotalsIntersect = function(lookup, value) {
+    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), value, ValueTotalCell);
+};
+
+PivotTable.prototype.increaseSubTotalIntersect = function(lookup, rowIndex, columnIndex, value) {
+    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), this.getNextSubColumnIndex(columnIndex), value, ValueSubTotalCell);
+};
+
+PivotTable.prototype.increaseColTotalsIntersect = function(lookup, columnIndex, value) {
+    this.increaseLookupCell(lookup, this.getNextTotalRowIndex(), this.getNextSubColumnIndex(columnIndex), value, ValueTotalCell);
+};
+
+PivotTable.prototype.increaseRowTotalsIntersect = function(lookup, rowIndex, value) {
+    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), this.getNextTotalColumnIndex(), value, ValueTotalCell);
+};
+
+PivotTable.prototype.increaseColSubTotals = function(lookup, rowIndex, columnIndex, value) {
+    this.increaseLookupCell(lookup, this.getNextSubRowIndex(rowIndex), columnIndex, value, ValueSubTotalCell);
+};
+
+PivotTable.prototype.createCellMap = function() {
+    const lookup = buildTable2D(this.rowSize, this.columnSize, 0);
+
+    for (let i=0, y=0; i < this.rowAxis.size; i++, y++) {
+
+        if (this.doColSubTotals() && (y + 1) % (this.rowUniqueFactor + 1) === 0) {
+            y++;
+        }
+
+        for (let j=0, x=0, cell; j < this.colAxis.size; j++, x++) {
+
+            if (this.doRowSubTotals() && (x + 1) % (this.colUniqueFactor + 1) === 0) {
+                x++;
+            }
+
+            let rric = this.getRRIC(i, j);
+
+            let value = this.idValueMap[rric.get()],
+                n = parseFloat(value);
+
+            if (isBoolean(value)) n = 1;
+            if (!isNumber(n) || n != value) n = 0;
+            
+            cell = ValueCell(n, this.response, rric, this.getCellUuids(j, i));
+
+            lookup[y][x] = cell;
+
+            // calculate sub totals
+            if (this.doColSubTotals()) this.increaseColSubTotals(lookup, i, x, cell.value);
+            if (this.doRowSubTotals()) this.increaseRowSubTotals(lookup, y, j, cell.value);
+
+            // calculate grand totals
+            if (this.doColTotals()) this.increaseColTotals(lookup, x, cell.value);
+            if (this.doRowTotals()) this.increaseRowTotals(lookup, y, cell.value);
+
+            // calculate intersection totals
+            if (this.doRowTotals() && this.doColTotals())       this.increaseTotalsIntersect(lookup, value);
+            if (this.doColSubTotals() && this.doRowSubTotals()) this.increaseSubTotalIntersect(lookup, i, j, value);
+
+            if (this.doRowTotals() && this.doRowSubTotals()) this.increaseColTotalsIntersect(lookup, j, value);
+            if (this.doColSubTotals() && this.doColTotals()) this.increaseRowTotalsIntersect(lookup, i, value);
+        }
+    }
+    
+    return lookup;
 };
