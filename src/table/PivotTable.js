@@ -38,7 +38,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: false,
+        forceDynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -782,7 +782,8 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
         columnStart -= this.rowDimensionSize;
     }
 
-    columnEnd -= 1
+    //TODO: 
+    // columnEnd -= 1
 
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd));
 };
@@ -1796,15 +1797,19 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
     rowEnd -= this.columnDimensionSize;
     columnEnd -= this.rowDimensionSize;
 
-    const rowSize = (rowEnd - rowStart + 1) || 1,
+    let rowSize = (rowEnd - rowStart + 1) || 1,
           colSize = (columnEnd - columnStart + 1) || 1;
 
+    let table = [];
 
-    let table = buildTable2D(rowSize, colSize);
+    if (this.doDynamicRendering()) {
+        rowSize = Math.min(rowSize, this.rowAxisLookup.length);
+        colSize = Math.min(colSize, this.columnAxisLookup.length);
+    }
 
-    for (let i=0, y=rowStart; i < table.length; i++, y++) {
-        for (let j=0, x=columnStart; j < table[i].length; j++, x++) {
-
+    for (let i=0, y=rowStart; i < rowSize; i++, y++) {
+        table.push([])
+        for (let j=0, x=columnStart; j < colSize; j++, x++) {
             if (this.doSortableColumnHeaders()) {
                 let totalIdComb = new ResponseRowIdCombination(this.refs, ['total', this.rowAxis.ids[y]]);
                 this.idValueMap[totalIdComb.get()] = this.isRowEmpty(y) ? null : this.getRowTotal(y);
@@ -1914,47 +1919,40 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
     }
 };
 
-PivotTable.prototype.updateColumnAxisDimensionSpan1 = function() {
+PivotTable.prototype.updateCornerAxisDimensionSpan = function() {
+    const rowSpanLimit = this.rowEnd - this.rowStart + 1;
 
-    const colSpanLimit = this.columnEnd - this.columnStart + 1;
+    for (let i=0, x=this.columnStart, cell; i < this.rowDimensionSize - this.columnStart; i++, x++) {
+        for (let j=0, rowSpanCounter=0; j < this.columnDimensionSize - this.rowStart; j++) {
 
-    for (let i=0, y=this.rowStart, cell; i < this.columnDimensionSize - this.rowStart; i++, y++) {
-        for (let j=0, colSpanCounter=0; j < this.table[i].length; j++) {
+            cell = this.table[j][i];
 
-            cell = this.table[i][j];
+            if (cell.collapsed) continue;
 
-            if (cell.collapsed) {
-                continue;
-            }
-
-            cell.colSpan = this.getAdjustedColSpan(cell, y);
+            cell.rowSpan = this.getAdjustedRowSpan(cell, x);
             cell.hidden  = this.checkAxisHiddenParameters(cell, i, j);
 
             if (j === 0 && cell.type === 'empty') {
-                colSpanCounter += Math.max(0, this.rowDimensionSize - this.columnStart);
+                rowSpanCounter += Math.max(0, this.columnDimensionSize - this.rowStart);
                 continue;
             }
-
-            if (colSpanCounter >= colSpanLimit || cell.hidden) {
+            
+            if (rowSpanCounter >= rowSpanLimit || cell.hidden) {
                 cell.hidden = true;
-
-                if (cell.type === 'dimensionSubtotal') {
-                    colSpanCounter += 1;
-                }
-
                 continue;
             }
 
-            if (cell.colSpan + colSpanCounter > colSpanLimit) {
-                cell.colSpan = colSpanLimit - colSpanCounter;
+            if (cell.rowSpan + rowSpanCounter > rowSpanLimit) {
+                cell.rowSpan = rowSpanLimit - rowSpanCounter;
             }
 
-            colSpanCounter += cell.colSpan;
+            rowSpanCounter += cell.rowSpan;
         }
     }
-};
+}
 
 PivotTable.prototype.updateDimensionSpan = function() {
+    this.updateCornerAxisDimensionSpan();
     this.updateColumnAxisDimensionSpan();
     this.updateRowAxisDimensionSpan();
 };
