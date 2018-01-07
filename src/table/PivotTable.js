@@ -38,7 +38,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: true,
+        forceDynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
