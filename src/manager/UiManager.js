@@ -138,7 +138,7 @@ UiManager = function(refs) {
         t.get(component) && t.get(component).setOnResize(fn);
     }
     
-    t.removeResizelFn = function(component) {
+    t.removeResizeFn = function(component) {
         t.get(component) && t.get(component).removeOnResize();
     }
 

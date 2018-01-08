@@ -38,7 +38,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: false,
+        forceDynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -299,9 +299,8 @@ PivotTable.prototype.getAdjustedColSpan = function(cell, y) {
             this.colAxis.span[y + 1] - cell.siblingPosition;
     }
 
-    return cell.colSpan;;
+    return cell.colSpan;
 };
-    
 
 //TODO: Replace
 // PivotTable.prototype.getAdjustedColSpan = function(cell, x) {
@@ -336,8 +335,8 @@ PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
     return this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])];
 };
 
-PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, tableRowIndex) {
-    return this.getRowAxisSpan(valueRowIndex, tableRowIndex) - 
+PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, tableRowIndex, offset) {
+    return (this.getRowAxisSpan(valueRowIndex, tableRowIndex)) + offset - 
         (valueRowIndex % this.rowAxis.span[tableRowIndex])
 };
 
@@ -388,11 +387,11 @@ PivotTable.prototype.getPrettyHtml = function(htmlValue) {
 };
 
 PivotTable.prototype.getLegendDisplayStrategyId = function(type) {
-    return this.optionConfig.getLegendDisplayStyle('fill').id;
+    return this.optionConfig.getLegendDisplayStrategy(type).id;
 };
 
 PivotTable.prototype.getLegendDisplayStyleId = function(type) {
-    return this.optionConfig.getLegendDisplayStrategy(type).id;
+    return this.optionConfig.getLegendDisplayStyle(type).id;
 };
 
 PivotTable.prototype.getNextTotalColumnIndex = function() {
@@ -783,7 +782,7 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
     }
 
     //TODO: 
-    // columnEnd -= 1
+    columnEnd -= (this.rowDimensionSize - 1);
 
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd));
 };
@@ -1274,7 +1273,9 @@ PivotTable.prototype.createRowRenderMap = function() {
             map.push(i);
         } else {
             this.numberOfEmptyRows += 1;
-            this.decremenetRowAxisSpan(i - Math.floor(i / (this.rowUniqueFactor + 1)), 0);
+            for (let j=0; j < this.rowAxis.span.length - 1; j++) {
+                this.decremenetRowAxisSpan(i - Math.floor(i / (this.rowUniqueFactor + 1)), j);
+            }
         }
     }
     return map;
@@ -1730,6 +1731,8 @@ PivotTable.prototype.render = function() {
         this.buildHtmlRows(this.table)
     ));
 
+    console.log(this.table);
+
     return this.buildHtmlTable(htmlArray);
 };
 
@@ -1747,6 +1750,7 @@ PivotTable.prototype.update = function(columnStart, rowStart) {
         this.applyChange(columnStart, columnEnd, rowStart, rowEnd);
     }
 
+    console.log(this.getLeftPadding(), this.getRightPadding())
     return this.render();
 };
 
@@ -1795,11 +1799,11 @@ PivotTable.prototype.applyChange = function(columnStart, columnEnd, rowStart, ro
 
 PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, columnEnd) {
 
-    rowEnd -= this.columnDimensionSize;
-    columnEnd -= this.rowDimensionSize;
+    rowEnd    -= this.columnDimensionSize;
+    columnEnd -= this.rowDimensionSize; //Math.max(0, this.rowDimensionSize - columnStart)
 
     let rowSize = (rowEnd - rowStart + 1) || 1,
-          colSize = (columnEnd - columnStart + 1) || 1;
+        colSize = (columnEnd - columnStart + 1) || 1;
 
     let table = [];
 
@@ -1854,7 +1858,17 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
             currentRowSpan -= 1;
 
             if (currentRowSpan <= 0) {
-                currentRowSpan = this.getUpdatedRowSpan(yo, x);
+                // let offset = (this.rowAxisLookup[y] - y) - (this.rowAxisLookup[Math.max(y - ind, 0)] - Math.max(y - ind, 0)) || 0;
+                currentRowSpan = this.getUpdatedRowSpan(yo, x, 0);
+
+                if (i === 0) {
+                    // console.warn(ind)
+                    // console.warn()
+                    // console.log(y, ind)
+                    // console.warn()
+                    // console.log ((this.rowAxisLookup[y] - y) - (this.rowAxisLookup[Math.max(y - ind, 0)] - Math.max(y - ind, 0)))
+                    // console.log(hiddenRows); 
+                }
                 cell.hidden = this.checkAxisHiddenParameters(cell, i, j, false);
             } else {
                 cell.hidden  = this.checkAxisHiddenParameters(cell, i, j, true);
@@ -1867,7 +1881,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
             }
             
             if (cell.rowSpan + rowSpanCounter > rowSpanLimit) {
-                cell.rowSpan = rowSpanLimit - rowSpanCounter;
+                cell.rowSpan = rowSpanLimit - rowSpanCounter - Math.max(this.columnDimensionSize - this.rowStart, 0);
             }
 
             rowSpanCounter += cell.rowSpan;
@@ -1912,7 +1926,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
             }
             
             if (cell.colSpan + colSpanCounter > colSpanLimit) {
-                cell.colSpan = colSpanLimit - colSpanCounter;
+                cell.colSpan = colSpanLimit - colSpanCounter - Math.max(this.rowDimensionSize - this.columnStart, 0);;
             }
 
             colSpanCounter += cell.colSpan;
