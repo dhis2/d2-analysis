@@ -38,7 +38,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: true,
+        forceDynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -637,15 +637,10 @@ PivotTable.prototype.getCrossAxisLabel = function() {
 };
 
 PivotTable.prototype.getTopBarSpan = function(span) {
-    if (!this.doShowDimensionLabels()) {
-        let rowDims = this.rowDimensionSize || 0;
+    let rowDims = this.rowDimensionSize || 0;
 
-        if (!this.colAxis.type && this.rowAxis.type) {
-            return rowDims + 1;
-        }
-        if (this.colAxis.type && this.rowAxis.type) {
-            return span + (rowDims > 1 ? rowDims - 1 : rowDims);
-        }
+    if (!this.colAxis.type && this.rowAxis.type) {
+        return rowDims + 1;
     }
 
     return span;
@@ -1731,8 +1726,6 @@ PivotTable.prototype.render = function() {
         this.buildHtmlRows(this.table)
     ));
 
-    console.log(this.table);
-
     return this.buildHtmlTable(htmlArray);
 };
 
@@ -1749,8 +1742,7 @@ PivotTable.prototype.update = function(columnStart, rowStart) {
         (columnEnd !== this.columnEnd || rowEnd !== this.rowEnd)) {
         this.applyChange(columnStart, columnEnd, rowStart, rowEnd);
     }
-
-    console.log(this.getLeftPadding(), this.getRightPadding())
+    
     return this.render();
 };
 
