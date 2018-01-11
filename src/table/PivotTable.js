@@ -94,7 +94,7 @@ PivotTable.prototype.initialize = function() {
     this.idValueMap = this.response.getIdMap(this.layout, 'value', 'idValueMap');
     this.idFactorMap = this.response.getIdMap(this.layout, 'factor', 'idFactorMap');
     this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator', 'idNumeratorMap');
-    this.idDenominatorMap = this.response.getIdMap(this.layout, 'denominator', 'idDenominatorMap');
+    this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator', 'idDenominatorMap');
 
     this.colUniqueFactor = getUniqueFactor(this.colAxis);
     this.rowUniqueFactor = getUniqueFactor(this.rowAxis);
