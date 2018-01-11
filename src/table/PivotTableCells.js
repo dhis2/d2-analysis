@@ -53,7 +53,7 @@ export const PlainValueCell = (value, rric, response) => {
     cell.type       = 'value';
     cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
 
-    cell.htmlValue  = value === 0 ? '&nbsp;' : value;
+    cell.htmlValue  = typeof !value ? '&nbsp;' : value;
 
     return cell;
 }
