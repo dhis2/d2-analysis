@@ -2438,7 +2438,7 @@ PivotTable.prototype.getDistanceFromLastRowAxisSibling = function(rowIndex, dime
 
 PivotTable.prototype.sumColumnAxisSpanUpToIndex = function(columnIndex, dimensionId) {
     let sum = 0;
-    for(let i=0; i<Math.floor(columnIndex / this.columnAxis.span[dimensionId]) + 1; i++) {
+    for(let i=0; i<Math.floor(columnIndex / this.colAxis.span[dimensionId]) + 1; i++) {
         sum += this.columnAxisSpanMap[dimensionId][i];
     }
     return sum;
@@ -2499,7 +2499,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
                 let offset = 0;
 
                 if (j === 0 && this.rowAxis.span[i] !== 1) {
-                    offset = this.getNumberOfHiddenRowsInDimension(y, x) 
+                    offset = this.getNumberOfHiddenRowsInDimension(y, x);
                 }
                 
                 currentRowSpan = this.getUpdatedRowSpan(yo, x, offset);
@@ -2547,9 +2547,8 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
             if (currentColSpan <= 0) {
                 let offset = 0;
 
-                if (j === 0 && this.rowAxis.span[i] !== 1) {
-                    let distanceFromLast = this.getDistanceFromLastRowAxisSibling(y, i);
-                    offset = (this.rowAxisLookup[y] - y) - (this.rowAxisLookup[y - distanceFromLast] - (y - distanceFromLast));
+                if (j === 0 && this.colAxis.span[i] !== 1) {
+                    offset = this.getNumberOfHiddenColumnsInDimension(x, y);
                 }
 
                 currentColSpan = this.getUpdatedColSpan(xo, y);
