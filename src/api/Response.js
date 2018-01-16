@@ -151,7 +151,7 @@ Response = function(refs, config) {
                         
                         var name = indexedDbManager.getCachedOptionName(id, optionSet);
 
-                        items[prefixedId] = { name: name };
+                        items[prefixedId] = { name: metaData.items[name] ? metaData.items[name].name : name };
                     });
                 }
                 else {
