@@ -13,6 +13,7 @@ import isNumber from 'd2-utilizr/lib/isNumber';
 import isNumeric from 'd2-utilizr/lib/isNumeric';
 import isObject from 'd2-utilizr/lib/isObject';
 import isString from 'd2-utilizr/lib/isString';
+import isArray from 'd2-utilizr/lib/isArray';
 
 import getParseMiddleware from '../util/getParseMiddleware';
 
@@ -267,7 +268,7 @@ Response.prototype.getHeaderIndexByName = function(name) {
 };
 
 Response.prototype.getOptionSetHeaders = function() {
-    return t.headers.filter(header => isString(header.optionSet) || isArray(header.optionSet));
+    return this.headers.filter(header => isString(header.optionSet) || isArray(header.optionSet));
 };
 
 Response.prototype.getNameById = function(id) {
@@ -425,8 +426,18 @@ Response.prototype.getIdsByDimensionNames = function(dimensionName) {
     return arrayClean(ids);
 };
 
+Response.prototype.isOptionItem = function(id) {
+    return this.getOptionSetHeaders().find(header => id.indexOf(header.name) !== -1);
+};
+
 Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
-    return this.getHierarchyNameById(id, isHierarchy) + this.getNameById(id);
+    const html = this.getHierarchyNameById(id, isHierarchy) + this.getNameById(id);
+
+    if (this.isOptionItem(id)) {
+        return this.getNameById(html);
+    }
+
+    return html;
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
