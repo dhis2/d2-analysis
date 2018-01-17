@@ -1288,21 +1288,19 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
 
 PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
     let columnAxis = this.buildColumnAxisColumn(columnIndex, rowStart);
-    
+
+    if (rowStart > this.columnDimensionSize) {
+        rowStart -= this.columnDimensionSize;
+        rowEnd -= (this.columnDimensionSize - 1);
+    } else {
+        rowEnd -= (columnAxis.length - 1);
+    }
+
     if (columnIndex < this.rowDimensionSize) {
-        return columnAxis.concat(this.buildRowAxisColumn(columnIndex, rowStart, rowEnd + 1));
+        return columnAxis.concat(this.buildRowAxisColumn(columnIndex, rowStart, rowEnd));
     }
 
     columnIndex -= this.rowDimensionSize;
-
-    if (rowStart < this.columnDimensionSize) {
-        rowStart = 0;
-    } else {
-        rowStart -= this.columnDimensionSize;
-    }
-
-    //TODO:
-    rowEnd -= (this.columnDimensionSize - 1)
 
     return columnAxis.concat(this.buildValueColumn(columnIndex, rowStart, rowEnd));
 };
@@ -1444,7 +1442,7 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
         return column;
     }
 
-    rowEnd -= this.columnDimensionSize;
+    // rowEnd -= this.columnDimensionSize;
 
     for (let i=0, y=rowStart; y < rowEnd; i++, y++) {
         column[i] = this.buildRowAxisCell(columnIndex, y);
