@@ -95,6 +95,11 @@ export const ValueTotalCell = (value, htmlValue) => {
 };
 
 export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
+
+    if (!axisObject) {
+        return null;
+    }
+
     const cell = axisObject;
 
     cell.collapsed = false;
@@ -112,14 +117,20 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     } 
 
     cell.noBreak   = true;
-    cell.hidden    = hidden;
+    cell.hidden    = typeof hidden === 'undefined' ? 
+        !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
     cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
 
     return cell;
 };
 
-export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort) => {
+export const ColumnAxisCell = (axisObject, response, showHierarchy, sort, hidden) => {
+
+    if (!axisObject) {
+        return null;
+    }
+
     const cell = axisObject;
 
     cell.collapsed = false;
@@ -133,7 +144,8 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, hidden, sort
     cell.cls       = 'pivot-dim pivot-col-dim';
 
     cell.noBreak   = false;
-    cell.hidden    = hidden;
+    cell.hidden    = typeof hidden === 'undefined' ? 
+        !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
     if (sort) {
         cell.sort  = sort;
