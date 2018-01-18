@@ -1514,10 +1514,10 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
             this.columnDimensionSize - rowIndex, true, rowIndex !== this.rowStart)
     }
     
-    if (this.isColumnGrandTotal(columnIndex)) {        
+    if (this.isColumnGrandTotal(columnIndex)) {
         return DimensionGrandTotalCell(rowIndex === 0 ? 
             'Total' : '&nbsp;', 1, this.columnDimensionSize - rowIndex, 
-            rowIndex === this.rowStart && this.doSortableColumnHeaders(), columnIndex !== 0)
+            rowIndex === this.rowStart && this.doSortableColumnHeaders(), rowIndex !== 0, rowIndex !== 0)
     }
 
     return ColumnAxisCell(
@@ -1690,7 +1690,18 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
 
 PivotTable.prototype.createValueLookup = function() {
 
-    const lookup = buildTable2D(this.rowSize, this.columnSize, 0);
+    let tableRowSize = this.rowSize;
+    let tableColumnSize = this.columnSize;
+
+    if (!this.doRowTotals()) {
+        tableRowSize += 1;
+    }
+
+    if (!this.doRowTotals()) {
+        tableColumnSize += 1;
+    }
+
+    const lookup = buildTable2D(tableRowSize, tableRowSize, 0);
     const valueMap = {};
     const totalMap = {};
 
@@ -1722,8 +1733,8 @@ PivotTable.prototype.createValueLookup = function() {
             if (this.doRowSubTotals()) this.updateValueTotal(y, this.getNextSubColumnIndex(j), valueObject, totalMap);
             
             // calculate grand totals
-            if (this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), x, valueObject, totalMap);
-            if (this.doRowTotals()) this.updateValueTotal(y, this.getNextTotalColumnIndex(), valueObject, totalMap);
+            this.updateValueTotal(this.getNextTotalRowIndex(), x, valueObject, totalMap);
+            this.updateValueTotal(y, this.getNextTotalColumnIndex(), valueObject, totalMap);
             
             // calculate intersection totals
             if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
@@ -1813,8 +1824,13 @@ PivotTable.prototype.constrainWidth = function(index) {
 
 PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
     if (this.doColSubTotals()) {
-        return Math.max(0, rowIndex - Math.floor(rowIndex / (this.rowUniqueFactor + 1)));
+        rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (this.rowUniqueFactor + 1)));
     }
+
+    if (this.doHideEmptyRows()) {
+
+    }
+    
     return rowIndex;
 };
 
@@ -2219,6 +2235,8 @@ PivotTable.prototype.render = function() {
         this.buildHtmlRows(this.table)
     ));
 
+    console.log(this.table)
+
     return this.buildHtmlTable(htmlArray);
 };
 
@@ -2392,12 +2410,16 @@ PivotTable.prototype.getDistanceFromLastColumnAxisSibling = function(columnIndex
 PivotTable.prototype.getNumberOfHiddenRowsInDimension = function(rowIndex, dimensionIndex) {
     let distanceFromStart = this.getDistanceFromLastRowAxisSibling(rowIndex, dimensionIndex),
         numberOfHiddenRows = 0;
+    // console.log(this.getRowAxisSpan(this.rowAxisLookup[rowIndex], dimensionIndex), this.rowAxis.span[dimensionIndex], this.rowAxisLookup[rowIndex], distanceFromStart, this.getDistanceFromTopRowSibling(rowIndex, dimensionIndex)) 
 
     distanceFromStart += this.getDistanceFromTopRowSibling(rowIndex - distanceFromStart, dimensionIndex);
 
-    return (this.rowAxisLookup[rowIndex] - rowIndex) - 
-        (this.rowAxisLookup[rowIndex - distanceFromStart] - 
-        (rowIndex - distanceFromStart));
+    console.log((this.rowAxisLookup[rowIndex] - rowIndex), this.rowAxisLookup[Math.max(0, rowIndex - distanceFromStart)], Math.abs(rowIndex - distanceFromStart))
+
+    numberOfHiddenRows += (this.rowAxisLookup[rowIndex] - rowIndex) - 
+        (this.rowAxisLookup[Math.max(0, rowIndex - distanceFromStart)] - Math.abs(rowIndex - distanceFromStart));
+
+    return Math.abs(numberOfHiddenRows);
 };
 
 PivotTable.prototype.getNumberOfHiddenColumnsFromLeftSibling = function(columnIndex, dimensionIndex) {
@@ -2424,14 +2446,13 @@ PivotTable.prototype.getDistanceFromLeftColumnSibling = function(columnIndex, di
 
 PivotTable.prototype.getDistanceFromTopRowSibling = function(rowIndex, dimensionIndex) {
     rowIndex = this.rowAxisLookup[rowIndex];
-    
+
     if (this.doColSubTotals()) {
         rowIndex = this.normalizeRowIndex(rowIndex);
     }
       
     return rowIndex % this.rowAxis.span[dimensionIndex];
 }
-
 
 PivotTable.prototype.updateRowAxisDimensionSpan = function() {
     if (!this.rowAxis.type) return;
@@ -2467,6 +2488,9 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
                 }
                 
                 currentRowSpan = this.getUpdatedRowSpan(yo, x, offset);
+                if(i === 0) {
+                    console.warn("world", currentRowSpan, offset);
+                }
             }
  
             cell.rowSpan = currentRowSpan;
