@@ -567,93 +567,67 @@ PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
     return this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])];
 };
 
-/**
- * Gets a modified version of the given dimensin row span based on the current
- * table state.
- * 
- * @param {number} valueRowIndex 
- * @param {number} tableRowIndex 
- * @param {number} offset 
- * @returns 
- */
-PivotTable.prototype.getUpdatedRowSpan = function(valueRowIndex, dimensionIndex, offset) {
-    return (this.getRowAxisSpan(valueRowIndex, dimensionIndex)) + offset - 
-        (valueRowIndex % this.rowAxis.span[dimensionIndex])
+
+
+PivotTable.prototype.getNumberOfSubRowsAbove = function(rowIndex, dimensionIndex) {
+    if (!this.doColSubTotals()) {
+        return 0;
+    }
+    return Math.floor(rowIndex / (this.rowUniqueFactor + 1));
 };
 
-
-
-
-
+PivotTable.prototype.normalizeRowIndexOffset = function(rowIndex, dimensionIndex) {
+    if (this.doColSubTotals()) {
+        return rowIndex - Math.floor(this.rowAxisLookup[rowIndex] / (this.rowUniqueFactor + 1));
+    }
+    return rowIndex;
+}
 
 PivotTable.prototype.getDistanceFromLastDimensionUnitActual = function(rowIndex, dimensionIndex) {
-    return rowIndex - ((this.sumRowAxisSpanUpToIndex(this.rowAxisLookup[rowIndex], dimensionIndex) -
-        this.getRowAxisSpan(this.rowAxisLookup[rowIndex], dimensionIndex)));
+    let normalized = this.normalizeRowIndex(this.rowAxisLookup[rowIndex]);
+    return this.normalizeRowIndexOffset(rowIndex) -
+        ((this.sumRowAxisSpanUpToIndex(normalized, dimensionIndex) -
+        this.getRowAxisSpan(normalized, dimensionIndex)));
 };
 
 PivotTable.prototype.getDistanceFromLastDimensionUnitOffset = function(rowIndex, dimensionIndex) {
-    return this.rowAxisLookup[rowIndex] % this.rowAxis.span[dimensionIndex];
+    let normalized = this.normalizeRowIndex(this.rowAxisLookup[rowIndex]);
+    return normalized % this.rowAxis.span[dimensionIndex];
 };
 
+PivotTable.prototype.getDistanceToNextDimensionUnitActual = function(rowIndex, dimensionIndex) {
+    let normalized = this.normalizeRowIndex(this.rowAxisLookup[rowIndex]);
+    return this.getRowAxisSpan(normalized, dimensionIndex) - 
+        (this.normalizeRowIndexOffset(rowIndex) -
+        ((this.sumRowAxisSpanUpToIndex(normalized, dimensionIndex) -
+        this.getRowAxisSpan(normalized, dimensionIndex))));
+};
+
+PivotTable.prototype.getDistanceToNextDimensionUnitOffset = function(rowIndex, dimensionIndex) {
+    let normalized = this.normalizeRowIndex(this.rowAxisLookup[rowIndex]);
+    return this.rowAxis.span[dimensionIndex] - 
+        (normalized % this.rowAxis.span[dimensionIndex]);
+};
+
+
+
 PivotTable.prototype.getHiddenRowsAbove = function(rowIndex, dimensionIndex) {
+   
     return this.getDistanceFromLastDimensionUnitOffset(rowIndex, dimensionIndex) - 
         this.getDistanceFromLastDimensionUnitActual(rowIndex, dimensionIndex);
 };
 
-
-
-PivotTable.prototype.getDistanceToNextDimensionUnitActual = function(rowIndex, dimensionIndex) {
-    return this.getRowAxisSpan(this.rowAxisLookup[rowIndex], dimensionIndex) - (rowIndex - ((this.sumRowAxisSpanUpToIndex(this.rowAxisLookup[rowIndex], dimensionIndex) -
-        this.getRowAxisSpan(this.rowAxisLookup[rowIndex], dimensionIndex))));
-};
-
-PivotTable.prototype.getDistanceToNextDimensionUnitOffset = function(rowIndex, dimensionIndex) {
-    return this.rowAxis.span[dimensionIndex] - (this.rowAxisLookup[rowIndex] % this.rowAxis.span[dimensionIndex]);
-};
-
 PivotTable.prototype.getHiddenRowsBelow = function(rowIndex, dimensionIndex) {
+
     return this.getDistanceToNextDimensionUnitOffset(rowIndex, dimensionIndex) - 
         this.getDistanceToNextDimensionUnitActual(rowIndex, dimensionIndex);
 };
 
-
-PivotTable.prototype.sumRowAxisSpanUpToIndex = function(rowIndex, dimensionIndex) {
-    let sum = 0;
-    for(let i=0; i<Math.floor(rowIndex / this.rowAxis.span[dimensionIndex]) + 1; i++) {
-        sum += this.rowAxisSpanMap[dimensionIndex][i];
-    }
-    return sum;
-}
-
-PivotTable.prototype.getDistanceFromLastRowAxisSibling = function(rowIndex, dimensionIndex) {
-    let rowIndexOffset = this.rowAxisLookup[rowIndex],
-        subColumnOffset = 0;
-
-    if (this.doColSubTotals()) {
-        subColumnOffset = Math.floor(rowIndex / this.getRowAxisSpan(rowIndex, 0))
-    }
-
-    return this.getRowAxisSpan(rowIndexOffset - subColumnOffset, dimensionIndex) -
-        (this.sumRowAxisSpanUpToIndex(rowIndexOffset - subColumnOffset, dimensionIndex) - (rowIndex - subColumnOffset))
-}
-
-PivotTable.prototype.getNumberOfHiddenRowsInDimension = function(rowIndex, dimensionIndex) {
-    let distanceFromStart = this.getDistanceFromLastRowAxisSibling(rowIndex, dimensionIndex),
-        numberOfHiddenRows = 0;
-
-    distanceFromStart += this.getDistanceFromTopRowSibling(rowIndex - distanceFromStart, dimensionIndex);
-
-    numberOfHiddenRows += (this.rowAxisLookup[rowIndex] - rowIndex) - 
-        (this.rowAxisLookup[Math.max(0, rowIndex - distanceFromStart)] - Math.abs(rowIndex - distanceFromStart));
-
-    return Math.abs(numberOfHiddenRows);
-};
-
-PivotTable.prototype.getUpdatedRowSpan2 = function(rowIndex, dimensionIndex) {
+PivotTable.prototype.getUpdatedRowSpan = function(rowIndex, dimensionIndex) {
     return this.rowAxis.span[dimensionIndex] - 
         this.getHiddenRowsAbove(rowIndex, dimensionIndex) -
         this.getHiddenRowsBelow(rowIndex, dimensionIndex) - 
-        this.getDistanceFromLastDimensionUnitActual(rowIndex, dimensionIndex)
+        this.getDistanceFromLastDimensionUnitActual(rowIndex, dimensionIndex);
 };
 
 
@@ -2557,7 +2531,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
             cell.hidden = this.checkAxisHiddenParameters(cell, i, j, currentRowSpan);
 
             if (currentRowSpan <= 0 && i !== 2) {
-                currentRowSpan = this.getUpdatedRowSpan2(y, x);
+                currentRowSpan = this.getUpdatedRowSpan(y, x);
             }
 
             if (this.rowAxis.span[x] === 1) {
