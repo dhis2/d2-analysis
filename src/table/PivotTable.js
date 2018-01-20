@@ -1946,58 +1946,6 @@ PivotTable.prototype.normalizeColumnIndex = function(columnIndex) {
     return columnIndex;
 };
 
-PivotTable.prototype.recursiveReduce = function(obj, span) {
-    if (!obj.children) {
-        obj.collapsed = true;
-
-        if (obj.parent && obj.parent.oldestSibling) {
-            obj.parent.oldestSibling.children--;
-        }
-    } else {
-        span && obj.oldestSibling[span]--;
-    }
-
-    if (obj.parent) {
-        this.recursiveReduce(obj.parent.oldestSibling, span);
-    }
-};
-
-PivotTable.prototype.hideRow = function(rowIndex) {
-    this.recursiveReduce(this.table[rowIndex][this.rowDimensionSize - 1], 'rowSpan');
-    
-    let offset = this.table[rowIndex][0].type === 'dimensionSubtotal' ? 0 : this.rowDimensionSize;
-
-    for (let j=0; j < this.valueLookup[rowIndex - this.columnDimensionSize].length + (offset ? 0 : this.rowDimensionSize) ; j++) {
-        this.table[rowIndex][j + offset].collapsed = true;
-    }
-}
-
-PivotTable.prototype.hideColumn = function(columnIndex) {
-    this.recursiveReduce(this.table[this.columnDimensionSize - 1][columnIndex], 'colSpan');
-
-    let offset = this.table[0][columnIndex].type === 'dimensionSubtotal' ? 0 : this.columnDimensionSize;
-
-    for (let j=0; j < this.valueLookup.length + (offset ? 0 : this.columnDimensionSize); j++) {
-        this.table[j + offset][columnIndex].collapsed = true;
-    }
-}
-
-PivotTable.prototype.hideEmptyRows = function() {
-    for (let i = this.columnDimensionSize; i < this.valueLookup.length + this.columnDimensionSize; i++) {
-        if (this.isRowEmpty(i - this.columnDimensionSize)) {
-            this.hideRow(i);
-        }
-    }
-};
-
-PivotTable.prototype.hideEmptyColumns = function() {
-    for (let i = this.rowDimensionSize; i < this.valueLookup[0].length  + this.rowDimensionSize; i++) {
-        if (this.isColumnEmpty(i - this.rowDimensionSize)) {
-            this.hideColumn(i);
-        }
-    }
-};
-
 // html
 PivotTable.prototype.buildTableFilter = function(span) {
     if (!this.filters) {
