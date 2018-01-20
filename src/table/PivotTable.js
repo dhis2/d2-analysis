@@ -48,7 +48,7 @@ const PivotTable = function(refs, layout, response, colAxis, rowAxis, options={}
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: true,
+        forceDynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -1144,7 +1144,7 @@ PivotTable.prototype.getUuidObjectMap = function() {
  */
 PivotTable.prototype.getColumnEnd = function(columnIndex) {
     return this.doDynamicRendering() ? 
-        this.constrainWidth(this.getViewportWidthIndex() + columnIndex) : this.getColumnAxisSize();
+        this.constrainWidth(this.getViewportWidthIndex() + columnIndex) : this.getColumnAxisSize() - this.numberOfEmptyColumns;
 };
     
 /**
@@ -1155,7 +1155,7 @@ PivotTable.prototype.getColumnEnd = function(columnIndex) {
  */
 PivotTable.prototype.getRowEnd = function(rowIndex=this.rowStart) {
     return this.doDynamicRendering() ?
-        this.constrainHeight(this.getViewportHeightIndex() + rowIndex) : this.getRowAxisSize();
+        this.constrainHeight(this.getViewportHeightIndex() + rowIndex) : (this.getRowAxisSize() - this.numberOfEmptyRows);
 };
 
 /**
@@ -1442,10 +1442,10 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
 PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     //TODO: check this
-    if (this.doDynamicRendering()) {
+    // if (this.doDynamicRendering()) {
         rowIndex = this.rowAxisLookup[rowIndex];
         columnIndex = this.columnAxisLookup[columnIndex];
-    }
+    // }
 
     let value = this.valueLookup[rowIndex][columnIndex],
         htmlValue = null;
@@ -1589,10 +1589,10 @@ PivotTable.prototype.buildGrandTotalAxisRow = function(columnStart) {
 PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 
     //TODO: check this
-    if (this.doDynamicRendering()) {
+    // if (this.doDynamicRendering()) {
         rowIndex = this.rowAxisLookup[rowIndex];
         // columnIndex = this.columnAxisLookup[columnIndex];
-    }
+    // }
 
     if (this.isRowSubTotal(rowIndex)) {
         return DimensionSubTotalCell('&nbsp;', 
@@ -1614,10 +1614,10 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
 
     //TODO: check this
-    if (this.doDynamicRendering()) {
+    // if (this.doDynamicRendering()) {
         // rowIndex = this.rowAxisLookup[rowIndex];
         columnIndex = this.columnAxisLookup[columnIndex];
-    }
+    // }
 
     if (this.isColumnSubTotal(columnIndex)) {
         return DimensionSubTotalCell('&nbsp;', 1, 
@@ -1811,7 +1811,7 @@ PivotTable.prototype.createValueLookup = function() {
         tableColumnSize += 1;
     }
 
-    const lookup = buildTable2D(tableRowSize, tableRowSize, 0);
+    const lookup = buildTable2D(tableRowSize, tableColumnSize, 0);
     const valueMap = {};
     const totalMap = {};
 
@@ -1936,7 +1936,6 @@ PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
     if (this.doColSubTotals()) {
         rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (this.rowUniqueFactor + 1)));
     }
-    
     return rowIndex;
 };
 
@@ -2323,17 +2322,15 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
  */
 PivotTable.prototype.render = function() {
     
-    if (this.doHideEmptyColumns() && !this.doDynamicRendering()) {
-        this.hideEmptyColumns();
-    }
+    // if (this.doHideEmptyColumns() && !this.doDynamicRendering()) {
+    //     this.hideEmptyColumns();
+    // }
 
-    if (this.doHideEmptyRows() && !this.doDynamicRendering()) {
-        this.hideEmptyRows();
-    }
+    // if (this.doHideEmptyRows() && !this.doDynamicRendering()) {
+    //     this.hideEmptyRows();
+    // }
 
-    if (this.doDynamicRendering()) {
-        this.updateDimensionSpan();
-    }
+    this.updateDimensionSpan();
 
     let htmlArray = arrayClean([].concat(
         this.options.skipTitle || this.rowStart > 0 ? [] : this.buildTableTitle(this.table[0].length),
@@ -2480,7 +2477,6 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
         for (let j=this.getValueStartRowIndex(), y=this.getValueOffsetRow(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, y++) {      
 
             let cell = this.table[j][i];
-
             if (cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.rowAxisLookup[y]))) {
                 continue;
             }
