@@ -18,10 +18,6 @@ import { toRow,
          addMerge,
          defaultProxyGenerator } from './PivotTableUtils';
 
-import { 
-
-}
-
 import { ValueSubTotalCell,
          ValueTotalCell,
          RowAxisCell,
@@ -569,11 +565,11 @@ PivotTable.prototype.getValueOffsetColumn = function() {
  * Gets the row span of a given dimension.
  * 
  * @param {number} rowIndex index of row axis
- * @param {number} dimensionId dimension of row axis
+ * @param {number} dimensionIndex dimension of row axis
  * @returns {number}
  */
-PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionId) {
-    return this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])];
+PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionIndex) {
+    return this.rowAxisSpanMap[dimensionIndex][Math.floor(rowIndex / this.rowAxis.span[dimensionIndex])];
 };
 
 /**
@@ -821,11 +817,11 @@ PivotTable.prototype.sumRowAxisSpanUpToIndex = function(rowIndex, dimensionIndex
  * Gets the column span of a given dimension.
  * 
  * @param {number} columnIndex index of column axis
- * @param {number} dimensionId dimension of column axis
+ * @param {number} dimensionIndex dimension of column axis
  * @returns {number}
  */
-PivotTable.prototype.getColumnAxisSpan = function(columnIndex, dimensionId) {
-    return this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])];
+PivotTable.prototype.getColumnAxisSpan = function(columnIndex, dimensionIndex) {
+    return this.columnAxisSpanMap[dimensionIndex][Math.floor(columnIndex / this.colAxis.span[dimensionIndex])];
 };
 
 /**
@@ -2698,10 +2694,10 @@ PivotTable.prototype.applyChange = function(columnStart, columnEnd, rowStart, ro
  * given row index.
  * 
  * @param {number} rowIndex index of row dimension
- * @param {number} dimensionId dimension id
+ * @param {number} dimensionIndex dimension id
  */
-PivotTable.prototype.decremenetRowAxisSpan = function(rowIndex, dimensionId) {
-    this.rowAxisSpanMap[dimensionId][Math.floor(rowIndex / this.rowAxis.span[dimensionId])] -= 1;
+PivotTable.prototype.decremenetRowAxisSpan = function(rowIndex, dimensionIndex) {
+    this.rowAxisSpanMap[dimensionIndex][Math.floor(rowIndex / this.rowAxis.span[dimensionIndex])] -= 1;
 };
 
 /**
@@ -2709,10 +2705,10 @@ PivotTable.prototype.decremenetRowAxisSpan = function(rowIndex, dimensionId) {
  * given column index.
  * 
  * @param {number} columnIndex index of column dimension
- * @param {number} dimensionId dimension id
+ * @param {number} dimensionIndex dimension id
  */
-PivotTable.prototype.decrementColumnAxisSpan = function(columnIndex, dimensionId) {
-    this.columnAxisSpanMap[dimensionId][Math.floor(columnIndex / this.colAxis.span[dimensionId])] -= 1;
+PivotTable.prototype.decrementColumnAxisSpan = function(columnIndex, dimensionIndex) {
+    this.columnAxisSpanMap[dimensionIndex][Math.floor(columnIndex / this.colAxis.span[dimensionIndex])] -= 1;
 };
 
 /**
@@ -2761,7 +2757,7 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
 PivotTable.prototype.updateRowAxisDimensionSpan = function() {
     if (!this.rowAxis.type) return;
 
-    const rowSpanLimit = this.rowEnd - this.rowStart + 1;
+    const rowSpanLimit = this.rowEnd - this.rowStart + 1 - Math.max(0, this.columnDimensionSize - this.rowStart);
 
     for (let i=0, x=this.columnStart; i < (this.rowDimensionSize - this.columnStart); i++, x++) {
         for (let j=this.getValueStartRowIndex(), y=this.getValueOffsetRow(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, y++) {      
@@ -2795,7 +2791,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
             }
             
             if (cell.rowSpan + rowSpanCounter > rowSpanLimit) {
-                cell.rowSpan = rowSpanLimit - rowSpanCounter - Math.max(this.columnDimensionSize - this.rowStart, 0);
+                cell.rowSpan = rowSpanLimit - rowSpanCounter;
             }
 
             rowSpanCounter += cell.rowSpan;
@@ -2811,7 +2807,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
 PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
     if (!this.colAxis.type) return;
 
-    const colSpanLimit = this.columnEnd - this.columnStart + 1;
+    const colSpanLimit = this.columnEnd - this.columnStart + 1 - Math.max(0, this.rowDimensionSize - this.columnStart);
 
     for (let i=0, y=this.rowStart; i < (this.columnDimensionSize - this.rowStart); i++, y++) {
         for (let j=this.getValueStartColumnIndex(), x=this.getValueOffsetColumn(), colSpanCounter=0, currentColSpan=0; j < this.table[i].length; j++, x++) {      
@@ -2846,7 +2842,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
             }
             
             if (cell.colSpan + colSpanCounter > colSpanLimit) {
-                cell.colSpan = colSpanLimit - colSpanCounter - Math.max(this.rowDimensionSize - this.columnStart, 0);;
+                cell.colSpan = colSpanLimit - colSpanCounter;
             }
 
             colSpanCounter += cell.colSpan;
