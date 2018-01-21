@@ -18,6 +18,10 @@ import { toRow,
          addMerge,
          defaultProxyGenerator } from './PivotTableUtils';
 
+import { 
+
+}
+
 import { ValueSubTotalCell,
          ValueTotalCell,
          RowAxisCell,
@@ -1133,15 +1137,30 @@ PivotTable.prototype.getValue = function(id) {
     
     return n;
 };
-
+/**
+ * Gets factor value from id factor map
+ * 
+ * @param {string} id 
+ * @returns {number}
+ */
 PivotTable.prototype.getFactorValue = function(id) {
     return parseFloat(this.idFactorMap[id]) || 1;
 };
-
+/**
+ * Gets numerator value from id numerator map
+ * 
+ * @param {string} id 
+ * @returns {number}
+ */
 PivotTable.prototype.getNumeratorValue = function(id) {
     return parseFloat(this.idNumeratorMap[id]) || this.getValue(id);
 };
-
+/**
+ * Gets denominator value from id denominator map
+ * 
+ * @param {string} id 
+ * @returns {number}
+ */
 PivotTable.prototype.getDenominatorValue = function(id) {
     return parseFloat(this.idDenominatorMap[id]) || 0;
 };
@@ -1153,7 +1172,11 @@ PivotTable.prototype.getDenominatorValue = function(id) {
 // PivotTable.prototype.getColumnSize = function() {
 //     return this.getAxisSize(this.colAxis, this.colUniqueFactor, this.doColSubTotals(), this.doColTotals())
 // };
-
+/**
+ * Gets number of rows in table
+ * 
+ * @returns {number}
+ */
 PivotTable.prototype.getRowSize = function() {
 
     if (!this.rowAxis.size) {
@@ -1172,7 +1195,11 @@ PivotTable.prototype.getRowSize = function() {
     
     return size;
 };
-
+/**
+ * Gets number of columns in table
+ * 
+ * @returns {number}
+ */
 PivotTable.prototype.getColumnSize = function() {
 
     if (!this.colAxis.size) {
@@ -1210,7 +1237,6 @@ PivotTable.prototype.getAxisSize = function(axis, uniqueFactor, doSubTotals, doT
     
     return size;
 };
-
 
 /**
  * Gets the size of the entire table in number of cells.
@@ -1339,6 +1365,7 @@ PivotTable.prototype.getCrossAxisLabel = function() {
 
     return rowAxisLabel;
 };
+
 /**
  * Gets the span for the top title bar
  * 
@@ -1354,6 +1381,7 @@ PivotTable.prototype.getTopBarSpan = function(span) {
 
     return span;
 };
+
 /**
  * Retrueves the ResponseRowIdCombination for given row and column index pair
  * 
@@ -1369,6 +1397,7 @@ PivotTable.prototype.getRRIC = function(rowIndex, columnIndex) {
 
     return rric;
 };
+
 /**
  * Gets associated uuids for given row and column index pair
  * 
@@ -1547,6 +1576,7 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
 
     return rowAxisRow.concat(this.buildValueRow(rowIndex, columnStart, columnEnd));
 };
+
 /**
  * Builds a table column based on given parameters
  * 
@@ -1594,6 +1624,7 @@ PivotTable.prototype.buildValueRow = function(rowIndex, columnStart, columnEnd) 
 
     return row;
 };
+
 /**
  * Builds value portion of table column based on given parameters
  * 
@@ -1611,6 +1642,7 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
 
     return column;
 };
+
 /**
  * Builds value cell based on row and column index pair
  * 
@@ -1679,6 +1711,7 @@ PivotTable.prototype.buildRowAxis = function(rowStart, rowEnd, columnStart) {
 
     return axis;
 };
+
 /**
  * Builds row axis dimension row based on given parameters
  * 
@@ -1703,6 +1736,7 @@ PivotTable.prototype.buildRowAxisRow = function(rowIndex, columnStart) {
 
     return row;
 };
+
 /**
  * Builds column axis dimension row based on given parameters
  * 
@@ -1732,6 +1766,7 @@ PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, column
 
     return row;
 };
+
 /**
  * Builds row axis dimension column based on given parameters
  * 
@@ -1841,6 +1876,7 @@ PivotTable.prototype.buildColumnAxis = function(columnStart, columnEnd, rowStart
 
     return axis;
 };
+
 /**
  * Builds column axis dimension column based on given parameters
  * 
@@ -1882,6 +1918,7 @@ PivotTable.prototype.buildCornerAxis = function() {
 
     return cornerAxis;
 };
+
 /**
  * Builds corner axis dimension column based on given parameters
  * 
@@ -1915,7 +1952,8 @@ PivotTable.prototype.buildCornerAxisColumn = function(columnIndex, rowStart) {
     column[this.columnDimensionSize - 1] = DimensionLabelCell(this.getRowAxisLabel(columnIndex));
 
     return column;
-}
+};
+
 /**
  * Builds corner axis dimension row based on given parameters
  * 
@@ -1981,6 +2019,7 @@ PivotTable.prototype.createRowSpanMap = function() {
 PivotTable.prototype.createColumnSpanMap = function() {
     return this.createSpanMap(this.colAxis.span);
 };
+
 /**
  * updated given total object based on given parameters
  * 
@@ -2007,7 +2046,34 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     totalObject[rowIndex][columnIndex].counter++;
 
     addMerge(totalObject[rowIndex][columnIndex], valueObject);
-}
+};
+
+/**
+ * Increments value lookup iterator offset by row sub total columns
+ * 
+ * @param {any} x 
+ * @returns 
+ */
+PivotTable.prototype.columnAxisOffsetIncrement = function(x) {
+    if (this.doRowSubTotals() && (x + 2) % (this.colUniqueFactor + 1) === 0) {
+        return 2;
+    }
+    return 1;
+};
+
+/**
+ * Increments value lookup iterator offset by column sub total rows
+ * 
+ * @param {any} y 
+ * @returns 
+ */
+PivotTable.prototype.rowAxisOffsetIncrement = function(y) {
+    if (this.doColSubTotals() && (y + 2) % (this.rowUniqueFactor + 1) === 0) {
+        return 2;
+    }
+    return 1;
+};
+
 /**
  * Creates a value lookup table
  * 
@@ -2015,8 +2081,11 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
  */
 PivotTable.prototype.createValueLookup = function() {
 
-    let tableRowSize = this.rowSize;
-    let tableColumnSize = this.columnSize;
+    let tableRowSize = this.rowSize,
+        tableColumnSize = this.columnSize;
+
+    const valueMap = {},
+          totalMap = {};
 
     if (!this.doRowTotals()) {
         tableRowSize += 1;
@@ -2026,20 +2095,8 @@ PivotTable.prototype.createValueLookup = function() {
         tableColumnSize += 1;
     }
 
-    const valueMap = {};
-    const totalMap = {};
-
-    for (let i=0, y=0; i < this.rowAxis.size; i++, y++) {
-
-        if (this.doColSubTotals() && (y + 1) % (this.rowUniqueFactor + 1) === 0) {
-            y++;
-        }
-
-        for (let j=0, x=0, value, valueObject; j < this.colAxis.size; j++, x++) {
-
-            if (this.doRowSubTotals() && (x + 1) % (this.colUniqueFactor + 1) === 0) {
-                x++;
-            }
+    for (let i=0, y=0; i < this.rowAxis.size; i++, y += this.rowAxisOffsetIncrement(y)) {
+        for (let j=0, x=0, value, valueObject; j < this.colAxis.size; j++, x += this.columnAxisOffsetIncrement(x)) {
 
             valueObject = this.getValueObject(i, j);
 
@@ -2050,13 +2107,13 @@ PivotTable.prototype.createValueLookup = function() {
                 valueMap[y][x] = valueObject.value;
             }
 
-            // calculate sub totals
-            if (this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), x, valueObject, totalMap);
-            if (this.doRowSubTotals()) this.updateValueTotal(y, this.getNextSubColumnIndex(j), valueObject, totalMap);
-            
             // calculate grand totals
             this.updateValueTotal(this.getNextTotalRowIndex(), x, valueObject, totalMap);
             this.updateValueTotal(y, this.getNextTotalColumnIndex(), valueObject, totalMap);
+
+            // calculate sub totals
+            if (this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), x, valueObject, totalMap);
+            if (this.doRowSubTotals()) this.updateValueTotal(y, this.getNextSubColumnIndex(j), valueObject, totalMap);
             
             // calculate intersection totals
             if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
@@ -2070,25 +2127,25 @@ PivotTable.prototype.createValueLookup = function() {
     for (let i=0, rowTotalIndicies=Object.keys(totalMap); i < rowTotalIndicies.length; i++) {
         for (let j=0, columnTotalIndicies=Object.keys(totalMap[rowTotalIndicies[i]]); j < columnTotalIndicies.length; j++) {
 
-            let y = rowTotalIndicies[i];
-            let x = columnTotalIndicies[j];
+            let y = rowTotalIndicies[i],
+                x = columnTotalIndicies[j];
 
             let total = this.getTrueTotal(
                 totalMap[y][x].numerator,
                 totalMap[y][x].denominator || 1,
-                totalMap[y][x].factor / totalMap[y][x].counter)
+                totalMap[y][x].factor / totalMap[y][x].counter);
 
             if (!valueMap[y]) {
                 valueMap[y] = {};
             }
 
             valueMap[y][x] = total;
-
         }        
     }
 
     return valueMap;
 };
+
 /**
  * Creates a row axis render map
  * 
@@ -2111,6 +2168,7 @@ PivotTable.prototype.createRowRenderMap = function() {
     }
     return map;
 };
+
 /**
  * Creates a column axis render map
  * 
@@ -2283,7 +2341,7 @@ PivotTable.prototype.buildHtmlCell = function(config) {
         }
     }
     
-    if (this.doDynamicRendering() || this.doStickyColumns() || this.doStickyRows()) {
+    if (this.doDynamicRendering()) {
         style += `
             min-width:${config.width}px!important;
             min-height:${config.height}px!important;
@@ -2313,6 +2371,7 @@ PivotTable.prototype.buildHtmlCell = function(config) {
         </td>
     `;
 };
+
 /**
  * Converts array of table cells to array of html strings
  * 
@@ -2465,10 +2524,6 @@ PivotTable.prototype.buildRightPaddingHtmlCell = function() {
 PivotTable.prototype.buildHtmlTableHead = function(htmlArray) {
     let cls = '';
 
-    if (this.doStickyColumns()) {
-        cls += 'pivot-sticky-column-2';
-    }
-
     return `
         <thead class="${cls}">
             ${this.doDynamicRendering() ? this.buildTopPaddingHtmlRow() : ''}
@@ -2511,72 +2566,15 @@ PivotTable.prototype.buildHtmlTable = function(htmlArray) {
     cls += this.displayDensity ? ' displaydensity-' + this.displayDensity : '';
     cls += this.fontSize       ? ' fontsize-' + this.fontSize : '';
 
-    if (this.doStickyRows()) {
-        overflow = 'auto';
-    }
-
     style += `display:flex!important;overflow:${overflow};`;
 
     return `
-        ${this.doStickyColumns() ? this.buildHtmlColumnDimensionTable(htmlArray) : ''}
         <div style="${style}">
-            ${this.doStickyRows() ? this.buildHtmlRowDimensionTable(htmlArray) : ''}
             <table class="${cls}">
                 ${this.buildHtmlTableBody(htmlArray)}
             </table>
         </div>
     `;
-};
-
-/**
- * Build html column dimnesion table
- * 
- * @param {array} htmlArray 
- * @returns {string}
- */
-PivotTable.prototype.buildHtmlColumnDimensionTable = function(htmlArray) {
-    let cls  = 'pivot pivot-sticky-column-2',
-        rows = htmlArray.splice(0, this.columnDimensionSize);
-    
-    return `
-        <table class="${cls}">
-            ${this.buildHtmlTableRows(htmlArray, 0, this.columnDimensionSize)}
-        </table>
-    `;
-};
-
-/**
- * Build html row dimension table
- * 
- * @param {array} htmlArray 
- * @returns {string}
- */
-PivotTable.prototype.buildHtmlRowDimensionTable = function(htmlArray) {
-    let table = '',
-        cls   = '',
-        htmlRow;
-
-    if (this.doStickyRows()) {
-        cls += 'pivot pivot-sticky-row';
-    }
-    
-    table += `<table class="${cls}">`;
-    
-    if (!this.doShowDimensionLabels() && this.columnDimensionSize > 0) {
-        htmlRow = htmlArray[0].splice(0, this.rowDimensionSize).join('');
-        table  += `<tr style="height:${this.columnDimensionSize * this.cellHeight}px;">${htmlRow}</tr>`;
-    }
-    
-    for (let i = 0; i < htmlArray.length; i++) {
-        htmlRow = htmlArray[i].splice(0, this.rowDimensionSize).join('');
-        if (htmlRow.length > 0) {
-            table += `<tr>${htmlRow}</tr>`;
-        }
-    }
-
-    table += '</table>';
-
-    return table;
 };
 
 // table actions
