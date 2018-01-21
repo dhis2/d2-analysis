@@ -29,9 +29,6 @@ export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     cell.uuid       = uuid();
     cell.uuids      = uuids;
 
-    // cell.empty      = value === -1;
-    // cell.value      = value === -1 ? 0        : value;
-    // cell.htmlValue  = value === -1 ? '&nbsp;' : value;
     cell.htmlValue  = value === 0 ? '&nbsp;' : htmlValue ? htmlValue : value;
     
     cell.isValue    = !cell.empty;
