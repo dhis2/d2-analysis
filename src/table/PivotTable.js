@@ -47,7 +47,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: true,
+        forceDynamic: false,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -1093,8 +1093,18 @@ PivotTable.prototype.getLegendSetId = function(dxId) {
  */
 PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     const id = this.getRRIC(rowIndex, columnIndex).get();
+
+    let value = this.getValue(id),
+        empty = false;
+
+    if (value === null) {
+        value = 0;
+        empty = true;
+    }
+
     return {
-        value: this.getValue(id),
+        value,
+        empty,
         numerator: this.getNumeratorValue(id),
         denominator: this.getDenominatorValue(id),
         factor: this.getFactorValue(id),
@@ -1117,7 +1127,7 @@ PivotTable.prototype.getValue = function(id) {
     }
 
     if (!isNumber(n) || n != value) {
-        return  0;
+        return  null;
     }
     
     return n;
@@ -2020,7 +2030,12 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             denominator: 0,
             factor: 0,
             counter: 0,
+            empty: 0,
         }
+    }
+
+    if (valueObject.value === null) {
+        totalObject[rowIndex][columnIndex].empty++;
     }
 
     totalObject[rowIndex][columnIndex].counter++;
@@ -2084,7 +2099,7 @@ PivotTable.prototype.createValueLookup = function() {
                 if (!valueMap[rowIndex]) {
                     valueMap[rowIndex] = {};
                 }
-                valueMap[rowIndex][columnIndex] = valueObject.value;
+                valueMap[rowIndex][columnIndex] = valueObject.empty ? null : valueObject.value;
             }
 
             // calculate grand totals
@@ -2110,16 +2125,21 @@ PivotTable.prototype.createValueLookup = function() {
             let rowIndex = rowTotalIndicies[i],
                 columnIndex = columnTotalIndicies[j];
 
-            let total = this.getTrueTotal(
-                totalMap[rowIndex][columnIndex].numerator,
-                totalMap[rowIndex][columnIndex].denominator || 1,
-                totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
-
-            if (!valueMap[rowIndex]) {
-                valueMap[rowIndex] = {};
+            if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
+                let total = this.getTrueTotal(
+                    totalMap[rowIndex][columnIndex].numerator,
+                    totalMap[rowIndex][columnIndex].denominator || 1,
+                    totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
+    
+                if (!valueMap[rowIndex]) {
+                    valueMap[rowIndex] = {};
+                }
+    
+                valueMap[rowIndex][columnIndex] = total;
+            } else {
+                valueMap[rowIndex][columnIndex] = null;
             }
 
-            valueMap[rowIndex][columnIndex] = total;
         }        
     }
 

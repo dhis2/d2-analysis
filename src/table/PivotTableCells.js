@@ -29,7 +29,7 @@ export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     cell.uuid       = uuid();
     cell.uuids      = uuids;
 
-    cell.htmlValue  = value === 0 ? '&nbsp;' : htmlValue ? htmlValue : value;
+    cell.htmlValue  = value === null ? '&nbsp;' : htmlValue ? htmlValue : value;
     
     cell.isValue    = !cell.empty;
 
@@ -62,12 +62,14 @@ export const ValueSubTotalCell = (value, htmlValue) => {
     cell.type      = 'valueSubtotal';
     cell.cls       = 'pivot-value-subtotal';
 
-    cell.empty     = value <= 0;
+    cell.empty     = value === null;
     
     if (typeof value === 'string') {
         cell.htmlValue = value;
     } else {
-        cell.htmlValue = cell.empty ? '&nbsp;' : htmlValue ? htmlValue : getRoundedHtmlValue(value);
+        cell.htmlValue = cell.empty ? 
+            '&nbsp;' : htmlValue ? 
+                htmlValue : getRoundedHtmlValue(value);
     }
 
     return cell;
@@ -80,12 +82,14 @@ export const ValueTotalCell = (value, htmlValue) => {
     cell.type      = 'valueTotal';
     cell.cls       = 'pivot-value-total-subgrandtotal';
 
-    cell.empty     = value <= 0;
+    cell.empty     = value === null;
 
     if (typeof value === 'string') {
         cell.htmlValue = value;
     } else {
-        cell.htmlValue = cell.empty ? '&nbsp;' : htmlValue ? htmlValue : getRoundedHtmlValue(value);
+        cell.htmlValue = cell.empty ? 
+            '&nbsp;' : htmlValue ? 
+                htmlValue : getRoundedHtmlValue(value);
     }
 
     return cell;
