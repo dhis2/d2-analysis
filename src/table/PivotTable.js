@@ -2115,7 +2115,6 @@ PivotTable.prototype.createValueLookup = function() {
             if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextSubColumnIndex(j), valueObject, totalMap);
             if (this.doRowTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
             if (this.doColSubTotals() && this.doColTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
-
         }
     }
 
@@ -2125,15 +2124,15 @@ PivotTable.prototype.createValueLookup = function() {
             let rowIndex = rowTotalIndicies[i],
                 columnIndex = columnTotalIndicies[j];
 
+            if (!valueMap[rowIndex]) {
+                valueMap[rowIndex] = {};
+            }
+
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
                 let total = this.getTrueTotal(
                     totalMap[rowIndex][columnIndex].numerator,
                     totalMap[rowIndex][columnIndex].denominator || 1,
                     totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
-    
-                if (!valueMap[rowIndex]) {
-                    valueMap[rowIndex] = {};
-                }
     
                 valueMap[rowIndex][columnIndex] = total;
             } else {
@@ -2731,8 +2730,6 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
 
     let rowSize = (rowEnd - rowStart + 1) || 1,       // TODO: why + 1?
         colSize = (columnEnd - columnStart + 1) || 1; // TODO: why + 1?
-
-    console.log(rowEnd - rowStart, columnEnd - columnStart)
 
     let table = [];
 
