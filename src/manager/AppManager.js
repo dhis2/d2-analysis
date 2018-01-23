@@ -99,6 +99,10 @@ AppManager = function(refs) {
     t.periodGenerator;
     t.viewUnapprovedData;
 
+    t.users;
+    t.mostMentionedUsers;
+
+
     t.rootNodes = [];
     t.organisationUnitLevels = [];
     t.dimensions = [];
@@ -172,6 +176,7 @@ AppManager.prototype.init = function(callbackFn) {
                 t.logVersion();
 
                 systemInfoReq();
+                usersReq();
             }
         }).run();
     };
@@ -237,6 +242,24 @@ AppManager.prototype.init = function(callbackFn) {
     };
 
     manifestReq();
+
+    // users
+    const usersReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/users.json',
+            type: 'json',
+            params: [
+                'fields=displayName,userCredentials[username]',
+                'order=displayName:asc',
+                'paging=false'
+            ],
+            success: function (response) {
+                t.users = response.users;
+            }
+        }).run();
+    };
+
+    
 };
 
 AppManager.prototype.logVersion = function() {

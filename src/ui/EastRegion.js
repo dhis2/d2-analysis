@@ -285,6 +285,44 @@ EastRegion = function(c) {
         items: getDetailsPanelItems()
     };
 
+    var mentionsPanel = Ext.create('Ext.panel.Panel', {
+        floating: true,
+        layout: {
+            type: 'table',
+            columns: 1
+        },
+        // defaults: {
+        //     // applied to each contained panel
+        //     bodyStyle:'padding:20px'
+        // },
+        items: [{
+            html: "tupa"
+        }],
+        zIndex: 9999,
+        bodyStyle: 'background-color: white;border',
+    });
+
+    var getMentionsTooltipText = function(f){
+        var splitText = f.getValue().split('@')
+        var currentMention = splitText[splitText.length -1];
+
+        var potentialUsers = appManager.users
+            .filter(user => user.userCredentials.username.includes(currentMention))
+            .map((user) => {
+                return {
+                    html: user.displayName,
+                }
+            });
+
+        return [potentialUsers];
+    }
+
+    var displayMentionSuggestion = function(f, e) {
+        mentionsPanel.removeAll(true);
+        mentionsPanel.add(getMentionsTooltipText(f))
+        mentionsPanel.show().alignTo(e.target,'bl-tl');
+    }
+
     /*
      * INTERPRETATIONS PANEL
      */
@@ -324,6 +362,7 @@ EastRegion = function(c) {
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
                         value : comment && comment.text,
+                        isMentioning: false,
                         submitEmptyText: false,
                         flex: 1,
                         border: 0,
@@ -332,6 +371,17 @@ EastRegion = function(c) {
                             keypress: function(f, e) {
                                 if (e.getKey() == e.ENTER && !e.shiftKey) {
                                     commentInterpretation(f, comment);
+                                }
+                                else if(e.getKey() == 64){
+                                    this.isMentioning = true;
+                                }
+                                else if (this.isMentioning){
+                                    if ( e.getKey() == e.SPACE){
+                                        this.isMentioning = false;
+                                    }
+                                    else{
+                                        displayMentionSuggestion(f, e);
+                                    }
                                 }
                             }
                         }
