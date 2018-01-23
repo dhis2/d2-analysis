@@ -121,7 +121,10 @@ export const RowAxisCell = (axisObject, response, showHierarchy, hidden) => {
     cell.hidden    = typeof hidden === 'undefined' ? 
         !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
-    cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
+    let htmlValue = response.getItemName(cell.id, showHierarchy, true);
+
+    cell.htmlValue = htmlValue;
+    cell.title = htmlValue;
 
     return cell;
 };
@@ -153,7 +156,10 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, sort, hidden
         cell.cls += ' td-sortable';
     }
     
-    cell.htmlValue = response.getItemName(cell.id, showHierarchy, true);
+    let htmlValue = response.getItemName(cell.id, showHierarchy, true);
+
+    cell.htmlValue = htmlValue;
+    cell.title = htmlValue;
 
     return cell;
 };

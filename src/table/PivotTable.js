@@ -2354,7 +2354,7 @@ PivotTable.prototype.buildHtmlCell = function(config) {
         `;
     }
 
-    style += config.style;
+    style += config.style ? config.style : '';
 
     return `
         <td data-ou-id="${config.ouId || ''}"
@@ -2728,8 +2728,16 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
     rowEnd    -= this.getValueRowStartOffset();
     columnEnd -= this.getValueColumnStartOffset();
 
-    let rowSize = (rowEnd - rowStart + 1) || 1,       // TODO: why + 1?
-        colSize = (columnEnd - columnStart + 1) || 1; // TODO: why + 1?
+    let rowSize = (rowEnd - rowStart + 1),       // TODO: why + 1?
+        colSize = (columnEnd - columnStart + 1); // TODO: why + 1?
+
+    if (!this.doHideEmptyColumns() && colSize === 0) {
+        colSize = 1;
+    }
+
+    if (!this.doHideEmptyRows() && rowSize === 0) {
+        rowSize = 1;
+    }
 
     let table = [];
 
@@ -2913,6 +2921,13 @@ PivotTable.prototype.checkAxisHiddenParameters = function(cell, i, j, span) {
         case 'labeled': {
             return false;
         }
+
+        case 'empty': {
+            if (this.doHideEmptyColumns() && this.columnEnd - this.columnStart - 1 === 0) {
+                return i !== 0;
+            }
+            return !(i === 0 && j === 0);
+        }
         
         case 'dimension': {
             return !(span <= 0);
@@ -2936,8 +2951,17 @@ PivotTable.prototype.checkAxisHiddenParameters = function(cell, i, j, span) {
  */
 PivotTable.prototype.statistics = function() {
     return {
-        "rows:": this.valueLookup.length,
-        "columns:": this.valueLookup[0].length,
-        "cells": this.valueLookup.length * this.valueLookup[0].length,
+        "rows:": Object.keys(this.valueLookup).length,
+        "columns:": Object.keys(this.valueLookup[0]).length,
+        "cells": Object.keys(this.valueLookup).length * Object.keys(this.valueLookup[0]).length,
     };
+};
+
+/**
+ * Prints statistics
+ * 
+ * @returns {string}
+ */
+PivotTable.prototype.printStatistics = function() {
+    console.log(this.statistics());
 };
