@@ -285,6 +285,7 @@ EastRegion = function(c) {
         items: getDetailsPanelItems()
     };
 
+
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
         layout: {
@@ -300,27 +301,55 @@ EastRegion = function(c) {
         }],
         zIndex: 9999,
         bodyStyle: 'background-color: white;border',
+        showAnimation:{
+            type: "popIn",
+            duration: 250,
+            easing: "ease-out"
+        },
+        hideAnimation:{
+            type: "popOut",
+            duration: 250,
+            easing: "ease-out"
+        },
     });
 
-    var getMentionsTooltipText = function(f){
+    var displayMentionSuggestion = function(f, e, component) {
         var splitText = f.getValue().split('@')
         var currentMention = splitText[splitText.length -1];
+        if (splitText.length > 1 && currentMention == currentMention.replace(" ", "")){
 
-        var potentialUsers = appManager.users
-            .filter(user => user.userCredentials.username.includes(currentMention))
-            .map((user) => {
-                return {
-                    html: user.displayName,
-                }
+            mentionsPanel.removeAll(true);
+
+            var potentialUsers = appManager.users
+                .filter(user => user.userCredentials.username.includes(currentMention))
+                .map((user) => {
+                    return {
+                        xtype: 'label',
+                        html: user.displayName,
+                        cls: 'link',
+                        listeners: {
+                            'render': function(label) {
+                                label.getEl().on('click', function() {
+                                    splitText.splice(-1,1);
+                                    var newText = splitText.join("@") + "@" + user.userCredentials.username;
+                                    component.setValue(newText);
+                                    mentionsPanel.hide();
+                                }, label);
+                            }
+                        }
+                    }
+                });
+
+            mentionsPanel.add({
+                html: 'People matching @' + currentMention,
+                cls: 'link',
             });
-
-        return [potentialUsers];
-    }
-
-    var displayMentionSuggestion = function(f, e) {
-        mentionsPanel.removeAll(true);
-        mentionsPanel.add(getMentionsTooltipText(f))
-        mentionsPanel.show().alignTo(e.target,'bl-tl');
+            mentionsPanel.add(potentialUsers);
+            mentionsPanel.show().alignTo(e.target,'bl-tl');
+        }
+        else{
+            mentionsPanel.hide();
+        }
     }
 
     /*
@@ -362,7 +391,6 @@ EastRegion = function(c) {
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
                         value : comment && comment.text,
-                        isMentioning: false,
                         submitEmptyText: false,
                         flex: 1,
                         border: 0,
@@ -372,17 +400,9 @@ EastRegion = function(c) {
                                 if (e.getKey() == e.ENTER && !e.shiftKey) {
                                     commentInterpretation(f, comment);
                                 }
-                                else if(e.getKey() == 64){
-                                    this.isMentioning = true;
-                                }
-                                else if (this.isMentioning){
-                                    if ( e.getKey() == e.SPACE){
-                                        this.isMentioning = false;
-                                    }
-                                    else{
-                                        displayMentionSuggestion(f, e);
-                                    }
-                                }
+                            },
+                            keyup: function(f, e) {
+                                displayMentionSuggestion(f, e, this);
                             }
                         }
                     }, {
