@@ -99,8 +99,8 @@ AppManager = function(refs) {
     t.periodGenerator;
     t.viewUnapprovedData;
 
-    t.users;
-    t.mostMentionedUsers;
+    t.users = [];
+    t.mostMentionedUsers = [];
 
 
     t.rootNodes = [];
@@ -176,7 +176,6 @@ AppManager.prototype.init = function(callbackFn) {
                 t.logVersion();
 
                 systemInfoReq();
-                usersReq();
             }
         }).run();
     };
@@ -237,6 +236,9 @@ AppManager.prototype.init = function(callbackFn) {
                 if (callbackFn) {
                     callbackFn();
                 }
+
+                usersReq();
+                
             }
         }).run();
     };
@@ -255,9 +257,92 @@ AppManager.prototype.init = function(callbackFn) {
             ],
             success: function (response) {
                 t.users = response.users;
+                mostMentionedUsersReq();
             }
         }).run();
     };
+
+    // most mentioned users
+    const mostMentionedUsersReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/interpretations.json',
+            type: 'json',
+            params: [
+                'fields=id,mentions',
+                'filter=user.id:eq:' + t.userAccount.id,
+                'filter=mentions:!null',
+                'paging=false'
+            ],
+            success: function (response) {
+                mostMentionedUsersReq2(response)
+            }
+        }).run();
+    };
+
+    // most mentioned users
+    const mostMentionedUsersReq2 = (previousResponse) => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/interpretations.json',
+            type: 'json',
+            params: [
+                'fields=id,comments[mentions]',
+                'filter=comments.user.id:eq:' + t.userAccount.id,
+                'filter=comments.mentions.username:!null',
+                'paging=false'
+            ],
+            success: function (response) {
+                var mentionsUser = {}
+                previousResponse.interpretations.map( interpretation => 
+                    interpretation.mentions.map(mention => {
+                         if (mention.username in mentionsUser){
+                            mentionsUser[mention.username] += 1;
+                         }
+                         else{
+                            mentionsUser[mention.username] = 1;
+                         }
+                    })
+                );
+                response.interpretations.map( interpretation =>
+                    interpretation.comments.map (comment =>
+                        comment.mentions.map(mention => {
+                            if (mention.username in mentionsUser){
+                                mentionsUser[mention.username] += 1;
+                             }
+                             else{
+                                mentionsUser[mention.username] = 1;
+                             }
+                        }
+                    ))
+                );
+
+                console.log(mentionsUser);
+                
+                // Sort by mentions
+                mentionsUser = Object.keys(mentionsUser).sort( function(a,b) {
+                    return mentionsUser[b] - mentionsUser[a];
+                });
+
+               
+                // t.mostMentionedUsers = t.users.filter(user => mentionsUser.includes(user.userCredentials.username))
+                // Get real user object (No foreign key in json b)
+                t.mostMentionedUsers = mentionsUser.map(username => {
+                    return t.users.find(user => username == user.userCredentials.username)
+                    
+                })
+
+
+
+                //t.mostMentionedUsers
+                console.log("pako")    
+                console.log(mentionsUser);
+                console.log(t.mostMentionedUsers);
+
+                    
+            }
+        }).run();
+
+    };
+
 
     
 };

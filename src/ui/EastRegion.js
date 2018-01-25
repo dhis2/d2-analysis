@@ -296,11 +296,9 @@ EastRegion = function(c) {
         //     // applied to each contained panel
         //     bodyStyle:'padding:20px'
         // },
-        items: [{
-            html: "tupa"
-        }],
+        items: [],
         zIndex: 9999,
-        bodyStyle: 'background-color: white;border',
+        bodyStyle: 'background-color: white;padding:5px;',
         showAnimation:{
             type: "popIn",
             duration: 250,
@@ -320,13 +318,33 @@ EastRegion = function(c) {
 
             mentionsPanel.removeAll(true);
 
+            var potentialMostMentionedUsers= appManager.mostMentionedUsers
+            .filter(user => user.userCredentials.username.includes(currentMention))
+            .map((user) => {
+                return {
+                    xtype: 'label',
+                    html:  user.displayName + " (" + user.userCredentials.username + ")",
+                    // cls: 'link',
+                    listeners: {
+                        'render': function(label) {
+                            label.getEl().on('click', function() {
+                                splitText.splice(-1,1);
+                                var newText = splitText.join("@") + "@" + user.userCredentials.username;
+                                component.setValue(newText);
+                                mentionsPanel.hide();
+                            }, label);
+                        }
+                    }
+                }
+            });
+
             var potentialUsers = appManager.users
                 .filter(user => user.userCredentials.username.includes(currentMention))
                 .map((user) => {
                     return {
                         xtype: 'label',
-                        html: user.displayName,
-                        cls: 'link',
+                        html: user.displayName + " (" + user.userCredentials.username + ")",
+                        // cls: 'link',
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', function() {
@@ -341,11 +359,20 @@ EastRegion = function(c) {
                 });
 
             mentionsPanel.add({
-                html: 'People matching @' + currentMention,
-                cls: 'link',
+                html: 'Most common users matching @' + currentMention,
+                style: 'font-weight: bold;'
+                // cls: 'link',
+            });
+            mentionsPanel.add(potentialMostMentionedUsers);
+            mentionsPanel.add({
+                html: 'Other users matching @' + currentMention,
+                style: 'font-weight: bold;'
+                // cls: 'link',
             });
             mentionsPanel.add(potentialUsers);
             mentionsPanel.show().alignTo(e.target,'bl-tl');
+
+
         }
         else{
             mentionsPanel.hide();
