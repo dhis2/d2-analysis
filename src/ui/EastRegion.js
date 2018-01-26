@@ -298,10 +298,9 @@ EastRegion = function(c) {
             
         },
         items: [],
-        // height: 300,
-        // width: 300,
         zIndex: 9999,
         cls: 'mentions',
+        //TODO: animations are not working.
         showAnimation:{
             type: "popIn",
             duration: 250,
