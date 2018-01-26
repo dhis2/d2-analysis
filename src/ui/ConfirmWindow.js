@@ -2,7 +2,7 @@ import { ConfirmButton } from '../ui/ConfirmButton';
 
 export var ConfirmWindow;
 
-ConfirmWindow = function(refs, title, msg, btnText, fn, applyConfig, cancelFn=Function.prototype) {
+ConfirmWindow = function(refs, title, msg, btnText, fn, applyConfig, cancelFn=Function.prototype, closeOnAccept=false) {
     applyConfig = applyConfig || {};
 
     var i18n = refs.i18nManager.get();
@@ -15,11 +15,19 @@ ConfirmWindow = function(refs, title, msg, btnText, fn, applyConfig, cancelFn=Fu
     };
 
     var closeFn = function() {
-        window.destroy();
+        return window.destroy();
     };
 
-    var confirmButton = new ConfirmButton(refs, { text: confirmButtonText, fn, closeFn });
+    var confirmFn = function() {
+        if (closeOnAccept) {
+            closeFn();
+            setTimeout(fn, 0);
+        } else {
+            fn();
+        }
+    }
 
+    var confirmButton = new ConfirmButton(refs, { text: confirmButtonText, fn: confirmFn, closeFn });
     var cancelButton = new ConfirmButton(refs, { type: 'close', text: cancelButtonText, fn: cancelFn, closeFn });
 
     var window = Ext.create('Ext.window.Window', Object.assign({

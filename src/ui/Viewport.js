@@ -533,7 +533,7 @@ Viewport = function(refs, cmp, config) {
             }
         },
         scrollTo: function(x, y) {
-            this.body.scrollTo(x, y);
+            this.body.dom.scrollTo(x, y);
         },
         toggleEastRegion: function() {
             detailsButton.setIconState()
@@ -585,22 +585,16 @@ Viewport = function(refs, cmp, config) {
         },
         bbar: statusBar,
         listeners: {
-            change: function() {
-                console.log("hello, world");
-            },
-            afterrender: function(p) {
-                //p.update(uiManager.getIntroHtml());
+            render: function(p) {
+                p.body.on('scroll', function(e) {
+                    this.onScroll(e);
+                }, p);
             },
             resize: {
                 fn: function(e) {
                     this.onResize(e);
                 }
             },
-            render: function(p) {
-                p.body.on('scroll', function(e) {
-                    this.onScroll(e);
-                }, p);
-            }
         }
     });
     uiManager.reg(centerRegion, 'centerRegion');
