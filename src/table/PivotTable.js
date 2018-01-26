@@ -2381,7 +2381,9 @@ PivotTable.prototype.buildHtmlRows = function(objectArray) {
     this.valueUuids = [];
     return objectArray.map((row) => {
         return row.map((cell) =>{
-            if (cell.uuid) this.valueUuids.push(cell.uuid);
+            if (cell.uuid && cell.type === 'value') {
+                this.valueUuids.push(cell.uuid);
+            }
             return this.buildHtmlCell(cell);
         });
     });

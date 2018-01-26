@@ -140,6 +140,7 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, sort, hidden
     cell.collapsed = false;
     cell.hidden    = false;
     cell.empty     = false;
+    
     cell.width     = 120;
     cell.height    = 25;
 
