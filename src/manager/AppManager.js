@@ -315,7 +315,7 @@ AppManager.prototype.init = function(callbackFn) {
                     ))
                 );
 
-                console.log(mentionsUser);
+                // console.log(mentionsUser);
                 
                 // Sort by mentions
                 mentionsUser = Object.keys(mentionsUser).sort( function(a,b) {
@@ -323,28 +323,19 @@ AppManager.prototype.init = function(callbackFn) {
                 });
 
                
-                // t.mostMentionedUsers = t.users.filter(user => mentionsUser.includes(user.userCredentials.username))
                 // Get real user object (No foreign key in json b)
                 t.mostMentionedUsers = mentionsUser.map(username => {
                     return t.users.find(user => username == user.userCredentials.username)
                     
                 })
 
+                //TODO: We should delete from "other user", users existing in mentionusers
 
-
-                //t.mostMentionedUsers
-                console.log("pako")    
-                console.log(mentionsUser);
-                console.log(t.mostMentionedUsers);
-
-                    
+                // console.log(mentionsUser);
+                // console.log(t.mostMentionedUsers);
             }
         }).run();
-
     };
-
-
-    
 };
 
 AppManager.prototype.logVersion = function() {
