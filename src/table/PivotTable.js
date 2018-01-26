@@ -81,6 +81,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.optionConfig = refs.optionConfig;
     this.uiManager = refs.uiManager;
 
+    console.log(layout.legendSet);
+
     this.legendSet = isObject(layout.legendSet) 
         ? this.appManager.getLegendSetById(layout.legendSet.id) : null;
 
@@ -2274,7 +2276,7 @@ PivotTable.prototype.buildTableTitle = function(span) {
  */
 PivotTable.prototype.getLegends = function(dxId) {
     return this.appManager.getLegendSetById(
-        this.getLegendSetId(config.dxId)).legends;
+        this.getLegendSetId(dxId)).legends;
 };
 
 /**
@@ -2288,7 +2290,7 @@ PivotTable.prototype.getLegendSet = function(dxId) {
         return null;
     }
 
-    return this.response.metaData.items[config.dxId].legendSet
+    return this.response.metaData.items[dxId].legendSet
 };
 
 /**
@@ -2313,9 +2315,9 @@ PivotTable.prototype.buildHtmlCell = function(config) {
 
     let style = '';
 
-    if (config.isValue && this.legendSet) {
+    if (config.isValue) {
 
-        let legends = this.legendSet.legends,
+        let legends = this.legendSet ? this.legendSet.legends || [] : [],
             bgColor;
 
         if (this.doLegendDisplayByDataItem() && this.getLegendSet(config.dxId)) {
@@ -2327,7 +2329,7 @@ PivotTable.prototype.buildHtmlCell = function(config) {
                 bgColor = legends[i].color;
             }
         }
-    
+
         if (this.doLegendDisplayStyleFill() && bgColor) {
             style += `
                 background-color:${bgColor};
