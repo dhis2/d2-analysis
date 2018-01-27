@@ -64,6 +64,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.cellHeight = 25;
     this.cellWidth = 120;
+    this.renderOffset = 1;
 
     this.title = layout.title;
     this.digitGroupSeparator = layout.digitGroupSeparator;
@@ -101,6 +102,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
  * 
  */
 PivotTable.prototype.initialize = function() {
+
+    // number of dimensions for each axis
     this.columnDimensionSize = this.colAxis.dims || 1;
     this.rowDimensionSize = this.rowAxis.dims || 1;
 
@@ -117,15 +120,23 @@ PivotTable.prototype.initialize = function() {
     this.rowDimensionNames = this.rowAxis.type
         ? this.layout.rows.getDimensionNames(this.response) : [];
 
+    // size size of table
     this.rowSize = this.getRowSize();
+
+    // size of column axis not including corner axis
     this.columnSize = this.getColumnSize();
+
+    // size of row axis not including corner axis
     this.tableSize = this.getTableSize();
 
+    // lookup for changed column spans (used to calculate new spans when rows/columns are hidden).
     this.rowAxisSpanMap = this.createRowSpanMap();
     this.columnAxisSpanMap = this.createColumnSpanMap();
 
+    // lookup for values
     this.valueLookup = this.createValueLookup();
 
+    // lookup for rows/columns to render (used to determine what rows/columns are hidden).
     this.rowAxisLookup = this.createRowRenderMap();
     this.columnAxisLookup = this.createColumnRenderMap();
 };
@@ -230,7 +241,7 @@ PivotTable.prototype.setRowStartAndEnd = function(rowStartIndex) {
 };
 
 /**
- * Sets the size of the viewport
+ * Sets the size of the viewport and rebuilds the table.
  * 
  * @param {number} [width=0] 
  * @param {number} [height=0] 
@@ -419,9 +430,9 @@ PivotTable.prototype.doLegendDisplayStyleText = function() {
 
 // checkers
 /**
- * Checks if column located at columnIndex is a sub total column.
+ * Checks if column located at given column index is a sub total column.
  * 
- * @param {number} columnIndex 
+ * @param {number} columnIndex index of column to be checked
  * @returns {boolean}
  */
 PivotTable.prototype.isColumnSubTotal = function(columnIndex) {
@@ -429,9 +440,9 @@ PivotTable.prototype.isColumnSubTotal = function(columnIndex) {
 };
 
 /**
- * Checks if column located at columnIndex is a total column.
+ * Checks if column located at given column index is a total column.
  * 
- * @param {number} columnIndex 
+ * @param {number} columnIndex index of column to be checked
  * @returns {boolean}
  */
 PivotTable.prototype.isColumnGrandTotal = function(columnIndex) {
@@ -439,9 +450,9 @@ PivotTable.prototype.isColumnGrandTotal = function(columnIndex) {
 };
 
 /**
- * Checks if row located at rowIndex is a sub total row.
+ * Checks if row located at given row index is a sub total row.
  * 
- * @param {number} rowIndex 
+ * @param {number} rowIndex index of column to be checked
  * @returns {boolean}
  */
 PivotTable.prototype.isRowSubTotal = function(rowIndex) {
@@ -449,9 +460,9 @@ PivotTable.prototype.isRowSubTotal = function(rowIndex) {
 };
 
 /**
- * Checks if row located at rowIndex is a sub total row.
+ * Checks if row located at given row index is a sub total row.
  * 
- * @param {number} rowIndex 
+ * @param {number} rowIndex index of row to be checked
  * @returns {boolean}
  */
 PivotTable.prototype.isRowGrandTotal = function(rowIndex) {
@@ -459,7 +470,7 @@ PivotTable.prototype.isRowGrandTotal = function(rowIndex) {
 };
 
 /**
- * Checks if row located at rowIndex is empty.
+ * Checks if row located at row index is empty.
  * 
  * @param {number} rowIndex 
  * @returns {boolean}
@@ -469,7 +480,7 @@ PivotTable.prototype.isRowEmpty = function(rowIndex) {
 };
 
 /**
- * Checks if column located at columnIndex is empty.
+ * Checks if column located at column index is empty.
  * 
  * @param {number} columnIndex 
  * @returns {boolean}
@@ -479,7 +490,27 @@ PivotTable.prototype.isColumnEmpty = function(columnIndex) {
 };
 
 /**
- * Checks if given cell is of type text field
+ * Checks if row located at row index is part of column axis.
+ * 
+ * @param {number} columnIndex 
+ * @returns {boolean}
+ */
+PivotTable.prototype.isColumnDimensionRow = function(rowIndex) {
+    return rowIndex < this.columnDimensionSize;
+};
+
+/**
+ * Checks if column located at column index is part of row axis.
+ * 
+ * @param {number} columnIndex 
+ * @returns {boolean}
+ */
+PivotTable.prototype.isRowDimensionColumn = function(columnIndex) {
+    return columnIndex < this.rowDimensionSize;
+};
+
+/**
+ * Checks if given cell is of type text field.
  * 
  * @param {string} type 
  * @returns 
@@ -489,7 +520,7 @@ PivotTable.prototype.isTextField = function(type) {
 };
 
 /**
- * Get width of value table
+ * Get width of value table (table without axis).
  * 
  * @returns 
  */
@@ -497,7 +528,7 @@ PivotTable.prototype.getValueTableWidth = function() {
     return Object.keys(this.valueLookup[0]).length;
 };
 /**
- * Get height of value table
+ * Get height of value table (table without axis).
  * 
  * @returns 
  */
@@ -505,7 +536,7 @@ PivotTable.prototype.getValueTableHeigth = function() {
     return Object.keys(this.valueLookup).length;
 };
 
-
+// TODO: REMOVE
 PivotTable.prototype.getAdjustedAxisSpan = function(cell, index, axisType, spanType) {
     if (cell.children) {
         return cell.oldestSibling.children *
@@ -524,8 +555,10 @@ PivotTable.prototype.getAdjustedRowSpan = function(cell, columnIndex) {
 };
 
 /**
- * Gets the row index where the values start below the column
- * axis.
+ * Gets the row index of where the value table starts relative to the
+ * current state of the table.
+ * Mostly used to offset the row index to skip over column
+ * axis dimensions.
  * 
  * @returns {number}
  */
@@ -534,9 +567,10 @@ PivotTable.prototype.getValueRowStartOffset = function() {
 };
 
 /**
- * Gets the column index where the values start to the right of the row
- * axis.
- * 
+ * Gets the column index of where the value table starts relative to the
+ * current state of the table.
+ * Mostly used to offset the column index to skip over row
+ * axis dimensions.
  * @returns {number}
  */
 PivotTable.prototype.getValueColumnStartOffset = function() {
@@ -564,7 +598,8 @@ PivotTable.prototype.getValueOffsetColumn = function() {
 };
 
 /**
- * Gets the row span of a given dimension.
+ * Gets the row span of a given dimension based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex index of row axis
  * @param {number} dimensionIndex dimension of row axis
@@ -575,7 +610,8 @@ PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionIndex) {
 };
 
 /**
- * Gets normalized row index offset by hidden rows
+ * Gets normalized row index offset by hidden rows based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -589,7 +625,8 @@ PivotTable.prototype.normalizeRowIndexOffset = function(rowIndex, dimensionIndex
 };
 
 /**
- * Gets the distance from last row axis dimension unit based on current table dimensions
+ * Gets the distance from last row axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -603,7 +640,8 @@ PivotTable.prototype.getDistanceFromLastRowDimensionUnitActual = function(rowInd
 };
 
 /**
- * Gets distance from last row axis dimension unit based on table offset by hidden rows
+ * Gets distance from last row axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -615,7 +653,8 @@ PivotTable.prototype.getDistanceFromLastRowDimensionUnitOffset = function(rowInd
 };
 
 /**
- * Gets distance to next row axis dimension unit based on current table dimensions
+ * Gets distance to next row axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -630,7 +669,8 @@ PivotTable.prototype.getDistanceToNextRowDimensionUnitActual = function(rowIndex
 };
 
 /**
- * Gets distance to next row axis dimension unit based on table offset by hidden rows
+ * Gets distance to next row axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -643,7 +683,8 @@ PivotTable.prototype.getDistanceToNextRowDimensionUnitOffset = function(rowIndex
 };
 
 /**
- * Gets number of hidden rows above given row index
+ * Gets number of hidden rows above given row index up to start of current
+ * dimension unit.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -655,7 +696,8 @@ PivotTable.prototype.getHiddenRowsAbove = function(rowIndex, dimensionIndex) {
 };
 
 /**
- * Gets number of hidden rows below given row index
+ * Gets number of hidden rows below given row index up to end of current
+ * dimension unit.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -667,7 +709,7 @@ PivotTable.prototype.getHiddenRowsBelow = function(rowIndex, dimensionIndex) {
 };
 
 /**
- * Gets updated row dimension span based on given parameters
+ * Gets updated row dimension span based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -681,7 +723,7 @@ PivotTable.prototype.getUpdatedRowSpan = function(rowIndex, dimensionIndex) {
 };
 
 /**
- * Gets normalized row index offset by hidden columns
+ * Gets normalized row index offset by hidden columns.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -694,7 +736,8 @@ PivotTable.prototype.normalizeColumnIndexOffset = function(columnIndex, dimensio
     return columnIndex;
 }
 /**
- * Gets the distance from last column axis dimension unit based on current table dimensions
+ * Gets the distance from last column axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -708,7 +751,8 @@ PivotTable.prototype.getDistanceFromLastColumnDimensionUnitActual = function(col
 };
 
 /**
- * Gets distance from last column axis dimension unit based on table offset by hidden columns
+ * Gets distance from last column axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -720,7 +764,8 @@ PivotTable.prototype.getDistanceFromLastColumnDimensionUnitOffset = function(col
 };
 
 /**
- * Gets the distance to next column axis dimension unit based on current table dimensions
+ * Gets the distance to next column axis dimension based on the current
+ * state of the table.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -735,7 +780,8 @@ PivotTable.prototype.getDistanceToNextColumnDimensionUnitActual = function(colum
 };
 
 /**
- * Gets distance to next column axis dimension unit based on table offset by hidden columns
+ * Gets distance to next column axis dimension unit based on the current
+ * state of the table.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -748,7 +794,8 @@ PivotTable.prototype.getDistanceToNextColumnDimensionUnitOffset = function(colum
 };
 
 /**
- * Gets number of hidden columns to the left of given column index
+ * Gets number of hidden columns to the left of given column index up to start of 
+ * current dimension unit.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -760,7 +807,8 @@ PivotTable.prototype.getHiddenColumnsLeft = function(columnIndex, dimensionIndex
 };
 
 /**
- * Gets number of hidden columns to the right of given column index
+ * Gets number of hidden columns to the right of given column index up to end of 
+ * current dimension unit.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -772,7 +820,7 @@ PivotTable.prototype.getHiddenColumnsRight = function(columnIndex, dimensionInde
 };
 
 /**
- * Gets updated column axis span based on given parameters
+ * Gets updated column axis span based on given parameters.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -786,7 +834,7 @@ PivotTable.prototype.getUpdatedColumnSpan = function(columnIndex, dimensionIndex
 };
 
 /**
- * Sums the column axis spans up to given column index
+ * Sums the column axis spans up to given column index.
  * 
  * @param {number} columnIndex 
  * @param {number} dimensionIndex 
@@ -801,7 +849,7 @@ PivotTable.prototype.sumColumnAxisSpanUpToIndex = function(columnIndex, dimensio
 };
 
 /**
- * Sums the row axis spans up to given row index
+ * Sums the row axis spans up to given row index.
  * 
  * @param {number} rowIndex 
  * @param {number} dimensionIndex 
@@ -827,7 +875,7 @@ PivotTable.prototype.getColumnAxisSpan = function(columnIndex, dimensionIndex) {
 };
 
 /**
- * Calculates true total values
+ * Calculates true total values.
  * 
  * @param {number} numerator 
  * @param {number} denominator 
@@ -839,7 +887,7 @@ PivotTable.prototype.getTrueTotal = function(numerator, denominator, factor) {
 };
 
 /**
- * Gets record names
+ * Gets record names.
  * 
  * @returns {array}
  */
@@ -848,7 +896,7 @@ PivotTable.prototype.getRecordNames = function() {
 };
 
 /**
- * Gets the row axis object at given row index and column index.
+ * Gets the row axis object at given column/row index.
  * 
  * @param {number} columnIndex column index of axis object
  * @param {number} rowIndex row index of axis object
@@ -859,7 +907,7 @@ PivotTable.prototype.getRowAxisObject = function(columnIndex, rowIndex) {
 };
 
 /**
- * Gets the column axis object at given row index and column index.
+ * Gets the column axis object at given column/row index.
  * 
  * @param {number} rowIndex row index of axis object
  * @param {number} columnIndex column index of axis object
@@ -870,7 +918,7 @@ PivotTable.prototype.getColumnAxisObject = function(rowIndex, columnIndex) {
 };
 
 /**
- * Gets the total of the row at given index
+ * Gets the total of the row at given row index.
  * 
  * @param {number} rowIndex index of row to find total
  * @returns {number}
@@ -880,7 +928,7 @@ PivotTable.prototype.getRowTotal = function(rowIndex) {
 };
 
 /**
- * Gets the total of the column at given index
+ * Gets the total of the column at given column index.
  * 
  * @param {number} columnIndex index of column to find total
  * @returns {number}
@@ -890,7 +938,7 @@ PivotTable.prototype.getColumnTotal = function(columnIndex) {
 };
 
 /**
- * Gets the visual representation of a table cell.
+ * Gets the html value of a table cell.
  * 
  * @param {object} cell 
  * @returns {string}
@@ -915,7 +963,7 @@ PivotTable.prototype.getPrettyHtml = function(htmlValue) {
 };
 
 /**
- * Gets legend display strategy id
+ * Gets legend display strategy id.
  * 
  * @param {string} type 
  * @returns {number}
@@ -925,7 +973,7 @@ PivotTable.prototype.getLegendDisplayStrategyId = function(type) {
 };
 
 /**
- * Gets legend display style id
+ * Gets legend display style id.
  * 
  * @param {string} type 
  * @returns {number}
@@ -974,21 +1022,19 @@ PivotTable.prototype.getViewportHeight = function() {
  * Gets the number of cells that can be rendered horizontally within the viewport
  * with offset for additional cells.
  * 
- * @param {number} [offset=1] Number of additional cells to be rendered horizontally
  * @returns {number}
  */
-PivotTable.prototype.getViewportWidthIndex = function(offset=1) {
-    return Math.floor(this.viewportWidth / this.cellWidth) + offset;
+PivotTable.prototype.getViewportWidthIndex = function() {
+    return Math.floor(this.viewportWidth / this.cellWidth) + this.renderOffset;
 };
 
 /**
  * Gets the number of cells that can be rendered vertically within the viewport
  * with offset for additional cells.
- * @param {number} [offset=1] Number of additional cells to be rendered vertically
  * @returns {number}
  */
-PivotTable.prototype.getViewportHeightIndex = function(offset=1) {
-    return Math.floor(this.viewportHeight / this.cellHeight) + offset;
+PivotTable.prototype.getViewportHeightIndex = function() {
+    return Math.floor(this.viewportHeight / this.cellHeight) + this.renderOffset;
 };
 
 /**
@@ -1097,16 +1143,11 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     const id = this.getRRIC(rowIndex, columnIndex).get();
 
     let value = this.getValue(id),
-        empty = false;
-
-    if (value === null) {
-        value = 0;
-        empty = true;
-    }
+        empty = value === null;
 
     return {
-        value,
         empty,
+        value: empty ? 0 : value,
         numerator: this.getNumeratorValue(id),
         denominator: this.getDenominatorValue(id),
         factor: this.getFactorValue(id),
@@ -1114,7 +1155,7 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 };
 
 /**
- * Gets value id value map
+ * Gets value id value map.
  * 
  * @param {string} id 
  * @returns {number}
@@ -1169,8 +1210,26 @@ PivotTable.prototype.getDenominatorValue = function(id) {
 // PivotTable.prototype.getColumnSize = function() {
 //     return this.getAxisSize(this.colAxis, this.colUniqueFactor, this.doColSubTotals(), this.doColTotals())
 // };
+// PivotTable.prototype.getAxisSize = function(axis, uniqueFactor, doSubTotals, doTotals) {
+
+//     if (!axis.size) {
+//         return 1;
+//     }
+
+//     let size = axis.size;
+
+//     if (doSubTotals)  {
+//         size += axis.size / uniqueFactor;
+//     }
+    
+//     if (doTotals) {
+//         size += 1;    
+//     }
+    
+//     return size;
+// };
 /**
- * Gets number of rows in table
+ * Gets number of rows in table in number of cells.
  * 
  * @returns {number}
  */
@@ -1193,7 +1252,7 @@ PivotTable.prototype.getRowSize = function() {
     return size;
 };
 /**
- * Gets number of columns in table
+ * Gets number of columns in table in number of cells.
  * 
  * @returns {number}
  */
@@ -1211,25 +1270,6 @@ PivotTable.prototype.getColumnSize = function() {
 
     if (this.doRowTotals()) {
         size += 1;
-    }
-    
-    return size;
-};
-
-PivotTable.prototype.getAxisSize = function(axis, uniqueFactor, doSubTotals, doTotals) {
-
-    if (!axis.size) {
-        return 1;
-    }
-
-    let size = axis.size;
-
-    if (doSubTotals)  {
-        size += axis.size / uniqueFactor;
-    }
-    
-    if (doTotals) {
-        size += 1;    
     }
     
     return size;
@@ -1267,7 +1307,7 @@ PivotTable.prototype.getNextSubRowIndex = function(rowIndex) {
 };
 
 /**
- * Gets uuids object map
+ * Gets uuids object map.
  * 
  * @returns {object}
  */
@@ -1279,25 +1319,29 @@ PivotTable.prototype.getUuidObjectMap = function() {
 };
 
 /**
- * Gets the index of the last cell to be rendered in column
+ * Gets the index of the last cell to be rendered in column.
  * 
  * @param {number} columnIndex 
  * @returns {number}
  */
 PivotTable.prototype.getColumnEnd = function(columnIndex) {
-    return this.doDynamicRendering() ? 
-        this.constrainWidth(this.getViewportWidthIndex() + columnIndex) : this.getColumnAxisSize() - this.numberOfEmptyColumns;
+    if (this.doDynamicRendering()) {
+        return this.constrainWidth(this.getViewportWidthIndex() + columnIndex)
+    }
+    return this.getColumnAxisSize() - this.numberOfEmptyColumns;
 };
     
 /**
- * Gets the index of the last cell to be rendered in row
+ * Gets the index of the last cell to be rendered in row.
  * 
  * @param {number} [rowIndex=this.rowStart] 
  * @returns {number}
  */
 PivotTable.prototype.getRowEnd = function(rowIndex=this.rowStart) {
-    return this.doDynamicRendering() ?
-        this.constrainHeight(this.getViewportHeightIndex() + rowIndex) : (this.getRowAxisSize() - this.numberOfEmptyRows);
+    if (this.doDynamicRendering()) {
+        return this.constrainHeight(this.getViewportHeightIndex() + rowIndex);
+    }
+    return this.getRowAxisSize() - this.numberOfEmptyRows;
 };
 
 /**
@@ -1314,7 +1358,7 @@ PivotTable.prototype.getRowSortId = function(index) {
 };
 
 /**
- * Gets the label for the column axis at given index
+ * Gets the label for the column axis at given index.
  * 
  * @param {number} index 
  * @returns {string}
@@ -1340,7 +1384,7 @@ PivotTable.prototype.getRowAxisLabel = function(index) {
 };
 
 /**
- * Gets the dimension label for the shared row/column
+ * Gets the dimension label for the shared column/row.
  * 
  * @returns {string}
  */
@@ -1364,7 +1408,7 @@ PivotTable.prototype.getCrossAxisLabel = function() {
 };
 
 /**
- * Gets the span for the top title bar
+ * Gets the span for the top title bar.
  * 
  * @param {number} span 
  * @returns {number}
@@ -1380,7 +1424,7 @@ PivotTable.prototype.getTopBarSpan = function(span) {
 };
 
 /**
- * Retrueves the ResponseRowIdCombination for given row and column index pair
+ * Retrueves the ResponseRowIdCombination for given row and column index pair.
  * 
  * @param {number} rowIndex 
  * @param {number} columnIndex 
@@ -1396,7 +1440,7 @@ PivotTable.prototype.getRRIC = function(rowIndex, columnIndex) {
 };
 
 /**
- * Gets associated uuids for given row and column index pair
+ * Gets associated uuids for given row and column index pair.
  * 
  * @param {number} rowIndex 
  * @param {number} columnIndex 
@@ -1417,7 +1461,7 @@ PivotTable.prototype.getCellUuids = function(rowIndex, columnIndex) {
 };
 
 /**
- * Gets percentage of value based on given row index
+ * Gets percentage of value based on given row index.
  * 
  * @param {number} value 
  * @param {number} rowIndex 
@@ -1427,7 +1471,7 @@ PivotTable.prototype.getRowPercentage = function(value, rowIndex) {
     return getPercentageHtml(value, this.getRowTotal(rowIndex));
 };
 /**
- * Gets percentage of value based on given column index
+ * Gets percentage of value based on given column index.
  * 
  * @param {number} value 
  * @param {number} columnIndex 
@@ -1474,7 +1518,7 @@ PivotTable.prototype.addLeft = function(columnIndex, rowStart, rowEnd) {
  * @param {number} columnEnd index of the last column of the row
  */
 PivotTable.prototype.addTop = function(rowIndex, columnStart, columnEnd) {
-    this.table.unshift(this.buildRow(rowIndex, columnStart, columnEnd))
+    this.table.unshift(this.buildRow(rowIndex, columnStart, columnEnd));
 };
 
 /**
@@ -1545,7 +1589,7 @@ PivotTable.prototype.deleteColumn = function(columnIndex) {
 };
 
 /**
- * Builds a table row based on given parameters
+ * Builds a table row based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} columnStart 
@@ -1555,13 +1599,13 @@ PivotTable.prototype.deleteColumn = function(columnIndex) {
 PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) { 
     let rowAxisRow = [];
 
-    if (rowIndex < this.columnDimensionSize) {
+    if (this.isColumnDimensionRow(rowIndex)) {
         return this.buildColumnAxisRow(rowIndex, columnStart, columnEnd + 1); // TODO: why + 1?
     }
 
     rowIndex -= this.columnDimensionSize;
 
-    if (columnStart < this.rowDimensionSize) {
+    if (this.isRowDimensionColumn(columnStart)) {
         rowAxisRow = this.buildRowAxisRow(rowIndex, columnStart);
         columnStart = 0;
     } else {
