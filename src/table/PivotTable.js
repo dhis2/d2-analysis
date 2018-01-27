@@ -82,8 +82,6 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.optionConfig = refs.optionConfig;
     this.uiManager = refs.uiManager;
 
-    console.log(layout.legendSet);
-
     this.legendSet = isObject(layout.legendSet) 
         ? this.appManager.getLegendSetById(layout.legendSet.id) : null;
 
@@ -1628,14 +1626,14 @@ PivotTable.prototype.buildRow = function(rowIndex, columnStart, columnEnd) {
 PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
     let columnAxis = this.buildColumnAxisColumn(columnIndex, rowStart);
 
-    if (rowStart > this.columnDimensionSize) {
-        rowStart -= this.columnDimensionSize;
-        rowEnd -= (this.columnDimensionSize - 1);
+    if (this.isColumnDimensionRow(rowStart)) {
+        rowEnd -= (columnAxis.length - 1); // TODO: why - 1?
     } else {
-        rowEnd -= (columnAxis.length - 1);
+        rowStart -= this.columnDimensionSize;
+        rowEnd -= (this.columnDimensionSize - 1); // TODO: why - 1?
     }
 
-    if (columnIndex < this.rowDimensionSize) {
+    if (this.isRowDimensionColumn(columnIndex)) {
         return columnAxis.concat(this.buildRowAxisColumn(columnIndex, rowStart, rowEnd));
     }
 
@@ -1645,7 +1643,7 @@ PivotTable.prototype.buildColumn = function(columnIndex, rowStart, rowEnd) {
 };
 
 /**
- * Builds value portion of table row based on given parameters
+ * Builds value portion of table row based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} columnStart 
@@ -1666,7 +1664,7 @@ PivotTable.prototype.buildValueRow = function(rowIndex, columnStart, columnEnd) 
 };
 
 /**
- * Builds value portion of table column based on given parameters
+ * Builds value portion of table column based on given parameters.
  * 
  * @param {number} columnIndex 
  * @param {number} rowStart 
@@ -1684,7 +1682,7 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
 };
 
 /**
- * Builds value cell based on row and column index pair
+ * Builds value cell based on row and column index pair.
  * 
  * @param {number} columnIndex 
  * @param {number} rowIndex 
@@ -1720,7 +1718,12 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     let rowIndexOffset = this.normalizeRowIndex(rowIndex),
         columnIndexOffset = this.normalizeColumnIndex(columnIndex),
-        cell = ValueCell(value, this.response, this.getRRIC(rowIndexOffset, columnIndexOffset), this.getCellUuids(columnIndexOffset, rowIndexOffset), htmlValue);
+        cell = ValueCell(
+            value,
+            this.response,
+            this.getRRIC(rowIndexOffset, columnIndexOffset),
+            this.getCellUuids(columnIndexOffset, rowIndexOffset),
+            htmlValue);
 
     this.uuidDimUuidsMap[cell.uuid] = cell.uuids;
 
@@ -1728,7 +1731,7 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 };
 
 /**
- * Builds row axis dimension based on given parameters
+ * Builds row axis dimension based on given parameters.
  * 
  * @returns {array}
  */
@@ -1750,7 +1753,7 @@ PivotTable.prototype.buildRowAxis = function() {
 };
 
 /**
- * Builds row axis dimension row based on given parameters
+ * Builds row axis dimension row based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} columnStart 
@@ -1775,7 +1778,7 @@ PivotTable.prototype.buildRowAxisRow = function(rowIndex, columnStart) {
 };
 
 /**
- * Builds column axis dimension row based on given parameters
+ * Builds column axis dimension row based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} columnStart 
@@ -1789,11 +1792,11 @@ PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, column
 
     const row = [];
 
-    if (columnStart < this.rowDimensionSize) {
+    if (this.isRowDimensionColumn(columnStart)) {
         Object.assign(row, this.buildCornerAxisRow(rowIndex, columnStart));
     }
 
-    columnStart += row.length
+    columnStart += row.length;
 
     columnStart -= this.rowDimensionSize;
     columnEnd   -= this.rowDimensionSize;
@@ -1806,7 +1809,7 @@ PivotTable.prototype.buildColumnAxisRow = function(rowIndex, columnStart, column
 };
 
 /**
- * Builds row axis dimension column based on given parameters
+ * Builds row axis dimension column based on given parameters.
  * 
  * @param {number} columnIndex 
  * @param {number} rowStart 
@@ -1836,7 +1839,7 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
 };
 
 /**
- * Builds row axis cell based on row and column index pair
+ * Builds row axis cell based on row and column index pair.
  * 
  * @param {number} columnIndex 
  * @param {number} rowIndex 
@@ -1925,7 +1928,7 @@ PivotTable.prototype.buildColumnAxisColumn = function(columnIndex, rowStart) {
         return [];
     }
     
-    if (columnIndex < this.rowDimensionSize) {
+    if (this.isRowDimensionColumn(columnIndex)) {
         return this.buildCornerAxisColumn(columnIndex, rowStart);
     }
 
@@ -1941,7 +1944,7 @@ PivotTable.prototype.buildColumnAxisColumn = function(columnIndex, rowStart) {
 };
 
 /**
- * Builds corner axis dimension
+ * Builds corner axis dimension.
  * 
  * @returns {array}
  */
@@ -1956,7 +1959,7 @@ PivotTable.prototype.buildCornerAxis = function() {
 };
 
 /**
- * Builds corner axis dimension column based on given parameters
+ * Builds corner axis dimension column based on given parameters.
  * 
  * @param {number} columnIndex 
  * @param {number} rowStart 
@@ -1991,7 +1994,7 @@ PivotTable.prototype.buildCornerAxisColumn = function(columnIndex, rowStart) {
 };
 
 /**
- * Builds corner axis dimension row based on given parameters
+ * Builds corner axis dimension row based on given parameters.
  * 
  * @param {number} rowIndex 
  * @param {number} columnStart 
@@ -2026,7 +2029,7 @@ PivotTable.prototype.buildCornerAxisRow = function(rowIndex, columnStart) {
 };
 
 /**
- * Creates axis dimension span map
+ * Creates axis dimension span map.
  * 
  * @param {array} spanValues 
  * @returns {array}
@@ -2048,7 +2051,7 @@ PivotTable.prototype.createRowSpanMap = function() {
 };
 
 /**
- * Creates column axis dimension span map
+ * Creates column axis dimension span map.
  * 
  * @returns {array}
  */
@@ -2057,7 +2060,7 @@ PivotTable.prototype.createColumnSpanMap = function() {
 };
 
 /**
- * updated given total object based on given parameters
+ * Update value of total object.
  * 
  * @param {number} rowIndex 
  * @param {number} columnIndex 
@@ -2090,7 +2093,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
 };
 
 /**
- * Increments value lookup iterator offset by row sub total columns
+ * Increments value lookup iterator offset by row sub total columns.
  * 
  * @param {number} columnIndex 
  * @returns 
@@ -2103,7 +2106,7 @@ PivotTable.prototype.columnAxisOffsetIncrement = function(columnIndex) {
 };
 
 /**
- * Increments value lookup iterator offset by column sub total rows
+ * Increments value lookup iterator offset by column sub total rows.
  * 
  * @param {number} rowIndex 
  * @returns 
@@ -2116,7 +2119,7 @@ PivotTable.prototype.rowAxisOffsetIncrement = function(rowIndex) {
 };
 
 /**
- * Creates a value lookup table
+ * Creates a value lookup table.
  * 
  * @returns {array/object}
  */
@@ -2128,10 +2131,12 @@ PivotTable.prototype.createValueLookup = function() {
     const valueMap = {},
           totalMap = {};
 
+    // add size to make room for colunn totals
     if (!this.doRowTotals()) {
         tableRowSize += 1;
     }
 
+    // add size to make room for row totals
     if (!this.doRowTotals()) {
         tableColumnSize += 1;
     }
@@ -2145,7 +2150,8 @@ PivotTable.prototype.createValueLookup = function() {
                 if (!valueMap[rowIndex]) {
                     valueMap[rowIndex] = {};
                 }
-                valueMap[rowIndex][columnIndex] = valueObject.empty ? null : valueObject.value;
+                valueMap[rowIndex][columnIndex] = valueObject.empty ? 
+                    null : valueObject.value;
             }
 
             // calculate grand totals
@@ -2184,7 +2190,6 @@ PivotTable.prototype.createValueLookup = function() {
             } else {
                 valueMap[rowIndex][columnIndex] = null;
             }
-
         }        
     }
 
@@ -2192,7 +2197,7 @@ PivotTable.prototype.createValueLookup = function() {
 };
 
 /**
- * Creates a row axis render map
+ * Creates a row axis render map.
  * 
  * @returns {object}
  */
@@ -2215,7 +2220,7 @@ PivotTable.prototype.createRowRenderMap = function() {
 };
 
 /**
- * Creates a column axis render map
+ * Creates a column axis render map.
  * 
  * @returns {object}
  */
@@ -2238,7 +2243,7 @@ PivotTable.prototype.createColumnRenderMap = function() {
 };
 
 /**
- * Returns row index constrained against the height of the table
+ * Returns row index constrained against the height of the table.
  * 
  * @param {number} rowIndex 
  * @returns {number}
@@ -2247,7 +2252,7 @@ PivotTable.prototype.constrainHeight = function(rowIndex) {
     return Math.min(this.getRowAxisSize() - this.numberOfEmptyRows, rowIndex);
 };
 /**
- * Returns column index constrained against the width of the table
+ * Returns column index constrained against the width of the table.
  * 
  * @param {number} columnIndex 
  * @returns {number}
@@ -2256,7 +2261,7 @@ PivotTable.prototype.constrainWidth = function(columnIndex) {
     return Math.min(this.getColumnAxisSize() - this.numberOfEmptyColumns, columnIndex);
 };
 /**
- * Normalizes given row index based on previous sub column rows
+ * Normalizes given row index based on previous sub column rows.
  * 
  * @param {number} rowIndex 
  * @returns {number}
@@ -2268,7 +2273,7 @@ PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
     return rowIndex;
 };
 /**
- * Normalizes given column index based on previous sub row columns
+ * Normalizes given column index based on previous sub row columns.
  * 
  * @param {number} columnIndex 
  * @returns {number}
@@ -2281,7 +2286,7 @@ PivotTable.prototype.normalizeColumnIndex = function(columnIndex) {
 };
 
 /**
- * Builds table filter
+ * Builds table filter.
  * 
  * @param {any} span 
  * @returns 
@@ -2297,7 +2302,7 @@ PivotTable.prototype.buildTableFilter = function(span) {
 };
 
 /**
- * Builds table title
+ * Builds table title.
  * 
  * @param {any} span 
  * @returns 
@@ -2313,7 +2318,7 @@ PivotTable.prototype.buildTableTitle = function(span) {
 };
 
 /**
- * Gets legends
+ * Gets legends.
  * 
  * @param {any} dxId 
  * @returns 
@@ -2324,7 +2329,7 @@ PivotTable.prototype.getLegends = function(dxId) {
 };
 
 /**
- * Gets legend set
+ * Gets legend set.
  * 
  * @param {any} dxId 
  * @returns 
@@ -2343,33 +2348,33 @@ PivotTable.prototype.getLegendSet = function(dxId) {
  * @param {object} config 
  * @returns {string}
  */
-PivotTable.prototype.buildHtmlCell = function(config) {
+PivotTable.prototype.buildHtmlCell = function(cell) {
 
     // validation
-    if (!isObject(config) || config.hidden || config.collapsed) {
+    if (!isObject(cell) || cell.hidden || cell.collapsed) {
         return '';
     }
 
-    if (isString(config.sort)) {
+    if (isString(cell.sort)) {
         this.sortableIdObjects.push({     
-            id: config.sort,
-            uuid: config.uuid,
+            id: cell.sort,
+            uuid: cell.uuid,
         });
     }
 
     let style = '';
 
-    if (config.isValue) {
+    if (cell.isValue) {
 
         let legends = this.legendSet ? this.legendSet.legends || [] : [],
             bgColor;
 
-        if (this.doLegendDisplayByDataItem() && this.getLegendSet(config.dxId)) {
-            legends = this.getLegends(config.dxId);
+        if (this.doLegendDisplayByDataItem() && this.getLegendSet(cell.dxId)) {
+            legends = this.getLegends(cell.dxId);
         }
 
         for (let i=0; i < legends.length; i++) {
-            if (numberConstrain(config.value, legends[i].startValue, legends[i].endValue) === config.value) {
+            if (numberConstrain(cell.value, legends[i].startValue, legends[i].endValue) === cell.value) {
                 bgColor = legends[i].color;
             }
         }
@@ -2388,31 +2393,31 @@ PivotTable.prototype.buildHtmlCell = function(config) {
     
     if (this.doDynamicRendering()) {
         style += `
-            min-width:${config.width}px!important;
-            min-height:${config.height}px!important;
-            max-width:${config.width}px!important;
-            max-height:${config.height}px!important;
-            width:${config.width}px!important;
-            height:${config.height}px!important;
+            min-width:${cell.width}px!important;
+            min-height:${cell.height}px!important;
+            max-width:${cell.width}px!important;
+            max-height:${cell.height}px!important;
+            width:${cell.width}px!important;
+            height:${cell.height}px!important;
             white-space: nowrap!important;
             overflow: hidden!important;
             text-overflow: ellipsis!important;
         `;
     }
 
-    style += config.style ? config.style : '';
+    style += cell.style ? cell.style : '';
 
     return `
-        <td data-ou-id="${config.ouId || ''}"
-            data-period-id="${config.peId || ''}"
-            class="${config.cls}"
-            id="${config.uuid || ''}"
-            title="${config.title || ''}"
+        <td data-ou-id="${cell.ouId || ''}"
+            data-period-id="${cell.peId || ''}"
+            class="${cell.cls}"
+            id="${cell.uuid || ''}"
+            title="${cell.title || ''}"
             style="${style}"
-            colspan="${config.colSpan || ''}"
-            rowSpan="${config.rowSpan || ''}"
+            colspan="${cell.colSpan || ''}"
+            rowSpan="${cell.rowSpan || ''}"
         >
-            ${this.getHtmlValue(config)}
+            ${this.getHtmlValue(cell)}
         </td>
     `;
 };
@@ -2533,7 +2538,7 @@ PivotTable.prototype.buildTopPaddingHtmlCell = function() {
  */
 PivotTable.prototype.buildBottomPaddingHtmlCell = function() {
     const padding = this.getBottomPadding(),
-            cell  = VerticalPaddingCell(padding, 'bottom-padding');
+             cell = VerticalPaddingCell(padding, 'bottom-padding');
 
     return this.buildHtmlCell(cell);
 };
@@ -2545,7 +2550,7 @@ PivotTable.prototype.buildBottomPaddingHtmlCell = function() {
  */
 PivotTable.prototype.buildLeftPaddingHtmlCell = function() {
     const padding = this.getLeftPadding(),
-            cell  = HorizontalPaddingCell(padding, 'left-padding');
+             cell = HorizontalPaddingCell(padding, 'left-padding');
 
     return this.buildHtmlCell(cell);
 };
@@ -2648,7 +2653,7 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
 };
 
 /**
- * Renders table in form of html string
+ * Renders table in form of html string.
  * 
  * @returns {string}
  */
@@ -2674,6 +2679,7 @@ PivotTable.prototype.render = function() {
  */
 PivotTable.prototype.update = function(columnStart, rowStart) {
 
+    // decrease rowStart by one if top title is present
     if (rowStart > 0 && !this.options.skipTitle) {
         rowStart -= 1;
     }
@@ -2795,7 +2801,7 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
     }
 
     for (let i=0, rowIndex=rowStart; i < rowSize; i++, rowIndex++) {
-        table.push([])
+        table.push([]);
         for (let j=0, columnIndex=columnStart; j < colSize; j++, columnIndex++) {
             if (this.doSortableColumnHeaders()) {
                 let totalIdComb = new ResponseRowIdCombination(this.refs, ['total', this.rowAxis.ids[rowIndex]]);
@@ -2809,7 +2815,7 @@ PivotTable.prototype.buildValueTable = function(rowStart, rowEnd, columnStart, c
 };
 
 /**
- * Updates row axis dimension spans based on current render area
+ * Updates row axis dimension spans based on current render area.
  * 
  * @returns 
  */
@@ -2859,7 +2865,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
 };
 
 /**
- * Updates column axis dimension span based on current render area
+ * Updates column axis dimension span based on current render area.
  * 
  * @returns 
  */
