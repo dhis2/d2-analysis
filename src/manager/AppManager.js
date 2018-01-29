@@ -327,12 +327,16 @@ AppManager.prototype.init = function(callbackFn) {
                 t.mostMentionedUsers = mentionsUser.map(username => {
                     return t.users.find(user => username == user.userCredentials.username)
                     
-                })
+                });
 
-                //TODO: We should delete from "other user", users existing in mentionusers
+                // Remove most mentioned users from users
+                t.users = t.users.filter( user => {
+                    return !t.mostMentionedUsers.includes(user);
+                });
 
                 // console.log(mentionsUser);
                 // console.log(t.mostMentionedUsers);
+                // console.log(t.users);
             }
         }).run();
     };

@@ -292,23 +292,22 @@ EastRegion = function(c) {
             type: 'table',
             columns: 1
         },
-        defaults: {
-            // applied to each contained panel
-            bodyStyle: 'width: 300px',
-            
-        },
+        // defaults: {
+        //     // applied to each contained panel
+        //     bodyStyle: 'width: 300px',
+        // },
         items: [],
         zIndex: 9999,
         cls: 'mentions',
         //TODO: animations are not working.
         showAnimation:{
             type: "popIn",
-            duration: 250,
+            duration: 1250,
             easing: "ease-out"
         },
         hideAnimation:{
             type: "popOut",
-            duration: 250,
+            duration: 1250,
             easing: "ease-out"
         },
     });
@@ -316,7 +315,7 @@ EastRegion = function(c) {
     var displayMentionSuggestion = function(f, e, component) {
         var splitText = f.getValue().split('@')
         var currentMention = splitText[splitText.length -1];
-        if (splitText.length > 1 && currentMention == currentMention.replace(" ", "")){
+        if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
 
             mentionsPanel.removeAll(true);
 
@@ -358,18 +357,28 @@ EastRegion = function(c) {
                     }
                 });
 
-            mentionsPanel.add({
-                html: 'Most common users matching @' + currentMention,
-                cls: 'mentionsTitle',
-            });
-            mentionsPanel.add(potentialMostMentionedUsers);
-            mentionsPanel.add({
-                html: 'Other users matching @' + currentMention,
-                cls: 'mentionsTitle',
-            });
-            mentionsPanel.add(potentialUsers);
-            mentionsPanel.show().alignTo(e.target,'bl-tl');
+            if (potentialMostMentionedUsers != null && potentialMostMentionedUsers.length > 0){
+                mentionsPanel.add({
+                    html: 'Most common users matching @' + currentMention,
+                    cls: 'mentionsTitle',
+                });
+                mentionsPanel.add(potentialMostMentionedUsers);
+                
+            }
+            if (potentialUsers != null && potentialUsers.length > 0){
+                mentionsPanel.add({
+                    html: 'Other users matching @' + currentMention,
+                    cls: 'mentionsTitle',
+                });
+                mentionsPanel.add(potentialUsers);
+            }
 
+            if (potentialMostMentionedUsers != null && potentialMostMentionedUsers.length == 0 && potentialUsers != null && potentialUsers.length == 0){
+                mentionsPanel.hide();
+            }
+            else{
+                mentionsPanel.show().alignTo(e.target,'bl-tl');
+            }    
 
         }
         else{
