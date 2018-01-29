@@ -102,7 +102,6 @@ AppManager = function(refs) {
     t.users = [];
     t.mostMentionedUsers = [];
 
-
     t.rootNodes = [];
     t.organisationUnitLevels = [];
     t.dimensions = [];
@@ -257,13 +256,13 @@ AppManager.prototype.init = function(callbackFn) {
             ],
             success: function (response) {
                 t.users = response.users;
-                mostMentionedUsersReq();
+                mostMentionedUsersInterpretationReq();
             }
         }).run();
     };
 
-    // most mentioned users
-    const mostMentionedUsersReq = () => {
+    // most mentioned users in interpretation
+    const mostMentionedUsersInterpretationReq = () => {
         new t.refs.api.Request(t.refs, {
             baseUrl: t.getApiPath() + '/interpretations.json',
             type: 'json',
@@ -274,13 +273,13 @@ AppManager.prototype.init = function(callbackFn) {
                 'paging=false'
             ],
             success: function (response) {
-                mostMentionedUsersReq2(response)
+                mostMentionedUsersInterpretationCommentReq(response)
             }
         }).run();
     };
 
-    // most mentioned users
-    const mostMentionedUsersReq2 = (previousResponse) => {
+    // most mentioned users in interpretation comment
+    const mostMentionedUsersInterpretationCommentReq = (previousResponse) => {
         new t.refs.api.Request(t.refs, {
             baseUrl: t.getApiPath() + '/interpretations.json',
             type: 'json',

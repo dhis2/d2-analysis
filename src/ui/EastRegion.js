@@ -299,17 +299,6 @@ EastRegion = function(c) {
         items: [],
         zIndex: 9999,
         cls: 'mentions',
-        //TODO: animations are not working.
-        showAnimation:{
-            type: "popIn",
-            duration: 1250,
-            easing: "ease-out"
-        },
-        hideAnimation:{
-            type: "popOut",
-            duration: 1250,
-            easing: "ease-out"
-        },
     });
 
     var displayMentionSuggestion = function(f, e, component) {
