@@ -2,13 +2,14 @@ import isArray from 'd2-utilizr/lib/isArray';
 
 export var Plugin;
 
-Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
+Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
     const t = this;
 
     // public properties
     t.url = null;
     t.username = null;
     t.password = null;
+    t.auth = null;
     t.loadingIndicator = false;
 
     // private properties
@@ -29,6 +30,10 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
         t.add(isArray(layouts[0]) ? layouts[0] : layouts);
 
         _runFn();
+    };
+
+    t.getType = function() {
+        return type;
     };
 
     // private functions
@@ -58,8 +63,11 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn }) {
         const { appManager, requestManager, init } = refs;
         const { Request } = refs.api;
 
+        const credentials = t.username && t.password ? t.username + ':' + t.password : null;
+        const auth = t.auth;
+
+        appManager.setAuth(credentials, auth);
         appManager.path = t.url;
-        appManager.setAuth(t.username && t.password ? t.username + ':' + t.password : null);
 
         // user account
         new Request(refs, {
