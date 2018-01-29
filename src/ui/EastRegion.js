@@ -348,7 +348,7 @@ EastRegion = function(c) {
 
             if (potentialMostMentionedUsers != null && potentialMostMentionedUsers.length > 0){
                 mentionsPanel.add({
-                    html: 'Most common users matching @' + currentMention,
+                    html: i18n.most_common_users_matching + ' @' + currentMention,
                     cls: 'mentionsTitle',
                 });
                 mentionsPanel.add(potentialMostMentionedUsers);
@@ -356,7 +356,7 @@ EastRegion = function(c) {
             }
             if (potentialUsers != null && potentialUsers.length > 0){
                 mentionsPanel.add({
-                    html: 'Other users matching @' + currentMention,
+                    html: i18n.other_users_matching + ' @' + currentMention,
                     cls: 'mentionsTitle',
                 });
                 mentionsPanel.add(potentialUsers);
