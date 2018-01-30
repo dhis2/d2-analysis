@@ -966,6 +966,7 @@ Layout.prototype.data = function(source, format) {
     metaDataRequest.add('skipData=true');
     dataRequest.add('skipMeta=true');
 
+    metaDataRequest.add('includeMetadataDetails=true');
     dataRequest.add('includeNumDen=true');
 
     metaDataRequest.setError(errorFn);
