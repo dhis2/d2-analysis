@@ -391,7 +391,7 @@ UiManager = function(refs) {
     };
 
     // window
-    t.setAnchorPosition = function(w, target) {
+    t.setAnchorPosition = function(w, target, offset) {
         target = t.componentFrom(target);
 
         var txy = target.getPosition ? target.getPosition() : (target.getXY ? target.getXY() : null),
@@ -399,8 +399,8 @@ UiManager = function(refs) {
             vpw = t.get('viewport').getWidth(),
             ww = w.getWidth();
 
-        var tx = txy[0],
-            ty = txy[1] + th + 4;
+        var tx = txy[0] + ((offset != undefined && offset.x != undefined) ? offset.x : 0),
+            ty = txy[1] + th + 4 + ((offset != undefined && offset.y != undefined) ? offset.y : 0);
 
         if ((tx + ww) > vpw) {
             w.setPosition((vpw - ww - 2), ty);
