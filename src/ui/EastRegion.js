@@ -2,6 +2,7 @@ import {DateManager} from '../manager/DateManager.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {RenameWindow} from './RenameWindow.js';
+import {MentionToolbar } from './MentionToolbar.js';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var EastRegion;
@@ -285,96 +286,6 @@ EastRegion = function(c) {
         items: getDetailsPanelItems()
     };
 
-
-    var mentionsPanel = Ext.create('Ext.panel.Panel', {
-        floating: true,
-        layout: {
-            type: 'table',
-            columns: 1
-        },
-        // defaults: {
-        //     // applied to each contained panel
-        //     bodyStyle: 'width: 300px',
-        // },
-        items: [],
-        zIndex: 9999,
-        cls: 'mentions',
-    });
-
-    var displayMentionSuggestion = function(f, e, component) {
-        var splitText = f.getValue().split('@')
-        var currentMention = splitText[splitText.length -1];
-        if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
-
-            mentionsPanel.removeAll(true);
-
-            var potentialMostMentionedUsers= appManager.mostMentionedUsers
-                .filter(user => user.userCredentials.username.includes(currentMention))
-                .map((user) => {
-                    return {
-                        xtype: 'label',
-                        html:  user.displayName + " (" + user.userCredentials.username + ")",
-                        listeners: {
-                            'render': function(label) {
-                                label.getEl().on('click', function() {
-                                    splitText.splice(-1,1);
-                                    var newText = splitText.join("@") + "@" + user.userCredentials.username;
-                                    component.setValue(newText);
-                                    mentionsPanel.hide();
-                                }, label);
-                            }
-                        }
-                    }
-                });
-
-            var potentialUsers = appManager.users
-                .filter(user => user.userCredentials.username.includes(currentMention))
-                .map((user) => {
-                    return {
-                        xtype: 'label',
-                        html: user.displayName + " (" + user.userCredentials.username + ")",
-                        listeners: {
-                            'render': function(label) {
-                                label.getEl().on('click', function() {
-                                    splitText.splice(-1,1);
-                                    var newText = splitText.join("@") + "@" + user.userCredentials.username;
-                                    component.setValue(newText);
-                                    mentionsPanel.hide();
-                                }, label);
-                            }
-                        }
-                    }
-                });
-
-            if (potentialMostMentionedUsers != null && potentialMostMentionedUsers.length > 0){
-                mentionsPanel.add({
-                    html: i18n.most_common_users_matching + ' @' + currentMention,
-                    cls: 'mentionsTitle',
-                });
-                mentionsPanel.add(potentialMostMentionedUsers);
-                
-            }
-            if (potentialUsers != null && potentialUsers.length > 0){
-                mentionsPanel.add({
-                    html: i18n.other_users_matching + ' @' + currentMention,
-                    cls: 'mentionsTitle',
-                });
-                mentionsPanel.add(potentialUsers);
-            }
-
-            if (potentialMostMentionedUsers != null && potentialMostMentionedUsers.length == 0 && potentialUsers != null && potentialUsers.length == 0){
-                mentionsPanel.hide();
-            }
-            else{
-                mentionsPanel.show().alignTo(e.target,'bl-tl');
-            }    
-
-        }
-        else{
-            mentionsPanel.hide();
-        }
-    }
-
     /*
      * INTERPRETATIONS PANEL
      */
@@ -415,6 +326,7 @@ EastRegion = function(c) {
                         emptyText: i18n.write_your_interpretation,
                         value : comment && comment.text,
                         submitEmptyText: false,
+                        mentionToolbar: MentionToolbar(c),
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
@@ -425,7 +337,10 @@ EastRegion = function(c) {
                                 }
                             },
                             keyup: function(f, e) {
-                                displayMentionSuggestion(f, e, this);
+                                this.mentionToolbar.displayMentionSuggestion(f, e);
+                            },
+                            destroy: function(f, e){
+                                this.mentionToolbar.hide();
                             }
                         }
                     }, {
