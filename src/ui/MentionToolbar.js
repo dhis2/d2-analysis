@@ -18,7 +18,10 @@ MentionToolbar = function (refs) {
         zIndex: 9999,
         cls: 'mentions',
         displayMentionSuggestion : function(component, event) {
-            var splitText = component.getValue().split('@')
+            // Get text from 0 to cursor position
+            var text = component.getValue().substring(0,$(event.target).prop("selectionStart"));
+            // Split by @ and take last bit
+            var splitText = text.split('@');
             var currentMention = splitText[splitText.length -1];
             if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
     
