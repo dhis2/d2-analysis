@@ -17,7 +17,7 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         height: 130,
         width: 407,
         fieldStyle: 'padding-left:3px; padding-top:3px',
-        emptyText: i18n.write_your_interpretation + '..',
+        emptyText: i18n.write_your_interpretation + '...',
         enableKeyEvents: true,
         value: interpretation ? interpretation.text : undefined,
         listeners: {
