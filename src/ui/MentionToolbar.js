@@ -8,28 +8,6 @@ MentionToolbar = function (refs) {
     
     var i18n = i18nManager.get();
 
-
-    var createMentionLabelsForUser = function(users, currentMention){
-        return users
-                .filter(user => user.userCredentials.username.includes(currentMention))
-                .map((user) => {
-                    return {
-                        xtype: 'label',
-                        html:  user.displayName + " (" + user.userCredentials.username + ")",
-                        listeners: {
-                            'render': function(label) {
-                                label.getEl().on('click', function() {
-                                    splitText.splice(-1,1);
-                                    var newText = splitText.join("@") + "@" + user.userCredentials.username;
-                                    component.setValue(newText);
-                                    mentionsPanel.hide();
-                                }, label);
-                            }
-                        }
-                    }
-                });
-    }
-
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
         layout: {
@@ -39,6 +17,26 @@ MentionToolbar = function (refs) {
         items: [],
         zIndex: 9999,
         cls: 'mentions',
+        createMentionLabelsForUser : function(users, splitText, currentMention, component){
+            return users
+                    .filter(user => user.userCredentials.username.includes(currentMention))
+                    .map((user) => {
+                        return {
+                            xtype: 'label',
+                            html:  user.displayName + " (" + user.userCredentials.username + ")",
+                            listeners: {
+                                'render': function(label) {
+                                    label.getEl().on('click', function() {
+                                        splitText.splice(-1,1);
+                                        var newText = splitText.join("@") + "@" + user.userCredentials.username;
+                                        component.setValue(newText);
+                                        this.hide();
+                                    }, label);
+                                }
+                            }
+                        }
+                    });
+        },
         displayMentionSuggestion : function(component, event) {
             // Get text from 0 to cursor position
             var text = component.getValue().substring(0,$(event.target).prop("selectionStart"));
@@ -49,8 +47,8 @@ MentionToolbar = function (refs) {
     
                 mentionsPanel.removeAll(true);
     
-                var potentialMostMentionedUsers= createMentionLabelsForUser(appManager.mostMentionedUsers, currentMention);
-                var potentialUsers = createMentionLabelsForUser(appManager.users, currentMention);
+                var potentialMostMentionedUsers= this.createMentionLabelsForUser(appManager.mostMentionedUsers, splitText, currentMention, component);
+                var potentialUsers = this.createMentionLabelsForUser(appManager.users, splitText, currentMention, component);
     
                 if (potentialMostMentionedUsers && potentialMostMentionedUsers.length > 0){
                     mentionsPanel.add({
