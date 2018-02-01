@@ -280,6 +280,7 @@ AppManager.prototype.init = function(callbackFn) {
 
     // most mentioned users in interpretation comment
     const mostMentionedUsersInterpretationCommentReq = (previousResponse) => {
+
         new t.refs.api.Request(t.refs, {
             baseUrl: t.getApiPath() + '/interpretations.json',
             type: 'json',
@@ -290,52 +291,36 @@ AppManager.prototype.init = function(callbackFn) {
                 'paging=false'
             ],
             success: function (response) {
-                var mentionsUser = {}
-                previousResponse.interpretations.map( interpretation => 
-                    interpretation.mentions.map(mention => {
-                         if (mention.username in mentionsUser){
-                            mentionsUser[mention.username] += 1;
-                         }
-                         else{
-                            mentionsUser[mention.username] = 1;
-                         }
+                // Get users-mentions map
+                var usersByMentions = {}
+                previousResponse.interpretations.forEach( interpretation => 
+                    interpretation.mentions.forEach(mention => {
+                        usersByMentions[mention.username] = (usersByMentions[mention.username] || 0) + 1;
+
                     })
                 );
-                response.interpretations.map( interpretation =>
-                    interpretation.comments.map (comment =>
-                        comment.mentions.map(mention => {
-                            if (mention.username in mentionsUser){
-                                mentionsUser[mention.username] += 1;
-                             }
-                             else{
-                                mentionsUser[mention.username] = 1;
-                             }
+                response.interpretations.forEach( interpretation =>
+                    interpretation.comments.forEach (comment =>
+                        comment.mentions.forEach(mention => {
+                            usersByMentions[mention.username] = (usersByMentions[mention.username] || 0) + 1;
                         }
                     ))
                 );
 
-                // console.log(mentionsUser);
-                
-                // Sort by mentions
-                mentionsUser = Object.keys(mentionsUser).sort( function(a,b) {
-                    return mentionsUser[b] - mentionsUser[a];
+                // Sort users by mentions
+                var usernamesByMentions = Object.keys(usersByMentions).sort( function(a,b) {
+                    return usersByMentions[b] - usersByMentions[a];
                 });
-
                
-                // Get real user object (No foreign key in json b)
-                t.mostMentionedUsers = mentionsUser.map(username => {
-                    return t.users.find(user => username == user.userCredentials.username)
-                    
-                });
+                // Get real user object (No foreign key in jsonb object)
+                var usersByUsername = {};
+                t.users.forEach(user => usersByUsername[user.userCredentials.username] = user);
+                t.mostMentionedUsers = usernamesByMentions.map(username => usersByUsername[username]);
 
                 // Remove most mentioned users from users
                 t.users = t.users.filter( user => {
                     return !t.mostMentionedUsers.includes(user);
                 });
-
-                // console.log(mentionsUser);
-                // console.log(t.mostMentionedUsers);
-                // console.log(t.users);
             }
         }).run();
     };
