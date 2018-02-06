@@ -2486,42 +2486,18 @@ PivotTable.prototype.buildHtmlRow = function(row) {
  * @returns {array}
  */
 PivotTable.prototype.buildHtmlTableRows = function(htmlArray) {
-    if (this.doDynamicRendering()) {
-        return this.buildHtmlTableRowsWithPaddng(htmlArray);
-    }
-
-    let rows = '';
-    
-    for (let i = 0, htmlRow; i < htmlArray.length; i++) {
-        htmlRow = htmlArray[i].join('');
-        if (htmlRow && htmlRow.length > 0) {
-            rows += `<tr> ${htmlRow} </tr>`;
-        }
-    }
-
-    return rows;
+    return htmlArray.reduce((rows, row) => 
+        rows + this.buildHtmlTableRow(row.join('')), '');
 };
 
-/**
- * Converts array of table cells to html strings with padding
- * 
- * @param {any} htmlArray 
- * @returns 
- */
-PivotTable.prototype.buildHtmlTableRowsWithPaddng = function(htmlArray) {
-    let rows = '';
-
-    const leftPadding  = this.buildLeftPaddingHtmlCell(),
-          rightPadding = this.buildRightPaddingHtmlCell();
-
-    for (let i = 0, htmlRow; i < htmlArray.length; i++) {
-        htmlRow = htmlArray[i].join('');
-        if (htmlRow.length > 0) {
-            rows += `<tr> ${leftPadding} ${htmlRow} ${rightPadding} </tr>`;
-        }
-    }
-
-    return rows;
+PivotTable.prototype.buildHtmlTableRow = function(htmlRow) {
+    return htmlRow ? `
+        <tr> 
+            ${this.doDynamicRendering() ? this.buildLeftPaddingHtmlCell() : ''}
+            ${htmlRow}
+            ${this.doDynamicRendering() ? this.buildRightPaddingHtmlCell() : ''}
+        </tr>
+    ` : '';  
 };
 
 /**
@@ -2624,12 +2600,18 @@ PivotTable.prototype.buildHtmlTableBody = function(htmlArray) {
  * @param {array} htmlArray 
  * @returns {string}
  */
-PivotTable.prototype.buildHtmlTable = function(htmlArray) {
+PivotTable.prototype.buildHtmlTable = function() {
     let cls      = 'pivot user-select',
         style    = `display:flex!important;overflow:visible;`;
 
     cls += this.displayDensity ? ' displaydensity-' + this.displayDensity : '';
     cls += this.fontSize       ? ' fontsize-' + this.fontSize : '';
+
+    let htmlArray = arrayClean([].concat(
+        this.options.skipTitle || this.rowStart > 0 ? [] : this.buildTableTitle(this.table[0].length),
+        this.buildTableFilter(this.table[0].length),
+        this.buildHtmlRows(this.table)
+    ));
 
     return `
         <div style="${style}">
@@ -2689,13 +2671,7 @@ PivotTable.prototype.render = function() {
     this.dimensionUuids = [];
     this.sortableIdObjects = [];
 
-    let htmlArray = arrayClean([].concat(
-        this.options.skipTitle || this.rowStart > 0 ? [] : this.buildTableTitle(this.table[0].length),
-        this.buildTableFilter(this.table[0].length),
-        this.buildHtmlRows(this.table)
-    ));
-
-    return this.buildHtmlTable(htmlArray);
+    return this.buildHtmlTable();
 };
 
 /**
