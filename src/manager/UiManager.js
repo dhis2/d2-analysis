@@ -537,8 +537,8 @@ UiManager = function(refs) {
     t.confirmRender = function(title, fn, cancelFn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
-        ConfirmWindow(refs, title, i18n.render_large_table,
-            null, fn, null, cancelFn, true).show();
+        ConfirmWindow(refs, title, i18n.render_table_warning,
+            "Continue", fn, null, cancelFn, true).show();
     };
 
     t.confirmCustom = function(title, msg, btnText, fn, applyConfig) {

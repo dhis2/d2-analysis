@@ -37,6 +37,7 @@ export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     cell.type       = 'value';
     cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
 
+
     cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
     cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);
     cell.ouId       = rric.getIdByIds(response.metaData.dimensions.ou);
@@ -51,7 +52,8 @@ export const PlainValueCell = (value, rric, response) => {
     cell.type       = 'value';
     cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
 
-    cell.htmlValue  = typeof !value ? '&nbsp;' : value;
+    cell.htmlValue  = typeof !value ? 
+        '&nbsp;' : value;
 
     return cell;
 }
@@ -154,7 +156,7 @@ export const ColumnAxisCell = (axisObject, response, showHierarchy, sort, hidden
         !(axisObject.rowSpan || axisObject.colSpan) : hidden;
 
     if (sort) {
-        cell.sort  = sort;
+        cell.sort = sort;
         cell.cls += ' td-sortable';
     }
     
