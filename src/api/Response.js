@@ -68,7 +68,7 @@ export const Response = function(refs, config) {
             return false;
         }
 
-        return ('optionSet' in header) || isEmpty(dimensions);
+        return isEmpty(dimensions);
     };
 
     var isCollectHeader = (header, dimensions) => {
@@ -99,6 +99,24 @@ export const Response = function(refs, config) {
         return id;
     };
 
+    t.optionCodeIdMap = function() {
+        var dimensions = config.metaData.dimensions;
+        var items = config.metaData.items;
+        var map = {};
+
+        config.headers.filter(header => isString(header.optionSet)).forEach(header => {
+            var optionIds = dimensions[header.name];
+
+            var mapByDimension = optionIds.map(id => ({
+                [items[id].code]: id,
+            })).reduce((map, obj) => Object.assign(map, obj), {});
+
+            map[header.name] = mapByDimension;
+        });
+
+        return map;
+    }();
+
     // headers
     t.headers = (config.headers || []).map((header, index) => {
         var dimensions = config.metaData.dimensions;
@@ -110,8 +128,26 @@ export const Response = function(refs, config) {
     });
 
     // rows
-    t.rows = (config.rows || []).map(row => ResponseRow(refs, row));
+    t.rows = function() {
+        var headersWithOptionSet = t.headers.filter(header => header.optionSet);
+        var rows = config.rows;
 
+        if (headersWithOptionSet.length) {
+            rows = rows.slice();
+
+            // replace option code with option uid
+            headersWithOptionSet.forEach(header => {
+                rows.forEach(row => {
+                    row[header.index] = t.optionCodeIdMap[header.name][row[header.index]];
+                });
+            });
+        }
+
+        // map to ResponseRow
+        return rows.map(row => ResponseRow(refs, row));
+    }();
+
+    // metadata
     t.metaData = function() {
         var metaData = Object.assign({}, config.metaData);
 
@@ -141,10 +177,10 @@ export const Response = function(refs, config) {
                     dimensions[header.name].forEach((prefixedId, index) => {
                         var id = ids[index];
                         var optionSet = header.optionSet;
-                        
+
                         var name = indexedDbManager.getCachedOptionName(id, optionSet);
 
-                        items[prefixedId] = { name: name };
+                        items[prefixedId] = { name: metaData.items[name] ? metaData.items[name].name : name };
                     });
                 }
                 else {
@@ -180,7 +216,7 @@ export const Response = function(refs, config) {
                 };
             }
         }
-        
+
         return metaData;
     }();
 

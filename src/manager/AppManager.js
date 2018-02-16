@@ -34,7 +34,7 @@ AppManager = function(refs) {
         'interpretations[*,user[id,displayName],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]]',
         'columns[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'rows[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
-        'filters[dimension,filter,items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'filters[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'access',
         'userGroupAccesses',
         'publicAccess',
@@ -370,14 +370,15 @@ AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
     ]);
 };
 
-AppManager.prototype.setAuth = function(auth) {
+AppManager.prototype.setAuth = function(binary, ascii) {
     var J = 'jQuery' in window ? window['jQuery'] : undefined;
     var E = 'Ext' in window ? window['Ext'] : undefined;
     var headers;
+    var auth;
 
-    if (auth) {
+    if (binary || ascii) {
         headers = {
-            Authorization: 'Basic ' + btoa(auth)
+            Authorization: ascii ? ascii : 'Basic ' + btoa(binary)
         };
     }
     else if (this.env !== 'production' && (this.manifest && isString(this.manifest.activities.dhis.auth))) {
