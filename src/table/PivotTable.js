@@ -29,7 +29,6 @@ import { ValueSubTotalCell,
          DimensionLabelCell,
          ValueCell,
          PlainValueCell,
-         PaddingCell,
          FilterCell,
          HorizontalPaddingCell,
          VerticalPaddingCell } from './PivotTableCells';
@@ -48,7 +47,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.options = {
         renderLimit: 50000,
-        forceDynamic: false,
+        forceDynamic: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -572,7 +571,7 @@ PivotTable.prototype.getValueTableWidth = function() {
  * @returns 
  */
 PivotTable.prototype.getValueTableHeigth = function() {
-    return Object.keys(this.valueLookup).length;
+    return Object.keys(this.valueLookup).length - 1;
 };
 
 // TODO: REMOVE
@@ -1373,10 +1372,10 @@ PivotTable.prototype.getColumnEnd = function(columnIndex) {
 /**
  * Gets the index of the last cell to be rendered in row.
  * 
- * @param {number} [rowIndex=this.rowStart] 
+ * @param {number}
  * @returns {number}
  */
-PivotTable.prototype.getRowEnd = function(rowIndex=this.rowStart) {
+PivotTable.prototype.getRowEnd = function(rowIndex) {
     if (this.doDynamicRendering()) {
         return this.constrainHeight(this.getViewportHeightIndex() + rowIndex);
     }
@@ -1386,12 +1385,12 @@ PivotTable.prototype.getRowEnd = function(rowIndex=this.rowStart) {
 /**
  * Gets the row sort id
  * 
- * @param {number} index 
+ * @param {number} rowIndex 
  * @returns {string}
  */
-PivotTable.prototype.getRowSortId = function(index) {
-    if (this.doSortableColumnHeaders() && index === this.columnDimensionSize - 1 ) {
-        return this.colAxis.ids[index];
+PivotTable.prototype.getRowSortId = function(rowIndex) {
+    if (this.doSortableColumnHeaders() && rowIndex === this.columnDimensionSize - 1) {
+        return this.colAxis.ids[rowIndex];
     }
     return null;
 };
@@ -2174,7 +2173,7 @@ PivotTable.prototype.createValueLookup = function() {
           totalMap = {};
 
     // add size to make room for colunn totals
-    if (!this.doRowTotals()) {
+    if (!this.doColTotals()) {
         tableRowSize += 1;
     }
 
@@ -2330,8 +2329,8 @@ PivotTable.prototype.normalizeColumnIndex = function(columnIndex) {
 /**
  * Builds table filter.
  * 
- * @param {any} span 
- * @returns 
+ * @param {number} span 
+ * @returns {array}
  */
 PivotTable.prototype.buildTableFilter = function(span) {
     if (!this.filters) {
@@ -2346,7 +2345,7 @@ PivotTable.prototype.buildTableFilter = function(span) {
 /**
  * Builds table title.
  * 
- * @param {any} span 
+ * @param {number} span 
  * @returns 
  */
 PivotTable.prototype.buildTableTitle = function(span) {
@@ -2362,8 +2361,8 @@ PivotTable.prototype.buildTableTitle = function(span) {
 /**
  * Gets legends.
  * 
- * @param {any} dxId 
- * @returns 
+ * @param {string} dxId 
+ * @returns
  */
 PivotTable.prototype.getLegends = function(dxId) {
     return this.appManager.getLegendSetById(
@@ -2373,7 +2372,7 @@ PivotTable.prototype.getLegends = function(dxId) {
 /**
  * Gets legend set.
  * 
- * @param {any} dxId 
+ * @param {string} dxId 
  * @returns 
  */
 PivotTable.prototype.getLegendSet = function(dxId) {
@@ -2652,6 +2651,10 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
  */
 PivotTable.prototype.render = function() {
 
+    this.valueUuids = [];
+    this.dimensionUuids = [];
+    this.sortableIdObjects = [];
+
     if (this.doHideEmptyRows() && isEmpty(this.rowAxisLookup) &&
         this.doHideEmptyColumns() && isEmpty(this.columnAxisLookup)) {
         return "There is no data to display, and empty rows and columns are hidden.";
@@ -2666,10 +2669,6 @@ PivotTable.prototype.render = function() {
     }
 
     this.updateDimensionSpan();
-
-    this.valueUuids = [];
-    this.dimensionUuids = [];
-    this.sortableIdObjects = [];
 
     return this.buildHtmlTable();
 };
@@ -2809,7 +2808,8 @@ PivotTable.prototype.buildValueTable = function() {
         for (let j=0, columnIndex=this.columnStart; j < colSize; j++, columnIndex++) {
             if (this.doSortableColumnHeaders()) {
                 let totalIdComb = new ResponseRowIdCombination(this.refs, ['total', this.rowAxis.ids[rowIndex]]);
-                this.idValueMap[totalIdComb.get()] = this.isRowEmpty(rowIndex) ? null : this.getRowTotal(rowIndex);
+                this.idValueMap[totalIdComb.get()] = this.isRowEmpty(rowIndex) ? 
+                    null : this.getRowTotal(rowIndex);
             }
             table[i][j] = this.buildValueCell(columnIndex, rowIndex);
         }

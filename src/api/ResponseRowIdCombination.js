@@ -8,15 +8,16 @@ export var ResponseRowIdCombination;
 ResponseRowIdCombination = function(refs, config) {
     var t = this;
 
-    config = isArray(config) ? config : (isString(config) ? config : null);
+    config = isArray(config) ? config.reduce((acc, cur) => (acc += (acc.length === 0 ? '' : '-') + cur), '') : null;
+    config = isString(config) ? config : '';
 
     // constructor
-    t.ids = config || '';
+    t.ids = config;
 };
 
 ResponseRowIdCombination.prototype.add = function(id) {
     if (id) {
-        this.ids += '-' + id
+        this.ids += (this.ids.length === 0 ? '' : '-') + id
     }
 };
 
