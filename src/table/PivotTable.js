@@ -73,6 +73,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.displayDensity = layout.displayDensity;
 
     this.uuidDimUuidsMap = {};
+    
+    this.valueUuids = [];
+    this.dimensionUuids = [];
+    this.sortableIdObjects = [];
 
     this.filters = layout.filters;
     this.layout = layout;
