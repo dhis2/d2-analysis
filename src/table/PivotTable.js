@@ -255,7 +255,6 @@ PivotTable.prototype.setRowStartAndEnd = function(rowStartIndex) {
 PivotTable.prototype.setViewportSize = function(width=0, height=0) {
     this.setViewportWidth(width);
     this.setViewportHeight(height);
-    this.build(); // little bit of a hack
 };
 
 // options
