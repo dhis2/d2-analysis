@@ -1367,7 +1367,7 @@ Period.prototype.generateDisplayProperties = function() {
     var p = this;
 
     var id = p.id,
-        months = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec'.split('|'),
+        months = 'January|February|March|April|May|June|July|August|September|October|November|December'.split('|'),
         offset = parseInt(p.year) - (new Date()).getFullYear(),
         generator = refs.calendarManager.generator,
         getSuffix = function(array) {
