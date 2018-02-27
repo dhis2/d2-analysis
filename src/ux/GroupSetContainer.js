@@ -23,7 +23,7 @@ GroupSetContainer = function(refs) {
             var items = this.valueCmp.getValue(),
                 record = {
                     dimension: this.dataElement.id,
-                    name: this.dataElement.name
+                    name: this.dataElement.name,
                 };
 
             // array or object
@@ -66,7 +66,7 @@ GroupSetContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + containerConfig.namePadding
+                style: 'padding:' + containerConfig.namePadding,
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -76,7 +76,7 @@ GroupSetContainer = function(refs) {
                 text: 'Duplicate',
                 handler: function() {
                     container.duplicateDataElement();
-                }
+                },
             });
 
             this.removeCmp = Ext.create('Ext.button.Button', {
@@ -86,7 +86,7 @@ GroupSetContainer = function(refs) {
                 text: 'Remove',
                 handler: function() {
                     container.removeDataElement();
-                }
+                },
             });
 
             this.operatorCmp = Ext.create('Ext.form.field.ComboBox', {
@@ -99,10 +99,8 @@ GroupSetContainer = function(refs) {
                 value: 'IN',
                 store: {
                     fields: ['id', 'name'],
-                    data: [
-                        {id: 'IN', name: 'One of'}
-                    ]
-                }
+                    data: [{ id: 'IN', name: 'One of' }],
+                },
             });
 
             this.searchStore = Ext.create('Ext.data.Store', {
@@ -152,8 +150,8 @@ GroupSetContainer = function(refs) {
                         if (container.searchCmp && s.getRange().length) {
                             container.searchCmp.expand();
                         }
-                    }
-                }
+                    },
+                },
             });
 
             // function
@@ -178,7 +176,7 @@ GroupSetContainer = function(refs) {
                 enableKeyEvents: true,
                 queryMode: 'local',
                 listConfig: {
-                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth
+                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth,
                 },
                 store: this.searchStore,
                 listeners: {
@@ -199,7 +197,11 @@ GroupSetContainer = function(refs) {
 
                         // value
                         if (container.valueStore.findExact(idProperty, id) === -1) {
-                            container.valueStore.add(container.searchStore.getAt(container.searchStore.findExact(idProperty, id)).data);
+                            container.valueStore.add(
+                                container.searchStore.getAt(
+                                    container.searchStore.findExact(idProperty, id)
+                                ).data
+                            );
                         }
 
                         // search
@@ -213,8 +215,8 @@ GroupSetContainer = function(refs) {
                     },
                     expand: function() {
                         container.filterSearchStore();
-                    }
-                }
+                    },
+                },
             });
 
             this.triggerCmp = Ext.create('Ext.button.Button', {
@@ -224,7 +226,7 @@ GroupSetContainer = function(refs) {
                 height: 22,
                 handler: function(b) {
                     container.searchStore.loadOptionSet();
-                }
+                },
             });
 
             this.valueStore = Ext.create('Ext.data.Store', {
@@ -235,14 +237,17 @@ GroupSetContainer = function(refs) {
                     },
                     remove: function() {
                         container.valueCmp.select(this.getRange());
-                    }
-                }
+                    },
+                },
             });
 
             this.valueCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
                 style: 'margin-bottom:0',
-                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.operatorCmpWidth,
+                width:
+                    containerConfig.nameCmpWidth -
+                    containerConfig.operatorCmpWidth -
+                    containerConfig.operatorCmpWidth,
                 valueField: idProperty,
                 displayField: nameProperty,
                 emptyText: 'No selected items',
@@ -252,17 +257,23 @@ GroupSetContainer = function(refs) {
                 queryMode: 'local',
                 listConfig: {
                     minWidth: 266,
-                    cls: 'ns-optionselector'
+                    cls: 'ns-optionselector',
                 },
                 setOptionValues: function(codeArray) {
                     var me = this,
                         records = [];
 
                     //indexedDbManager.get('optionSets', container.dataElement.optionSet.id).done( function(obj) {
-                    indexedDbManager.getOptionSets(container.dataElement.optionSet.id, function(optionSets) {
+                    indexedDbManager.getOptionSets(container.dataElement.optionSet.id, function(
+                        optionSets
+                    ) {
                         var optionSet = optionSets[0];
 
-                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
+                        if (
+                            isObject(optionSet) &&
+                            isArray(optionSet.options) &&
+                            optionSet.options.length
+                        ) {
                             records = container.getRecordsByCode(optionSet.options, codeArray);
 
                             container.valueStore.removeAll();
@@ -279,10 +290,12 @@ GroupSetContainer = function(refs) {
 
                         if (newVal.length < oldVal.length) {
                             var id = arrayDifference(oldVal, newVal)[0];
-                            container.valueStore.removeAt(container.valueStore.findExact(idProperty, id));
+                            container.valueStore.removeAt(
+                                container.valueStore.findExact(idProperty, id)
+                            );
                         }
-                    }
-                }
+                    },
+                },
             });
 
             this.items = [
@@ -293,16 +306,16 @@ GroupSetContainer = function(refs) {
                     items: [
                         this.nameCmp,
                         //this.addCmp,
-                        this.removeCmp
-                    ]
+                        this.removeCmp,
+                    ],
                 },
                 this.operatorCmp,
                 this.searchCmp,
                 this.triggerCmp,
-                this.valueCmp
+                this.valueCmp,
             ];
 
             this.self.superclass.initComponent.call(this);
-        }
+        },
     });
 };
