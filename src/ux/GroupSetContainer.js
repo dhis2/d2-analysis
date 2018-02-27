@@ -9,8 +9,10 @@ import containerConfig from './containerConfig';
 
 export var GroupSetContainer;
 
-GroupSetContainer = function(refs) {
-    var { indexedDbManager } = refs;
+GroupSetContainer = function(refs) {
+    var { api, appManager } = refs;
+
+    const defaultPageSize = 100;
 
     Ext.define('Ext.ux.container.GroupSetContainer', {
         extend: 'Ext.container.Container',
@@ -57,6 +59,23 @@ GroupSetContainer = function(refs) {
             }
 
             return records;
+        },
+        getOptionSetOptions: (optionSetId, filter, callbackFn) => {
+            const params = [
+                `filter=optionSet.id:eq:${optionSetId}`,
+                'fields=code,name',
+                `pageSize=${defaultPageSize}`,
+            ];
+
+            if (filter) {
+                params.push(`filter=name:ilike:${filter}`);
+            }
+
+            new api.Request(refs, {
+                baseUrl: appManager.getApiPath() + '/options.json',
+                params,
+                success: callbackFn,
+            }).run();
         },
         initComponent: function() {
             var container = this,
@@ -106,42 +125,15 @@ GroupSetContainer = function(refs) {
             this.searchStore = Ext.create('Ext.data.Store', {
                 fields: [idProperty, nameProperty],
                 data: [],
-                loadOptionSet: function(optionSetId, key, pageSize) {
+                loadOptionSet: function(optionSetId, filter, pageSize) {
                     var store = this;
 
                     optionSetId = optionSetId || container.dataElement.optionSet.id;
-                    pageSize = pageSize || 100;
+                    pageSize = pageSize || defaultPageSize;
 
-                    //indexedDbManager.get('optionSets', optionSetId).done( function(obj) {
-                    indexedDbManager.getOptionSets(optionSetId, function(optionSets) {
-                        var optionSet = optionSets[0];
-
-                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
-                            var data = [];
-
-                            if (key) {
-                                var re = new RegExp(key, 'gi');
-
-                                for (var i = 0, name, match; i < optionSet.options.length; i++) {
-                                    name = optionSet.options[i].name;
-                                    match = name.match(re);
-
-                                    if (isArray(match) && match.length) {
-                                        data.push(optionSet.options[i]);
-
-                                        if (data.length === pageSize) {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                data = optionSet.options;
-                            }
-
-                            store.removeAll();
-                            store.loadData(data.slice(0, pageSize));
-
+                    container.getOptionSetOptions(optionSetId, filter, ({ options }) => {
+                        if (isArray(options) && options.length) {
+                            store.loadData(options.slice(0, pageSize));
                         }
                     });
                 },
@@ -175,6 +167,7 @@ GroupSetContainer = function(refs) {
                 hideTrigger: true,
                 enableKeyEvents: true,
                 queryMode: 'local',
+                lastQuery: '',
                 listConfig: {
                     minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth,
                 },
@@ -263,25 +256,21 @@ GroupSetContainer = function(refs) {
                     var me = this,
                         records = [];
 
-                    //indexedDbManager.get('optionSets', container.dataElement.optionSet.id).done( function(obj) {
-                    indexedDbManager.getOptionSets(container.dataElement.optionSet.id, function(
-                        optionSets
-                    ) {
-                        var optionSet = optionSets[0];
+                    // XXX check when/how this code is used, as it might not work properly now
+                    // that we don't have the whole list of options (now it's limited to the first 100)
+                    container.getOptionSetOptions(
+                        container.dataElement.optionSets.id,
+                        null,
+                        ({ options }) => {
+                            if (isArray(options) && options.length) {
+                                records = container.getRecordsByCode(options, codeArray);
 
-                        if (
-                            isObject(optionSet) &&
-                            isArray(optionSet.options) &&
-                            optionSet.options.length
-                        ) {
-                            records = container.getRecordsByCode(optionSet.options, codeArray);
+                                container.valueStore.loadData(records);
 
-                            container.valueStore.removeAll();
-                            container.valueStore.loadData(records);
-
-                            me.setValue(records);
+                                me.setValue(records);
+                            }
                         }
-                    });
+                    );
                 },
                 listeners: {
                     change: function(cmp, newVal, oldVal) {
