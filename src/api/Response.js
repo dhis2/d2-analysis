@@ -138,11 +138,14 @@ export const Response = function(refs, config) {
             // replace option code with option uid
             headersWithOptionSet.forEach(header => {
                 rows.forEach(row => {
-                    row[header.index] = t.optionCodeIdMap[header.name][row[header.index]];
+					var id = t.optionCodeIdMap[header.name][row[header.index]];
+
+					if (id) {
+						row[header.index] = id;
+					}
                 });
             });
         }
-
         // map to ResponseRow
         return rows.map(row => ResponseRow(refs, row));
     }();
