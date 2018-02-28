@@ -59,6 +59,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         stickyRowDimension: !!layout.stickyRowDimension,
         showHierarchy: !!layout.showHierarchy,
         numberType: layout.numberType,
+        trueTotals: true,
         ...options,
     }
 
@@ -109,9 +110,16 @@ PivotTable.prototype.initialize = function() {
     this.rowDimensionSize = this.rowAxis.dims || 1;
 
     this.idValueMap = this.response.getIdMap(this.layout, 'value', 'idValueMap');
-    this.idFactorMap = this.response.getIdMap(this.layout, 'factor', 'idFactorMap');
-    this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator', 'idNumeratorMap');
-    this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator', 'idDenominatorMap');
+    
+    if (this.options.trueTotals) {
+        this.idFactorMap = this.response.getIdMap(this.layout, 'factor', 'idFactorMap');
+        this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator', 'idNumeratorMap');
+        this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator', 'idDenominatorMap');
+    } else {
+        this.idFactorMap =  {}
+        this.idNumeratorMap = {}
+        this.idDenominatorMap = {}
+    }
 
     this.colUniqueFactor = getUniqueFactor(this.colAxis);
     this.rowUniqueFactor = getUniqueFactor(this.rowAxis);
@@ -273,7 +281,7 @@ PivotTable.prototype.doRender = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doColTotals = function() {
-    return this.options.showColTotals;
+    return this.options.showColTotals  && this.rowAxis.size;
 };
 
 /**
@@ -282,7 +290,7 @@ PivotTable.prototype.doColTotals = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doRowTotals = function() {
-    return this.options.showRowTotals;
+    return this.options.showRowTotals && this.colAxis.size;
 };
 
 /**
@@ -1244,31 +1252,6 @@ PivotTable.prototype.getDenominatorValue = function(id) {
     return parseFloat(this.idDenominatorMap[id]) || 0;
 };
 
-// PivotTable.prototype.getRowSize = function() {
-//     return this.getAxisSize(this.rowAxis, this.rowUniqueFactor, this.doRowSubTotals(), this.doRowTotals())
-// };
-
-// PivotTable.prototype.getColumnSize = function() {
-//     return this.getAxisSize(this.colAxis, this.colUniqueFactor, this.doColSubTotals(), this.doColTotals())
-// };
-// PivotTable.prototype.getAxisSize = function(axis, uniqueFactor, doSubTotals, doTotals) {
-
-//     if (!axis.size) {
-//         return 1;
-//     }
-
-//     let size = axis.size;
-
-//     if (doSubTotals)  {
-//         size += axis.size / uniqueFactor;
-//     }
-    
-//     if (doTotals) {
-//         size += 1;    
-//     }
-    
-//     return size;
-// };
 /**
  * Gets number of rows in table in number of cells.
  * 
@@ -1276,11 +1259,12 @@ PivotTable.prototype.getDenominatorValue = function(id) {
  */
 PivotTable.prototype.getRowSize = function() {
 
-    if (!this.rowAxis.size) {
-        return 1;
-    }
-
     let size = this.rowAxis.size;
+
+    if (!size) {
+        size = 1;
+        return size;
+    }
 
     if (this.doColSubTotals())  {
         size += this.rowAxis.size / this.rowUniqueFactor;
@@ -1299,11 +1283,12 @@ PivotTable.prototype.getRowSize = function() {
  */
 PivotTable.prototype.getColumnSize = function() {
 
-    if (!this.colAxis.size) {
-        return 1;
-    }
+    let size = this.colAxis.size ;
 
-    let size = this.colAxis.size;
+    if (!size) {
+        size = 1;
+        return size;
+    }
     
     if (this.doRowSubTotals()) {
         size += this.colAxis.size / this.colUniqueFactor;
@@ -2176,12 +2161,12 @@ PivotTable.prototype.createValueLookup = function() {
           totalMap = {};
 
     // add size to make room for colunn totals
-    if (!this.doColTotals()) {
+    if (!this.doColTotals() && this.rowAxis.size) {
         tableRowSize += 1;
     }
 
     // add size to make room for row totals
-    if (!this.doRowTotals()) {
+    if (!this.doRowTotals() && this.colAxis.size) {
         tableColumnSize += 1;
     }
 
