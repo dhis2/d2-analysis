@@ -47,28 +47,15 @@ GroupSetContainer = function(refs) {
                 this.valueCmp.setOptionValues(a[1].split(';'));
             }
         },
-        getRecordsByCode: function(options, codeArray) {
-            var records = [];
+        getOptionSetOptions: (optionSetId, filters, limit, callbackFn) => {
+            const params = [`filter=optionSet.id:eq:${optionSetId}`, 'fields=code,name'];
 
-            for (var i = 0; i < options.length; i++) {
-                for (var j = 0; j < codeArray.length; j++) {
-                    if (options[i].code === codeArray[j]) {
-                        records.push(options[i]);
-                    }
-                }
+            if (limit) {
+                params.push(`pageSize=${defaultPageSize}`);
             }
 
-            return records;
-        },
-        getOptionSetOptions: (optionSetId, filter, callbackFn) => {
-            const params = [
-                `filter=optionSet.id:eq:${optionSetId}`,
-                'fields=code,name',
-                `pageSize=${defaultPageSize}`,
-            ];
-
-            if (filter) {
-                params.push(`filter=name:ilike:${filter}`);
+            if (filters) {
+                filters.forEach(filter => params.push(`filter=${filter}`));
             }
 
             new api.Request(refs, {
@@ -125,13 +112,13 @@ GroupSetContainer = function(refs) {
             this.searchStore = Ext.create('Ext.data.Store', {
                 fields: [idProperty, nameProperty],
                 data: [],
-                loadOptionSet: function(optionSetId, filter, pageSize) {
+                loadOptionSet: function(optionSetId, filters, pageSize) {
                     var store = this;
 
                     optionSetId = optionSetId || container.dataElement.optionSet.id;
                     pageSize = pageSize || defaultPageSize;
 
-                    container.getOptionSetOptions(optionSetId, filter, ({ options }) => {
+                    container.getOptionSetOptions(optionSetId, filters, true, ({ options }) => {
                         if (isArray(options) && options.length) {
                             store.loadData(options.slice(0, pageSize));
                         }
@@ -178,7 +165,7 @@ GroupSetContainer = function(refs) {
                             optionSetId = container.dataElement.optionSet.id;
 
                         // search
-                        container.searchStore.loadOptionSet(optionSetId, value);
+                        container.searchStore.loadOptionSet(optionSetId, [`name:ilike:${value}`]);
 
                         // trigger
                         if (!value || (isString(value) && value.length === 1)) {
@@ -256,18 +243,17 @@ GroupSetContainer = function(refs) {
                     var me = this,
                         records = [];
 
-                    // XXX check when/how this code is used, as it might not work properly now
-                    // that we don't have the whole list of options (now it's limited to the first 100)
+                    const filter = `code:in:[${codeArray.join(',')}]`;
+
                     container.getOptionSetOptions(
-                        container.dataElement.optionSets.id,
-                        null,
+                        container.dataElement.optionSet.id,
+                        [filter],
+                        false, // no limit
                         ({ options }) => {
                             if (isArray(options) && options.length) {
-                                records = container.getRecordsByCode(options, codeArray);
+                                container.valueStore.loadData(options);
 
-                                container.valueStore.loadData(records);
-
-                                me.setValue(records);
+                                me.setValue(options);
                             }
                         }
                     );
