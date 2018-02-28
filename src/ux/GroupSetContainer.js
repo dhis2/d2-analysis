@@ -9,8 +9,10 @@ import containerConfig from './containerConfig';
 
 export var GroupSetContainer;
 
-GroupSetContainer = function(refs) {
-    var { indexedDbManager } = refs;
+GroupSetContainer = function(refs) {
+    var { api, appManager } = refs;
+
+    const defaultPageSize = 100;
 
     Ext.define('Ext.ux.container.GroupSetContainer', {
         extend: 'Ext.container.Container',
@@ -23,7 +25,7 @@ GroupSetContainer = function(refs) {
             var items = this.valueCmp.getValue(),
                 record = {
                     dimension: this.dataElement.id,
-                    name: this.dataElement.name
+                    name: this.dataElement.name,
                 };
 
             // array or object
@@ -45,18 +47,22 @@ GroupSetContainer = function(refs) {
                 this.valueCmp.setOptionValues(a[1].split(';'));
             }
         },
-        getRecordsByCode: function(options, codeArray) {
-            var records = [];
+        getOptionSetOptions: (optionSetId, filters, limit, callbackFn) => {
+            const params = [`filter=optionSet.id:eq:${optionSetId}`, 'fields=code,name'];
 
-            for (var i = 0; i < options.length; i++) {
-                for (var j = 0; j < codeArray.length; j++) {
-                    if (options[i].code === codeArray[j]) {
-                        records.push(options[i]);
-                    }
-                }
+            if (limit) {
+                params.push(`pageSize=${defaultPageSize}`);
             }
 
-            return records;
+            if (filters) {
+                filters.forEach(filter => params.push(`filter=${filter}`));
+            }
+
+            new api.Request(refs, {
+                baseUrl: appManager.getApiPath() + '/options.json',
+                params,
+                success: callbackFn,
+            }).run();
         },
         initComponent: function() {
             var container = this,
@@ -66,7 +72,7 @@ GroupSetContainer = function(refs) {
             this.nameCmp = Ext.create('Ext.form.Label', {
                 text: this.dataElement.name,
                 flex: 1,
-                style: 'padding:' + containerConfig.namePadding
+                style: 'padding:' + containerConfig.namePadding,
             });
 
             this.addCmp = Ext.create('Ext.button.Button', {
@@ -76,7 +82,7 @@ GroupSetContainer = function(refs) {
                 text: 'Duplicate',
                 handler: function() {
                     container.duplicateDataElement();
-                }
+                },
             });
 
             this.removeCmp = Ext.create('Ext.button.Button', {
@@ -86,7 +92,7 @@ GroupSetContainer = function(refs) {
                 text: 'Remove',
                 handler: function() {
                     container.removeDataElement();
-                }
+                },
             });
 
             this.operatorCmp = Ext.create('Ext.form.field.ComboBox', {
@@ -99,51 +105,22 @@ GroupSetContainer = function(refs) {
                 value: 'IN',
                 store: {
                     fields: ['id', 'name'],
-                    data: [
-                        {id: 'IN', name: 'One of'}
-                    ]
-                }
+                    data: [{ id: 'IN', name: 'One of' }],
+                },
             });
 
             this.searchStore = Ext.create('Ext.data.Store', {
                 fields: [idProperty, nameProperty],
                 data: [],
-                loadOptionSet: function(optionSetId, key, pageSize) {
+                loadOptionSet: function(optionSetId, filters, pageSize) {
                     var store = this;
 
                     optionSetId = optionSetId || container.dataElement.optionSet.id;
-                    pageSize = pageSize || 100;
+                    pageSize = pageSize || defaultPageSize;
 
-                    //indexedDbManager.get('optionSets', optionSetId).done( function(obj) {
-                    indexedDbManager.getOptionSets(optionSetId, function(optionSets) {
-                        var optionSet = optionSets[0];
-
-                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
-                            var data = [];
-
-                            if (key) {
-                                var re = new RegExp(key, 'gi');
-
-                                for (var i = 0, name, match; i < optionSet.options.length; i++) {
-                                    name = optionSet.options[i].name;
-                                    match = name.match(re);
-
-                                    if (isArray(match) && match.length) {
-                                        data.push(optionSet.options[i]);
-
-                                        if (data.length === pageSize) {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                data = optionSet.options;
-                            }
-
-                            store.removeAll();
-                            store.loadData(data.slice(0, pageSize));
-
+                    container.getOptionSetOptions(optionSetId, filters, true, ({ options }) => {
+                        if (isArray(options) && options.length) {
+                            store.loadData(options.slice(0, pageSize));
                         }
                     });
                 },
@@ -152,8 +129,8 @@ GroupSetContainer = function(refs) {
                         if (container.searchCmp && s.getRange().length) {
                             container.searchCmp.expand();
                         }
-                    }
-                }
+                    },
+                },
             });
 
             // function
@@ -177,8 +154,9 @@ GroupSetContainer = function(refs) {
                 hideTrigger: true,
                 enableKeyEvents: true,
                 queryMode: 'local',
+                lastQuery: '',
                 listConfig: {
-                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth
+                    minWidth: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth,
                 },
                 store: this.searchStore,
                 listeners: {
@@ -187,7 +165,7 @@ GroupSetContainer = function(refs) {
                             optionSetId = container.dataElement.optionSet.id;
 
                         // search
-                        container.searchStore.loadOptionSet(optionSetId, value);
+                        container.searchStore.loadOptionSet(optionSetId, [`name:ilike:${value}`]);
 
                         // trigger
                         if (!value || (isString(value) && value.length === 1)) {
@@ -199,7 +177,11 @@ GroupSetContainer = function(refs) {
 
                         // value
                         if (container.valueStore.findExact(idProperty, id) === -1) {
-                            container.valueStore.add(container.searchStore.getAt(container.searchStore.findExact(idProperty, id)).data);
+                            container.valueStore.add(
+                                container.searchStore.getAt(
+                                    container.searchStore.findExact(idProperty, id)
+                                ).data
+                            );
                         }
 
                         // search
@@ -213,8 +195,8 @@ GroupSetContainer = function(refs) {
                     },
                     expand: function() {
                         container.filterSearchStore();
-                    }
-                }
+                    },
+                },
             });
 
             this.triggerCmp = Ext.create('Ext.button.Button', {
@@ -224,7 +206,7 @@ GroupSetContainer = function(refs) {
                 height: 22,
                 handler: function(b) {
                     container.searchStore.loadOptionSet();
-                }
+                },
             });
 
             this.valueStore = Ext.create('Ext.data.Store', {
@@ -235,14 +217,17 @@ GroupSetContainer = function(refs) {
                     },
                     remove: function() {
                         container.valueCmp.select(this.getRange());
-                    }
-                }
+                    },
+                },
             });
 
             this.valueCmp = Ext.create('Ext.form.field.ComboBox', {
                 multiSelect: true,
                 style: 'margin-bottom:0',
-                width: containerConfig.nameCmpWidth - containerConfig.operatorCmpWidth - containerConfig.operatorCmpWidth,
+                width:
+                    containerConfig.nameCmpWidth -
+                    containerConfig.operatorCmpWidth -
+                    containerConfig.operatorCmpWidth,
                 valueField: idProperty,
                 displayField: nameProperty,
                 emptyText: 'No selected items',
@@ -252,25 +237,26 @@ GroupSetContainer = function(refs) {
                 queryMode: 'local',
                 listConfig: {
                     minWidth: 266,
-                    cls: 'ns-optionselector'
+                    cls: 'ns-optionselector',
                 },
                 setOptionValues: function(codeArray) {
                     var me = this,
                         records = [];
 
-                    //indexedDbManager.get('optionSets', container.dataElement.optionSet.id).done( function(obj) {
-                    indexedDbManager.getOptionSets(container.dataElement.optionSet.id, function(optionSets) {
-                        var optionSet = optionSets[0];
+                    const filter = `code:in:[${codeArray.join(',')}]`;
 
-                        if (isObject(optionSet) && isArray(optionSet.options) && optionSet.options.length) {
-                            records = container.getRecordsByCode(optionSet.options, codeArray);
+                    container.getOptionSetOptions(
+                        container.dataElement.optionSet.id,
+                        [filter],
+                        false, // no limit
+                        ({ options }) => {
+                            if (isArray(options) && options.length) {
+                                container.valueStore.loadData(options);
 
-                            container.valueStore.removeAll();
-                            container.valueStore.loadData(records);
-
-                            me.setValue(records);
+                                me.setValue(options);
+                            }
                         }
-                    });
+                    );
                 },
                 listeners: {
                     change: function(cmp, newVal, oldVal) {
@@ -279,10 +265,12 @@ GroupSetContainer = function(refs) {
 
                         if (newVal.length < oldVal.length) {
                             var id = arrayDifference(oldVal, newVal)[0];
-                            container.valueStore.removeAt(container.valueStore.findExact(idProperty, id));
+                            container.valueStore.removeAt(
+                                container.valueStore.findExact(idProperty, id)
+                            );
                         }
-                    }
-                }
+                    },
+                },
             });
 
             this.items = [
@@ -293,16 +281,16 @@ GroupSetContainer = function(refs) {
                     items: [
                         this.nameCmp,
                         //this.addCmp,
-                        this.removeCmp
-                    ]
+                        this.removeCmp,
+                    ],
                 },
                 this.operatorCmp,
                 this.searchCmp,
                 this.triggerCmp,
-                this.valueCmp
+                this.valueCmp,
             ];
 
             this.self.superclass.initComponent.call(this);
-        }
+        },
     });
 };
