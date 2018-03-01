@@ -37,7 +37,7 @@ export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     cell.isValue    = !cell.empty;
 
     cell.type       = 'value';
-    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : ' pointer');
+    cell.cls        = 'pivot-value' + (cell.empty ? ' cursor-default' : '');
 
     cell.dxId       = rric.getIdByIds(response.metaData.dimensions.dx);
     cell.peId       = rric.getIdByIds(response.metaData.dimensions.pe);

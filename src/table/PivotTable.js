@@ -281,7 +281,7 @@ PivotTable.prototype.doRender = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doColTotals = function() {
-    return this.options.showColTotals  && this.rowAxis.size;
+    return this.options.showColTotals;
 };
 
 /**
@@ -290,7 +290,7 @@ PivotTable.prototype.doColTotals = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doRowTotals = function() {
-    return this.options.showRowTotals && this.colAxis.size;
+    return this.options.showRowTotals;
 };
 
 /**
@@ -2160,6 +2160,7 @@ PivotTable.prototype.createValueLookup = function() {
     const valueMap = {},
           totalMap = {};
 
+
     // add size to make room for colunn totals
     if (!this.doColTotals() && this.rowAxis.size) {
         tableRowSize += 1;
@@ -2400,9 +2401,14 @@ PivotTable.prototype.buildHtmlCell = function(cell) {
         this.dimensionUuids.push(cell.uuid);
     }
 
+
     let style = this.getBaseCellStyling(cell);
 
     if (cell.isValue) {
+
+        if (!this.options.unclickable) {
+            cell.cls += (' pointer');
+        }
 
         let legends = this.legendSet ? this.legendSet.legends || [] : [],
             bgColor;
@@ -2617,7 +2623,7 @@ PivotTable.prototype.buildHtmlTable = function() {
  * @param {number} [rowStart=0] 
  */
 PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
-    
+
     this.setColumnStartAndEnd(columnStart);
     this.setRowStartAndEnd(rowStart);
 
