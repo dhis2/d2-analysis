@@ -64,19 +64,6 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
                 'Content-Type': 'application/json',
             },
             params: Ext.encode(sharingBody),
-            callback: function() {
-                Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/sharing?type=' + apiResource + '&id=' + sharingId),
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    params: Ext.encode(sharingBody),
-                    callback: function() {
-                        interpretationSuccess(text);
-                    },
-                });
-            },
         });
     };
 
