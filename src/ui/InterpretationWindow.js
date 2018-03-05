@@ -1,4 +1,4 @@
-import { SharingWindow } from './SharingWindow';
+import { SharingWindow } from './SharingWindow';
 
 export var InterpretationWindow;
 
@@ -6,7 +6,6 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
     var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
-
         i18n = c.i18nManager.get(),
         apiPath = appManager.getApiPath(),
         apiResource = instanceManager.apiResource,
@@ -23,28 +22,28 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         listeners: {
             keyup: function() {
                 shareButton.xable();
-            }
-        }
+            },
+        },
     });
 
     var sharingCmp = sharing ? new SharingWindow(c, sharing, true) : null;
 
     var sharingCt = Ext.create('Ext.container.Container', {
         style: 'padding-top:10px; padding-bottom:25px',
-        items: sharingCmp ? sharingCmp.items : []
+        items: sharingCmp ? sharingCmp.items : [],
     });
 
     var method = interpretation ? 'PUT' : 'POST';
 
-    var interpretationSuccess = function(text) {
+    var interpretationSuccess = function(text) {
         if (interpretation) {
             interpretation.text = text;
         }
         if (success) {
             success();
         } else {
-            instanceManager.getById(null, function(layout, isFavorite) {
-                instanceManager.getReport(layout, isFavorite, false, false, function() {
+            instanceManager.getById(null, function(layout, isFavorite) {
+                instanceManager.getReport(layout, isFavorite, false, false, function() {
                     uiManager.unmask();
                 });
             });
@@ -52,8 +51,9 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
     };
 
     var updateSharing = function(obj, text) {
-        var interpretationId = interpretation ? interpretation.id :
-                (obj.getResponseHeader('location') || '').split('/').pop(),
+        var interpretationId = interpretation
+                ? interpretation.id
+                : (obj.getResponseHeader('location') || '').split('/').pop(),
             sharingId = sharing.object.id,
             sharingBody = sharingCmp.getBody();
 
@@ -61,20 +61,12 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             url: encodeURI(apiPath + '/sharing?type=interpretation&id=' + interpretationId),
             method: method,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             params: Ext.encode(sharingBody),
-            callback: function() {
-                Ext.Ajax.request({
-                    url: encodeURI(apiPath + '/sharing?type=' + apiResource + '&id=' + sharingId),
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    params: Ext.encode(sharingBody),
-                    callback: function() { interpretationSuccess(text); }
-                });
-            }
+            callback: function() {
+                interpretationSuccess(text);
+            },
         });
     };
 
@@ -86,23 +78,24 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         },
         handler: function() {
             var text = textArea.getValue();
-            var interpretationPath = interpretation ? '/interpretations/' + interpretation.id :
-                '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId();
+            var interpretationPath = interpretation
+                ? '/interpretations/' + interpretation.id
+                : '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId();
 
             if (text) {
                 Ext.Ajax.request({
                     url: encodeURI(apiPath + interpretationPath),
                     method: method,
                     params: text,
-                    headers: {'Content-Type': 'text/html'},
+                    headers: { 'Content-Type': 'text/html' },
                     success: function(obj) {
                         sharing ? updateSharing(obj, text) : interpretationSuccess(text);
                         textArea.reset();
                         window.destroy();
-                    }
+                    },
                 });
             }
-        }
+        },
     });
 
     var window = Ext.create('Ext.window.Window', {
@@ -112,19 +105,13 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         resizable: false,
         destroyOnBlur: true,
         modal: true,
-        items: [
-            textArea,
-            sharingCt
-        ],
+        items: [textArea, sharingCt],
         bbar: {
             cls: 'ns-toolbar-bbar',
             defaults: {
-                height: 24
+                height: 24,
             },
-            items: [
-                '->',
-                shareButton
-            ]
+            items: ['->', shareButton],
         },
         listeners: {
             show: function(w) {
@@ -138,8 +125,8 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             },
             hide: function() {
                 uiManager.disableRightClick();
-            }
-        }
+            },
+        },
     });
     uiManager.reg(window, 'interpretationWindow');
 

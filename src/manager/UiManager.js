@@ -68,6 +68,10 @@ UiManager = function(refs) {
 
     var resizeHandlers = t.appManager.getEventHandlerArray();
 
+	var withErrorStyle = function(content) {
+		return '<div style="padding:20px; font-size:13px; color:#60606a">' + content + '</div>';
+	};
+
     // setters
     t.setInstanceManager = function(instanceManager) {
         t.instanceManager = instanceManager;
@@ -165,6 +169,10 @@ UiManager = function(refs) {
     t.update = function(content, elementId) {
         updateFn(content, elementId);
     };
+
+    t.updateErrorMessage = function(content, elementId) {
+		t.update(withErrorStyle(content), elementId);
+	};
 
     t.toggleCollapseRegion = function(region) {
         t.get(region).toggleCollapse();
