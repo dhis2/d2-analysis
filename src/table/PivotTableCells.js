@@ -30,7 +30,7 @@ export const ValueCell = (value, response, rric, uuids, htmlValue) => {
     cell.uuids      = uuids;
 
     cell.value      = value;
-    cell.htmlValue  = value === null ? 
+    cell.htmlValue  = value === null || typeof(value) === 'undefined' ? 
         '&nbsp;' : htmlValue ? 
             htmlValue : value;
     
@@ -66,7 +66,7 @@ export const ValueSubTotalCell = (value, htmlValue) => {
     cell.type      = 'valueSubtotal';
     cell.cls       = 'pivot-value-subtotal';
 
-    cell.empty     = value === null;
+    cell.empty     = value === null || typeof(value) === 'undefined';
     
     if (typeof value === 'string') {
         cell.htmlValue = value;
@@ -86,7 +86,7 @@ export const ValueTotalCell = (value, htmlValue) => {
     cell.type      = 'valueTotal';
     cell.cls       = 'pivot-value-total-subgrandtotal';
 
-    cell.empty     = value === null;
+    cell.empty     = value === null || typeof(value) === 'undefined';;
 
     if (typeof value === 'string') {
         cell.htmlValue = value;
