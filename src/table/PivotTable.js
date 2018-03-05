@@ -143,12 +143,12 @@ PivotTable.prototype.initialize = function() {
     this.columnAxisSpanMap = this.createColumnSpanMap();
 
     // lookup for values
+    this.valueLookup = {}
     this.rowTotalLookup = defaultProxyGenerator(0);
     this.columnTotalLookup = defaultProxyGenerator(0);
-    this.valueLookup = this.createValueLookup();
 
-    console.log("row totals", this.rowTotalLookup);
-    console.log("column totals", this.columnTotalLookup);
+    // initialize lookup tables
+    this.initializeLookups();
 
     // lookup for rows/columns to render (used to determine what rows/columns are hidden).
     if (this.doHideEmptyRows()) {
@@ -286,7 +286,7 @@ PivotTable.prototype.doRender = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doColTotals = function() {
-    return this.options.showColTotals;
+    return this.options.showColTotals && !!this.rowAxis.size;
 };
 
 /**
@@ -295,7 +295,7 @@ PivotTable.prototype.doColTotals = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doRowTotals = function() {
-    return this.options.showRowTotals;
+    return this.options.showRowTotals && !!this.colAxis.size;
 };
 
 /**
@@ -304,8 +304,10 @@ PivotTable.prototype.doRowTotals = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doColSubTotals = function() {
-    return this.options.showColSubTotals && this.colUniqueFactor > 1 &&
-        this.rowAxis.type && this.rowDimensionSize > 1;
+    return this.options.showColSubTotals && 
+        this.rowUniqueFactor > 1 &&
+        this.rowAxis.type && 
+        this.rowDimensionSize > 1;
 };
 
 /**
@@ -314,8 +316,10 @@ PivotTable.prototype.doColSubTotals = function() {
  * @returns {boolean}
  */
 PivotTable.prototype.doRowSubTotals = function() {
-    return this.options.showRowSubTotals &&  this.rowUniqueFactor > 1 &&
-        this.colAxis.type && this.columnDimensionSize > 1;
+    return this.options.showRowSubTotals && 
+        this.colUniqueFactor > 1 &&
+        this.colAxis.type && 
+        this.columnDimensionSize > 1;
 };
 
 /**
@@ -1042,6 +1046,11 @@ PivotTable.prototype.getLegendDisplayStyleId = function(type) {
  * @returns {number}
  */
 PivotTable.prototype.getNextTotalColumnIndex = function() {
+    
+    if (!this.doRowTotals()) {
+        return this.columnSize;
+    }
+
     return this.columnSize - 1;
 };
 
@@ -1051,6 +1060,11 @@ PivotTable.prototype.getNextTotalColumnIndex = function() {
  * @returns {number}
  */
 PivotTable.prototype.getNextTotalRowIndex = function() {
+
+    if (!this.doColTotals()) {
+        return this.rowSize;
+    }
+
     return this.rowSize - 1;
 };
 
@@ -1723,7 +1737,6 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
  */
 PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
-
     rowIndex = this.getRowIndexWithHidden(rowIndex);
     columnIndex = this.getColumnIndexWithHidden(columnIndex);
 
@@ -1746,7 +1759,7 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
         return ValueSubTotalCell(value, htmlValue);
     }
 
-    if (!value) {
+    if (value === null || typeof(value) === 'undefined') {
         return PlainValueCell(value);
     }
 
@@ -2154,28 +2167,29 @@ PivotTable.prototype.rowAxisOffsetIncrement = function(rowIndex) {
 };
 
 /**
- * Creates a value lookup table.
+ * Initializes lookup tables.
  * 
  * @returns {array/object}
  */
-PivotTable.prototype.createValueLookup = function() {
+PivotTable.prototype.initializeLookups = function() {
 
     let tableRowSize = this.rowSize,
         tableColumnSize = this.columnSize;
 
-    const valueMap = {},
-          totalMap = {};
+    const totalMap = {};
 
     for (let i=0, rowIndex=0; i < tableRowSize; i++, rowIndex += this.rowAxisOffsetIncrement(rowIndex)) {
-        for (let j=0, columnIndex=0, value, valueObject; j < tableColumnSize; j++, columnIndex += this.columnAxisOffsetIncrement(columnIndex)) {
+        for (let j=0, columnIndex=0; j < tableColumnSize; j++, columnIndex += this.columnAxisOffsetIncrement(columnIndex)) {
 
-            valueObject = this.getValueObject(i, j);
+            let valueObject = this.getValueObject(i, j);
 
             if (valueObject) {
-                if (!valueMap[rowIndex]) {
-                    valueMap[rowIndex] = {};
+
+                if (!this.valueLookup[rowIndex]) {
+                    this.valueLookup[rowIndex] = {};
                 }
-                valueMap[rowIndex][columnIndex] = valueObject.empty ? 
+
+                this.valueLookup[rowIndex][columnIndex] = valueObject.empty ? 
                     null : valueObject.value;
             }
 
@@ -2215,8 +2229,8 @@ PivotTable.prototype.createValueLookup = function() {
             let rowIndex = rowTotalIndices[i],
                 columnIndex = columnTotalIndicies[j];
 
-            if (!valueMap[rowIndex]) {
-                valueMap[rowIndex] = {};
+            if (!this.valueLookup[rowIndex]) {
+                this.valueLookup[rowIndex] = {};
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
@@ -2225,12 +2239,10 @@ PivotTable.prototype.createValueLookup = function() {
                     totalMap[rowIndex][columnIndex].denominator || 1,
                     totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
     
-                valueMap[rowIndex][columnIndex] = total;
+                this.valueLookup[rowIndex][columnIndex] = total;
             }
         }        
     }
-
-    return valueMap;
 };
 
 /**
@@ -2249,6 +2261,7 @@ PivotTable.prototype.createRowRenderMap = function() {
         }
 
         this.numberOfEmptyRows += 1;
+        
         for (let j=0; j < this.rowAxis.span.length; j++) {
             this.decremenetRowAxisSpan(this.normalizeRowIndex(i), j);
         }
