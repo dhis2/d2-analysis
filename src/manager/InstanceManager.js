@@ -351,7 +351,7 @@ InstanceManager.prototype.getData = function(layout) {
     return layout.data();
 };
 
-InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState, fn) {
+InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, forceUiState, fn, { noError, errorMessage } = {}) {
     var t = this,
         refs = this.getRefs();
 
@@ -375,7 +375,10 @@ InstanceManager.prototype.getReport = function(layout, isFavorite, skipState, fo
     }
 
     // validation
-    if (isFunction(layout.val) && !layout.val()) {
+    if (isFunction(layout.val) && !layout.val(noError)) {
+		if (errorMessage) {
+			t.uiManager.updateErrorMessage(errorMessage, layout.el);
+		}
         return;
     }
 
