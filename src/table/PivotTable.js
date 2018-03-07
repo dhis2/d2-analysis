@@ -305,7 +305,6 @@ PivotTable.prototype.doRowTotals = function() {
  */
 PivotTable.prototype.doColSubTotals = function() {
     return this.options.showColSubTotals && 
-        this.rowUniqueFactor > 1 &&
         this.rowAxis.type && 
         this.rowDimensionSize > 1;
 };
@@ -317,7 +316,6 @@ PivotTable.prototype.doColSubTotals = function() {
  */
 PivotTable.prototype.doRowSubTotals = function() {
     return this.options.showRowSubTotals && 
-        this.colUniqueFactor > 1 &&
         this.colAxis.type && 
         this.columnDimensionSize > 1;
 };
@@ -2193,8 +2191,8 @@ PivotTable.prototype.initializeLookups = function() {
                     null : valueObject.value;
             }
 
-            this.rowTotalLookup[i] += valueObject.value;
-            this.columnTotalLookup[j] += valueObject.value;
+            this.rowTotalLookup[rowIndex] += valueObject.value;
+            this.columnTotalLookup[tableColumnSize] += valueObject.value;
             
             this.rowTotalLookup[this.getNextTotalRowIndex()] += valueObject.value;
             this.columnTotalLookup[this.getNextTotalColumnIndex()] += valueObject.value;
@@ -2213,8 +2211,8 @@ PivotTable.prototype.initializeLookups = function() {
             // calculate intersection totals
             if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
             if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextSubColumnIndex(j), valueObject, totalMap);
-            if (this.doRowTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
-            if (this.doColSubTotals() && this.doColTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
+            if (this.doColTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
+            if (this.doRowTotals() && this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
         }
     }
 
