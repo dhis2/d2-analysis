@@ -35,9 +35,9 @@ export default function({ layout, i18n }) {
         }
     });
 
-    const descriptionTextField = Ext.create('Ext.form.field.TextArea', {
+    const descriptionTextField = Ext.create('Ext.ux.CKEditor', {
         width: fs.windowCmpWidth,
-        rows: 3,
+        height: 200,
         style: 'margin-bottom: 0',
         fieldStyle: fs.textfieldStyle.concat([
             'padding-top: 5px'

@@ -11,7 +11,7 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
-    var textArea = Ext.create('Ext.form.field.TextArea', {
+    var textArea = Ext.create('Ext.ux.CKEditor', {
         cls: 'ns-textarea',
         height: 130,
         width: 407,

@@ -75,6 +75,7 @@ import { DataElementStringContainer } from './ux/DataElementStringContainer.js';
 import { GroupSetContainer } from './ux/GroupSetContainer.js';
 import { LimitContainer } from './ux/LimitContainer.js';
 import { StatusBar } from './ux/StatusBar.js';
+import { CKEditor } from './ux/CKEditor.js';
 
 export {
     Record,
@@ -151,6 +152,7 @@ export {
     GroupSetContainer,
     LimitContainer,
     StatusBar,
+    CKEditor,
 };
 
 export const api = {
@@ -244,4 +246,5 @@ export const ux = {
     GroupSetContainer,
     LimitContainer,
     StatusBar,
+    CKEditor,
 };
