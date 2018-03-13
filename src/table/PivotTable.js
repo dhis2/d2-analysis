@@ -2195,8 +2195,13 @@ PivotTable.prototype.initializeLookups = function() {
             this.rowTotalLookup[this.getNextTotalRowIndex()] += valueObject.value;
             this.columnTotalLookup[this.getNextTotalColumnIndex()] += valueObject.value;
 
-            if (this.doColSubTotals()) this.columnTotalLookup[this.getNextSubRowIndex(i)] += valueObject.value;
-            if (this.doRowSubTotals()) this.rowTotalLookup[this.getNextSubColumnIndex(j)] += valueObject.value;
+            if (this.doColSubTotals()) {
+                this.rowTotalLookup[this.getNextSubRowIndex(i)] += valueObject.value;
+            }
+
+            if (this.doRowSubTotals()) {
+                this.columnTotalLookup[this.getNextSubColumnIndex(j)] += valueObject.value;
+            }
 
             // calculate grand totals
             if (this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), columnIndex, valueObject, totalMap);
