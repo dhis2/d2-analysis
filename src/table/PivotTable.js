@@ -2166,8 +2166,6 @@ PivotTable.prototype.rowAxisOffsetIncrement = function(rowIndex) {
 
 /**
  * Initializes lookup tables.
- * 
- * @returns {array/object}
  */
 PivotTable.prototype.initializeLookups = function() {
 
@@ -2176,8 +2174,8 @@ PivotTable.prototype.initializeLookups = function() {
 
     const totalMap = {};
 
-    for (let i=0, rowIndex=0; i < tableRowSize; i++, rowIndex += this.rowAxisOffsetIncrement(rowIndex)) {
-        for (let j=0, columnIndex=0; j < tableColumnSize; j++, columnIndex += this.columnAxisOffsetIncrement(columnIndex)) {
+    for (let i=0, rowIndex=0; rowIndex < tableRowSize; i++, rowIndex += this.rowAxisOffsetIncrement(rowIndex)) {
+        for (let j=0, columnIndex=0; columnIndex < tableColumnSize; j++, columnIndex += this.columnAxisOffsetIncrement(columnIndex)) {
 
             let valueObject = this.getValueObject(i, j);
 
@@ -2192,13 +2190,13 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             this.rowTotalLookup[rowIndex] += valueObject.value;
-            this.columnTotalLookup[tableColumnSize] += valueObject.value;
+            this.columnTotalLookup[columnIndex] += valueObject.value;
             
             this.rowTotalLookup[this.getNextTotalRowIndex()] += valueObject.value;
             this.columnTotalLookup[this.getNextTotalColumnIndex()] += valueObject.value;
 
-            if (this.doRowSubTotals()) this.rowTotalLookup[this.getNextSubRowIndex(i)] += valueObject.value;
-            if (this.doColSubTotals()) this.columnTotalLookup[this.getNextSubColumnIndex(j)] += valueObject.value;
+            if (this.doColSubTotals()) this.columnTotalLookup[this.getNextSubRowIndex(i)] += valueObject.value;
+            if (this.doRowSubTotals()) this.rowTotalLookup[this.getNextSubColumnIndex(j)] += valueObject.value;
 
             // calculate grand totals
             if (this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), columnIndex, valueObject, totalMap);
@@ -2211,6 +2209,7 @@ PivotTable.prototype.initializeLookups = function() {
             // calculate intersection totals
             if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
             if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextSubColumnIndex(j), valueObject, totalMap);
+
             if (this.doColTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
             if (this.doRowTotals() && this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
         }
