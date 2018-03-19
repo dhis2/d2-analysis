@@ -113,8 +113,8 @@ NorthRegion = function(c, cmpConfig) {
                 },
                 setState: function(layout, isFavorite) {
                     if (layout) {
-                        if (isFavorite && layout.name) {
-                            this.setTitle(layout.name);
+                        if (isFavorite && layout.displayName) {
+                            this.setTitle(layout.displayName);
                             this.setTitleAppendix(layout.relativePeriodDate);
                             this.setStateSaved();
                         } else {

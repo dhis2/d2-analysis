@@ -57,9 +57,15 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.interpretationId = c.interpretationId;
     }
 
+    // DHIS2-2784: propagate both name and displayName
+    // to avoid name being replaced by a translation in the translate dialog
     // name
-    t.name = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(item =>
-        isString(item)
+    if (isString(c.name)) {
+        t.name = c.name;
+    }
+
+    t.displayName = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(
+        item => isString(item)
     );
 
     // title
@@ -459,6 +465,7 @@ Layout.prototype.toPlugin = function(el) {
             'sortOrder',
             'topLimit',
             'displayDescription',
+            'displayName',
             'interpretations',
             'lastUpdated',
             'created',
@@ -575,6 +582,7 @@ Layout.prototype.toPostSuper = function() {
     delete this.user;
     delete this.publicAccess;
     delete this.permission, delete this.userGroupAccesses;
+    delete this.displayName;
 };
 
 Layout.prototype.toSession = function() {

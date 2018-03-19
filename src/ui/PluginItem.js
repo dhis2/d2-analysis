@@ -49,7 +49,7 @@ PluginItem = function(c) {
             window = Ext.create('Ext.window.Window', {
                 title:
                     i18n.embed_in_web_page +
-                    (layout.name
+                    (layout.displayName
                         ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' +
                           layout +
                           '</span>'
