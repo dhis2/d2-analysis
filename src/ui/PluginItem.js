@@ -5,7 +5,6 @@ PluginItem = function(c) {
         instanceManager = c.instanceManager,
         uiManager = c.uiManager,
         i18nManager = c.i18nManager,
-
         i18n = c.i18nManager.get();
 
     return Ext.create('Ext.menu.Item', {
@@ -23,14 +22,18 @@ PluginItem = function(c) {
                 layout = instanceManager.getStateCurrent();
 
             text += '<html>\n<head>\n';
-            text += '<link rel="stylesheet" href="//dhis2-cdn.org/' + version + '/ext/resources/css/ext-plugin-gray.css" />\n';
+            text +=
+                '<link rel="stylesheet" href="//dhis2-cdn.org/' +
+                version +
+                '/ext/resources/css/ext-plugin-gray.css" />\n';
             text += '<script src="//dhis2-cdn.org/' + version + '/ext/ext-all.js"></script>\n';
             text += '<script src="//dhis2-cdn.org/' + version + '/plugin/table.js"></script>\n';
             text += '</head>\n\n<body>\n';
             text += '<div id="table1"></div>\n\n';
             text += '<script>\n\n';
             text += 'Ext.onReady(function() {\n\n';
-            text += 'DHIS.getTable(' + JSON.stringify(layout.toPlugin('table1'), null, 2) + ');\n\n';
+            text +=
+                'DHIS.getTable(' + JSON.stringify(layout.toPlugin('table1'), null, 2) + ');\n\n';
             text += '});\n\n';
             text += '</script>\n\n';
             text += '</body>\n</html>';
@@ -40,11 +43,17 @@ PluginItem = function(c) {
                 height: 400,
                 readOnly: true,
                 cls: 'ns-textarea monospaced',
-                value: text
+                value: text,
             });
 
             window = Ext.create('Ext.window.Window', {
-                title: i18n.embed_in_web_page + (layout.name ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' + layout + '</span>' : ''),
+                title:
+                    i18n.embed_in_web_page +
+                    (layout.displayName
+                        ? '<span style="font-weight:normal">&nbsp;|&nbsp;&nbsp;' +
+                          layout +
+                          '</span>'
+                        : ''),
                 layout: 'fit',
                 modal: true,
                 resizable: false,
@@ -56,8 +65,8 @@ PluginItem = function(c) {
                         text: 'Select',
                         handler: function() {
                             textArea.selectText();
-                        }
-                    }
+                        },
+                    },
                 ],
                 listeners: {
                     show: function(w) {
@@ -71,11 +80,11 @@ PluginItem = function(c) {
                     },
                     hide: function() {
                         uiManager.disableRightClick();
-                    }
-                }
+                    },
+                },
             });
 
             window.show();
-        }
+        },
     });
 };

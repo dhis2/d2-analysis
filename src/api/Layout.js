@@ -35,50 +35,58 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var _dataDimensionItems;
 
     // constructor
-    t.columns = (Axis(refs, c.columns)).val(true);
-    t.rows = (Axis(refs, c.rows)).val(true);
-    t.filters = (Axis(refs, c.filters)).val(true);
+    t.columns = Axis(refs, c.columns).val(true);
+    t.rows = Axis(refs, c.rows).val(true);
+    t.filters = Axis(refs, c.filters).val(true);
 
-        // access
+    // access
     _access = isObject(c.access) ? c.access : null;
 
-        // data dimension items
+    // data dimension items
     _dataDimensionItems = isArray(c.dataDimensionItems) ? c.dataDimensionItems : null;
 
-        // non model
+    // non model
 
-        // id
+    // id
     if (isString(c.id)) {
         t.id = c.id;
     }
 
-        // interpretationId
+    // interpretationId
     if (isString(c.interpretationId)) {
         t.interpretationId = c.interpretationId;
     }
 
-        // name
-    t.name = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(item => isString(item));
+    // DHIS2-2784: propagate both name and displayName
+    // to avoid name being replaced by a translation in the translate dialog
+    // name
+    if (isString(c.name)) {
+        t.name = c.name;
+    }
 
-        // title
+    t.displayName = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(
+        item => isString(item)
+    );
+
+    // title
     t.title = arrayClean([c.displayShortName, c.title]).find(item => isString(item));
 
-        // description
+    // description
     if (isString(c.description)) {
         t.description = c.description;
     }
 
-        // sorting
+    // sorting
     if (isObject(c.sorting) && isDefined(c.sorting.id) && isString(c.sorting.direction)) {
         t.sorting = new Sorting(refs, c.sorting);
     }
 
-        // displayProperty
+    // displayProperty
     if (isString(c.displayProperty)) {
         t.displayProperty = c.displayProperty;
     }
 
-        // userOrgUnit
+    // userOrgUnit
     if (arrayFrom(c.userOrgUnit).length) {
         t.userOrgUnit = arrayFrom(c.userOrgUnit);
     }
@@ -93,99 +101,99 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.endDate = c.endDate;
     }
 
-        // relative period date
+    // relative period date
     if (DateManager.getYYYYMMDD(c.relativePeriodDate)) {
         t.relativePeriodDate = DateManager.getYYYYMMDD(c.relativePeriodDate);
     }
 
-        //description
+    //description
     if (isString(c.displayDescription)) {
         t.displayDescription = c.displayDescription;
     }
 
-        //interpretations
+    //interpretations
     if (arrayFrom(c.interpretations).length) {
         t.interpretations = isArray(c.interpretations) ? c.interpretations : null;
     }
 
-        //lastUpdated
+    //lastUpdated
     if (DateManager.getYYYYMMDD(c.lastUpdated)) {
         t.lastUpdated = DateManager.getYYYYMMDD(c.lastUpdated);
     }
 
-        //created
+    //created
     if (DateManager.getYYYYMMDD(c.created)) {
         t.created = DateManager.getYYYYMMDD(c.created);
     }
 
-        //favorite user
+    //favorite user
     if (isObject(c.user)) {
         t.user = c.user;
     }
 
-        //public access
+    //public access
     if (isString(c.publicAccess)) {
         t.publicAccess = c.publicAccess;
     }
 
-        //permission
+    //permission
     if (isString(c.permission)) {
         t.permission = c.permission;
     }
 
-        //user group accesses
+    //user group accesses
     if (arrayFrom(c.userGroupAccesses).length) {
         t.userGroupAccesses = c.userGroupAccesses;
     }
 
-    if (c.el && isString(c.el)) {
+    if (c.el && isString(c.el)) {
         t.el = c.el;
     }
 
     $.extend(t, forceApplyConfig);
 
     // setter/getter
-    t.getResponse = function() {
+    t.getResponse = function() {
         return _response;
     };
 
-    t.setResponse = function(r) {
+    t.setResponse = function(r) {
         _response = r;
     };
 
-    t.getAccess = function() {
+    t.getAccess = function() {
         return _access;
     };
 
-    t.setAccess = function(a) {
+    t.setAccess = function(a) {
         _access = a;
     };
 
-    t.getDataDimensionItems = function() {
+    t.getDataDimensionItems = function() {
         return _dataDimensionItems;
     };
 
-    t.setDataDimensionItems = function(a) {
+    t.setDataDimensionItems = function(a) {
         _dataDimensionItems = a;
     };
 
-    t.getDefaultPath = function() {
+    t.getDefaultPath = function() {
         return _path;
     };
 
-    t.getDefaultSource = function() {
+    t.getDefaultSource = function() {
         return _source;
     };
 
-    t.getDefaultFormat = function() {
+    t.getDefaultFormat = function() {
         return _format;
     };
 
-    t.getRequestPath = function(s, f) {
+    t.getRequestPath = function(s, f) {
         return (_path || refs.appManager.getPath()) + (s || _source) + '.' + (f || _format);
     };
 
-    t.getRefs = function() {
+    t.getRefs = function() {
         return refs;
     };
 };
@@ -202,10 +210,10 @@ Layout.prototype.alert = function(text, noError) {
     }
 };
 
-Layout.prototype.apply = function(obj, keys) {
+Layout.prototype.apply = function(obj, keys) {
     var t = this;
 
-    if (!isObject(obj)) {
+    if (!isObject(obj)) {
         return t;
     }
 
@@ -213,19 +221,21 @@ Layout.prototype.apply = function(obj, keys) {
 
     keys = isArray(keys) ? keys : preservedProps;
 
-    keys.forEach(function(key) {
+    keys.forEach(function(key) {
         t[key] = obj[key];
     });
 
     return t;
 };
 
-Layout.prototype.toRows = function(includeFilter) {
-    this.rows = arrayClean(this.rows.concat(this.columns.empty(), includeFilter ? this.filters.empty() : []));
+Layout.prototype.toRows = function(includeFilter) {
+    this.rows = arrayClean(
+        this.rows.concat(this.columns.empty(), includeFilter ? this.filters.empty() : [])
+    );
 };
 
 Layout.prototype.getAxes = function(includeFilter) {
-    return arrayClean([this.columns, this.rows, (includeFilter ? this.filters : null)]);
+    return arrayClean([this.columns, this.rows, includeFilter ? this.filters : null]);
 };
 
 Layout.prototype.getUserOrgUnitUrl = function() {
@@ -234,13 +244,13 @@ Layout.prototype.getUserOrgUnitUrl = function() {
     }
 };
 
-Layout.prototype.applyInterpretation = function(interpretation) {
+Layout.prototype.applyInterpretation = function(interpretation) {
     this.setResponse(null);
     this.relativePeriodDate = interpretation.created;
     this.interpretationId = interpretation.id;
 };
 
-Layout.prototype.setSharing = function(sharing) {
+Layout.prototype.setSharing = function(sharing) {
     this.publicAccess = sharing.publicAccess;
     this.externalAccess = sharing.externalAccess;
     this.userGroupAccesses = sharing.userGroupAccesses;
@@ -264,7 +274,11 @@ Layout.prototype.getDimensions = function(includeFilter, isSorted, axes) {
         dimensions = dimensions.concat(axis);
     });
 
-    return isSorted ? dimensions.sort(function(a, b) {return a.dimension > b.dimension;}) : dimensions;
+    return isSorted
+        ? dimensions.sort(function(a, b) {
+              return a.dimension > b.dimension;
+          })
+        : dimensions;
 };
 
 Layout.prototype.getRecords = function(includeFilter, response) {
@@ -281,25 +295,25 @@ Layout.prototype.getRecords = function(includeFilter, response) {
     return records;
 };
 
-Layout.prototype.extendRecords = function(response) {
-    this.getAxes(true).forEach(function(axis) {
+Layout.prototype.extendRecords = function(response) {
+    this.getAxes(true).forEach(function(axis) {
         axis.extendRecords(response);
     });
 };
 
-Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
+Layout.prototype.stripAxes = function(includeFilter, skipAddToFilter) {
     var t = this,
         refs = t.getRefs();
 
-    var { Axis } = refs.api;
+    var { Axis } = refs.api;
 
-    if (!skipAddToFilter && !t.filters) {
+    if (!skipAddToFilter && !t.filters) {
         t.filters = new Axis(refs);
     }
 
-    t.getAxes(includeFilter).forEach(function(axis) {
-        axis.strip().forEach(function(dimension) {
-            if (!skipAddToFilter) {
+    t.getAxes(includeFilter).forEach(function(axis) {
+        axis.strip().forEach(function(dimension) {
+            if (!skipAddToFilter) {
                 t.filters.add(dimension);
             }
         });
@@ -326,7 +340,6 @@ Layout.prototype.getRecordIds = function(includeFilter) {
     return ids;
 };
 
-
 Layout.prototype.getDimension = function(dimensionName) {
     return this.getDimensions(true).find(function(dimension) {
         return dimension.dimension === dimensionName;
@@ -351,8 +364,8 @@ Layout.prototype.getDimensionNameIdsMap = function(response) {
     return map;
 };
 
-Layout.prototype.removeDimensionItems = function(includeFilter) {
-    this.getDimensions(includeFilter).forEach(function(dimension) {
+Layout.prototype.removeDimensionItems = function(includeFilter) {
+    this.getDimensions(includeFilter).forEach(function(dimension) {
         dimension.removeItems();
     });
 };
@@ -362,12 +375,18 @@ Layout.prototype.val = function(noError) {
     var i18nManager = refs.i18nManager;
 
     if (!(this.columns || this.rows)) {
-        this.alert(i18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'), noError); //todo alert
+        this.alert(
+            i18nManager.get('at_least_one_dimension_must_be_specified_as_row_or_column'),
+            noError
+        ); //todo alert
         return null;
     }
 
     if (!this.hasDimension(refs.dimensionConfig.get('period').dimensionName, true)) {
-        this.alert(i18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'), noError); //todo alert
+        this.alert(
+            i18nManager.get('at_least_one_period_must_be_specified_as_column_row_or_filter'),
+            noError
+        ); //todo alert
         return null;
     }
 
@@ -382,16 +401,15 @@ Layout.prototype.toPlugin = function(el) {
         optionConfig = refs.optionConfig,
         layout;
 
-    if (t.id) {
+    if (t.id) {
         layout = {
-            id: t.id
+            id: t.id,
         };
-    }
-    else {
+    } else {
         layout = t.clone();
 
         // columns, rows, filters
-        layout.getAxes(true).forEach(function(item) {
+        layout.getAxes(true).forEach(function(item) {
             item.toPlugin();
         });
 
@@ -402,7 +420,7 @@ Layout.prototype.toPlugin = function(el) {
             'showColSubTotals',
             'showRowSubTotals',
             'showDimensionLabels',
-            'showValues'
+            'showValues',
         ];
 
         var deleteIfFalsy = [
@@ -433,7 +451,7 @@ Layout.prototype.toPlugin = function(el) {
             'regression',
             'cumulative',
             'sortOrder',
-            'topLimit'
+            'topLimit',
         ];
 
         var deleteAnyway = [
@@ -447,6 +465,7 @@ Layout.prototype.toPlugin = function(el) {
             'sortOrder',
             'topLimit',
             'displayDescription',
+            'displayName',
             'interpretations',
             'lastUpdated',
             'created',
@@ -455,22 +474,22 @@ Layout.prototype.toPlugin = function(el) {
             'permission',
             'userGroupAccesses',
             'prototype',
-            'url'
+            'url',
         ];
 
-        deleteIfTruthy.forEach(function(item) {
-            if (!!layout[item]) {
+        deleteIfTruthy.forEach(function(item) {
+            if (!!layout[item]) {
                 delete layout[item];
             }
         });
 
-        deleteIfFalsy.forEach(function(item) {
-            if (!layout[item]) {
+        deleteIfFalsy.forEach(function(item) {
+            if (!layout[item]) {
                 delete layout[item];
             }
         });
 
-        deleteAnyway.forEach(function(item) {
+        deleteAnyway.forEach(function(item) {
             delete layout[item];
         });
 
@@ -494,25 +513,28 @@ Layout.prototype.toPlugin = function(el) {
             delete layout.numberType;
         }
 
-        if (layout.dataApprovalLevel && layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id) {
+        if (
+            layout.dataApprovalLevel &&
+            layout.dataApprovalLevel.id === optionConfig.getDataApprovalLevel('def').id
+        ) {
             delete layout.dataApprovalLevel;
         }
 
-        if (layout.regressionType === 'NONE') {
+        if (layout.regressionType === 'NONE') {
             delete layout.regressionType;
         }
     }
 
     layout.url = appManager.getPath();
 
-    if (el) {
+    if (el) {
         layout.el = el;
     }
 
     return layout;
 };
 
-Layout.prototype.toPostSuper = function() {
+Layout.prototype.toPostSuper = function() {
     delete this.klass;
     delete this.getResponse;
     delete this.setResponse;
@@ -522,7 +544,7 @@ Layout.prototype.toPostSuper = function() {
     delete this.setDataDimensionItems;
     delete this.getRequestPath;
 
-    this.getDimensions(true).forEach(function(dimension) {
+    this.getDimensions(true).forEach(function(dimension) {
         dimension.toPost();
     });
 
@@ -541,7 +563,7 @@ Layout.prototype.toPostSuper = function() {
     this.reportParams = {
         paramReportingPeriod: this.reportingPeriod,
         paramOrganisationUnit: this.organisationUnit,
-        paramParentOrganisationUnit: this.parentOrganisationUnit
+        paramParentOrganisationUnit: this.parentOrganisationUnit,
     };
 
     delete this.reportingPeriod;
@@ -559,11 +581,11 @@ Layout.prototype.toPostSuper = function() {
     delete this.created;
     delete this.user;
     delete this.publicAccess;
-    delete this.permission,
-    delete this.userGroupAccesses;
+    delete this.permission, delete this.userGroupAccesses;
+    delete this.displayName;
 };
 
-Layout.prototype.toSession = function() {
+Layout.prototype.toSession = function() {
     var t = this;
 
     var response = t.getResponse();
@@ -573,11 +595,11 @@ Layout.prototype.toSession = function() {
     return t;
 };
 
-Layout.prototype.sort = function(table) {
+Layout.prototype.sort = function(table) {
     var t = this,
         refs = t.getRefs();
 
-    var { Record, Dimension, ResponseRowIdCombination } = refs.api;
+    var { Record, Dimension, ResponseRowIdCombination } = refs.api;
 
     var id = this.sorting.id,
         direction = this.sorting.direction,
@@ -589,20 +611,19 @@ Layout.prototype.sort = function(table) {
         sortingId,
         obj;
 
-    if (!isString(id)) {
+    if (!isString(id)) {
         return;
     }
 
     ids = this.getDimensionNameIdsMap(response)[dimension.dimension];
 
-    ids.forEach(function(item) {
+    ids.forEach(function(item) {
         let validId = new ResponseRowIdCombination(refs, [id, item]).get();
         sortingId = parseFloat(idValueMap[validId]);
 
         obj = {
             id: item,
-            sortingId: isNumber(sortingId) ? 
-                sortingId : (Number.MAX_VALUE * -1)
+            sortingId: isNumber(sortingId) ? sortingId : Number.MAX_VALUE * -1,
         };
 
         records.push(obj);
@@ -635,11 +656,11 @@ Layout.prototype.hasRecordIds = function(idParam, includeFilter) {
     return has;
 };
 
-Layout.prototype.getFirstDxId = function() {
+Layout.prototype.getFirstDxId = function() {
     return this.getDimension('dx').getRecordIds()[0];
 };
 
-Layout.prototype.del = function(fn, doMask, doUnmask) {
+Layout.prototype.del = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
 
@@ -648,7 +669,7 @@ Layout.prototype.del = function(fn, doMask, doUnmask) {
     instanceManager.delById(t.id, fn, doMask, doUnmask);
 };
 
-Layout.prototype.toPost = function() {
+Layout.prototype.toPost = function() {
     var t = this;
 
     t.toPostSuper();
@@ -660,7 +681,7 @@ Layout.prototype.isDimensionInRows = function(dimensionName) {
 
 // dep 4
 
-Layout.prototype.toPut = function() {
+Layout.prototype.toPut = function() {
     this.toPost();
 };
 
@@ -674,7 +695,7 @@ Layout.prototype.isOrganisationUnitInRows = function() {
 
 // dep 5
 
-Layout.prototype.post = function(fn, doMask, doUnmask) {
+Layout.prototype.post = function(fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
 
@@ -687,50 +708,50 @@ Layout.prototype.post = function(fn, doMask, doUnmask) {
 
     var url = apiPath + '/' + apiEndpoint;
 
-    if (doMask) {
+    if (doMask) {
         uiManager.mask();
     }
 
     // "Save as" mode, t.id is present, copy settings from original
     if (t.id) {
-        instanceManager.getSharingById(t.id, function(sharing) {
+        instanceManager.getSharingById(t.id, function(sharing) {
             // set sharing
-            if (isObject(sharing) && isObject(sharing.object)) {
+            if (isObject(sharing) && isObject(sharing.object)) {
                 t.setSharing(sharing.object);
             }
         });
     }
 
-        t.toPost();
+    t.toPost();
 
-        // post
-        var postRequest = new refs.api.Request(refs, {
-            baseUrl: url,
-            type: 'ajax',
-            method: 'POST',
-            data: JSON.stringify(t),
-            success: function(obj, success, r) {
-                var id = (r.getResponseHeader('location') || '').split('/').pop();
+    // post
+    var postRequest = new refs.api.Request(refs, {
+        baseUrl: url,
+        type: 'ajax',
+        method: 'POST',
+        data: JSON.stringify(t),
+        success: function(obj, success, r) {
+            var id = (r.getResponseHeader('location') || '').split('/').pop();
 
-                if (!isString(id)) {
-                    console.log('Layout post', 'Invalid id', id);
-                }
-
-                if (doUnmask) {
-                    uiManager.unmask();
-                }
-
-                if (fn) {
-                    fn(id, success, r);
-                }
+            if (!isString(id)) {
+                console.log('Layout post', 'Invalid id', id);
             }
-        });
 
-        postRequest.run();
-//    });
+            if (doUnmask) {
+                uiManager.unmask();
+            }
+
+            if (fn) {
+                fn(id, success, r);
+            }
+        },
+    });
+
+    postRequest.run();
+    //    });
 };
 
-Layout.prototype.put = function(id, fn, doMask, doUnmask) {
+Layout.prototype.put = function(id, fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
 
@@ -743,15 +764,15 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
 
     var url = apiPath + '/' + apiEndpoint + '/' + id;
 
-    if (doMask) {
+    if (doMask) {
         uiManager.mask();
     }
 
-    instanceManager.getSharingById(t.id, function(sharing) {
+    instanceManager.getSharingById(t.id, function(sharing) {
         t.toPut();
 
         // set sharing
-        if (isObject(sharing) && isObject(sharing.object)) {
+        if (isObject(sharing) && isObject(sharing.object)) {
             t.setSharing(sharing.object);
         }
 
@@ -761,33 +782,34 @@ Layout.prototype.put = function(id, fn, doMask, doUnmask) {
             type: 'ajax',
             method: 'PUT',
             data: JSON.stringify(t),
-            success: function(obj, success, r) {
-                if (doUnmask) {
+            success: function(obj, success, r) {
+                if (doUnmask) {
                     uiManager.unmask();
                 }
 
-                if (fn) {
+                if (fn) {
                     fn(id, success, r);
                 }
             },
             error: function(r) {
                 if (arrayContains([403], parseInt(r.httpStatusCode))) {
-                    r.message = i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
+                    r.message =
+                        i18n.you_do_not_have_access_to_all_items_in_this_favorite || r.message;
                 }
 
-                if (doMask) {
+                if (doMask) {
                     uiManager.unmask();
                 }
-    
+
                 uiManager.alert(r);
-            }
+            },
         });
 
         putRequest.run();
     });
 };
 
-Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
+Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
     var t = this,
         refs = this.getRefs();
 
@@ -800,11 +822,11 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
 
     var url = apiPath + '/' + apiEndpoint + '/' + t.id;
 
-    if (!isObject(properties)) {
+    if (!isObject(properties)) {
         return;
     }
 
-    if (doMask) {
+    if (doMask) {
         uiManager.mask();
     }
 
@@ -815,15 +837,15 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         data: JSON.stringify(properties),
         dataType: 'text',
         headers: appManager.defaultRequestHeaders,
-        success: function(obj, success, r) {
-            if (doUnmask) {
+        success: function(obj, success, r) {
+            if (doUnmask) {
                 uiManager.unmask();
             }
 
-            if (fn) {
+            if (fn) {
                 fn(null, success, r);
             }
-        }
+        },
     });
 
     patchRequest.run();
@@ -865,8 +887,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     request.add('displayProperty=' + displayProperty.toUpperCase());
 
     // normal request only
-    if (!isTableLayout) {
-
+    if (!isTableLayout) {
         // hierarchy
         if (this.showHierarchy) {
             request.add('hierarchyMeta=true');
@@ -888,7 +909,11 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         }
 
         // data approval level
-        if (isObject(this.dataApprovalLevel) && isString(this.dataApprovalLevel.id) && this.dataApprovalLevel.id !== 'DEFAULT') {
+        if (
+            isObject(this.dataApprovalLevel) &&
+            isString(this.dataApprovalLevel.id) &&
+            this.dataApprovalLevel.id !== 'DEFAULT'
+        ) {
             request.add('approvalLevel=' + this.dataApprovalLevel.id);
         }
 
@@ -899,11 +924,9 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
 
         // measure criteria
         if (this.measureCriteria) {
-            request.add(`measureCriteria=${ this.measureCriteria }`);
+            request.add(`measureCriteria=${this.measureCriteria}`);
         }
-    }
-    else {
-
+    } else {
         // table layout
         request.add('tableLayout=true');
 
@@ -930,7 +953,7 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     }
 
     // relative orgunits / user
-    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
+    if (this.hasRecordIds(appManager.userIdDestroyCacheKeys, true)) {
         request.add('user=' + appManager.userAccount.id);
     }
 
@@ -951,14 +974,13 @@ Layout.prototype.data = function(source, format) {
     var metaDataRequest = this.req(source, format);
     var dataRequest = this.req(source, format, true);
 
-    var errorFn = function(r) {
-
+    var errorFn = function(r) {
         // 409
         // DHIS2-2020: 503 error (perhaps analytics maintenance mode)
-        if (isObject(r) && (r.status == 409 || r.status === 503)) {
+        if (isObject(r) && (r.status == 409 || r.status === 503)) {
             uiManager.unmask();
 
-            if (isString(r.responseText)) {
+            if (isString(r.responseText)) {
                 uiManager.alert(JSON.parse(r.responseText));
             }
         }
@@ -978,6 +1000,6 @@ Layout.prototype.data = function(source, format) {
 
     return {
         metaData: metaDataRequest.run(),
-        data: dataRequest.run()
+        data: dataRequest.run(),
     };
 };
