@@ -53,7 +53,9 @@ CKEditor = function(refs) {
                 this.editor.on("dialogShow", this._onDialogShow, this);
 
                 this.editor.on("dialogHide", function(ev) {
-                    $(".cke_button").css("pointer-events", "");
+                    $(".cke_button")
+                        .css("pointer-events", "")
+                        .removeClass("active");
                     $(document).off('.ckeditor');
                 }, this);
 
@@ -63,12 +65,14 @@ CKEditor = function(refs) {
 
         _onDialogShow: function(ev) {
             const {data: dialog, editor} = ev;
+            const {name, element} = dialog._;
 
             // Disable toolbar buttons while dialog open to avoid re-opening
             $(".cke_button").css("pointer-events", "none");
+            $(".cke_button__" + name).addClass("active");
 
-            if (dialog._.name === "smiley") {
-                dialog._.element.addClass("cke_smiley");
+            if (name === "smiley") {
+                element.addClass("cke_smiley");
             }
 
             $(document).on('click.ckeditor', clickEv => {
