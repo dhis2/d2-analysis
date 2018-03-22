@@ -17,8 +17,8 @@ CKEditor = function(refs) {
             this.self.superclass.initComponent.apply(this, arguments);
 
             this.on("afterrender", function() {
-                // By default, CKEditor create an img with the full domain. Keep only the path
-                // so inserted emoticons URLs in case the database is moved to another domain.
+                // By default, CKEditor inserts <img> emoticons with the full URL. Let's keep only
+                // the relative path so it will still work whenever the database is moved to another domain.
                 const defaultOptions = {
                     toolbar: [
                         {name: 'actions', items: ['Bold', 'Italic', 'Link', 'Smiley']},
@@ -53,13 +53,9 @@ CKEditor = function(refs) {
                 this.editor.on("dialogShow", this._onDialogShow, this);
 
                 this.editor.on("dialogHide", function(ev) {
-                    $(".cke_button")
-                        .css("pointer-events", "")
-                        .removeClass("active");
+                    $(".cke_button").removeClass("active");
                     $(document).off('.ckeditor');
                 }, this);
-
-                $(".cke_dialog_body").parents(".cke_dialog").css({top: 200, left: 200});
             }, this);
         },
 
@@ -67,8 +63,6 @@ CKEditor = function(refs) {
             const {data: dialog, editor} = ev;
             const {name, element} = dialog._;
 
-            // Disable toolbar buttons while dialog open to avoid re-opening
-            $(".cke_button").css("pointer-events", "none");
             $(".cke_button__" + name).addClass("active");
 
             if (name === "smiley") {
@@ -78,8 +72,6 @@ CKEditor = function(refs) {
             $(document).on('click.ckeditor', clickEv => {
                 const clickInsideDialog = $(clickEv.target).parents(".cke_dialog").get(0);
                 if (!clickInsideDialog) {
-                    clickEv.stopPropagation();
-                    clickEv.preventDefault();
                     dialog.hide();
                 }
             });
