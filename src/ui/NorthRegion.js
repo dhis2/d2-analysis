@@ -1,19 +1,18 @@
-import {AboutWindow} from './AboutWindow';
-import {DateManager} from '../manager/DateManager.js';
+import { AboutWindow } from './AboutWindow';
+import { DateManager } from '../manager/DateManager.js';
 
 export var NorthRegion;
 
-NorthRegion = function(c, cmpConfig) {
+NorthRegion = function(c, cmpConfig) {
     var appManager = c.appManager,
         instanceManager = c.instanceManager,
         uiManager = c.uiManager,
         i18nManager = c.i18nManager,
-
         i18n = i18nManager.get(),
         path = appManager.getPath();
 
     // component
-    cmpConfig = cmpConfig || {};
+    cmpConfig = cmpConfig || {};
 
     cmpConfig.appName = appManager.appName || '';
 
@@ -23,24 +22,28 @@ NorthRegion = function(c, cmpConfig) {
     cmpConfig.i18n.untitled = cmpConfig.i18n.untitled || i18n.untitled || 'Untitled';
 
     cmpConfig.theme = cmpConfig.theme || uiManager.getTheme();
-    cmpConfig.systemTitle = cmpConfig.systemTitle || appManager.systemSettings.systemTitle || 'DHIS 2';
+    cmpConfig.systemTitle =
+        cmpConfig.systemTitle || appManager.systemSettings.systemTitle || 'DHIS 2';
     cmpConfig.logoWidth = cmpConfig.logoWidth ? parseFloat(cmpConfig.logoWidth) : 418;
-    cmpConfig.aboutFn = cmpConfig.aboutFn || function() {
-        AboutWindow(c).getData();
-    };
-    cmpConfig.homeFn = cmpConfig.homeFn || function() {
-        var dest = path +  '/dhis-web-commons-about/redirect.action';
+    cmpConfig.aboutFn =
+        cmpConfig.aboutFn ||
+        function() {
+            AboutWindow(c).getData();
+        };
+    cmpConfig.homeFn =
+        cmpConfig.homeFn ||
+        function() {
+            var dest = path + '/dhis-web-commons-about/redirect.action';
 
-        if (instanceManager.isStateUnsaved()) {
-            uiManager.confirmUnsaved(i18n.leave_application, function() {
-                uiManager.disableConfirmUnload();
+            if (instanceManager.isStateUnsaved()) {
+                uiManager.confirmUnsaved(i18n.leave_application, function() {
+                    uiManager.disableConfirmUnload();
+                    window.location.href = dest;
+                });
+            } else {
                 window.location.href = dest;
-            });
-        }
-        else {
-            window.location.href = dest;
-        }
-    };
+            }
+        };
 
     var cmp = {};
 
@@ -62,13 +65,14 @@ NorthRegion = function(c, cmpConfig) {
         cmp: cmp,
         setLogoWidth: setLogoWidth,
         setState: setState,
-        items: function() {
+        items: (function() {
             var defaultTitleText = cmpConfig.i18n.untitled;
 
             cmp.logo = Ext.create('Ext.toolbar.TextItem', {
                 cls: 'logo',
                 width: cmpConfig.logoWidth,
-                html: '<span class="brand">' + cmpConfig.systemTitle + '</span> ' + cmpConfig.appName
+                html:
+                    '<span class="brand">' + cmpConfig.systemTitle + '</span> ' + cmpConfig.appName,
             });
 
             cmp.title = Ext.create('Ext.toolbar.TextItem', {
@@ -76,15 +80,21 @@ NorthRegion = function(c, cmpConfig) {
                 titleText: '',
                 appendixText: '',
                 text: defaultTitleText,
-                updateTitle: function() {
-                    this.update(this.titleText ? this.titleText + this.appendixText : defaultTitleText);
+                updateTitle: function() {
+                    this.update(
+                        this.titleText ? this.titleText + this.appendixText : defaultTitleText
+                    );
                 },
                 setTitle: function(name) {
                     this.titleText = name || '';
                     //this.updateTitle();
                 },
-                setTitleAppendix: function(text) {
-                    this.appendixText = text ? ('<span class="appendix">[' + DateManager.getYYYYMMDD(text, true) + ']</span>') : '';
+                setTitleAppendix: function(text) {
+                    this.appendixText = text
+                        ? '<span class="appendix">[' +
+                          DateManager.getYYYYMMDD(text, true) +
+                          ']</span>'
+                        : '';
                     //this.updateTitle();
                 },
                 setStateSaved: function() {
@@ -92,94 +102,90 @@ NorthRegion = function(c, cmpConfig) {
                     this.getEl().removeCls('untitled');
                 },
                 setStateUnsaved: function() {
-                    if (this.titleText) {
+                    if (this.titleText) {
                         this.getEl().removeCls('untitled');
                         this.getEl().addCls('unsaved');
                     }
                 },
-                setStateNew: function() {
+                setStateNew: function() {
                     this.getEl().removeCls('unsaved');
                     this.getEl().addCls('untitled');
                 },
-                setState: function(layout, isFavorite) {
-                    if (layout) {
-                        if (isFavorite && layout.name) {
-                            this.setTitle(layout.name);
+                setState: function(layout, isFavorite) {
+                    if (layout) {
+                        if (isFavorite && layout.displayName) {
+                            this.setTitle(layout.displayName);
                             this.setTitleAppendix(layout.relativePeriodDate);
                             this.setStateSaved();
-                        }
-                        else {
+                        } else {
                             this.setTitleAppendix();
                             this.setStateUnsaved();
                         }
-                    }
-                    else {
+                    } else {
                         this.setTitle();
                         this.setTitleAppendix();
                         this.setStateNew();
                     }
 
                     this.updateTitle();
-                }
+                },
             });
 
-            uiManager.reg(cmp.about = Ext.create('Ext.toolbar.TextItem', {
-                cls: 'about',
-                html: cmpConfig.i18n.about,
-                listeners: {
-                    render: function(ti) {
-                        var el = ti.getEl();
+            uiManager.reg(
+                (cmp.about = Ext.create('Ext.toolbar.TextItem', {
+                    cls: 'about',
+                    html: cmpConfig.i18n.about,
+                    listeners: {
+                        render: function(ti) {
+                            var el = ti.getEl();
 
-                        el.on('mouseover', function() {
-                            el.addCls('hover');
-                        });
+                            el.on('mouseover', function() {
+                                el.addCls('hover');
+                            });
 
-                        el.on('mouseout', function() {
-                            el.removeCls('hover');
-                        });
+                            el.on('mouseout', function() {
+                                el.removeCls('hover');
+                            });
 
-                        el.on('click', function() {
-                            cmpConfig.aboutFn();
-                        });
+                            el.on('click', function() {
+                                cmpConfig.aboutFn();
+                            });
 
-                        el.rendered = true;
-                    }
-                }
-            }), 'aboutButton');
+                            el.rendered = true;
+                        },
+                    },
+                })),
+                'aboutButton'
+            );
 
-            uiManager.reg(cmp.home = Ext.create('Ext.toolbar.TextItem', {
-                cls: 'about home',
-                html: cmpConfig.i18n.home,
-                listeners: {
-                    render: function(ti) {
-                        var el = ti.getEl();
+            uiManager.reg(
+                (cmp.home = Ext.create('Ext.toolbar.TextItem', {
+                    cls: 'about home',
+                    html: cmpConfig.i18n.home,
+                    listeners: {
+                        render: function(ti) {
+                            var el = ti.getEl();
 
-                        el.on('mouseover', function() {
-                            el.addCls('hover');
-                        });
+                            el.on('mouseover', function() {
+                                el.addCls('hover');
+                            });
 
-                        el.on('mouseout', function() {
-                            el.removeCls('hover');
-                        });
+                            el.on('mouseout', function() {
+                                el.removeCls('hover');
+                            });
 
-                        el.on('click', function() {
-                            cmpConfig.homeFn();
-                        });
+                            el.on('click', function() {
+                                cmpConfig.homeFn();
+                            });
 
-                        el.rendered = true;
-                    }
-                }
-            }), 'homeButton');
+                            el.rendered = true;
+                        },
+                    },
+                })),
+                'homeButton'
+            );
 
-            return [
-                cmp.logo,
-                cmp.title,
-                '->',
-                cmp.about,
-                cmp.home,
-                ' ', ' '
-            ];
-        }()
+            return [cmp.logo, cmp.title, '->', cmp.about, cmp.home, ' ', ' '];
+        })(),
     });
 };
-
