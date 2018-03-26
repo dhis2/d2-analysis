@@ -3113,8 +3113,6 @@ WestRegionTrackerItems = function(refs) {
             if (!(config.startDate && config.endDate)) {
                 return;
             }
-
-            map['pe'] = [{ dimension: 'pe' }];
         } else if (periodMode.getValue() === 'periods') {
             map['pe'] = [periods.getDimension()];
         }
