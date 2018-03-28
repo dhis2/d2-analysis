@@ -59,6 +59,11 @@ CKEditor = function(refs) {
             }, this);
         },
 
+        onRemoved() {
+            if (this.editor)
+                this.editor.destroy();
+        },
+
         _onDialogShow: function(ev) {
             const {data: dialog, editor} = ev;
             const {name, element} = dialog._;
