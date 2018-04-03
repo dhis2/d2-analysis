@@ -64,6 +64,11 @@ CKEditor = function(refs) {
                 this.editor.destroy();
         },
 
+        focus() {
+            if (this.editor)
+                this.editor.focus();
+        },
+
         _onDialogShow: function(ev) {
             const {data: dialog, editor} = ev;
             const {name, element} = dialog._;
