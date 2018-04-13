@@ -66,12 +66,8 @@ FavoriteButton = function(c) {
 
                             layout.apply(favorite, ['id', 'name', 'description']);
 
-                            // DHIS2-2784: use PATCH to avoid losing translationsp
-                            const payload = layout.clone();
-                            payload.toPut();
-
-                            layout.clone().patch(
-                                payload,
+                            layout.clone().put(
+                                layout.id,
                                 function() {
                                     instanceManager.getById(layout.id, function(
                                         layout,
