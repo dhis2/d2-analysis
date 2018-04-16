@@ -150,6 +150,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.el = c.el;
     }
 
+    // translations
+    if (arrayFrom(c.translations).length) {
+        t.translations = c.translations;
+    }
+
     $.extend(t, forceApplyConfig);
 
     // setter/getter

@@ -149,6 +149,12 @@ TranslateWindow = function(refs, layout, fn, listeners) {
                 dataType: 'json',
                 headers: appManager.defaultRequestHeaders,
                 success: function(obj, success, r) {
+                    instanceManager.getById(null, function(layout, isFavorite) {
+                        instanceManager.getReport(layout, isFavorite, false, false, function() {
+                            uiManager.unmask();
+                        });
+                    });
+
                     window.destroy();
                 },
             });
