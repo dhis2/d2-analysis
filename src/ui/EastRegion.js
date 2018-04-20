@@ -42,6 +42,30 @@ EastRegion = function(c) {
             (isBrackets ? ' <span class="bold">]</span>' : '');
     };
 
+    var getSubscriberClass = function(layout) {
+        return layout.subscribed ? "subscriber-enabled" : "subscriber-disabled";
+    };
+
+    var getSubscriberTitle = function(layout) {
+        return layout.subscribed ? i18n.unsubscribe_title : i18n.subscribe_title;
+    };
+
+    var toggleSubscriber = function(subscribableId, isSubscribed, onSuccess) {
+        var url = [apiPath, instanceManager.apiEndpoint, subscribableId, "subscriber"].join("/");
+        var method = isSubscribed ? "DELETE" : "POST";
+
+        Ext.Ajax.request({
+            url: encodeURI(url),
+            method: method,
+            success: function() {
+                onSuccess(!isSubscribed);
+            },
+            failure: function(err) {
+                uiManager.alert("Cannot toggle subscription");
+            }
+        });
+    };
+
     /*
      * FAVORITE DETAILS PANEL
      */
@@ -176,8 +200,34 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 itemId: 'descriptionPanel',
                 bodyStyle: 'border-style:none;',
-                style: 'margin-bottom:5px;',
+                style: 'margin-bottom:5px; padding-right: 32px',
                 items: [getDescriptionPanel(layout.displayDescription)]
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 10px; border: none',
+                baseCls: "subscriber",
+                iconCls: getSubscriberClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var subscriberToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getSubscriberTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    subscriberToolTip.update( getSubscriberTitle(layout) );
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleSubscriber(layout.id, layout.subscribed, function(isSubcribed) {
+                                layout.subscribed = isSubcribed;
+                                button.setIconCls(getSubscriberClass(layout));
+                            });
+                        }, button);
+                    }
+                },
             }, {
                 xtype: 'displayfield',
                 fieldLabel: i18n.owner,
