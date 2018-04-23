@@ -2132,7 +2132,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     if (valueObject.value === null) {
         totalObject[rowIndex][columnIndex].empty++;
     }
-
+    
     totalObject[rowIndex][columnIndex].counter++;
 
     addMerge(totalObject[rowIndex][columnIndex], valueObject);
@@ -2171,6 +2171,14 @@ PivotTable.prototype.initializeLookups = function() {
 
     let tableRowSize = this.rowSize,
         tableColumnSize = this.columnSize;
+
+    if (this.doRowTotals()) {
+        tableColumnSize -= 1;
+    }
+
+    if (this.doColTotals()) {
+        tableRowSize -= 1;
+    }
 
     const totalMap = {};
 
@@ -2236,6 +2244,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
+
                 let total = this.getTrueTotal(
                     totalMap[rowIndex][columnIndex].numerator,
                     totalMap[rowIndex][columnIndex].denominator || 1,
