@@ -68,6 +68,10 @@ UiManager = function(refs) {
 
     var resizeHandlers = t.appManager.getEventHandlerArray();
 
+	var withErrorStyle = function(content) {
+		return '<div style="padding:20px; font-size:13px; color:#60606a">' + content + '</div>';
+	};
+
     // setters
     t.setInstanceManager = function(instanceManager) {
         t.instanceManager = instanceManager;
@@ -130,6 +134,18 @@ UiManager = function(refs) {
         t.get(component) && t.get(component).setScroll(fn);
     }
 
+    t.removeScrollFn = function(component) {
+        t.get(component) && t.get(component).removeScroll();
+    }
+
+    t.setOnResizeFn = function(component, fn) {
+        t.get(component) && t.get(component).setOnResize(fn);
+    }
+    
+    t.removeResizeFn = function(component) {
+        t.get(component) && t.get(component).removeOnResize();
+    }
+
     t.scrollTo = function(component, x, y) {
         t.get(component) && t.get(component).scrollTo(x, y);
     }
@@ -153,6 +169,10 @@ UiManager = function(refs) {
     t.update = function(content, elementId) {
         updateFn(content, elementId);
     };
+
+    t.updateErrorMessage = function(content, elementId) {
+		t.update(withErrorStyle(content), elementId);
+	};
 
     t.toggleCollapseRegion = function(region) {
         t.get(region).toggleCollapse();
@@ -520,6 +540,13 @@ UiManager = function(refs) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
+    };
+
+    t.confirmRender = function(title, fn, cancelFn) {
+        var i18n = t.i18nManager ? t.i18nManager.get() : {};
+
+        ConfirmWindow(refs, title, i18n.render_table_warning,
+            "Continue", fn, null, cancelFn, true).show();
     };
 
     t.confirmCustom = function(title, msg, btnText, fn, applyConfig) {

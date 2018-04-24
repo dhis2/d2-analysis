@@ -1,9 +1,9 @@
-import {FavoriteWindow} from './FavoriteWindow.js';
-import {RenameWindow} from './RenameWindow.js';
-import {SharingWindow} from './SharingWindow.js';
-import {InterpretationWindow} from './InterpretationWindow.js';
-import {LinkWindow} from './LinkWindow.js';
-import {TranslateWindow} from './TranslateWindow.js';
+import { FavoriteWindow } from './FavoriteWindow.js';
+import { RenameWindow } from './RenameWindow.js';
+import { SharingWindow } from './SharingWindow.js';
+import { InterpretationWindow } from './InterpretationWindow.js';
+import { LinkWindow } from './LinkWindow.js';
+import { TranslateWindow } from './TranslateWindow.js';
 
 export var FavoriteButton;
 
@@ -21,8 +21,8 @@ FavoriteButton = function(c) {
                 closeAction: 'destroy',
                 shadow: false,
                 showSeparator: false,
-                items: function() {
-                    var getTitle = function(text) {
+                items: (function() {
+                    var getTitle = function(text) {
                         return text + '&nbsp;&nbsp;&nbsp;';
                     };
 
@@ -31,15 +31,14 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
-                            if (instanceManager.isStateUnsaved()) {
-                                uiManager.confirmUnsaved(i18n.new_favorite, function() {
+                            if (instanceManager.isStateUnsaved()) {
+                                uiManager.confirmUnsaved(i18n.new_favorite, function() {
                                     instanceManager.setState();
                                 });
-                            }
-                            else {
+                            } else {
                                 instanceManager.setState();
                             }
-                        }
+                        },
                     });
                     uiManager.reg(newItem, 'newItem');
 
@@ -48,7 +47,7 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-open',
                         handler: function() {
                             uiManager.reg(FavoriteWindow(c, 'open'), 'favoriteWindow').show();
-                        }
+                        },
                     });
                     uiManager.reg(openItem, 'openItem');
 
@@ -60,21 +59,35 @@ FavoriteButton = function(c) {
                             var layout = instanceManager.getStateCurrent(),
                                 favorite = instanceManager.getStateFavorite();
 
-                            if (!favorite) {
+                            if (!favorite) {
                                 saveAsItem.handlerFn();
                                 return;
                             }
 
                             layout.apply(favorite, ['id', 'name', 'description']);
 
-                            layout.clone().put(layout.id, function() {
-                                instanceManager.getById(layout.id, function(layout, isFavorite) {
-                                    instanceManager.getReport(layout, isFavorite, false, false, function() {
-                                        uiManager.unmask();
+                            layout.clone().put(
+                                layout.id,
+                                function() {
+                                    instanceManager.getById(layout.id, function(
+                                        layout,
+                                        isFavorite
+                                    ) {
+                                        instanceManager.getReport(
+                                            layout,
+                                            isFavorite,
+                                            false,
+                                            false,
+                                            function() {
+                                                uiManager.unmask();
+                                            }
+                                        );
                                     });
-                                });
-                            }, true, true);
-                        }
+                                },
+                                true,
+                                true
+                            );
+                        },
                     });
                     uiManager.reg(saveItem, 'saveItem');
 
@@ -82,12 +95,12 @@ FavoriteButton = function(c) {
                         text: getTitle(i18n.save_as),
                         iconCls: 'ns-menu-item-favorite-save',
                         disabled: !instanceManager.isStateCurrent(),
-                        handlerFn: function() {
+                        handlerFn: function() {
                             FavoriteWindow(c, 'saveas').show();
                         },
                         handler: function() {
                             this.handlerFn();
-                        }
+                        },
                     });
                     uiManager.reg(saveAsItem, 'saveAsItem');
 
@@ -97,7 +110,7 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
                             RenameWindow(c, instanceManager.getStateFavorite()).show();
-                        }
+                        },
                     });
                     uiManager.reg(saveAsItem, 'renameItem');
 
@@ -107,27 +120,30 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
                             TranslateWindow(c, instanceManager.getStateFavorite()).show();
-                        }
+                        },
                     });
                     uiManager.reg(saveAsItem, 'translateItem');
 
                     var shareItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.share),
                         iconCls: 'ns-menu-item-favorite-share',
-                        disabled: function() {
+                        disabled: (function() {
                             var fav = instanceManager.getStateFavorite();
 
-                            if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
+                            if (fav && (!fav.getAccess() || fav.getAccess().manage)) {
                                 return false;
                             }
 
                             return true;
-                        }(),
+                        })(),
                         handler: function() {
-                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
-                                SharingWindow(c, r).show();
-                            });
-                        }
+                            instanceManager.getSharingById(
+                                instanceManager.getStateFavoriteId(),
+                                function(r) {
+                                    SharingWindow(c, r).show();
+                                }
+                            );
+                        },
                     });
                     uiManager.reg(interpretationItem, 'interpretationItem');
 
@@ -136,10 +152,13 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-interpretation',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            instanceManager.getSharingById(instanceManager.getStateFavoriteId(), function(r) {
-                                InterpretationWindow(c, r).show();
-                            });
-                        }
+                            instanceManager.getSharingById(
+                                instanceManager.getStateFavoriteId(),
+                                function(r) {
+                                    InterpretationWindow(c, r).show();
+                                }
+                            );
+                        },
                     });
                     uiManager.reg(interpretationItem, 'interpretationItem');
 
@@ -149,7 +168,7 @@ FavoriteButton = function(c) {
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
                             LinkWindow(c).show();
-                        }
+                        },
                     });
                     uiManager.reg(linkItem, 'linkItem');
 
@@ -158,12 +177,12 @@ FavoriteButton = function(c) {
                         iconCls: 'ns-menu-item-favorite-delete',
                         disabled: !instanceManager.isStateFavorite(),
                         handler: function() {
-                            uiManager.confirmDelete(i18n.delete_favorite, function() {
-                                instanceManager.getStateFavorite().del(function() {
+                            uiManager.confirmDelete(i18n.delete_favorite, function() {
+                                instanceManager.getStateFavorite().del(function() {
                                     instanceManager.setState();
                                 });
                             });
-                        }
+                        },
                     });
                     uiManager.reg(deleteItem, 'deleteItem');
 
@@ -184,9 +203,9 @@ FavoriteButton = function(c) {
                         interpretationItem,
                         linkItem,
                         '-',
-                        deleteItem
+                        deleteItem,
                     ];
-                }(),
+                })(),
                 listeners: {
                     show: function() {
                         uiManager.setAnchorPosition(b.menu, b);
@@ -196,11 +215,11 @@ FavoriteButton = function(c) {
                     },
                     destroy: function(m) {
                         b.menu = null;
-                    }
-                }
+                    },
+                },
             });
 
             b.menu.show();
-        }
+        },
     });
 };

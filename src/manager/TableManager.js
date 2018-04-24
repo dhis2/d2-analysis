@@ -1,5 +1,6 @@
 import isString from 'd2-utilizr/lib/isString';
 import isArray from 'd2-utilizr/lib/isArray';
+import arrayContains from 'd2-utilizr/lib/arrayContains';
 import { Period } from '../api/Period';
 import { Dimension } from '../api/Dimension';
 import { OrganisationUnit } from '../api/OrganisationUnit';
@@ -14,6 +15,14 @@ TableManager = function(c) {
         uiManager = c.uiManager,
         sessionStorageManager = c.sessionStorageManager,
         dimensionConfig = c.dimensionConfig;
+
+    // Metadata item types to provide details about
+    var METADATA_DETAILED_TYPES = [
+        'CATEGORY_OPTION',
+        'DATA_ELEMENT',
+        'PROGRAM_INDICATOR',
+        'INDICATOR'
+    ];
 
     var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
@@ -113,7 +122,8 @@ TableManager = function(c) {
         for (var i = 0, obj, axis, dimension; i < objects.length; i++) {
             obj = objects[i];
 
-            axis = obj.axis === 'col' ? layout.columns || [] : layout.rows || [];
+            axis = obj.axis === 'column' ? 
+                layout.columns || [] : layout.rows || [];
 
             if (axis.length) {
                 dimension = axis[obj.dim];
@@ -335,24 +345,70 @@ TableManager = function(c) {
     };
 
     t.setValueMouseHandlers = function(layout, table) {
-        var uuidDimUuidsMap = table.uuidDimUuidsMap,
+        var uuids = table.valueUuids,
             valueEl;
 
-        for (var key in uuidDimUuidsMap) {
-            if (uuidDimUuidsMap.hasOwnProperty(key)) {
-                valueEl = Ext.get(key);
+        for (var uuid in uuids) {
+            valueEl = Ext.get(uuids[uuid]);
 
-                if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
-                    valueEl.dom.onValueMouseClick = onValueMouseClick;
-                    valueEl.dom.onValueMouseOver = onValueMouseOver;
-                    valueEl.dom.onValueMouseOut = onValueMouseOut;
-                    valueEl.dom.layout = layout;
-                    valueEl.dom.table = table;
-                    valueEl.dom.setAttribute('onclick', 'this.onValueMouseClick(this.layout, this.table, this.id);');
-                    valueEl.dom.setAttribute('onmouseover', 'this.onValueMouseOver(this);');
-                    valueEl.dom.setAttribute('onmouseout', 'this.onValueMouseOut(this);');
-                }
+            if (valueEl && !isNaN(parseFloat(valueEl.dom.textContent))) {
+                valueEl.dom.onValueMouseClick = onValueMouseClick;
+                valueEl.dom.onValueMouseOver = onValueMouseOver;
+                valueEl.dom.onValueMouseOut = onValueMouseOut;
+                valueEl.dom.layout = layout;
+                valueEl.dom.table = table;
+                valueEl.dom.setAttribute('onclick', 'this.onValueMouseClick(this.layout, this.table, this.id);');
+                valueEl.dom.setAttribute('onmouseover', 'this.onValueMouseOver(this);');
+                valueEl.dom.setAttribute('onmouseout', 'this.onValueMouseOut(this);');
             }
         }
     };
+
+    t.setDimensionMouseHandlers = function(layout, table) {
+        const response = layout.getResponse();
+
+        const setMouseHandler = (obj) => {
+            const item = response.metaData.items[obj.id];
+
+            if (item && arrayContains(METADATA_DETAILED_TYPES, item.dimensionItemType)) {
+                let html = `<p>Type: ${item.dimensionItemType}</p>`;
+
+                if (item.description) {
+                    html += `<p>Description: ${item.description}</p>`;
+                }
+
+                if (item.code) {
+                    html += `<p>Code: ${item.code}</p>`
+                }
+
+                const tip = Ext.create('Ext.tip.ToolTip', {
+                    target: Ext.get(obj.uuid),
+                    bodyStyle: 'font-size: 110%',
+                    html: html
+                });
+
+                Ext.get(obj.uuid).on({
+                    mouseover: function() {
+                        Ext.Function.createBuffered(tip.show, 1000, tip);
+                    }
+                })
+            }
+        };
+
+        if (table.colAxis && table.colAxis.uuidObjectMap) {
+            for (const key in table.colAxis.uuidObjectMap) {
+                if (table.colAxis.uuidObjectMap.hasOwnProperty(key)) {
+                    setMouseHandler(table.colAxis.uuidObjectMap[key]);
+                }
+            }
+        }
+
+        if (table.rowAxis && table.rowAxis.uuidObjectMap) {
+            for (const key in table.rowAxis.uuidObjectMap) {
+                if (table.rowAxis.uuidObjectMap.hasOwnProperty(key)) {
+                    setMouseHandler(table.rowAxis.uuidObjectMap[key]);
+                }
+            }
+        }
+    }
 };
