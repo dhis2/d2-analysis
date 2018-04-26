@@ -115,9 +115,13 @@ InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     layout = new t.api.Layout(t.refs, layoutConfig);
 
     if (layout) {
-        layout = favorite && fromFavorite ? 
-            favorite.apply(layout, Object.keys(layout)) : 
-            layout.apply(favorite);
+        if (favorite && fromFavorite) {
+            layout = favorite.apply(layout, Object.keys(layout))
+        }
+
+        if (favorite && !fromFavorite) {
+            layout = layout.apply(favorite);
+        }   
     }
 
     return layout;
