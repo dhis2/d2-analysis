@@ -19,7 +19,7 @@ MentionToolbar = function (refs) {
         cls: 'mentions',
         createMentionLabelsForUser : function(users, splitText, currentMention, component){
             return users
-                    .filter(user => user.userCredentials.username.includes(currentMention))
+                    .filter(user => (user.userCredentials.username.toLowerCase().includes(currentMention.toLowerCase()) || user.displayName.toLowerCase().includes(currentMention.toLowerCase())))
                     .map((user) => {
                         return {
                             xtype: 'label',
