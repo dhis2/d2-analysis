@@ -195,7 +195,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     };
 
     t.getRequestPath = function(s, f) {
-        return (_path || refs.appManager.getPath()) + (s || _source) + '.' + (f || _format);
+        return (_path || refs.appManager.getPath()) + (s || _source) + (f === null ? '' : '.' + (f || _format));
     };
 
     t.getRefs = function() {
@@ -976,8 +976,9 @@ Layout.prototype.data = function(source, format) {
 
     var uiManager = refs.uiManager;
 
-    var metaDataRequest = this.req(source, format);
-    var dataRequest = this.req(source, format, true);
+    // DHIS2-3508: pass "null" as format
+    var metaDataRequest = this.req(source, null);
+    var dataRequest = this.req(source, null, true);
 
     var errorFn = function(r) {
         // 409
