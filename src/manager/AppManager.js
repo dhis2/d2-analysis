@@ -99,6 +99,9 @@ AppManager = function(refs) {
     t.periodGenerator;
     t.viewUnapprovedData;
 
+    t.users = [];
+    t.mostMentionedUsers = [];
+
     t.rootNodes = [];
     t.organisationUnitLevels = [];
     t.dimensions = [];
@@ -232,11 +235,95 @@ AppManager.prototype.init = function(callbackFn) {
                 if (callbackFn) {
                     callbackFn();
                 }
+
+                usersReq();
+                
             }
         }).run();
     };
 
     manifestReq();
+
+    // users
+    const usersReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/users.json',
+            type: 'json',
+            params: [
+                'fields=displayName,userCredentials[username]',
+                'order=displayName:asc',
+                'paging=false'
+            ],
+            success: function (response) {
+                t.users = response.users;
+                mostMentionedUsersInterpretationReq();
+            }
+        }).run();
+    };
+
+    // most mentioned users in interpretation
+    const mostMentionedUsersInterpretationReq = () => {
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/interpretations.json',
+            type: 'json',
+            params: [
+                'fields=id,mentions',
+                'filter=user.id:eq:' + t.userAccount.id,
+                'filter=mentions:!null',
+                'paging=false'
+            ],
+            success: function (response) {
+                mostMentionedUsersInterpretationCommentReq(response)
+            }
+        }).run();
+    };
+
+    // most mentioned users in interpretation comment
+    const mostMentionedUsersInterpretationCommentReq = (previousResponse) => {
+
+        new t.refs.api.Request(t.refs, {
+            baseUrl: t.getApiPath() + '/interpretations.json',
+            type: 'json',
+            params: [
+                'fields=id,comments[mentions]',
+                'filter=comments.user.id:eq:' + t.userAccount.id,
+                'filter=comments.mentions.username:!null',
+                'paging=false'
+            ],
+            success: function (response) {
+                // Get users-mentions map
+                var usersByMentions = {}
+                previousResponse.interpretations.forEach( interpretation => 
+                    interpretation.mentions.forEach(mention => {
+                        usersByMentions[mention.username] = (usersByMentions[mention.username] || 0) + 1;
+
+                    })
+                );
+                response.interpretations.forEach( interpretation =>
+                    interpretation.comments.forEach (comment =>
+                        comment.mentions.forEach(mention => {
+                            usersByMentions[mention.username] = (usersByMentions[mention.username] || 0) + 1;
+                        }
+                    ))
+                );
+
+                // Sort users by mentions
+                var usernamesByMentions = Object.keys(usersByMentions).sort( function(a,b) {
+                    return usersByMentions[b] - usersByMentions[a];
+                });
+               
+                // Get real user object (No foreign key in jsonb object)
+                var usersByUsername = {};
+                t.users.forEach(user => usersByUsername[user.userCredentials.username] = user);
+                t.mostMentionedUsers = usernamesByMentions.map(username => usersByUsername[username]);
+
+                // Remove most mentioned users from users
+                t.users = t.users.filter( user => {
+                    return !t.mostMentionedUsers.includes(user);
+                });
+            }
+        }).run();
+    };
 };
 
 AppManager.prototype.logVersion = function() {

@@ -2,6 +2,7 @@ import {DateManager} from '../manager/DateManager.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {RenameWindow} from './RenameWindow.js';
+import {MentionToolbar } from './MentionToolbar.js';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var EastRegion;
@@ -325,6 +326,7 @@ EastRegion = function(c) {
                         emptyText: i18n.write_your_interpretation,
                         value : comment && comment.text,
                         submitEmptyText: false,
+                        mentionToolbar: MentionToolbar(c),
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
@@ -333,6 +335,12 @@ EastRegion = function(c) {
                                 if (e.getKey() == e.ENTER && !e.shiftKey) {
                                     commentInterpretation(f, comment);
                                 }
+                            },
+                            keyup: function(f, e) {
+                                this.mentionToolbar.displayMentionSuggestion(f, e);
+                            },
+                            destroy: function(f, e){
+                                this.mentionToolbar.hide();
                             }
                         }
                     }, {
