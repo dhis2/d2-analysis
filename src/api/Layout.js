@@ -357,13 +357,19 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     return isSorted ? names.sort() : names;
 };
 
-Layout.prototype.getDimensionNameIdsMap = function(response) {
+Layout.prototype.getDimensionNameIdsMap = function(response, filterFn) {
     var map = {};
 
     response = response || this.getResponse();
-
+console.log("filterFn", filterFn);
     this.getDimensions(true).forEach(function(dimension) {
-        map[dimension.dimension] = dimension.getRecordIds(false, response);
+        var ids = dimension.getRecordIds(false, response);
+
+        if (filterFn) {
+            ids = filterFn(ids);
+        }
+
+        map[dimension.dimension] = ids;
     });
 
     return map;

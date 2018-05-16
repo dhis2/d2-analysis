@@ -11,7 +11,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     const ignoreKeys = [
         'dy', 'longitude', 'latitude'
     ];
-    
+
     let spanType,
         aDimensions = [],
         nAxisWidth = 1,
@@ -21,7 +21,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         aFloorSpan = [],
         aCondoId = [],
         uuidObjectMap = {};
-    
+
     if (type === 'col') {
         aDimensions = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'colSpan';
@@ -29,20 +29,23 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     else if (type === 'row') {
         aDimensions = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         spanType = 'rowSpan';
-    }   
+    }
 
     if (!(isArray(aDimensions) && aDimensions.length)) {
         return;
     }
 
-    const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response),
-          tableSize = Object.keys(dimensionNameIdsMap).reduce((sum, id) => {
-              return sum * dimensionNameIdsMap[id].length;
-          }, 1);
+    const dimensionIdsFilterFn = ids => ids.filter(id => !id.includes('EMPTY_UID'));
+console.log("layout.hideNaData", layout.hideNaData);
+    const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response, layout.hideNaData ? dimensionIdsFilterFn : null);
+
+    const tableSize = Object.keys(dimensionNameIdsMap).reduce((sum, id) => {
+            return sum * dimensionNameIdsMap[id].length;
+        }, 1);
 
     const aaUniqueFloorIds = function() {
         let dims;
-            
+
         return aDimensions.map((dimension, index) => {
             if (dimension.sorted) dims = arrayPluck(dimension.items, 'id');
             else                  dims = dimensionNameIdsMap[dimension.dimension];
@@ -70,7 +73,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     });
 
     const aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
-        
+
         let siblingPosition = 0,
             oldestObj;
 
@@ -98,7 +101,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
             obj.oldestSibling = oldestObj;
             obj.siblingPosition = siblingPosition++;
-            
+
             if ((aaUniqueFloorIds.length - 1) > i) {
                 obj.children = aaUniqueFloorIds[i + 1].length;
             }
@@ -142,7 +145,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
             // get the uuid of the oldest sibling
             while (obj = obj.parent) {
-                parentUuids.push(!obj.root && obj.oldestSibling ? 
+                parentUuids.push(!obj.root && obj.oldestSibling ?
                     obj.oldestSibling.uuid : obj.uuid);
             }
 
