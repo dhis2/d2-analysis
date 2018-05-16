@@ -36,7 +36,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     }
 
     const dimensionIdsFilterFn = ids => ids.filter(id => !id.includes('EMPTY_UID'));
-console.log("layout.hideNaData", layout.hideNaData);
+
     const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response, layout.hideNaData ? dimensionIdsFilterFn : null);
 
     const tableSize = Object.keys(dimensionNameIdsMap).reduce((sum, id) => {

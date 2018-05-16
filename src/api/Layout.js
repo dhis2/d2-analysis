@@ -361,7 +361,7 @@ Layout.prototype.getDimensionNameIdsMap = function(response, filterFn) {
     var map = {};
 
     response = response || this.getResponse();
-console.log("filterFn", filterFn);
+
     this.getDimensions(true).forEach(function(dimension) {
         var ids = dimension.getRecordIds(false, response);
 
