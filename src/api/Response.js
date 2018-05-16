@@ -35,6 +35,8 @@ export const Response = function(refs, config) {
     const OUNAME = 'ouname',
           OU = 'ou';
 
+    const EMPTY_UID = 'EMPTY_UID';
+
     const DEFAULT_COLLECT_IGNORE_HEADERS = [
         'psi',
         'ps',
@@ -111,6 +113,9 @@ export const Response = function(refs, config) {
                 [items[id].code]: id,
             })).reduce((map, obj) => Object.assign(map, obj), {});
 
+            // add uid for empty values
+            mapByDimension[''] = t.getPrefixedId(EMPTY_UID, header.name);
+
             map[header.name] = mapByDimension;
         });
 
@@ -137,15 +142,26 @@ export const Response = function(refs, config) {
 
             // replace option code with option uid
             headersWithOptionSet.forEach(header => {
-                rows.forEach(row => {
-					var id = t.optionCodeIdMap[header.name][row[header.index]];
+                const headerEmptyUid = t.getPrefixedId(EMPTY_UID, header.name);
+                let hasEmptyValues = false;
 
-					if (id) {
-						row[header.index] = id;
+                rows.forEach(row => {
+					var optionId = t.optionCodeIdMap[header.name][row[header.index]];
+
+					if (optionId) {
+                        row[header.index] = optionId;
+
+                        // set whether header has empty values
+                        if (hasEmptyValues === false && optionId === headerEmptyUid) {
+                            hasEmptyValues = true;
+                        }
 					}
                 });
+
+                header.hasEmptyValues = hasEmptyValues;
             });
         }
+
         // map to ResponseRow
         return rows.map(row => ResponseRow(refs, row));
     }();
@@ -161,14 +177,24 @@ export const Response = function(refs, config) {
         t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
             var ids;
 
+            // if header has empty values, add to "dimensions" and "items"
+            if (header.hasEmptyValues) {
+                let itemEmptyUid = t.getPrefixedId(EMPTY_UID, header.name);
+
+                dimensions[header.name].push(itemEmptyUid);
+
+                items[itemEmptyUid] = {
+                    code: '',
+                    name: 'N/A',
+                };
+            }
+
             // collect row values
             if (header.isCollect) {
-                ids = t.getSortedUniqueRowIdStringsByHeader(header);
-                dimensions[header.name] = ids;
+                dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
             }
-            else {
-                ids = dimensions[header.name];
-            }
+
+            ids = dimensions[header.name];
 
             if (header.isPrefix) {
 
@@ -553,7 +579,7 @@ Response.prototype.getIdMap = function(layout, name) {
         responseRow.setIdCombination(idCombination);
         idMap[idCombination.get()] = responseRow.getAt(this.getHeaderByName(name).getIndex());
     });
-    
+
     return idMap;
 }
 
