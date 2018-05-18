@@ -446,6 +446,37 @@ Response.prototype.printResponseCSV = function() {
     alink.click();
 };
 
+Response.prototype.getSize = function(layout) {
+
+    let size = 1;
+
+    if (layout.columns) {
+        for (let i = 0, dim, dimName, dimSize; i < layout.columns.length; i++) {
+            dimName = layout.columns[i].dimension;
+            dim = this.metaData.dimensions[dimName]
+            if (dim) {
+                dimSize = dim.length;
+            }
+
+            size *= dimSize === 0 ? 1 : dimSize;
+        }
+    }
+
+    if (layout.rows) {
+        for (let i = 0, dim, dimName, dimSize; i < layout.rows.length; i++) {
+            dimName = layout.rows[i].dimension;
+            dim = this.metaData.dimensions[dimName]
+            if (dim) {
+                dimSize = dim.length;
+            }
+
+            size *= dimSize === 0 ? 1 : dimSize;
+        }
+    }
+
+    return size;
+}
+
 Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
