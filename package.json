@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
-    "d2-utilizr": "0.2.16",
+    "d2-utilizr": "^0.2.16",
     "jquery": "2.1.4"
   },
   "devDependencies": {
