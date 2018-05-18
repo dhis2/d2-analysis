@@ -27,7 +27,10 @@ export const Response = function(refs, config) {
 
     var i18n = i18nManager.get();
 
+    const EMPTY_UID = 'EMPTY_UID';
+
     var booleanMap = {
+        EMPTY_UID: 'N/A',
         '0': i18n.no || 'No',
         '1': i18n.yes || 'Yes'
     };
@@ -35,7 +38,6 @@ export const Response = function(refs, config) {
     const OUNAME = 'ouname',
           OU = 'ou';
 
-    const EMPTY_UID = 'EMPTY_UID';
 
     const DEFAULT_COLLECT_IGNORE_HEADERS = [
         'psi',
@@ -135,6 +137,7 @@ export const Response = function(refs, config) {
     // rows
     t.rows = function() {
         var headersWithOptionSet = t.headers.filter(header => header.optionSet);
+        var headersWithBoolean = t.headers.filter(header => header.valueType === 'BOOLEAN');
         var rows = config.rows;
 
         if (headersWithOptionSet.length) {
@@ -156,6 +159,25 @@ export const Response = function(refs, config) {
                             hasEmptyValues = true;
                         }
 					}
+                });
+
+                header.hasEmptyValues = hasEmptyValues;
+            });
+        }
+
+        if (headersWithBoolean.length) {
+            rows = rows.slice();
+
+            // replace empty value with empty uid
+            headersWithBoolean.forEach(header => {
+                let hasEmptyValues = false;
+
+                rows.forEach(row => {
+                    if (row[header.index] === '') {
+                        row[header.index] = EMPTY_UID;
+
+                        hasEmptyValues = true;
+                    }
                 });
 
                 header.hasEmptyValues = hasEmptyValues;
