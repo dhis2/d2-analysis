@@ -2856,7 +2856,8 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
         for (let j=this.getValueRowStartOffset(), rowIndex=this.getValueOffsetRow(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, rowIndex++) {      
 
             let cell = this.table[j][i];
-            if (cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.getRowIndexWithHidden(rowIndex)))) {
+
+            if (!cell || cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.getRowIndexWithHidden(rowIndex)))) {
                 continue;
             }
 
@@ -2906,7 +2907,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
 
             let cell = this.table[i][j];
 
-            if (cell.collapsed || (this.doHideEmptyColumns() && this.isColumnEmpty(this.getColumnIndexWithHidden(columnIndex)))) {
+            if (!cell || cell.collapsed || (this.doHideEmptyColumns() && this.isColumnEmpty(this.getColumnIndexWithHidden(columnIndex)))) {
                 continue;
             }
 
