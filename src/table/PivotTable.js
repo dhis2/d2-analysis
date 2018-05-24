@@ -2132,7 +2132,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     if (valueObject.value === null) {
         totalObject[rowIndex][columnIndex].empty++;
     }
-
+    
     totalObject[rowIndex][columnIndex].counter++;
 
     addMerge(totalObject[rowIndex][columnIndex], valueObject);
@@ -2171,6 +2171,14 @@ PivotTable.prototype.initializeLookups = function() {
 
     let tableRowSize = this.rowSize,
         tableColumnSize = this.columnSize;
+
+    if (this.doRowTotals()) {
+        tableColumnSize -= 1;
+    }
+
+    if (this.doColTotals()) {
+        tableRowSize -= 1;
+    }
 
     const totalMap = {};
 
@@ -2236,6 +2244,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
+
                 let total = this.getTrueTotal(
                     totalMap[rowIndex][columnIndex].numerator,
                     totalMap[rowIndex][columnIndex].denominator || 1,
@@ -2847,7 +2856,8 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
         for (let j=this.getValueRowStartOffset(), rowIndex=this.getValueOffsetRow(), rowSpanCounter=0, currentRowSpan = 0; j < this.table.length; j++, rowIndex++) {      
 
             let cell = this.table[j][i];
-            if (cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.getRowIndexWithHidden(rowIndex)))) {
+
+            if (!cell || cell.collapsed || (this.doHideEmptyRows() && this.isRowEmpty(this.getRowIndexWithHidden(rowIndex)))) {
                 continue;
             }
 
@@ -2897,7 +2907,7 @@ PivotTable.prototype.updateColumnAxisDimensionSpan = function() {
 
             let cell = this.table[i][j];
 
-            if (cell.collapsed || (this.doHideEmptyColumns() && this.isColumnEmpty(this.getColumnIndexWithHidden(columnIndex)))) {
+            if (!cell || cell.collapsed || (this.doHideEmptyColumns() && this.isColumnEmpty(this.getColumnIndexWithHidden(columnIndex)))) {
                 continue;
             }
 

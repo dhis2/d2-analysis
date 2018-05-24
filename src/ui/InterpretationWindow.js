@@ -1,4 +1,5 @@
-import { SharingWindow } from './SharingWindow';
+import { SharingWindow } from './SharingWindow';
+import { MentionToolbar } from './MentionToolbar.js';
 
 export var InterpretationWindow;
 
@@ -16,14 +17,16 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         height: 130,
         width: 407,
         fieldStyle: 'padding-left:3px; padding-top:3px',
-        emptyText: i18n.write_your_interpretation + '..',
+        emptyText: i18n.write_your_interpretation + '...',
         enableKeyEvents: true,
         value: interpretation ? interpretation.text : undefined,
+        mentionToolbar: MentionToolbar(c),
         listeners: {
-            keyup: function() {
+            keyup: function(f, e) {
                 shareButton.xable();
-            },
-        },
+                this.mentionToolbar.displayMentionSuggestion(f, e);
+            }
+        }
     });
 
     var sharingCmp = sharing ? new SharingWindow(c, sharing, true) : null;
@@ -115,8 +118,8 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         },
         listeners: {
             show: function(w) {
-                uiManager.setAnchorPosition(w, 'favoriteButton');
-
+                uiManager.setAnchorPosition(w, 'favoriteButton', {y: 130});
+                
                 uiManager.enableRightClick();
 
                 if (!w.hasDestroyOnBlurHandler) {

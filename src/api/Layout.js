@@ -198,7 +198,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     };
 
     t.getRequestPath = function(s, f) {
-        return (_path || refs.appManager.getPath()) + (s || _source) + '.' + (f || _format);
+        return (_path || refs.appManager.getPath()) + (s || _source) + (f === null ? '' : '.' + (f || _format));
     };
 
     t.getRefs = function() {
@@ -360,13 +360,19 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     return isSorted ? names.sort() : names;
 };
 
-Layout.prototype.getDimensionNameIdsMap = function(response) {
+Layout.prototype.getDimensionNameIdsMap = function(response, filterFn) {
     var map = {};
 
     response = response || this.getResponse();
 
     this.getDimensions(true).forEach(function(dimension) {
-        map[dimension.dimension] = dimension.getRecordIds(false, response);
+        var ids = dimension.getRecordIds(false, response);
+
+        if (filterFn) {
+            ids = filterFn(ids);
+        }
+
+        map[dimension.dimension] = ids;
     });
 
     return map;
@@ -979,8 +985,9 @@ Layout.prototype.data = function(source, format) {
 
     var uiManager = refs.uiManager;
 
-    var metaDataRequest = this.req(source, format);
-    var dataRequest = this.req(source, format, true);
+    // DHIS2-3508: pass "null" as format
+    var metaDataRequest = this.req(source, null);
+    var dataRequest = this.req(source, null, true);
 
     var errorFn = function(r) {
         // 409
