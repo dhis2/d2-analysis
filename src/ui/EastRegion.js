@@ -43,6 +43,46 @@ EastRegion = function(c) {
             (isBrackets ? ' <span class="bold">]</span>' : '');
     };
 
+    var toggleBoolean = function(parentId, newValue, fieldName, errorMessage, onSuccess) {
+        var url = [apiPath, instanceManager.apiEndpoint, parentId, fieldName].join("/");
+        var method = newValue ? "DELETE" : "POST";
+
+        Ext.Ajax.request({
+            url: encodeURI(url),
+            method: method,
+            success: function() {
+                onSuccess(!newValue);
+            },
+            failure: function(err) {
+                uiManager.alert(errorMessage);
+            }
+        });
+    };
+
+    var getFavoriteClass = function(layout) {
+        return layout.favorite ? "favorite-enabled" : "favorite-disabled";
+    };
+
+    var getFavoriteTitle = function(layout) {
+        return layout.favorite ? i18n.unfavorite_title : i18n.favorite_title;
+    };
+
+    var toggleFavorite = function(favoritableId, isFavorite, onSuccess) {
+        return toggleBoolean(favoritableId, isFavorite, "favorite", i18n.favorite_toggle_error, onSuccess);
+    };
+
+    var getSubscriberClass = function(layout) {
+        return layout.subscribed ? "subscriber-enabled" : "subscriber-disabled";
+    };
+
+    var getSubscriberTitle = function(layout) {
+        return layout.subscribed ? i18n.unsubscribe_title : i18n.subscribe_title;
+    };
+
+    var toggleSubscriber = function(subscribableId, isSubscribed, onSuccess) {
+        return toggleBoolean(subscribableId, isSubscribed, "subscriber", i18n.subscribe_toggle_error, onSuccess);
+    };
+
     /*
      * FAVORITE DETAILS PANEL
      */
@@ -177,8 +217,60 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 itemId: 'descriptionPanel',
                 bodyStyle: 'border-style:none;',
-                style: 'margin-bottom:5px;',
+                style: 'margin-bottom:5px; padding-right: 32px',
                 items: [getDescriptionPanel(layout.displayDescription)]
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 40px; border: none',
+                baseCls: "favorite",
+                iconCls: getFavoriteClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var favoriteToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getFavoriteTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    favoriteToolTip.update(getFavoriteTitle(layout));
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleFavorite(layout.id, layout.favorite, function(isFavorite) {
+                                layout.favorite = isFavorite;
+                                button.setIconCls(getFavoriteClass(layout));
+                            });
+                        }, button);
+                    }
+                },
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 10px; border: none',
+                baseCls: "subscriber",
+                iconCls: getSubscriberClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var subscriberToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getSubscriberTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    subscriberToolTip.update(getSubscriberTitle(layout));
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleSubscriber(layout.id, layout.subscribed, function(isSubcribed) {
+                                layout.subscribed = isSubcribed;
+                                button.setIconCls(getSubscriberClass(layout));
+                            });
+                        }, button);
+                    }
+                },
             }, {
                 xtype: 'displayfield',
                 fieldLabel: i18n.owner,
