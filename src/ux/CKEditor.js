@@ -29,6 +29,13 @@ CKEditor = function(refs) {
                     ],
                     language: appManager.getUiLocale(),
                     smiley_path: window.CKEDITOR_BASEPATH ? CKEDITOR_BASEPATH + "plugins/smiley/images/" : undefined,
+                    smiley_images: [
+                        'regular_smile.png',
+                        'sad_smile.png',
+                        'wink_smile.png',
+                        'thumbs_down.png',
+                        'thumbs_up.png'
+                    ],
                     plugins: 'confighelper,dialogui,dialog,basicstyles,button,toolbar,clipboard,enterkey,floatingspace,wysiwygarea,link,undo,smiley',
                     resize_enabled: false,
                 };
