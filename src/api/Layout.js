@@ -71,6 +71,12 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     // title
     t.title = arrayClean([c.displayShortName, c.title]).find(item => isString(item));
 
+    // favorite
+    t.favorite = isBoolean(c.favorite) ? c.favorite : false;
+
+    // subscribed
+    t.subscribed = isBoolean(c.subscribed) ? c.subscribed : false;
+
     // description
     if (isString(c.description)) {
         t.description = c.description;
@@ -150,6 +156,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.el = c.el;
     }
 
+    // translations
+    if (arrayFrom(c.translations).length) {
+        t.translations = c.translations;
+    }
+
     $.extend(t, forceApplyConfig);
 
     // setter/getter
@@ -190,7 +201,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     };
 
     t.getRequestPath = function(s, f) {
-        return (_path || refs.appManager.getPath()) + (s || _source) + '.' + (f || _format);
+        return (_path || refs.appManager.getPath()) + (s || _source) + (f === null ? '' : '.' + (f || _format));
     };
 
     t.getRefs = function() {
@@ -352,13 +363,19 @@ Layout.prototype.getDimensionNames = function(includeFilter, isSorted, axes) {
     return isSorted ? names.sort() : names;
 };
 
-Layout.prototype.getDimensionNameIdsMap = function(response) {
+Layout.prototype.getDimensionNameIdsMap = function(response, filterFn) {
     var map = {};
 
     response = response || this.getResponse();
 
     this.getDimensions(true).forEach(function(dimension) {
-        map[dimension.dimension] = dimension.getRecordIds(false, response);
+        var ids = dimension.getRecordIds(false, response);
+
+        if (filterFn) {
+            ids = filterFn(ids);
+        }
+
+        map[dimension.dimension] = ids;
     });
 
     return map;
@@ -886,16 +903,16 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     // display property
     request.add('displayProperty=' + displayProperty.toUpperCase());
 
+    // completed only
+    if (this.completedOnly) {
+        request.add('completedOnly=true');
+    }
+
     // normal request only
     if (!isTableLayout) {
         // hierarchy
         if (this.showHierarchy) {
             request.add('hierarchyMeta=true');
-        }
-
-        // completed only
-        if (this.completedOnly) {
-            request.add('completedOnly=true');
         }
 
         // aggregation type
@@ -971,8 +988,9 @@ Layout.prototype.data = function(source, format) {
 
     var uiManager = refs.uiManager;
 
-    var metaDataRequest = this.req(source, format);
-    var dataRequest = this.req(source, format, true);
+    // DHIS2-3508: pass "null" as format
+    var metaDataRequest = this.req(source, null);
+    var dataRequest = this.req(source, null, true);
 
     var errorFn = function(r) {
         // 409
