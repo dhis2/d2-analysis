@@ -21,9 +21,11 @@ CKEditor = function(refs) {
             this.on("afterrender", function() {
                 // By default, CKEditor inserts <img> emoticons with the full URL. Let's keep only
                 // the relative path so it will still work whenever the database is moved to another domain.
+                const defaultItems = ['Bold', 'Italic', 'Link', 'Smiley'];
+
                 const defaultOptions = {
                     toolbar: [
-                        {name: 'actions', items: ['Bold', 'Italic', 'Link', 'Smiley']},
+                        {name: 'actions', items: this.items || defaultItems},
                     ],
                     language: appManager.getUiLocale(),
                     smiley_path: window.CKEDITOR_BASEPATH ? CKEDITOR_BASEPATH + "plugins/smiley/images/" : undefined,

@@ -415,6 +415,7 @@ EastRegion = function(c) {
                         xtype: 'ckeditor',
                         height: 95,
                         CKEditorConfig: {height: 60},
+                        items: ['Link', 'Smiley'],
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
