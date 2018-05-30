@@ -567,9 +567,6 @@ EastRegion = function(c) {
                         columnWidth: 0.89
                     }]
                 });
-
-                // Box to edit the comment
-                commentsPanel.push(getWriteCommentBox(comment, false));
             }
 
             // Show more comments
@@ -697,17 +694,20 @@ EastRegion = function(c) {
         };
 
         var editComment = function(label, comment) {
-            var commentBox = label.up('#commentContent-' + comment.id);
-            var editableCommentBox = commentBox.next();
-            commentBox.hide();
-            editableCommentBox.show();
+            var id = 'commentContent-' + comment.id;
+            var commentPanel = label.up("#" + id);
+            var listPanel = commentPanel.up("panel");
+            var commentBox = getWriteCommentBox(comment, true);
+            commentPanel.hide();
+            var index = listPanel.items.keys.indexOf(id);
+            listPanel.insert(index, commentBox);
         };
 
         var cancelCommentEdit = function(label, comment) {
             var editableCommentBox = label.up('#commentPanel-' + comment.id);
-            var commentBox = editableCommentBox.prev();
-            editableCommentBox.hide();
+            var commentBox = editableCommentBox.up("panel").down('#commentContent-' + comment.id);
             commentBox.show();
+            editableCommentBox.destroy();
         };
 
         // Create tooltip for Like link
