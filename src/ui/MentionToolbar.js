@@ -8,6 +8,43 @@ MentionToolbar = function (refs) {
     
     var i18n = i18nManager.get();
 
+    var getCurrentWord = function(component) {
+        var text, startOffset;
+        if (component.editor) {
+            var range = component.editor.getSelection().getRanges()[0];
+            text = range ? range.startContainer.getText() : "";
+            startOffset = range.startOffset;
+        } else {
+            text = component.getValue();
+            startOffset = component.el.down("textarea").dom.selectionStart;
+        }
+        return text.slice(0, startOffset).split(" ").slice(-1)[0];
+    };
+
+    var updateContents = function(component, user) {
+        var getNewText = function(text, startOffset) {
+            var index = text.slice(0, startOffset).lastIndexOf("@");
+            var afterText = text.slice(index);
+            var restIndex = afterText.indexOf(" ");
+            var rest = restIndex >= 0 ? afterText.slice(restIndex) : "";
+            var newText = text.slice(0, index) + "@" + user.userCredentials.username + rest;
+            return newText;
+        };
+
+        if (component.editor) {
+            var range = component.editor.getSelection().getRanges()[0];
+            if (range) {
+                var container = range.startContainer.$;
+                container.textContent = getNewText(container.textContent, range.startOffset);
+            }
+        } else {
+            var text = component.getValue();
+            var startOffset = component.el.down("textarea").dom.selectionStart;
+            var newText = getNewText(text, startOffset);;
+            component.setValue(newText);
+        }
+    };
+
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
         layout: {
@@ -17,7 +54,7 @@ MentionToolbar = function (refs) {
         items: [],
         zIndex: 9999,
         cls: 'mentions',
-        createMentionLabelsForUser : function(users, splitText, currentMention, component){
+        createMentionLabelsForUser : function(users, currentMention, component){
             return users
                     .filter(user => (user.userCredentials.username.toLowerCase().includes(currentMention.toLowerCase()) || user.displayName.toLowerCase().includes(currentMention.toLowerCase())))
                     .map((user) => {
@@ -26,10 +63,8 @@ MentionToolbar = function (refs) {
                             html:  user.displayName + " (" + user.userCredentials.username + ")",
                             listeners: {
                                 'render': function(label) {
-                                    label.getEl().on('click', function() {
-                                        splitText.splice(-1,1);
-                                        var newText = splitText.join("@") + "@" + user.userCredentials.username;
-                                        component.setValue(newText);
+                                    label.getEl().parent().on('click', function() {
+                                        updateContents(component, user);
                                         this.hide();
                                     }, label);
                                 }
@@ -38,17 +73,17 @@ MentionToolbar = function (refs) {
                     });
         },
         displayMentionSuggestion : function(component, event) {
-            // Get text from 0 to cursor position
-            var text = component.getValue().substring(0,$(event.target).prop("selectionStart"));
-            // Split by @ and take last bit
-            var splitText = text.split('@');
-            var currentMention = splitText[splitText.length -1];
-            if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
+            var currentWord = getCurrentWord(component);
+            var currentMention = currentWord && currentWord.startsWith("@") ? currentWord.slice(1) : null;
+
+            if (currentMention && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
     
                 mentionsPanel.removeAll(true);
     
-                var potentialMostMentionedUsers= this.createMentionLabelsForUser(appManager.mostMentionedUsers, splitText, currentMention, component);
-                var potentialUsers = this.createMentionLabelsForUser(appManager.users, splitText, currentMention, component);
+                var potentialMostMentionedUsers =
+                    this.createMentionLabelsForUser(appManager.mostMentionedUsers, currentMention, component);
+                var potentialUsers =
+                    this.createMentionLabelsForUser(appManager.users, currentMention, component);
     
                 if (potentialMostMentionedUsers && potentialMostMentionedUsers.length > 0){
                     mentionsPanel.add({
@@ -70,8 +105,8 @@ MentionToolbar = function (refs) {
                     mentionsPanel.hide();
                 }
                 else{
-                    mentionsPanel.show().alignTo(event.target,'bl-tl');
-                }    
+                    mentionsPanel.show().alignTo(component.getEl(), 'bl-tl');
+                }
     
             }
             else{

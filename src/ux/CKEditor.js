@@ -1,3 +1,5 @@
+require('./ckeditor/plugins/confighelper/plugin');
+
 export var CKEditor;
 
 CKEditor = function(refs) {
@@ -25,7 +27,7 @@ CKEditor = function(refs) {
                     ],
                     language: appManager.getUiLocale(),
                     smiley_path: window.CKEDITOR_BASEPATH ? CKEDITOR_BASEPATH + "plugins/smiley/images/" : undefined,
-                    plugins: 'dialogui,dialog,basicstyles,button,toolbar,clipboard,enterkey,floatingspace,wysiwygarea,link,undo,smiley',
+                    plugins: 'confighelper,dialogui,dialog,basicstyles,button,toolbar,clipboard,enterkey,floatingspace,wysiwygarea,link,undo,smiley',
                     resize_enabled: false,
                 };
 
@@ -126,4 +128,4 @@ CKEditor = function(refs) {
             return this.editor ? this.editor.getData() : "";
         }
     });
-}
+};

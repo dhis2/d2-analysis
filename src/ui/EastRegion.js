@@ -425,11 +425,6 @@ EastRegion = function(c) {
                         border: 0,
                         enableKeyEvents: true,
                         listeners: {
-                            keypress: function(f, e) {
-                                if (e.getKey() == e.ENTER && !e.shiftKey) {
-                                    commentInterpretation(f, comment);
-                                }
-                            },
                             keyup: function(f, e) {
                                 this.mentionToolbar.displayMentionSuggestion(f, e);
                             },

@@ -25,6 +25,9 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             keyup: function(f, e) {
                 shareButton.xable();
                 this.mentionToolbar.displayMentionSuggestion(f, e);
+            },
+            destroy: function(f, e){
+                this.mentionToolbar.hide();
             }
         }
     });
@@ -93,7 +96,6 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
                     headers: { 'Content-Type': 'text/html' },
                     success: function(obj) {
                         sharing ? updateSharing(obj, text) : interpretationSuccess(text);
-                        textArea.reset();
                         window.destroy();
                     },
                 });
