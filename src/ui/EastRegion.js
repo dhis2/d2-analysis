@@ -116,7 +116,7 @@ EastRegion = function(c) {
                     xtype: 'label',
                     itemId: 'descriptionLabel',
                     html: isTooLongDescription ? shortDescription : description,
-                    cls: 'interpretationActions'
+                    cls: 'interpretationActions literal'
                 });
 
                 // Longer than [descriptionMaxNumberCharacter] characters -> Create More/Less link
@@ -412,22 +412,20 @@ EastRegion = function(c) {
                     layout: 'fit',
                     flex: 1,
                     items: [{
-                        xtype: 'textarea',
+                        xtype: 'ckeditor',
+                        height: 95,
+                        CKEditorConfig: {height: 60},
+                        items: ['Link', 'Smiley'],
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
-                        value : comment && comment.text,
+                        value: comment && comment.text,
                         submitEmptyText: false,
                         mentionToolbar: MentionToolbar(c),
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
                         listeners: {
-                            keypress: function(f, e) {
-                                if (e.getKey() == e.ENTER && !e.shiftKey) {
-                                    commentInterpretation(f, comment);
-                                }
-                            },
                             keyup: function(f, e) {
                                 this.mentionToolbar.displayMentionSuggestion(f, e);
                             },
@@ -523,7 +521,8 @@ EastRegion = function(c) {
                                 }
                             }, {
                                 xtype: 'label',
-                                text: comment.text,
+                                cls: 'literal',
+                                html: comment.text,
                             }]
                         }, {
                             xtype: 'label',
@@ -568,9 +567,6 @@ EastRegion = function(c) {
                         columnWidth: 0.89
                     }]
                 });
-
-                // Box to edit the comment
-                commentsPanel.push(getWriteCommentBox(comment, false));
             }
 
             // Show more comments
@@ -698,17 +694,20 @@ EastRegion = function(c) {
         };
 
         var editComment = function(label, comment) {
-            var commentBox = label.up('#commentContent-' + comment.id);
-            var editableCommentBox = commentBox.next();
-            commentBox.hide();
-            editableCommentBox.show();
+            var id = 'commentContent-' + comment.id;
+            var commentPanel = label.up("#" + id);
+            var listPanel = commentPanel.up("panel");
+            var commentBox = getWriteCommentBox(comment, true);
+            commentPanel.hide();
+            var index = listPanel.items.keys.indexOf(id);
+            listPanel.insert(index, commentBox);
         };
 
         var cancelCommentEdit = function(label, comment) {
             var editableCommentBox = label.up('#commentPanel-' + comment.id);
-            var commentBox = editableCommentBox.prev();
-            editableCommentBox.hide();
+            var commentBox = editableCommentBox.up("panel").down('#commentContent-' + comment.id);
             commentBox.show();
+            editableCommentBox.destroy();
         };
 
         // Create tooltip for Like link
@@ -749,9 +748,10 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 style: 'margin-bottom: 8px;',
+                cls: 'literal',
                 items: [{
                     xtype: 'label',
-                    text: interpretation.text,
+                    html: interpretation.text,
                 }]
             }, {
                 xtype: 'panel',
