@@ -15,6 +15,7 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
     var textArea = Ext.create('Ext.ux.CKEditor', {
         cls: 'ns-textarea',
         height: 130,
+        CKEditorConfig: {height: 95},
         width: 407,
         items: ['Link', 'Smiley'],
         fieldStyle: 'padding-left:3px; padding-top:3px',
