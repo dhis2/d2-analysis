@@ -13,7 +13,7 @@ MentionToolbar = function (refs) {
         if (component.editor) {
             var range = component.editor.getSelection().getRanges()[0];
             text = range ? range.startContainer.getText() : "";
-            startOffset = range.startOffset;
+            startOffset = range ? range.startOffset : 0;
         } else {
             text = component.getValue();
             startOffset = component.el.down("textarea").dom.selectionStart;
