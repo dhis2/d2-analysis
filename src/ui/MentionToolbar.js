@@ -76,8 +76,7 @@ MentionToolbar = function (refs) {
             var currentWord = getCurrentWord(component);
             var currentMention = currentWord && currentWord.startsWith("@") ? currentWord.slice(1) : null;
 
-            if (currentMention && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
-    
+            if (currentMention !== null && currentMention === currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
                 mentionsPanel.removeAll(true);
     
                 var potentialMostMentionedUsers =
