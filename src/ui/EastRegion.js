@@ -541,6 +541,7 @@ EastRegion = function(c) {
                         }, {
                             xtype: 'label',
                             text: '·',
+                            hidden: !userCanManageComment(comment),
                             style: 'margin-right: 5px;'
                         }, {
                             xtype: 'label',
@@ -559,6 +560,7 @@ EastRegion = function(c) {
                         }, {
                             xtype: 'label',
                             text: '·',
+                            hidden: !userCanManageComment(comment),
                             style: 'margin-right: 5px;'
                         }, {
                             xtype: 'label',
@@ -836,6 +838,7 @@ EastRegion = function(c) {
                     }, {
                         xtype: 'label',
                         text: '·',
+                        hidden: !userCanManageInterpretation(interpretation),
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
@@ -852,6 +855,7 @@ EastRegion = function(c) {
                     }, {
                         xtype: 'label',
                         text: '·',
+                        hidden: !userCanManageInterpretation(interpretation),
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
