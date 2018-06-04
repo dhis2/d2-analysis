@@ -12,13 +12,13 @@ MentionToolbar = function (refs) {
         var text, startOffset;
         if (component.editor) {
             var range = component.editor.getSelection().getRanges()[0];
-            text = range ? range.startContainer.getText() : "";
+            text = range && range.startContainer.type === CKEDITOR.NODE_TEXT ? range.startContainer.getText() : "";
             startOffset = range ? range.startOffset : 0;
         } else {
             text = component.getValue();
             startOffset = component.el.down("textarea").dom.selectionStart;
         }
-        return text.slice(0, startOffset).split(" ").slice(-1)[0];
+        return text.slice(0, startOffset).split(/\s+/).slice(-1)[0];
     };
 
     var updateContents = function(component, user) {
