@@ -476,9 +476,6 @@ EastRegion = function(c) {
 
             var commentsPanel = [];
 
-            // Textarea to comment
-            commentsPanel.push(getWriteCommentBox(null, true));
-
             // Comments
             // Sorting by last updated
             arraySort(comments, 'DESC', 'lastUpdated');
@@ -530,9 +527,26 @@ EastRegion = function(c) {
                             text: DateManager.getTimeDifference(comment.lastUpdated) + ' ' + i18n.ago
                         }, {
                             xtype: 'label',
+                            html: getLink(i18n.reply),
+                            style: 'margin-right: 5px; margin-left: 5px',
+                            listeners: {
+                                'render': (function(comment_) {
+                                    return function(label) {
+                                        label.getEl().on('click', function() {
+                                            openNewCommentBox(this, comment_.user);
+                                        }, this);
+                                    };
+                                })(comment)
+                            }
+                        }, {
+                            xtype: 'label',
+                            text: '·',
+                            style: 'margin-right: 5px;'
+                        }, {
+                            xtype: 'label',
                             html: getLink(i18n.edit),
                             hidden: !userCanManageComment(comment),
-                            style: 'margin-right: 5px; margin-left: 5px',
+                            style: 'margin-right: 5px;',
                             listeners: {
                                 'render': (function(comment_) {
                                     return function(label) {
@@ -592,6 +606,9 @@ EastRegion = function(c) {
                 });
             }
 
+            // Textarea to comment at the bottom
+            commentsPanel.push(getWriteCommentBox(null, false));
+
             return commentsPanel;
         };
 
@@ -610,7 +627,7 @@ EastRegion = function(c) {
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
                 url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
-                    '.json?fields=*,user[id,displayName],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
+                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {
@@ -691,6 +708,22 @@ EastRegion = function(c) {
                     refreshInterpretationDataModel(el.up('#interpretationPanel' + interpretation.id));
                 }
             });
+        };
+
+        var openNewCommentBox = function(label, user) {
+            var panel = label.up('#interpretationPanel' + interpretation.id)
+            var commentPanel = panel.down('#commentPanel-new');
+            commentPanel.show();
+            var comment = panel.down('#commentArea');
+            var currentUserId = appManager.userAccount.id;
+            var mentionUser =
+                (user && user.userCredentials && user.userCredentials.username && currentUserId !== user.id);
+            comment.focus();
+            if (mentionUser) {
+                var text = "@" + user.userCredentials.username + "&nbsp;";
+                comment.setValue(text);
+                comment.setCursorAtEnd();
+            }
         };
 
         var editComment = function(label, comment) {
@@ -791,13 +824,12 @@ EastRegion = function(c) {
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
-                        html: getLink(i18n.comment),
+                        html: getLink(i18n.reply),
                         style: 'margin-right: 5px;',
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', function() {
-                                    this.up('#interpretationPanel' + interpretation.id).down('#commentPanel-new').show();
-                                    this.up('#interpretationPanel' + interpretation.id).down('#commentArea').focus();
+                                    openNewCommentBox(this, interpretation.user);
                                 }, this);
                             }
                         }
