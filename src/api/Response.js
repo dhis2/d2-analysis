@@ -27,13 +27,17 @@ export const Response = function(refs, config) {
 
     var i18n = i18nManager.get();
 
+    const EMPTY_UID = 'EMPTY_UID';
+
     var booleanMap = {
+        EMPTY_UID: 'N/A',
         '0': i18n.no || 'No',
         '1': i18n.yes || 'Yes'
     };
 
     const OUNAME = 'ouname',
           OU = 'ou';
+
 
     const DEFAULT_COLLECT_IGNORE_HEADERS = [
         'psi',
@@ -111,6 +115,9 @@ export const Response = function(refs, config) {
                 [items[id].code]: id,
             })).reduce((map, obj) => Object.assign(map, obj), {});
 
+            // add uid for empty values
+            mapByDimension[''] = t.getPrefixedId(EMPTY_UID, header.name);
+
             map[header.name] = mapByDimension;
         });
 
@@ -130,6 +137,7 @@ export const Response = function(refs, config) {
     // rows
     t.rows = function() {
         var headersWithOptionSet = t.headers.filter(header => header.optionSet);
+        var headersWithBoolean = t.headers.filter(header => header.valueType === 'BOOLEAN');
         var rows = config.rows;
 
         if (headersWithOptionSet.length) {
@@ -137,15 +145,45 @@ export const Response = function(refs, config) {
 
             // replace option code with option uid
             headersWithOptionSet.forEach(header => {
-                rows.forEach(row => {
-					var id = t.optionCodeIdMap[header.name][row[header.index]];
+                const headerEmptyUid = t.getPrefixedId(EMPTY_UID, header.name);
+                let hasEmptyValues = false;
 
-					if (id) {
-						row[header.index] = id;
+                rows.forEach(row => {
+					var optionId = t.optionCodeIdMap[header.name][row[header.index]];
+
+					if (optionId) {
+                        row[header.index] = optionId;
+
+                        // set whether header has empty values
+                        if (hasEmptyValues === false && optionId === headerEmptyUid) {
+                            hasEmptyValues = true;
+                        }
 					}
                 });
+
+                header.hasEmptyValues = hasEmptyValues;
             });
         }
+
+        if (headersWithBoolean.length) {
+            rows = rows.slice();
+
+            // replace empty value with empty uid
+            headersWithBoolean.forEach(header => {
+                let hasEmptyValues = false;
+
+                rows.forEach(row => {
+                    if (row[header.index] === '') {
+                        row[header.index] = EMPTY_UID;
+
+                        hasEmptyValues = true;
+                    }
+                });
+
+                header.hasEmptyValues = hasEmptyValues;
+            });
+        }
+
         // map to ResponseRow
         return rows.map(row => ResponseRow(refs, row));
     }();
@@ -161,14 +199,24 @@ export const Response = function(refs, config) {
         t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
             var ids;
 
+            // if header has empty values, add to "dimensions" and "items"
+            if (header.hasEmptyValues) {
+                let itemEmptyUid = t.getPrefixedId(EMPTY_UID, header.name);
+
+                dimensions[header.name].push(itemEmptyUid);
+
+                items[itemEmptyUid] = {
+                    code: '',
+                    name: 'N/A',
+                };
+            }
+
             // collect row values
             if (header.isCollect) {
-                ids = t.getSortedUniqueRowIdStringsByHeader(header);
-                dimensions[header.name] = ids;
+                dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
             }
-            else {
-                ids = dimensions[header.name];
-            }
+
+            ids = dimensions[header.name];
 
             if (header.isPrefix) {
 
@@ -420,6 +468,37 @@ Response.prototype.printResponseCSV = function() {
     alink.click();
 };
 
+Response.prototype.getSize = function(layout) {
+
+    let size = 1;
+
+    if (layout.columns) {
+        for (let i = 0, dim, dimName, dimSize; i < layout.columns.length; i++) {
+            dimName = layout.columns[i].dimension;
+            dim = this.metaData.dimensions[dimName]
+            if (dim) {
+                dimSize = dim.length;
+            }
+
+            size *= dimSize === 0 ? 1 : dimSize;
+        }
+    }
+
+    if (layout.rows) {
+        for (let i = 0, dim, dimName, dimSize; i < layout.rows.length; i++) {
+            dimName = layout.rows[i].dimension;
+            dim = this.metaData.dimensions[dimName]
+            if (dim) {
+                dimSize = dim.length;
+            }
+
+            size *= dimSize === 0 ? 1 : dimSize;
+        }
+    }
+
+    return size;
+}
+
 Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
@@ -553,7 +632,7 @@ Response.prototype.getIdMap = function(layout, name) {
         responseRow.setIdCombination(idCombination);
         idMap[idCombination.get()] = responseRow.getAt(this.getHeaderByName(name).getIndex());
     });
-    
+
     return idMap;
 }
 

@@ -2,6 +2,7 @@ import {DateManager} from '../manager/DateManager.js';
 import {InterpretationWindow} from './InterpretationWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {RenameWindow} from './RenameWindow.js';
+import {MentionToolbar } from './MentionToolbar.js';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var EastRegion;
@@ -42,6 +43,46 @@ EastRegion = function(c) {
             (isBrackets ? ' <span class="bold">]</span>' : '');
     };
 
+    var toggleBoolean = function(parentId, newValue, fieldName, errorMessage, onSuccess) {
+        var url = [apiPath, instanceManager.apiEndpoint, parentId, fieldName].join("/");
+        var method = newValue ? "DELETE" : "POST";
+
+        Ext.Ajax.request({
+            url: encodeURI(url),
+            method: method,
+            success: function() {
+                onSuccess(!newValue);
+            },
+            failure: function(err) {
+                uiManager.alert(errorMessage);
+            }
+        });
+    };
+
+    var getFavoriteClass = function(layout) {
+        return layout.favorite ? "favorite-enabled" : "favorite-disabled";
+    };
+
+    var getFavoriteTitle = function(layout) {
+        return layout.favorite ? i18n.unfavorite_title : i18n.favorite_title;
+    };
+
+    var toggleFavorite = function(favoritableId, isFavorite, onSuccess) {
+        return toggleBoolean(favoritableId, isFavorite, "favorite", i18n.favorite_toggle_error, onSuccess);
+    };
+
+    var getSubscriberClass = function(layout) {
+        return layout.subscribed ? "subscriber-enabled" : "subscriber-disabled";
+    };
+
+    var getSubscriberTitle = function(layout) {
+        return layout.subscribed ? i18n.unsubscribe_title : i18n.subscribe_title;
+    };
+
+    var toggleSubscriber = function(subscribableId, isSubscribed, onSuccess) {
+        return toggleBoolean(subscribableId, isSubscribed, "subscriber", i18n.subscribe_toggle_error, onSuccess);
+    };
+
     /*
      * FAVORITE DETAILS PANEL
      */
@@ -75,7 +116,7 @@ EastRegion = function(c) {
                     xtype: 'label',
                     itemId: 'descriptionLabel',
                     html: isTooLongDescription ? shortDescription : description,
-                    cls: 'interpretationActions'
+                    cls: 'interpretationActions literal'
                 });
 
                 // Longer than [descriptionMaxNumberCharacter] characters -> Create More/Less link
@@ -176,8 +217,60 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 itemId: 'descriptionPanel',
                 bodyStyle: 'border-style:none;',
-                style: 'margin-bottom:5px;',
+                style: 'margin-bottom:5px; padding-right: 32px',
                 items: [getDescriptionPanel(layout.displayDescription)]
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 40px; border: none',
+                baseCls: "favorite",
+                iconCls: getFavoriteClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var favoriteToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getFavoriteTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    favoriteToolTip.update(getFavoriteTitle(layout));
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleFavorite(layout.id, layout.favorite, function(isFavorite) {
+                                layout.favorite = isFavorite;
+                                button.setIconCls(getFavoriteClass(layout));
+                            });
+                        }, button);
+                    }
+                },
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 10px; border: none',
+                baseCls: "subscriber",
+                iconCls: getSubscriberClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var subscriberToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getSubscriberTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    subscriberToolTip.update(getSubscriberTitle(layout));
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleSubscriber(layout.id, layout.subscribed, function(isSubcribed) {
+                                layout.subscribed = isSubcribed;
+                                button.setIconCls(getSubscriberClass(layout));
+                            });
+                        }, button);
+                    }
+                },
             }, {
                 xtype: 'displayfield',
                 fieldLabel: i18n.owner,
@@ -319,20 +412,25 @@ EastRegion = function(c) {
                     layout: 'fit',
                     flex: 1,
                     items: [{
-                        xtype: 'textarea',
+                        xtype: 'ckeditor',
+                        height: 95,
+                        CKEditorConfig: {height: 60},
+                        items: ['Link', 'Smiley'],
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
-                        value : comment && comment.text,
+                        value: comment && comment.text,
                         submitEmptyText: false,
+                        mentionToolbar: MentionToolbar(c),
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
                         listeners: {
-                            keypress: function(f, e) {
-                                if (e.getKey() == e.ENTER && !e.shiftKey) {
-                                    commentInterpretation(f, comment);
-                                }
+                            keyup: function(f, e) {
+                                this.mentionToolbar.displayMentionSuggestion(f, e);
+                            },
+                            destroy: function(f, e){
+                                this.mentionToolbar.hide();
                             }
                         }
                     }, {
@@ -423,7 +521,8 @@ EastRegion = function(c) {
                                 }
                             }, {
                                 xtype: 'label',
-                                text: comment.text,
+                                cls: 'literal',
+                                html: comment.text,
                             }]
                         }, {
                             xtype: 'label',
@@ -468,9 +567,6 @@ EastRegion = function(c) {
                         columnWidth: 0.89
                     }]
                 });
-
-                // Box to edit the comment
-                commentsPanel.push(getWriteCommentBox(comment, false));
             }
 
             // Show more comments
@@ -598,17 +694,20 @@ EastRegion = function(c) {
         };
 
         var editComment = function(label, comment) {
-            var commentBox = label.up('#commentContent-' + comment.id);
-            var editableCommentBox = commentBox.next();
-            commentBox.hide();
-            editableCommentBox.show();
+            var id = 'commentContent-' + comment.id;
+            var commentPanel = label.up("#" + id);
+            var listPanel = commentPanel.up("panel");
+            var commentBox = getWriteCommentBox(comment, true);
+            commentPanel.hide();
+            var index = listPanel.items.keys.indexOf(id);
+            listPanel.insert(index, commentBox);
         };
 
         var cancelCommentEdit = function(label, comment) {
             var editableCommentBox = label.up('#commentPanel-' + comment.id);
-            var commentBox = editableCommentBox.prev();
-            editableCommentBox.hide();
+            var commentBox = editableCommentBox.up("panel").down('#commentContent-' + comment.id);
             commentBox.show();
+            editableCommentBox.destroy();
         };
 
         // Create tooltip for Like link
@@ -649,9 +748,10 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 style: 'margin-bottom: 8px;',
+                cls: 'literal',
                 items: [{
                     xtype: 'label',
-                    text: interpretation.text,
+                    html: interpretation.text,
                 }]
             }, {
                 xtype: 'panel',
