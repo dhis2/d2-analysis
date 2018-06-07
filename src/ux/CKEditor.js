@@ -135,6 +135,15 @@ CKEditor = function(refs) {
 
         getValue: function() {
             return this.editor ? this.editor.getData() : "";
-        }
+        },
+
+        setCursorAtEnd: function() {
+            setTimeout(() => {
+                this.editor.focus();
+                var range = this.editor.createRange();
+                range.moveToElementEditEnd(range.root);
+                this.editor.getSelection().selectRanges([range]);
+            }, 100);
+        },
     });
 };

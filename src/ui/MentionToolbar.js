@@ -12,13 +12,13 @@ MentionToolbar = function (refs) {
         var text, startOffset;
         if (component.editor) {
             var range = component.editor.getSelection().getRanges()[0];
-            text = range ? range.startContainer.getText() : "";
+            text = range && range.startContainer.type === CKEDITOR.NODE_TEXT ? range.startContainer.getText() : "";
             startOffset = range ? range.startOffset : 0;
         } else {
             text = component.getValue();
             startOffset = component.el.down("textarea").dom.selectionStart;
         }
-        return text.slice(0, startOffset).split(" ").slice(-1)[0];
+        return text.slice(0, startOffset).split(/\s+/).slice(-1)[0];
     };
 
     var updateContents = function(component, user) {
@@ -76,8 +76,7 @@ MentionToolbar = function (refs) {
             var currentWord = getCurrentWord(component);
             var currentMention = currentWord && currentWord.startsWith("@") ? currentWord.slice(1) : null;
 
-            if (currentMention && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
-    
+            if (currentMention !== null && currentMention === currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
                 mentionsPanel.removeAll(true);
     
                 var potentialMostMentionedUsers =
