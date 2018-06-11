@@ -1644,7 +1644,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var period = Ext.create('Ext.panel.Panel', {
-        title: '<div class="ns-panel-title-period">Periods</div>',
+        title: '<div class="ns-panel-title-period">' + i18n.periods + '</div>',
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         dimension: dimensionConfig.get('period').objectName,
