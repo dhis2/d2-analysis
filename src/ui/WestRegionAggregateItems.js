@@ -2567,7 +2567,7 @@ WestRegionAggregateItems = function(c) {
     });
 
     var period = Ext.create('Ext.panel.Panel', {
-        title: '<div class="ns-panel-title-period">Periods</div>',
+        title: '<div class="ns-panel-title-period">' + i18n.periods + '</div>',
         hideCollapseTool: true,
         dimension: periodObjectName,
         checkboxes: periodCheckboxes,
