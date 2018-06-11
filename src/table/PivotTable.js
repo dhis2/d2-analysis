@@ -66,6 +66,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.cellHeight = 25;
     this.cellWidth = 120;
     this.renderOffset = 1;
+    this.valueCounter = 0;
 
     this.title = layout.title;
     this.digitGroupSeparator = layout.digitGroupSeparator;
@@ -450,6 +451,15 @@ PivotTable.prototype.doLegendDisplayStyleText = function() {
 
 // checkers
 /**
+ * Checks if pivot table consists of a single value.
+ * 
+ * @returns {boolean}
+ */
+PivotTable.prototype.isSingleValue = function() {
+    return this.valueCounter === 1;
+};
+
+/**
  * Checks if column located at given column index is a sub total column.
  * 
  * @param {number} columnIndex index of column to be checked
@@ -540,6 +550,48 @@ PivotTable.prototype.isTextField = function(type) {
 };
 
 // getters
+PivotTable.prototype.getSingleValue = function() {
+
+    if (this.valueLookup[0] && 
+        this.valueLookup[0][0] !== null &&
+        typeof this.valueLookup[0][0] !== 'undefined') {
+        return this.valueLookup[0][0];
+    }
+
+    return null;
+}
+
+PivotTable.prototype.getSubtitle = function() {
+    const rowAxis = this.rowAxis,
+          colAxis = this.colAxis;
+
+    let subtitle = '';
+
+    if (rowAxis) {
+        for (let i = 0; i < rowAxis.objects.all.length; i++) {
+            for (let j = 0; j < rowAxis.objects.all[i].length; j++) {
+                if (subtitle.length !== 0) {
+                    subtitle += ', ';
+                }
+                subtitle += rowAxis.objects.all[i][j].htmlValue;
+            }
+        }
+    }
+
+    if (colAxis) {
+        for (let i = 0; i < colAxis.objects.all.length; i++) {
+            for (let j = 0; j < colAxis.objects.all[i].length; j++) {
+                if (subtitle.length !== 0) {
+                    subtitle += ', ';
+                }
+                subtitle += colAxis.objects.all[i][j].htmlValue;
+            }
+        }
+    }
+
+    return subtitle;
+}
+
 PivotTable.prototype.getBaseCellStyling = function(cell) {
     if (this.doDynamicRendering()) {
         return `
@@ -2166,6 +2218,7 @@ PivotTable.prototype.rowAxisOffsetIncrement = function(rowIndex) {
 
 /**
  * Initializes lookup tables.
+ * TODO: ugly function
  */
 PivotTable.prototype.initializeLookups = function() {
 
@@ -2186,6 +2239,8 @@ PivotTable.prototype.initializeLookups = function() {
         for (let j=0, columnIndex=0; columnIndex < tableColumnSize; j++, columnIndex += this.columnAxisOffsetIncrement(columnIndex)) {
 
             let valueObject = this.getValueObject(i, j);
+
+            this.valueCounter += 1;
 
             if (valueObject) {
 
@@ -2697,6 +2752,38 @@ PivotTable.prototype.render = function() {
 
     return this.buildHtmlTable();
 };
+
+PivotTable.prototype.renderCard = function() {
+
+    let value = this.getSingleValue();
+
+    let card = `
+        <span style="display:block;font-size:8em;">
+            ${value ? value : 'Empty'}
+        </span>
+    `;
+
+    let title = `
+        <span style="display:block;fontcolor:#555;font-size:18px;">
+            ${this.title ? this.title : ''}
+        </span>
+    `;
+
+    let subtitle = `
+        <span style="display:block;fontcolor:#555;font-size:14px;">
+            ${this.getSubtitle()}
+        </span>
+    `;
+
+    return `
+        <div style="width=100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            ${card} <br />
+            ${title}
+            ${subtitle}
+        </div>
+    `;
+}
+
 
 /**
  * Updates the table given a new column start and row start.
