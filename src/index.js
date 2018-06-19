@@ -64,6 +64,7 @@ import { categoryOptionGroupSetsInit } from './init/categoryOptionGroupSetsInit.
 
 import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
+import * as dom from './util/dom.js';
 
 import { extOverrides } from './override/extOverrides.js';
 import { extChartOverrides } from './override/extChartOverrides.js';
@@ -229,6 +230,7 @@ export const init = {
 export const util = {
     SimpleRegression,
     Plugin,
+    dom,
 };
 
 export const override = {
