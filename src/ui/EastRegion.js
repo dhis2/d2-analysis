@@ -640,7 +640,7 @@ EastRegion = function(c) {
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
                 url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
-                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
+                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {
@@ -729,14 +729,16 @@ EastRegion = function(c) {
             commentPanel.show();
             var comment = commentPanel.down('#commentArea');
             var currentUserId = appManager.userAccount.id;
-            var userToMention =
+            var userIsMentioned =
                 (user && user.userCredentials && user.userCredentials.username && currentUserId !== user.id);
             comment.focus();
 
-            if (userToMention) {
+            if (userIsMentioned) {
                 var text = "@" + user.userCredentials.username + " ";
                 comment.setValue(text);
                 comment.setCursorAtEnd();
+            } else {
+                comment.setValue("");
             }
         };
 

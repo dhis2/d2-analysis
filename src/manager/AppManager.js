@@ -40,7 +40,7 @@ AppManager = function(refs) {
         'userGroupAccesses',
         'publicAccess',
         'displayDescription',
-        'user[displayName]',
+        'user[displayName,userCredentials[username]]',
         '!href',
         '!rewindRelativePeriods',
         '!userOrganisationUnit',
