@@ -116,7 +116,7 @@ EastRegion = function(c) {
                     xtype: 'label',
                     itemId: 'descriptionLabel',
                     html: isTooLongDescription ? shortDescription : description,
-                    cls: 'interpretationActions literal'
+                    cls: 'interpretationActions'
                 });
 
                 // Longer than [descriptionMaxNumberCharacter] characters -> Create More/Less link
@@ -412,20 +412,29 @@ EastRegion = function(c) {
                     layout: 'fit',
                     flex: 1,
                     items: [{
-                        xtype: 'ckeditor',
-                        height: 95,
-                        CKEditorConfig: {height: 60},
-                        items: ['Link', 'Smiley'],
+                        xtype: 'textarea',
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
-                        value: comment && comment.text,
+                        value : comment && comment.text,
                         submitEmptyText: false,
                         mentionToolbar: MentionToolbar(c),
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
+                        setCursorAtEnd: function() {
+                            var textarea = this.getEl().query("textarea")[0];
+
+                            if (textarea) {
+                                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                            }
+                        },
                         listeners: {
+                            keypress: function(f, e) {
+                                if (e.getKey() == e.ENTER && !e.shiftKey) {
+                                    commentInterpretation(f, comment);
+                                }
+                            },
                             keyup: function(f, e) {
                                 this.mentionToolbar.displayMentionSuggestion(f, e);
                             },
@@ -518,8 +527,7 @@ EastRegion = function(c) {
                                 }
                             }, {
                                 xtype: 'label',
-                                cls: 'literal',
-                                html: comment.text,
+                                text: comment.text,
                             }]
                         }, {
                             xtype: 'label',
@@ -583,6 +591,9 @@ EastRegion = function(c) {
                         columnWidth: 0.89
                     }]
                 });
+
+                // Box to edit the comment
+                commentsPanel.push(getWriteCommentBox(comment, false));
             }
 
             // Show more comments
@@ -629,7 +640,7 @@ EastRegion = function(c) {
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
                 url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
-                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName]]'),
+                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {
@@ -716,33 +727,33 @@ EastRegion = function(c) {
             var panel = label.up('#interpretationPanel' + interpretation.id)
             var commentPanel = panel.down('#commentPanel-new');
             commentPanel.show();
-            var comment = panel.down('#commentArea');
+            var comment = commentPanel.down('#commentArea');
             var currentUserId = appManager.userAccount.id;
-            var mentionUser =
+            var userIsMentioned =
                 (user && user.userCredentials && user.userCredentials.username && currentUserId !== user.id);
             comment.focus();
-            if (mentionUser) {
-                var text = "@" + user.userCredentials.username + "&nbsp;";
+
+            if (userIsMentioned) {
+                var text = "@" + user.userCredentials.username + " ";
                 comment.setValue(text);
                 comment.setCursorAtEnd();
+            } else {
+                comment.setValue("");
             }
         };
 
         var editComment = function(label, comment) {
-            var id = 'commentContent-' + comment.id;
-            var commentPanel = label.up("#" + id);
-            var listPanel = commentPanel.up("panel");
-            var commentBox = getWriteCommentBox(comment, true);
-            commentPanel.hide();
-            var index = listPanel.items.keys.indexOf(id);
-            listPanel.insert(index, commentBox);
+            var commentBox = label.up('#commentContent-' + comment.id);
+            var editableCommentBox = commentBox.next();
+            commentBox.hide();
+            editableCommentBox.show();
         };
 
         var cancelCommentEdit = function(label, comment) {
             var editableCommentBox = label.up('#commentPanel-' + comment.id);
-            var commentBox = editableCommentBox.up("panel").down('#commentContent-' + comment.id);
+            var commentBox = editableCommentBox.prev();
+            editableCommentBox.hide();
             commentBox.show();
-            editableCommentBox.destroy();
         };
 
         // Create tooltip for Like link
@@ -783,10 +794,9 @@ EastRegion = function(c) {
                 xtype: 'panel',
                 bodyStyle: 'border-style:none',
                 style: 'margin-bottom: 8px;',
-                cls: 'literal',
                 items: [{
                     xtype: 'label',
-                    html: interpretation.text,
+                    text: interpretation.text,
                 }]
             }, {
                 xtype: 'panel',
