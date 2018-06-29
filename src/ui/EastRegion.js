@@ -422,6 +422,13 @@ EastRegion = function(c) {
                         flex: 1,
                         border: 0,
                         enableKeyEvents: true,
+                        setCursorAtEnd: function() {
+                            var textarea = this.getEl().query("textarea")[0];
+
+                            if (textarea) {
+                                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                            }
+                        },
                         listeners: {
                             keypress: function(f, e) {
                                 if (e.getKey() == e.ENTER && !e.shiftKey) {
@@ -720,13 +727,14 @@ EastRegion = function(c) {
             var panel = label.up('#interpretationPanel' + interpretation.id)
             var commentPanel = panel.down('#commentPanel-new');
             commentPanel.show();
-            var comment = panel.down('#commentArea');
+            var comment = commentPanel.down('#commentArea');
             var currentUserId = appManager.userAccount.id;
-            var mentionUser =
+            var userToMention =
                 (user && user.userCredentials && user.userCredentials.username && currentUserId !== user.id);
             comment.focus();
-            if (mentionUser) {
-                var text = "@" + user.userCredentials.username + "&nbsp;";
+
+            if (userToMention) {
+                var text = "@" + user.userCredentials.username + " ";
                 comment.setValue(text);
                 comment.setCursorAtEnd();
             }
