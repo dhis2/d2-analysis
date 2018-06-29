@@ -12,12 +12,10 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         apiResource = instanceManager.apiResource,
         apiEndpoint = instanceManager.apiEndpoint;
 
-    var textArea = Ext.create('Ext.ux.CKEditor', {
+    var textArea = Ext.create('Ext.form.field.TextArea', {
         cls: 'ns-textarea',
         height: 130,
-        CKEditorConfig: {height: 95},
         width: 407,
-        items: ['Link', 'Smiley'],
         fieldStyle: 'padding-left:3px; padding-top:3px',
         emptyText: i18n.write_your_interpretation + '...',
         enableKeyEvents: true,
@@ -27,9 +25,6 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             keyup: function(f, e) {
                 shareButton.xable();
                 this.mentionToolbar.displayMentionSuggestion(f, e);
-            },
-            destroy: function(f, e){
-                this.mentionToolbar.hide();
             }
         }
     });
@@ -98,6 +93,7 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
                     headers: { 'Content-Type': 'text/html' },
                     success: function(obj) {
                         sharing ? updateSharing(obj, text) : interpretationSuccess(text);
+                        textArea.reset();
                         window.destroy();
                     },
                 });
