@@ -26,7 +26,7 @@ MentionToolbar = function (refs) {
                             html:  user.displayName + " (" + user.userCredentials.username + ")",
                             listeners: {
                                 'render': function(label) {
-                                    label.getEl().on('click', function() {
+                                    label.getEl().parent().on('click', function() {
                                         splitText.splice(-1,1);
                                         var newText = splitText.join("@") + "@" + user.userCredentials.username;
                                         component.setValue(newText);
