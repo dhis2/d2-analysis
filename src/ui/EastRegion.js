@@ -83,36 +83,6 @@ EastRegion = function(c) {
         return toggleBoolean(subscribableId, isSubscribed, "subscriber", i18n.subscribe_toggle_error, onSuccess);
     };
 
-    var getFavoriteButton = function(layout) {
-        return {
-            xtype: 'button',
-            style: 'position: absolute; top: 0px; right: 40px; border: none',
-            baseCls: "favorite",
-            iconCls: getFavoriteClass(layout),
-            listeners: {
-                'render': function(button) {
-                    var favoriteToolTip = Ext.create('Ext.tip.ToolTip', {
-                        target: button.getEl(),
-                        html: getFavoriteTitle(layout),
-                        bodyStyle: 'background-color: white;border',
-                        listeners: {
-                            beforeshow: function updateTipBody(tip) {
-                                favoriteToolTip.update(getFavoriteTitle(layout));
-                            }
-                        }
-                    });
-
-                    button.getEl().on('click', function() {
-                        toggleFavorite(layout.id, layout.favorite, function(isFavorite) {
-                            layout.favorite = isFavorite;
-                            button.setIconCls(getFavoriteClass(layout));
-                        });
-                    }, button);
-                }
-            },
-        };
-    };
-
     /*
      * FAVORITE DETAILS PANEL
      */
@@ -249,6 +219,32 @@ EastRegion = function(c) {
                 bodyStyle: 'border-style:none;',
                 style: 'margin-bottom:5px; padding-right: 32px',
                 items: [getDescriptionPanel(layout.displayDescription)]
+            }, {
+                xtype: 'button',
+                style: 'position: absolute; top: 0px; right: 40px; border: none',
+                baseCls: "favorite",
+                iconCls: getFavoriteClass(layout),
+                listeners: {
+                    'render': function(button) {
+                        var favoriteToolTip = Ext.create('Ext.tip.ToolTip', {
+                            target: button.getEl(),
+                            html: getFavoriteTitle(layout),
+                            bodyStyle: 'background-color: white;border',
+                            listeners: {
+                                beforeshow: function updateTipBody(tip) {
+                                    favoriteToolTip.update(getFavoriteTitle(layout));
+                                }
+                            }
+                        });
+
+                        button.getEl().on('click', function() {
+                            toggleFavorite(layout.id, layout.favorite, function(isFavorite) {
+                                layout.favorite = isFavorite;
+                                button.setIconCls(getFavoriteClass(layout));
+                            });
+                        }, button);
+                    }
+                },
             }, {
                 xtype: 'button',
                 style: 'position: absolute; top: 0px; right: 10px; border: none',
