@@ -491,7 +491,7 @@ EastRegion = function(c) {
 
             // Comments
             // Sorting by last updated
-            arraySort(comments, 'DESC', 'lastUpdated');
+            arraySort(comments, 'ASC', 'lastUpdated');
             for (var i = 0; i < comments.length; i++) {
                 var comment = comments[i];
                 commentsPanel.push({
