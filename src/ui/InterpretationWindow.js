@@ -1,9 +1,12 @@
 import { SharingWindow } from './SharingWindow';
 import { MentionToolbar } from './MentionToolbar.js';
+import { validateSharing } from '../util/permissions';
 
 export var InterpretationWindow;
 
-InterpretationWindow = function(c, sharing, interpretation, success) {
+InterpretationWindow = function(c, sharing, interpretation, success, options) {
+    var { renderText = true, renderSharing = true } = options || {};
+
     var appManager = c.appManager,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
@@ -29,7 +32,14 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         }
     });
 
-    var sharingCmp = sharing ? new SharingWindow(c, sharing, true) : null;
+    var getSharingWithModel = sharing => ({
+        ...sharing,
+        object: {...sharing.object, modelName: "interpretation", name: ""},
+    });
+
+    var sharingCmp = renderSharing && sharing
+        ? new SharingWindow(c, getSharingWithModel(sharing), true)
+        : null;
 
     var sharingCt = Ext.create('Ext.container.Container', {
         style: 'padding-top:10px; padding-bottom:25px',
@@ -53,10 +63,10 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
         }
     };
 
-    var updateSharing = function(obj, text) {
+    var updateSharing = function(response, text) {
         var interpretationId = interpretation
                 ? interpretation.id
-                : (obj.getResponseHeader('location') || '').split('/').pop(),
+                : (response.getResponseHeader('location') || '').split('/').pop(),
             sharingId = sharing.object.id,
             sharingBody = sharingCmp.getBody();
 
@@ -67,8 +77,18 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
                 'Content-Type': 'application/json',
             },
             params: Ext.encode(sharingBody),
+            success: function() {
+                // Reload favorite to update interpretation sharings in the global object
+                instanceManager.getById(null, function(layout, isFavorite) {
+                    instanceManager.getReport(layout, isFavorite, false, false, function() {
+                        uiManager.unmask();
+                    });
+                });
+            },
             callback: function() {
-                interpretationSuccess(text);
+                if (text) {
+                    interpretationSuccess(text);
+                }
             },
         });
     };
@@ -80,35 +100,51 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             this.setDisabled(!textArea.getValue());
         },
         handler: function() {
+            if (sharingCmp) {
+                var showSharingError = function() {
+                    var errorMessage = i18n.validation_error_interpretation_sharing;
+                    uiManager.alert(errorMessage);
+                };
+                var favorite = instanceManager.getStateFavorite();
+                var newSharing = sharingCmp.getBody().object;
+
+                if (!validateSharing("interpretation", favorite, newSharing, showSharingError)) {
+                    return;
+                }
+            }
+
             var text = textArea.getValue();
             var interpretationPath = interpretation
                 ? '/interpretations/' + interpretation.id
                 : '/interpretations/' + apiResource + '/' + instanceManager.getStateFavoriteId();
 
-            if (text) {
+            if (renderText) {
                 Ext.Ajax.request({
                     url: encodeURI(apiPath + interpretationPath),
                     method: method,
                     params: text,
                     headers: { 'Content-Type': 'text/html' },
-                    success: function(obj) {
-                        sharing ? updateSharing(obj, text) : interpretationSuccess(text);
+                    success: function(response) {
+                        sharing ? updateSharing(response, text) : interpretationSuccess(text);
                         textArea.reset();
                         window.destroy();
                     },
                 });
+            } else if (renderSharing && sharing) {
+                updateSharing();
+                window.destroy();
             }
         },
     });
 
     var window = Ext.create('Ext.window.Window', {
-        title: i18n.write_interpretation,
+        title: renderText ? i18n.write_interpretation : i18n.sharing_settings,
         layout: 'fit',
         bodyStyle: 'padding:4px; background-color:#fff',
         resizable: false,
         destroyOnBlur: true,
         modal: true,
-        items: [textArea, sharingCt],
+        items: [renderText && textArea, renderSharing && sharingCt].filter(item => item),
         bbar: {
             cls: 'ns-toolbar-bbar',
             defaults: {

@@ -152,6 +152,11 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.userGroupAccesses = c.userGroupAccesses;
     }
 
+    //user accesses
+    if (arrayFrom(c.userAccesses).length) {
+        t.userAccesses = c.userAccesses;
+    }
+
     if (c.el && isString(c.el)) {
         t.el = c.el;
     }
@@ -489,6 +494,7 @@ Layout.prototype.toPlugin = function(el) {
             'user',
             'publicAccess',
             'permission',
+            'userAccesses',
             'userGroupAccesses',
             'prototype',
             'url',
@@ -598,7 +604,7 @@ Layout.prototype.toPostSuper = function() {
     delete this.created;
     delete this.user;
     delete this.publicAccess;
-    delete this.permission, delete this.userGroupAccesses;
+    delete this.permission, delete this.userGroupAccesses, delete this.userAccesses;
     delete this.displayName;
 };
 

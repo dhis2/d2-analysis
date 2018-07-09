@@ -255,9 +255,9 @@ InstanceManager.prototype.getSharingById = function(id, fn, options) {
             fn && fn(r);
         },
         error: function(res) {
-            // If allowForbidden enabled, call the callback anyway, with an empty object
-            if (res.status == 403 && options.allowForbidden) {
-                success(null);
+            // If allowForbidden enabled, call the callback anyway, without response object
+            if (res.status === 403 && options.allowForbidden) {
+                fn && fn();
             } else {
                 t.uiManager.alert(res);
                 t.uiManager.unmask();
@@ -266,7 +266,7 @@ InstanceManager.prototype.getSharingById = function(id, fn, options) {
     });
 
     request.add({
-        type: t.apiResource,
+        type: options.apiResource || t.apiResource,
         id: id
     });
 

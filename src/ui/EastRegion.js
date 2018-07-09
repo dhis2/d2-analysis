@@ -22,11 +22,22 @@ EastRegion = function(c) {
 
     var descriptionMaxNumberCharacter = 500;
 
-    var openInterpretationWindow = function(id, interpretation, success) {
+    var openInterpretationWindow = function(id, interpretation, success, options) {
+        var { renderText = true, renderSharing = true } = options || {};
+        var favorite = instanceManager.getStateFavorite();
         var favoriteId = id || instanceManager.getStateFavoriteId();
-        instanceManager.getSharingById(favoriteId, function(r) {
-            InterpretationWindow(c, r, interpretation, success).show();
-        }, {allowForbidden: true});
+        var isNewInterpretation = !interpretation || !interpretation.id;
+
+        if (renderSharing) {
+            var [apiResource, sharingObjectId] = isNewInterpretation
+                ? [null, favoriteId]
+                : ["interpretation", interpretation.id];
+            instanceManager.getSharingById(sharingObjectId, function(sharing) {
+                InterpretationWindow(c, sharing, interpretation, success, options).show();
+            }, {apiResource, allowForbidden: true});
+        } else {
+            InterpretationWindow(c, null, interpretation, success, options).show();
+        }
     };
 
     var userCanManageInterpretation = function(interpretation) {
@@ -698,11 +709,11 @@ EastRegion = function(c) {
         };
 
         // Update an interpretation update data model and update/reload panel
-        var editInterpretation = function(el) {
+        var editInterpretation = function(el, options) {
             openInterpretationWindow(null, interpretation, function() {
                 var interpretationPanel = el.up('#interpretationPanel' + interpretation.id);
                 interpretationPanel.updateInterpretationPanelItems(interpretation);
-            });
+            }, options);
         };
 
         // Delete an interpretation and return to main interpretations panel
@@ -862,7 +873,24 @@ EastRegion = function(c) {
                         listeners: {
                             'render': function(label) {
                                 label.getEl().on('click', function() {
-                                    editInterpretation(this);
+                                    editInterpretation(this, { renderText: true, renderSharing: false });
+                                }, this);
+                            }
+                        }
+                    }, {
+                        xtype: 'label',
+                        text: '·',
+                        hidden: !userCanManageInterpretation(interpretation),
+                        style: 'margin-right: 5px;'
+                    }, {
+                        xtype: 'label',
+                        html: getLink(i18n.sharing),
+                        hidden: !userCanManageInterpretation(interpretation),
+                        style: 'margin-right: 5px;',
+                        listeners: {
+                            'render': function(label) {
+                                label.getEl().on('click', function() {
+                                    editInterpretation(this, { renderText: false, renderSharing: true });
                                 }, this);
                             }
                         }
