@@ -113,7 +113,7 @@ SharingWindow = function(c, sharing, configOnly) {
                                 const currentObject = getBody().object;
                                 const accessToRemove = cmp.up('panel').getAccess();
                                 const field = cmp.up('#' + userGroupRowContainer.id) ? "userGroupAccesses" : "userAccesses"
-                                const currentAccesses = currentObject[field];
+                                const currentAccesses = currentObject[field] || [];
                                 const newAccesses = currentAccesses.filter(access => access.id !== accessToRemove.id);
 
                                 if (validateAccessField(field, currentAccesses, newAccesses)) {
@@ -265,16 +265,18 @@ SharingWindow = function(c, sharing, configOnly) {
                     };
 
                     if (record.data.isGroup) {
+                        const userGroupAccesses = currentObject.userGroupAccesses || [];
                         if (validateAccessField("userGroupAccesses",
-                                currentObject.userGroupAccesses,
-                                currentObject.userGroupAccesses.concat([newAccess]))) {
+                                userGroupAccesses,
+                                userGroupAccesses.concat([newAccess]))) {
                             userGroupRowContainer.add(SharingAccessRow(newAccess));
                         }
                     }
                     else {
+                        const userAccesses = currentObject.userAccesses || [];
                         if (validateAccessField("userAccesses",
-                                currentObject.userAccesses,
-                                currentObject.userAccesses.concat([newAccess]))) {
+                                userAccesses,
+                                userAccesses.concat([newAccess]))) {
                             userRowContainer.add(SharingAccessRow(newAccess));
                         }
                     }
