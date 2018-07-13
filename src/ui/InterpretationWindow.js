@@ -25,6 +25,9 @@ InterpretationWindow = function(c, sharing, interpretation, success) {
             keyup: function(f, e) {
                 shareButton.xable();
                 this.mentionToolbar.displayMentionSuggestion(f, e);
+            },
+            destroy: function(f, e) {
+                this.mentionToolbar.destroy();
             }
         }
     });
