@@ -107,11 +107,16 @@ WestRegionTrackerItems = function(refs) {
         onLoadData: function() {
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
             var numericValueTypes = dimensionConfig.valueType['numeric_types'];
+            var dateValueTypes = dimensionConfig.valueType['date_types'];
 
-            // add to layout value store
+            // add to layout value and timeField stores
             this.each(function(record) {
                 if (arrayContains(numericValueTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
+                }
+
+                if (arrayContains(dateValueTypes, record.data.valueType)) {
+                    layoutWindow.timeFieldStore.add(record.data);
                 }
             });
 
@@ -242,6 +247,7 @@ WestRegionTrackerItems = function(refs) {
         dataElementsByStageStore.removeAll();
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
+        uiManager.get('aggregateLayoutWindow').timeField.resetData();
 
         var getCategories = function(categoryCombo) {
             if (
@@ -405,6 +411,7 @@ WestRegionTrackerItems = function(refs) {
         if (!layout) {
             dataElementSelected.removeAllDataElements(true);
             uiManager.get('aggregateLayoutWindow').value.resetData();
+            uiManager.get('aggregateLayoutWindow').timeField.resetData();
         }
 
         dataElementType.enable();
@@ -825,7 +832,10 @@ WestRegionTrackerItems = function(refs) {
                     dataElementsByStageStore.sort();
                 }
 
-                aggWindow.removeDimension(element.id, aggWindow.valueStore);
+                aggWindow.removeDimension(element.id, [
+                    aggWindow.valueStore,
+                    aggWindow.timeFieldStore,
+                ]);
 
                 if (queryWindow) {
                     queryWindow.removeDimension(element.id);

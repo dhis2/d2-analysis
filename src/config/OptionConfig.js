@@ -23,6 +23,7 @@ OptionConfig = function() {
     var legendDisplayStrategy;
     var programStatus;
     var eventStatus;
+    var timeField;
 
     // setter
     var setDisplayDensity = function() {
@@ -322,6 +323,36 @@ OptionConfig = function() {
         };
     };
 
+    var setTimeField = function() {
+        timeField = {
+            eventdate: {
+                index: 1,
+                id: 'EVENT_DATE',
+                name: i18nManager.get('event_date') || 'Event date',
+            },
+            enrollmentdate: {
+                index: 2,
+                id: 'ENROLLMENT_DATE',
+                name: i18nManager.get('enrollment_date') || 'Enrollment date',
+            },
+            incidentdate: {
+                index: 3,
+                id: 'INCIDENT_DATE',
+                name: i18nManager.get('incident_date') || 'Incident date',
+            },
+            duedate: {
+                index: 4,
+                id: 'DUE_DATE',
+                name: i18nManager.get('due_date') || 'Due date',
+            },
+            completeddate: {
+                index: 5,
+                id: 'COMPLETED_DATE',
+                name: i18nManager.get('completed_date') || 'Completed date',
+            },
+        };
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -351,6 +382,7 @@ OptionConfig = function() {
         setLegendDisplayStrategy();
         setProgramStatus();
         setEventStatus();
+        setTimeField();
     };
 
     // prototype
@@ -402,6 +434,10 @@ OptionConfig = function() {
         return key ? eventStatus[key] : eventStatus;
     };
 
+    t.getTimeField = function(key) {
+        return key ? timeField[key] : timeField;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -444,6 +480,10 @@ OptionConfig = function() {
 
     t.getEventStatusRecords = function() {
         return getRecords(eventStatus);
+    };
+
+    t.getTimeFieldRecords = function() {
+        return getRecords(timeField);
     };
 
     t.getDigitGroupSeparatorIdMap = function() {
