@@ -636,6 +636,39 @@ Response.prototype.getIdMap = function(layout, name) {
     return idMap;
 }
 
+Response.prototype.getAllIdMap = function(layout) {
+
+    const refs = this.getRefs(),
+          { ResponseRowIdCombination } = refs.api,
+          headerIndexOrder = arrayClean(this.getHeaderIndexOrder(layout.getDimensionNames())),
+          idMap = {};
+
+    this.rows.forEach(responseRow => {
+        let idCombination = new ResponseRowIdCombination(refs),
+            key,
+            rowValue,
+            header;
+
+        headerIndexOrder.forEach(index => {
+            header = this.getHeaderByIndex(index);
+            rowValue = responseRow.getAt(index);
+            key = header.isPrefix ? this.getPrefixedId(rowValue, header.name) : rowValue;
+
+            idCombination.add(key);
+        });
+
+        responseRow.setIdCombination(idCombination);
+        idMap[idCombination.get()] = {
+            'value': responseRow.getAt(this.getHeaderByName('value').getIndex()),
+            'denominator': responseRow.getAt(this.getHeaderByName('denominator').getIndex()),
+            'numerator': responseRow.getAt(this.getHeaderByName('numerator').getIndex()),
+            'factor': responseRow.getAt(this.getHeaderByName('factor').getIndex()),
+        };
+    });
+
+    return idMap;
+}
+
 // dep 4
 Response.prototype.getValue = function(param, layout) {
     const {refs: { api: ResponseRowIdCombination } } = this.getRefs(),

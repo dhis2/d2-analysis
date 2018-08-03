@@ -2,7 +2,6 @@ import isArray from 'd2-utilizr/lib/isArray';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
-import arrayUnique from 'd2-utilizr/lib/arrayUnique';
 import arrayRepeat from 'd2-utilizr/lib/arrayRepeat';
 import uuid from 'd2-utilizr/lib/uuid';
 
@@ -38,10 +37,6 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     const dimensionIdsFilterFn = ids => ids.filter(id => !id.includes('EMPTY_UID'));
 
     const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response, layout.hideNaData ? dimensionIdsFilterFn : null);
-
-    const tableSize = Object.keys(dimensionNameIdsMap).reduce((sum, id) => {
-            return sum * dimensionNameIdsMap[id].length;
-        }, 1);
 
     const aaUniqueFloorIds = function() {
         let dims;
@@ -115,8 +110,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         for (let i = 1, aAllFloor; i < nAxisHeight; i++) {
             aAllFloor = aaAllFloorObjects[i];
 
-            //for (let j = 0, obj, doorCount = 0, span = aFloorSpan[i - 1], parentObj = aaAllFloorObjects[i - 1][0]; j < aAllFloor.length; j++) {
-            for (let j = 0, doorCount = 0, span = aFloorSpan[i - 1]; j < aAllFloor.length; j++) {
+            for (let j = 0; j < aAllFloor.length; j++) {
                 aAllFloor[j].parent = aaAllFloorObjects[i - 1][j];
             }
         }
@@ -182,3 +176,6 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         uuidObjectMap: uuidObjectMap
     };
 };
+
+
+PivotTableAxis.prototype

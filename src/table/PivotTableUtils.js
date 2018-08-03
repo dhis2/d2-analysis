@@ -130,3 +130,13 @@ export const defaultProxyGenerator = defaultReturnValue => {
         { get: (target, name) => name in target ? target[name] : defaultReturnValue }
     );
 };
+
+export const assert = (condition, message) => {
+    if (!condition) {
+        message = message || "Assertion failed";
+        if (typeof Error !== "undefined") {
+            throw new Error(message);
+        }
+        throw message; // Fallback
+    }
+}
