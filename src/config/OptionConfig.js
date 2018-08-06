@@ -23,304 +23,339 @@ OptionConfig = function() {
     var legendDisplayStrategy;
     var programStatus;
     var eventStatus;
+    var timeField;
 
     // setter
-    var setDisplayDensity = function() {
+    var setDisplayDensity = function() {
         displayDensity = {
-            'comfortable': {
+            comfortable: {
                 index: 1,
                 id: 'COMFORTABLE',
-                name: i18nManager.get('comfortable') || 'Comfortable'
+                name: i18nManager.get('comfortable') || 'Comfortable',
             },
-            'normal': {
+            normal: {
                 index: 2,
                 id: 'NORMAL',
-                name: i18nManager.get('normal') || 'Normal'
+                name: i18nManager.get('normal') || 'Normal',
             },
-            'compact': {
+            compact: {
                 index: 3,
                 id: 'COMPACT',
-                name: i18nManager.get('compact') || 'Compact'
-            }
+                name: i18nManager.get('compact') || 'Compact',
+            },
         };
     };
 
-    var setFontSize = function() {
+    var setFontSize = function() {
         fontSize = {
-            'large': {
+            large: {
                 index: 1,
                 id: 'LARGE',
-                name: i18nManager.get('large') || 'Large'
+                name: i18nManager.get('large') || 'Large',
             },
-            'normal': {
+            normal: {
                 index: 2,
                 id: 'NORMAL',
-                name: i18nManager.get('normal') || 'Normal'
+                name: i18nManager.get('normal') || 'Normal',
             },
-            'small': {
+            small: {
                 index: 3,
                 id: 'SMALL',
-                name: i18nManager.get('small') || 'Small'
-            }
+                name: i18nManager.get('small') || 'Small',
+            },
         };
     };
 
-    var setDigitGroupSeparator = function() {
+    var setDigitGroupSeparator = function() {
         digitGroupSeparator = {
-            'none': {
+            none: {
                 index: 1,
                 id: 'NONE',
                 name: i18nManager.get('none') || 'None',
-                value: ''
+                value: '',
             },
-            'space': {
+            space: {
                 index: 2,
                 id: 'SPACE',
                 name: i18nManager.get('space') || 'Space',
-                value: '&nbsp;'
+                value: '&nbsp;',
             },
-            'comma': {
+            comma: {
                 index: 3,
                 id: 'COMMA',
                 name: i18nManager.get('comma') || 'Comma',
-                value: ','
-            }
+                value: ',',
+            },
         };
     };
 
-    var setAggregationType = function() {
+    var setAggregationType = function() {
         aggregationType = {
-            'def': {
+            def: {
                 index: 1,
                 id: 'DEFAULT',
-                name: i18nManager.get('by_data_element') || 'By data element'
+                name: i18nManager.get('by_data_element') || 'By data element',
             },
-            'count': {
+            count: {
                 index: 2,
                 id: 'COUNT',
-                name: i18nManager.get('count') || 'Count'
+                name: i18nManager.get('count') || 'Count',
             },
-            'avg': {
+            avg: {
                 index: 3,
                 id: 'AVERAGE',
-                name: i18nManager.get('average') || 'Average'
+                name: i18nManager.get('average') || 'Average',
             },
             'avg-sum-org-unit': {
                 index: 3,
                 id: 'AVERAGE_SUM_ORG_UNIT',
-                name: i18nManager.get('average_sum_org_unit') || 'Average (sum in org unit hierarchy)'
+                name:
+                    i18nManager.get('average_sum_org_unit') ||
+                    'Average (sum in org unit hierarchy)',
             },
-            'sum': {
+            sum: {
                 index: 3,
                 id: 'SUM',
-                name: i18nManager.get('sum') || 'Sum'
+                name: i18nManager.get('sum') || 'Sum',
             },
-            'stddev': {
+            stddev: {
                 index: 4,
                 id: 'STDDEV',
-                name: i18nManager.get('stddev') || 'Standard deviation'
+                name: i18nManager.get('stddev') || 'Standard deviation',
             },
-            'variance': {
+            variance: {
                 index: 5,
                 id: 'VARIANCE',
-                name: i18nManager.get('variance') || 'Variance'
+                name: i18nManager.get('variance') || 'Variance',
             },
-            'min': {
+            min: {
                 index: 6,
                 id: 'MIN',
-                name: i18nManager.get('min') || 'Min'
+                name: i18nManager.get('min') || 'Min',
             },
-            'max': {
+            max: {
                 index: 7,
                 id: 'MAX',
-                name: i18nManager.get('max') || 'Max'
+                name: i18nManager.get('max') || 'Max',
             },
-            'last': {
+            last: {
                 index: 8,
                 id: 'LAST',
-                name: i18nManager.get('last') || 'Last value'
+                name: i18nManager.get('last') || 'Last value',
             },
             'last-average-org-unit': {
                 index: 9,
                 id: 'LAST_AVERAGE_ORG_UNIT',
-                name: i18nManager.get('last_average_org_unit') || 'Last value (average in org unit hierarchy)'
+                name:
+                    i18nManager.get('last_average_org_unit') ||
+                    'Last value (average in org unit hierarchy)',
             },
         };
     };
 
     var setNumberType = function() {
         numberType = {
-            'value': {
+            value: {
                 index: 1,
                 id: 'VALUE',
-                name: i18nManager.get('value') || 'Value'
+                name: i18nManager.get('value') || 'Value',
             },
-            'percentofrow': {
+            percentofrow: {
                 index: 2,
                 id: 'ROW_PERCENTAGE',
-                name: i18nManager.get('percent_of_row') || 'Percentage of row'
+                name: i18nManager.get('percent_of_row') || 'Percentage of row',
             },
-            'percentofcolumn': {
+            percentofcolumn: {
                 index: 3,
                 id: 'COLUMN_PERCENTAGE',
-                name: i18nManager.get('percent_of_column') || 'Percentage of column'
+                name: i18nManager.get('percent_of_column') || 'Percentage of column',
             },
         };
-    }
+    };
 
-    var setOutputType = function() {
+    var setOutputType = function() {
         outputType = {
-            'event': {
+            event: {
                 index: 1,
                 id: 'EVENT',
-                name: i18nManager.get('event') || 'Event'
+                name: i18nManager.get('event') || 'Event',
             },
-            'enrollment': {
+            enrollment: {
                 index: 2,
                 id: 'ENROLLMENT',
-                name: i18nManager.get('enrollment') || 'Enrollment'
+                name: i18nManager.get('enrollment') || 'Enrollment',
             },
-            'trackedentityinstance': {
+            trackedentityinstance: {
                 index: 3,
                 id: 'TRACKED_ENTITY_INSTANCE',
-                name: i18nManager.get('tracked_entity_instance') || 'Tracked entity instance'
-            }
+                name: i18nManager.get('tracked_entity_instance') || 'Tracked entity instance',
+            },
         };
     };
 
-    var setDataApprovalLevel = function() {
+    var setDataApprovalLevel = function() {
         dataApprovalLevel = {
-            'def': {
+            def: {
                 index: 1,
                 id: 'DEFAULT',
-                name: i18nManager.get('show_all_data') || 'Show all data'
-            }
+                name: i18nManager.get('show_all_data') || 'Show all data',
+            },
         };
     };
 
-    var setDataSetMetric = function() {
+    var setDataSetMetric = function() {
         dataSetMetric = {
-            'reportingRates': {
+            reportingRates: {
                 index: 1,
                 id: 'REPORTING_RATE',
-                name: i18nManager.get('reporting_rates') || 'Reporting rates'
+                name: i18nManager.get('reporting_rates') || 'Reporting rates',
             },
-            'reportingRatesOnTime': {
+            reportingRatesOnTime: {
                 index: 2,
                 id: 'REPORTING_RATE_ON_TIME',
-                name: i18nManager.get('reporting_rates_on_time') || 'Reporting rates on time'
+                name: i18nManager.get('reporting_rates_on_time') || 'Reporting rates on time',
             },
-            'actualReports': {
+            actualReports: {
                 index: 3,
                 id: 'ACTUAL_REPORTS',
-                name: i18nManager.get('actual_reports') || 'Actual reports'
+                name: i18nManager.get('actual_reports') || 'Actual reports',
             },
-            'actualReportsOnTime': {
+            actualReportsOnTime: {
                 index: 4,
                 id: 'ACTUAL_REPORTS_ON_TIME',
-                name: i18nManager.get('actual_reports_on_time') || 'Actual reports on time'
+                name: i18nManager.get('actual_reports_on_time') || 'Actual reports on time',
             },
-            'expectedReports': {
+            expectedReports: {
                 index: 5,
                 id: 'EXPECTED_REPORTS',
-                name: i18nManager.get('expected_reports') || 'Expected reports'
-            }
+                name: i18nManager.get('expected_reports') || 'Expected reports',
+            },
         };
     };
 
     var setLegendDisplayStyle = function() {
         legendDisplayStyle = {
-            'fill': {
+            fill: {
                 index: 2,
                 id: 'FILL',
-                name: i18nManager.get('background_color') || 'Background color'
+                name: i18nManager.get('background_color') || 'Background color',
             },
-            'text': {
+            text: {
                 index: 3,
                 id: 'TEXT',
-                name: i18nManager.get('text_color') || 'Text color'
-            }
+                name: i18nManager.get('text_color') || 'Text color',
+            },
         };
     };
 
     var setLegendDisplayStrategy = function() {
         legendDisplayStrategy = {
-            'fixed': {
+            fixed: {
                 index: 1,
                 id: 'FIXED',
-                name: i18nManager.get('all_data_items') || 'All'
+                name: i18nManager.get('all_data_items') || 'All',
             },
-            'by_data_item': {
+            by_data_item: {
                 index: 2,
                 id: 'BY_DATA_ITEM',
-                name: i18nManager.get('by_data_item') || 'By data item'
-            }
+                name: i18nManager.get('by_data_item') || 'By data item',
+            },
         };
     };
 
     var setProgramStatus = function() {
         programStatus = {
-            'def': {
+            def: {
                 index: 1,
                 id: 'DEFAULT',
-                name: i18nManager.get('all') || 'All'
+                name: i18nManager.get('all') || 'All',
             },
-            'active': {
+            active: {
                 index: 2,
                 id: 'ACTIVE',
-                name: i18nManager.get('active') || 'Active'
+                name: i18nManager.get('active') || 'Active',
             },
-            'completed': {
+            completed: {
                 index: 3,
                 id: 'COMPLETED',
-                name: i18nManager.get('completed') || 'Completed'
+                name: i18nManager.get('completed') || 'Completed',
             },
-            'cancelled': {
+            cancelled: {
                 index: 4,
                 id: 'CANCELLED',
-                name: i18nManager.get('cancelled') || 'Cancelled'
-            }
+                name: i18nManager.get('cancelled') || 'Cancelled',
+            },
         };
     };
 
     var setEventStatus = function() {
         eventStatus = {
-            'def': {
+            def: {
                 index: 1,
                 id: 'DEFAULT',
-                name: i18nManager.get('all') || 'All'
+                name: i18nManager.get('all') || 'All',
             },
-            'active': {
+            active: {
                 index: 2,
                 id: 'ACTIVE',
-                name: i18nManager.get('active') || 'Active'
+                name: i18nManager.get('active') || 'Active',
             },
-            'completed': {
+            completed: {
                 index: 3,
                 id: 'COMPLETED',
-                name: i18nManager.get('completed') || 'Completed'
+                name: i18nManager.get('completed') || 'Completed',
             },
-            'scheduled': {
+            scheduled: {
                 index: 4,
                 id: 'SCHEDULE',
-                name: i18nManager.get('scheduled') || 'Scheduled'
+                name: i18nManager.get('scheduled') || 'Scheduled',
             },
-            'overdue': {
+            overdue: {
                 index: 5,
                 id: 'OVERDUE',
-                name: i18nManager.get('overdue') || 'Overdue'
+                name: i18nManager.get('overdue') || 'Overdue',
             },
-            'skipped': {
+            skipped: {
                 index: 6,
                 id: 'SKIPPED',
-                name: i18nManager.get('skipped') || 'Skipped'
-            }
+                name: i18nManager.get('skipped') || 'Skipped',
+            },
+        };
+    };
+
+    var setTimeField = function() {
+        timeField = {
+            eventdate: {
+                index: 1,
+                id: 'EVENT_DATE',
+                name: i18nManager.get('event_date') || 'Event date',
+            },
+            enrollmentdate: {
+                index: 2,
+                id: 'ENROLLMENT_DATE',
+                name: i18nManager.get('enrollment_date') || 'Enrollment date',
+            },
+            incidentdate: {
+                index: 3,
+                id: 'INCIDENT_DATE',
+                name: i18nManager.get('incident_date') || 'Incident date',
+            },
+            duedate: {
+                index: 4,
+                id: 'DUE_DATE',
+                name: i18nManager.get('due_date') || 'Due date',
+            },
+            completeddate: {
+                index: 5,
+                id: 'COMPLETED_DATE',
+                name: i18nManager.get('completed_date') || 'Completed date',
+            },
         };
     };
 
     // logic
-    var getRecords = function(optionType) {
-        var records = [];
+    var getRecords = function(optionType) {
+        var records = [];
 
         for (var option in optionType) {
             if (optionType.hasOwnProperty(option)) {
@@ -334,7 +369,7 @@ OptionConfig = function() {
     };
 
     // init
-    t.init = function() {
+    t.init = function() {
         setDisplayDensity();
         setFontSize();
         setDigitGroupSeparator();
@@ -347,6 +382,7 @@ OptionConfig = function() {
         setLegendDisplayStrategy();
         setProgramStatus();
         setEventStatus();
+        setTimeField();
     };
 
     // prototype
@@ -374,15 +410,15 @@ OptionConfig = function() {
         return key ? outputType[key] : outputType;
     };
 
-    t.getDataApprovalLevel = function(key) {
+    t.getDataApprovalLevel = function(key) {
         return key ? dataApprovalLevel[key] : dataApprovalLevel;
     };
 
-    t.getDataSetMetric = function(key) {
+    t.getDataSetMetric = function(key) {
         return key ? dataSetMetric[key] : dataSetMetric;
     };
 
-    t.getLegendDisplayStyle = function(key) {
+    t.getLegendDisplayStyle = function(key) {
         return key ? legendDisplayStyle[key] : legendDisplayStyle;
     };
 
@@ -396,6 +432,10 @@ OptionConfig = function() {
 
     t.getEventStatus = function(key) {
         return key ? eventStatus[key] : eventStatus;
+    };
+
+    t.getTimeField = function(key) {
+        return key ? timeField[key] : timeField;
     };
 
     t.getDisplayDensityRecords = function() {
@@ -442,6 +482,10 @@ OptionConfig = function() {
         return getRecords(eventStatus);
     };
 
+    t.getTimeFieldRecords = function() {
+        return getRecords(timeField);
+    };
+
     t.getDigitGroupSeparatorIdMap = function() {
         var map = {};
 
@@ -454,15 +498,15 @@ OptionConfig = function() {
         return map;
     };
 
-    t.setI18nManager = function(manager) {
+    t.setI18nManager = function(manager) {
         i18nManager = manager;
     };
 };
 
-OptionConfig.prototype.applyTo = function(modules) {
+OptionConfig.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.optionConfig = t;
     });
 };
@@ -477,7 +521,7 @@ OptionConfig.prototype.getDigitGroupSeparatorValueById = function(id) {
 
 // dep 1
 
-OptionConfig.prototype.prettyPrint = function(number, separator, noHtml) {
+OptionConfig.prototype.prettyPrint = function(number, separator, noHtml) {
     var t = this;
 
     var spaceId = t.getDigitGroupSeparator('space').id,
@@ -492,10 +536,14 @@ OptionConfig.prototype.prettyPrint = function(number, separator, noHtml) {
 
     var [num, dec] = ('' + number).split('.');
 
-    var pp = num.replace(/\B(?=(\d{3})+(?!\d))/g, t.getDigitGroupSeparatorValueById(separator) || noneValue) + (dec ? '.' + dec : '');
+    var pp =
+        num.replace(
+            /\B(?=(\d{3})+(?!\d))/g,
+            t.getDigitGroupSeparatorValueById(separator) || noneValue
+        ) + (dec ? '.' + dec : '');
 
-    if (noHtml) {
-        pp = stringReplaceAll(pp, "&nbsp;", " ");
+    if (noHtml) {
+        pp = stringReplaceAll(pp, '&nbsp;', ' ');
     }
 
     return pp;
