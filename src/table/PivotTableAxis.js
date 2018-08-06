@@ -5,32 +5,47 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayRepeat from 'd2-utilizr/lib/arrayRepeat';
 import uuid from 'd2-utilizr/lib/uuid';
 
+import { defaultProxyGenerator } from './PivotTableUtils';
+
+const axisTypes = [
+    'col', 'row',
+];
+
+const spanTypes = {
+    'col': 'colSpan',
+    'row': 'rowSpan',
+}
+
+const ignoreKeys = [
+    'dy', 'longitude', 'latitude',
+];
+
 export const PivotTableAxis = function(refs, layout, response, type) {
+    
+    if (!axisTypes.includes(type)) {
+        throw TypeError();
+    }
 
-    const ignoreKeys = [
-        'dy', 'longitude', 'latitude'
-    ];
+    this.type = type;
+    this.spanType = spanTypes[type];
+    this.size = 1;
 
-    let spanType,
-        aDimensions = [],
-        nAxisWidth = 1,
-        nAxisHeight,
-        aUniqueFloorWidth = [],
-        aAccFloorWidth = [],
-        aFloorSpan = [],
-        aCondoId = [],
-        uuidObjectMap = {};
+    this.uuidObjectMap = {};
+    this.items = [];
+    this.span = [];
+    this.ids = [];
+
+    let aUniqueFloorWidth = [],
+        aAccFloorWidth = [];
 
     if (type === 'col') {
-        aDimensions = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
-        spanType = 'colSpan';
+        this.items = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
     }
     else if (type === 'row') {
-        aDimensions = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
-        spanType = 'rowSpan';
+        this.items = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
     }
 
-    if (!(isArray(aDimensions) && aDimensions.length)) {
+    if (!(isArray(this.items) && this.items.length)) {
         return;
     }
 
@@ -38,25 +53,26 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
     const dimensionNameIdsMap = layout.getDimensionNameIdsMap(response, layout.hideNaData ? dimensionIdsFilterFn : null);
 
-    const aaUniqueFloorIds = function() {
+    const aaUniqueFloorIds = (() => {
         let dims;
 
-        return aDimensions.map((dimension, index) => {
+        return this.items.map((dimension, index) => {
             if (dimension.sorted) dims = arrayPluck(dimension.items, 'id');
             else                  dims = dimensionNameIdsMap[dimension.dimension];
 
-            nAxisWidth *= dims.length;
+            this.size *= dims.length;
             aUniqueFloorWidth.push(dims.length);
-            aAccFloorWidth.push(nAxisWidth);
+            aAccFloorWidth.push(this.size);
 
             return dims;
         });
-    }();
+    })();
 
-    nAxisHeight = aaUniqueFloorIds.length;
 
-    for (let i=0; i < nAxisHeight; i++) {
-        aFloorSpan.push(nAxisWidth / aAccFloorWidth[i]);
+    this.dims = aaUniqueFloorIds.length;
+
+    for (let i = 0; i < this.dims; i++) {
+        this.span.push(this.size / aAccFloorWidth[i]);
     }
 
     const aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
@@ -64,29 +80,29 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     });
 
     const aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
-        return arrayRepeat(id, aFloorSpan[index], true);
+        return arrayRepeat(id, this.span[index], true);
     });
 
     const aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
 
-        let siblingPosition = 0,
-            oldestObj;
+        let siblingPosition = 0;
+        let oldestObj;
 
         return ids.map((id, j) => {
 
             let obj = {
-                id: aaAllFloorIds[i][j],
+                id: id,
                 uuid: uuid(),
                 dim: i,
                 leaf: i === aaAllFloorIds.length - 1,
                 axis: type,
-                isOrganisationUnit: response.hasIdByDimensionName(aaAllFloorIds[i][j], 'ou'),
+                isOrganisationUnit: response.hasIdByDimensionName(id, 'ou'),
             };
 
-            uuidObjectMap[obj.uuid] = obj;
+            this.uuidObjectMap[obj.uuid] = obj;
 
-            if (j % aFloorSpan[i] === 0) {
-                obj[spanType] = aFloorSpan[i];
+            if (j % this.span[i] === 0) {
+                obj[this.spanType] = this.span[i];
                 obj.children = obj.leaf ? 0 : null;
                 obj.oldest = true;
                 obj.root = i === 0;
@@ -106,8 +122,8 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     });
 
     // add parents if more than 1 floor
-    if (nAxisHeight > 1) {
-        for (let i = 1, aAllFloor; i < nAxisHeight; i++) {
+    if (this.dims > 1) {
+        for (let i = 1, aAllFloor; i < this.dims; i++) {
             aAllFloor = aaAllFloorObjects[i];
 
             for (let j = 0; j < aAllFloor.length; j++) {
@@ -116,11 +132,11 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         }
     }
 
-    for (let i = 0, ids; i < nAxisWidth; i++) {
+    for (let i = 0, ids; i < this.size; i++) {
         ids = aaAllFloorIds.map((id) => id[i]);
 
         if (ids.length) {
-            aCondoId.push(ids.join('-'));
+            this.ids.push(ids.join('-'));
         }
     }
 
@@ -128,7 +144,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     if (aaAllFloorObjects.length) {
 
         // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-        let nSpan = nAxisHeight > 1 ? arraySort(aFloorSpan.slice())[1] : nAxisWidth,
+        let nSpan = this.dims > 1 ? arraySort(this.span.slice())[1] : this.size,
             aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
         for (let i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
@@ -157,25 +173,53 @@ export const PivotTableAxis = function(refs, layout, response, type) {
             }
         }
     }
-
-    return {
-        type: type,
-        items: aDimensions,
-        xItems: {
-            unique: aaUniqueFloorIds,
-            gui: aaGuiFloorIds,
-            all: aaAllFloorIds
-        },
-        objects: {
-            all: aaAllFloorObjects
-        },
-        ids: aCondoId,
-        span: aFloorSpan,
-        dims: nAxisHeight,
-        size: nAxisWidth,
-        uuidObjectMap: uuidObjectMap
+    
+    this.xItems = {
+        unique: aaUniqueFloorIds,
+        gui: aaGuiFloorIds,
+        all: aaAllFloorIds,
     };
+
+    this.objects = {
+        all: aaAllFloorObjects
+    };
+
+    this.uniqueFactor = this.getUniqueFactor();
 };
 
+PivotTableAxis.prototype.getSpanMap = function() {
 
-PivotTableAxis.prototype
+    if (!this.span) {
+        this.span = [];
+    }
+
+    return Array.from(this.span, value => defaultProxyGenerator(value));
+}
+
+// PivotTableAxis.prototype.getSize = function() {
+
+//     let size = this.size;
+
+//     if (!size) {
+//         size = 1;
+//         return size;
+//     }
+
+//     if (this.doColSubTotals())  {
+//         size += this.size / this.uniqueFactor;
+//     }
+    
+//     if (this.doColTotals()) {
+//         size += 1;    
+//     }
+    
+//     return size;
+// }
+
+PivotTableAxis.prototype.getUniqueFactor = function() {
+    if (this.xItems && this.xItems.unique) {
+        return this.xItems.unique.length < 2 ? 1 : 
+            (this.size / this.xItems.unique[0].length);
+    }
+    return null;
+};
