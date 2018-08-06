@@ -1,5 +1,3 @@
-
-
 export const VALUE_CELL = 'value';
 export const SUB_TOTAL_CELL = 'valueSubtotals';
 export const TOTAL_CELL = 'valueTotal';
