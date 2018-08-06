@@ -992,6 +992,11 @@ WestRegionTrackerItems = function(refs) {
                 aggWindow.setValueConfig(layout.value.id, layout.aggregationType);
             }
 
+            // time field
+            if (layout.timeField) {
+                aggWindow.setTimeField(layout.timeField);
+            }
+
             // collapse data dimensions
             if (aggWindow.collapseDataDimensions) {
                 aggWindow.collapseDataDimensions.setValue(layout.collapseDataDimensions);
