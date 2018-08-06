@@ -2133,7 +2133,9 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
         return new DimensionGrandTotalCell(displayValue, config);
     }
 
-    config = this.getColumnAxisObject(rowIndex, this.normalizeColumnIndex(columnIndex))
+    columnIndex = this.normalizeColumnIndex(columnIndex);
+
+    config = this.getColumnAxisObject(rowIndex, columnIndex)
 
     config.showHierarchy = this.doShowHierarchy();
     config.sort = this.getRowSortId(rowIndex, columnIndex);
