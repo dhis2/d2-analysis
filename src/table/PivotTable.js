@@ -1393,9 +1393,9 @@ PivotTable.prototype.getRowEnd = function(rowIndex) {
  * @param {number} rowIndex 
  * @returns {string}
  */
-PivotTable.prototype.getRowSortId = function(rowIndex) {
+PivotTable.prototype.getRowSortId = function(rowIndex, columnIndex) {
     if (this.doSortableColumnHeaders() && rowIndex === this.columnDimensionSize - 1) {
-        return this.colAxis.ids[rowIndex];
+        return this.colAxis.ids[columnIndex];
     }
     return null;
 };
@@ -1937,7 +1937,7 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
         this.getColumnAxisObject(rowIndex, this.normalizeColumnIndex(columnIndex)),
         this.response,
         this.doShowHierarchy(),
-        this.getRowSortId(rowIndex));
+        this.getRowSortId(rowIndex, this.normalizeColumnIndex(columnIndex)));
 };
 
 /**
