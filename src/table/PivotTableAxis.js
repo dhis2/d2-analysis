@@ -7,13 +7,18 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 import { defaultProxyGenerator } from './PivotTableUtils';
 
-const axisTypes = [
-    'col', 'row',
-];
-
 const spanTypes = {
     'col': 'colSpan',
     'row': 'rowSpan',
+}
+
+const axisTypes = {
+    'col': 'column',
+    'row': 'row',
+    'column': 'column',
+    'row': 'row',
+    'columns': 'column',
+    'rows': 'row',
 }
 
 const ignoreKeys = [
@@ -21,10 +26,6 @@ const ignoreKeys = [
 ];
 
 export const PivotTableAxis = function(refs, layout, response, type) {
-    
-    if (!axisTypes.includes(type)) {
-        throw TypeError();
-    }
 
     this.type = type;
     this.spanType = spanTypes[type];
@@ -34,15 +35,17 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     this.items = [];
     this.span = [];
     this.ids = [];
+    this.dimensionNames = [];
 
-    let aUniqueFloorWidth = [],
-        aAccFloorWidth = [];
+    let aAccFloorWidth = [];
 
     if (type === 'col') {
         this.items = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
+        this.dimensionNames = layout.columns ? layout.columns.getDimensionNames() : [];
     }
     else if (type === 'row') {
         this.items = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
+        this.dimensionNames = layout.rows ? layout.rows.getDimensionNames() : [];
     }
 
     if (!(isArray(this.items) && this.items.length)) {
@@ -56,84 +59,79 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     const aaUniqueFloorIds = (() => {
         let dims;
 
-        return this.items.map((dimension, index) => {
+        return this.items.map(dimension => {
             if (dimension.sorted) dims = arrayPluck(dimension.items, 'id');
             else                  dims = dimensionNameIdsMap[dimension.dimension];
 
             this.size *= dims.length;
-            aUniqueFloorWidth.push(dims.length);
             aAccFloorWidth.push(this.size);
 
             return dims;
         });
     })();
 
+    this.dims = aaUniqueFloorIds.length
 
-    this.dims = aaUniqueFloorIds.length;
-
-    for (let i = 0; i < this.dims; i++) {
-        this.span.push(this.size / aAccFloorWidth[i]);
-    }
-
-    const aaGuiFloorIds = aaUniqueFloorIds.map((ids, index) => {
-        return arrayRepeat(ids, aAccFloorWidth[index - 1]);
+    const aaGuiFloorIds = aaUniqueFloorIds.map((ids, dimensionIndex) => {
+        this.span.push(this.size / aAccFloorWidth[dimensionIndex]);
+        return arrayRepeat(ids, aAccFloorWidth[dimensionIndex - 1]);
     });
 
-    const aaAllFloorIds = aaGuiFloorIds.map((id, index) => {
-        return arrayRepeat(id, this.span[index], true);
+    const aaAllFloorIds = aaGuiFloorIds.map((id, dimensionIndex) => {
+        return arrayRepeat(id, this.span[dimensionIndex], true);
     });
 
-    const aaAllFloorObjects = aaAllFloorIds.map((ids, i) => {
+    const aaAllFloorObjects = aaAllFloorIds.map((ids, dimensionIndex) => {
 
         let siblingPosition = 0;
         let oldestObj;
 
-        return ids.map((id, j) => {
+        return ids.map((id, positionIndex) => {
 
-            let obj = {
+            let dimensionObject = {
                 id: id,
                 uuid: uuid(),
-                dim: i,
-                leaf: i === aaAllFloorIds.length - 1,
-                axis: type,
+                dim: dimensionIndex,
+                leaf: dimensionIndex === aaAllFloorIds.length - 1,
+                axis: axisTypes[type],
                 isOrganisationUnit: response.hasIdByDimensionName(id, 'ou'),
             };
 
-            this.uuidObjectMap[obj.uuid] = obj;
+            this.uuidObjectMap[dimensionObject.uuid] = dimensionObject;
 
-            if (j % this.span[i] === 0) {
-                obj[this.spanType] = this.span[i];
-                obj.children = obj.leaf ? 0 : null;
-                obj.oldest = true;
-                obj.root = i === 0;
-                oldestObj = obj;
+            if (positionIndex % this.span[dimensionIndex] === 0) {
+                dimensionObject[this.spanType] = this.span[dimensionIndex];
+                dimensionObject.children = dimensionObject.leaf ? 0 : null;
+                dimensionObject.oldest = true;
+                dimensionObject.root = dimensionIndex === 0;
+                oldestObj = dimensionObject;
                 siblingPosition = 0;
             }
 
-            obj.oldestSibling = oldestObj;
-            obj.siblingPosition = siblingPosition++;
+            dimensionObject.oldestSibling = oldestObj;
+            dimensionObject.siblingPosition = siblingPosition++;
 
-            if ((aaUniqueFloorIds.length - 1) > i) {
-                obj.children = aaUniqueFloorIds[i + 1].length;
+            if ((aaUniqueFloorIds.length - 1) > dimensionIndex) {
+                dimensionObject.children = aaUniqueFloorIds[dimensionIndex + 1].length;
             }
 
-            return obj;
+            return dimensionObject;
         });
     });
 
     // add parents if more than 1 floor
     if (this.dims > 1) {
-        for (let i = 1, aAllFloor; i < this.dims; i++) {
-            aAllFloor = aaAllFloorObjects[i];
+        for (let dimensionIndex = 1, aAllFloor; dimensionIndex < this.dims; dimensionIndex++) {
+            aAllFloor = aaAllFloorObjects[dimensionIndex];
 
-            for (let j = 0; j < aAllFloor.length; j++) {
-                aAllFloor[j].parent = aaAllFloorObjects[i - 1][j];
+            for (let positionIndex = 0; positionIndex < aAllFloor.length; positionIndex++) {
+                aAllFloor[positionIndex].parent = aaAllFloorObjects[dimensionIndex - 1][positionIndex];
             }
         }
     }
 
     for (let i = 0, ids; i < this.size; i++) {
-        ids = aaAllFloorIds.map((id) => id[i]);
+        ids = aaAllFloorIds.map(id => id[i]);
 
         if (ids.length) {
             this.ids.push(ids.join('-'));
@@ -144,8 +142,8 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     if (aaAllFloorObjects.length) {
 
         // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
-        let nSpan = this.dims > 1 ? arraySort(this.span.slice())[1] : this.size,
-            aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
+        let nSpan = this.dims > 1 ? arraySort(this.span.slice())[1] : this.size;
+        let aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
         for (let i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
             leaf = aAllFloorObjectsLast[i];
@@ -173,6 +171,8 @@ export const PivotTableAxis = function(refs, layout, response, type) {
             }
         }
     }
+
+    this.dims = this.dims ? this.dims : 1;
     
     this.xItems = {
         unique: aaUniqueFloorIds,
@@ -185,6 +185,7 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     };
 
     this.uniqueFactor = this.getUniqueFactor();
+    this.spanMap = this.getSpanMap();
 };
 
 PivotTableAxis.prototype.getSpanMap = function() {
@@ -196,30 +197,31 @@ PivotTableAxis.prototype.getSpanMap = function() {
     return Array.from(this.span, value => defaultProxyGenerator(value));
 }
 
-// PivotTableAxis.prototype.getSize = function() {
+PivotTableAxis.prototype.getSize = function(withSubTotals=false, withTotals=false) {
 
-//     let size = this.size;
+    let size = this.size;
 
-//     if (!size) {
-//         size = 1;
-//         return size;
-//     }
+    if (!size) {
+        return 1;
+    }
 
-//     if (this.doColSubTotals())  {
-//         size += this.size / this.uniqueFactor;
-//     }
+    if (withSubTotals)  {
+        size += this.size / this.uniqueFactor;
+    }
     
-//     if (this.doColTotals()) {
-//         size += 1;    
-//     }
+    if (withTotals) {
+        size += 1;    
+    }
     
-//     return size;
-// }
+    return size;
+}
 
 PivotTableAxis.prototype.getUniqueFactor = function() {
+    
     if (this.xItems && this.xItems.unique) {
-        return this.xItems.unique.length < 2 ? 1 : 
-            (this.size / this.xItems.unique[0].length);
+        return this.xItems.unique.length < 2 ? 
+            1 : (this.size / this.xItems.unique[0].length);
     }
+    
     return null;
 };
