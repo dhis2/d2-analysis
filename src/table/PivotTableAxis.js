@@ -5,20 +5,13 @@ import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayRepeat from 'd2-utilizr/lib/arrayRepeat';
 import uuid from 'd2-utilizr/lib/uuid';
 
+import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
+
 import { defaultProxyGenerator } from './PivotTableUtils';
 
 const spanTypes = {
-    'col': 'colSpan',
-    'row': 'rowSpan',
-}
-
-const axisTypes = {
-    'col': 'column',
-    'row': 'row',
-    'column': 'column',
-    'row': 'row',
-    'columns': 'column',
-    'rows': 'row',
+    [COLUMN_AXIS]: 'colSpan',
+    [ROW_AXIS]: 'rowSpan',
 }
 
 const ignoreKeys = [
@@ -37,13 +30,11 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     this.ids = [];
     this.dimensionNames = [];
 
-    let aAccFloorWidth = [];
-
-    if (type === 'col') {
+    if (type === COLUMN_AXIS) {
         this.items = (layout.columns || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         this.dimensionNames = layout.columns ? layout.columns.getDimensionNames() : [];
     }
-    else if (type === 'row') {
+    else if (type === ROW_AXIS) {
         this.items = (layout.rows || []).filter(dim => !arrayContains(ignoreKeys, dim.dimension));
         this.dimensionNames = layout.rows ? layout.rows.getDimensionNames() : [];
     }
@@ -51,6 +42,8 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     if (!(isArray(this.items) && this.items.length)) {
         return;
     }
+    
+    let aAccFloorWidth = [];
 
     const dimensionIdsFilterFn = ids => ids.filter(id => !id.includes('EMPTY_UID'));
 
@@ -80,24 +73,32 @@ export const PivotTableAxis = function(refs, layout, response, type) {
     const aaAllFloorIds = aaGuiFloorIds.map((id, dimensionIndex) => {
         return arrayRepeat(id, this.span[dimensionIndex], true);
     });
+    
+    let aaAllFloorObjects = new Array(this.dims);
 
-    const aaAllFloorObjects = aaAllFloorIds.map((ids, dimensionIndex) => {
+    for (let dimensionIndex = 0; dimensionIndex < this.dims; dimensionIndex++) {
 
         let siblingPosition = 0;
         let oldestObj;
 
-        return ids.map((id, positionIndex) => {
+        let ids = aaAllFloorIds[dimensionIndex];
+
+        aaAllFloorObjects[dimensionIndex] = ids.map((id, positionIndex) => {
 
             let dimensionObject = {
                 id: id,
                 uuid: uuid(),
                 dim: dimensionIndex,
-                leaf: dimensionIndex === aaAllFloorIds.length - 1,
-                axis: axisTypes[type],
+                leaf: dimensionIndex === this.dims - 1,
+                axis: type,
                 isOrganisationUnit: response.hasIdByDimensionName(id, 'ou'),
             };
 
             this.uuidObjectMap[dimensionObject.uuid] = dimensionObject;
+
+            if (dimensionIndex !== 0) {
+                dimensionObject.parent = aaAllFloorObjects[dimensionIndex - 1][positionIndex];
+            }
 
             if (positionIndex % this.span[dimensionIndex] === 0) {
                 dimensionObject[this.spanType] = this.span[dimensionIndex];
@@ -108,30 +109,19 @@ export const PivotTableAxis = function(refs, layout, response, type) {
                 siblingPosition = 0;
             }
 
-            dimensionObject.oldestSibling = oldestObj;
-            dimensionObject.siblingPosition = siblingPosition++;
-
             if ((aaUniqueFloorIds.length - 1) > dimensionIndex) {
                 dimensionObject.children = aaUniqueFloorIds[dimensionIndex + 1].length;
             }
 
+            dimensionObject.oldestSibling = oldestObj;
+            dimensionObject.siblingPosition = siblingPosition++;
+
             return dimensionObject;
         });
-    });
-
-    // add parents if more than 1 floor
-    if (this.dims > 1) {
-        for (let dimensionIndex = 1, aAllFloor; dimensionIndex < this.dims; dimensionIndex++) {
-            aAllFloor = aaAllFloorObjects[dimensionIndex];
-
-            for (let positionIndex = 0; positionIndex < aAllFloor.length; positionIndex++) {
-                aAllFloor[positionIndex].parent = aaAllFloorObjects[dimensionIndex - 1][positionIndex];
-            }
-        }
     }
 
-    for (let i = 0, ids; i < this.size; i++) {
-        ids = aaAllFloorIds.map(id => id[i]);
+    for (let positionIndex = 0, ids; positionIndex < this.size; positionIndex++) {
+        ids = aaAllFloorIds.map(id => id[positionIndex]);
 
         if (ids.length) {
             this.ids.push(ids.join('-'));
@@ -143,10 +133,12 @@ export const PivotTableAxis = function(refs, layout, response, type) {
 
         // set span to second lowest span number: if aFloorSpan == [15,3,15,1], set span to 3
         let nSpan = this.dims > 1 ? arraySort(this.span.slice())[1] : this.size;
+            
         let aAllFloorObjectsLast = aaAllFloorObjects[aaAllFloorObjects.length - 1];
 
-        for (let i = 0, leaf, parentUuids, obj, leafUuids = []; i < aAllFloorObjectsLast.length; i++) {
-            leaf = aAllFloorObjectsLast[i];
+        for (let positionIndex = 0, leaf, parentUuids, obj, leafUuids = []; positionIndex < aAllFloorObjectsLast.length; positionIndex++) {
+            
+            leaf = aAllFloorObjectsLast[positionIndex];
             leafUuids.push(leaf.uuid);
             obj = leaf;
             parentUuids = [];
@@ -158,11 +150,11 @@ export const PivotTableAxis = function(refs, layout, response, type) {
             }
 
             // add parent uuids to leaf
-            leaf.uuids = parentUuids.slice();
+            leaf.uuids = parentUuids;
 
             // add uuid for all leaves
             if (leafUuids.length === nSpan) {
-                for (let j = (i - nSpan) + 1, leaf; j <= i; j++) {
+                for (let j = (positionIndex - nSpan) + 1, leaf; j <= positionIndex; j++) {
                     leaf = aAllFloorObjectsLast[j];
                     leaf.uuids.push(...leafUuids);
                 }

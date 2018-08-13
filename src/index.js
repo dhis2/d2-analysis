@@ -16,6 +16,7 @@ import { Sorting } from './api/Sorting.js';
 import { PivotTableAxis } from './table/PivotTableAxis.js';
 import { PivotTable } from './table/PivotTable.js';
 import { EventDataTable } from './table/EventDataTable.js';
+import PivotTableConstants from './table/PivotTableConstants';
 
 import { AppManager } from './manager/AppManager.js';
 import { DateManager } from './manager/DateManager.js';
@@ -247,3 +248,7 @@ export const ux = {
     LimitContainer,
     StatusBar,
 };
+
+export const constants = {
+    PivotTableConstants,
+}

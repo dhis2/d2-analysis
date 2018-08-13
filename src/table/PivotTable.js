@@ -38,15 +38,17 @@ import { VALUE_CELL,
          DIMENSION_SUB_TOTAL_CELL,
          DIMENSION_TOTAL_CELL,
          EMPTY_CELL,
-         LABELED_CELL,} from '../constants/table/TableCell';
+         LABELED_CELL } from '../table/PivotTableConstants';
 
-import { FIXED_STRATEGY, BY_DATA_ITEM_STRATEGY } from '../constants/table/LegendSetStrategy';
+import { FIXED_STRATEGY, BY_DATA_ITEM_STRATEGY } from '../table/PivotTableConstants';
 
-import { NO_BREAK_SPACE } from '../constants/table/HTML';
+import { NO_BREAK_SPACE } from '../table/PivotTableConstants';
 
-import { FILL_STYLE, TEXT_STYLE } from '../constants/table/LegendSetStyle';
+import { FILL_STYLE, TEXT_STYLE } from '../table/PivotTableConstants';
 
-import { TOTAL_SORT } from '../constants/table/Sort';
+import { TOTAL_SORT } from '../table/PivotTableConstants';
+
+import { WHITE_COLOR, BLACK_COLOR } from '../table/PivotTableConstants';
 
 /**
  * 
@@ -142,10 +144,10 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
  */
 PivotTable.prototype.initialize = function() {
 
-    this.idValueMap = this.response.getIdMap(this.layout, 'value', 'idValueMap');
-    this.idFactorMap = this.response.getIdMap(this.layout, 'factor', 'idFactorMap');
-    this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator', 'idNumeratorMap');
-    this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator', 'idDenominatorMap');
+    this.idValueMap = this.response.getIdMap(this.layout, 'value');
+    this.idFactorMap = this.response.getIdMap(this.layout, 'factor');
+    this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator');
+    this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator');
 
     this.rowSize = this.rowAxis.getSize(this.doColSubTotals(), this.doColTotals());
     this.columnSize = this.colAxis.getSize(this.doRowSubTotals(), this.doRowTotals());
@@ -2022,7 +2024,9 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
         return new DimensionGrandTotalCell(displayValue, config)
     }
 
-    config = this.getRowAxisObject(columnIndex, this.normalizeRowIndex(rowIndex));
+    rowIndex = this.normalizeRowIndex(rowIndex);
+
+    config = this.getRowAxisObject(columnIndex, rowIndex);
     config.showHierarchy = this.doShowHierarchy();
 
     displayValue = this.response.getItemName(config.id, config.showHierarchy, true)
@@ -2389,6 +2393,11 @@ PivotTable.prototype.initializeLookups = function() {
     }
 };
 
+
+
+
+
+
 /**
  * Creates a row axis render map.
  * 
@@ -2440,6 +2449,13 @@ PivotTable.prototype.createColumnRenderMap = function() {
 
     return map;
 };
+
+
+
+
+
+
+
 
 /**
  * Returns row index constrained against the height of the table.
@@ -2529,8 +2545,7 @@ PivotTable.prototype.buildTableTitle = function(span) {
  * @returns
  */
 PivotTable.prototype.getLegends = function(dxId) {
-    return this.appManager.getLegendSetById(
-        this.getLegendSetId(dxId)).legends;
+    return this.appManager.getLegendSetById(this.getLegendSetId(dxId)).legends;
 };
 
 /**
@@ -2584,14 +2599,16 @@ PivotTable.prototype.buildHtmlCell = function(cell) {
             cell.cls += ' pointer';
         }
 
-        let legends = this.legendSet ? this.legendSet.legends || [] : [];
+        let legends;
         let bgColor;
 
         if (this.doLegendDisplayByDataItem() && this.getLegendSet(cell.dxId)) {
             legends = this.getLegends(cell.dxId);
+        } else {
+            legends = this.legendSet ? this.legendSet.legends || [] : [];
         }
 
-        for (let i=0; i < legends.length; i++) {
+        for (let i = 0; i < legends.length; i++) {
             if (numberConstrain(cell.value, legends[i].startValue, legends[i].endValue) === cell.value) {
                 bgColor = legends[i].color;
             }
@@ -2600,7 +2617,7 @@ PivotTable.prototype.buildHtmlCell = function(cell) {
         if (this.doLegendDisplayStyleFill() && bgColor) {
             style += `
                 background-color:${bgColor};
-                color:${isColorBright(bgColor) ? 'black' : 'white'};
+                color:${isColorBright(bgColor) ? BLACK_COLOR : WHITE_COLOR};
             `;
         }
 
@@ -2693,8 +2710,8 @@ PivotTable.prototype.buildBottomPaddingHtmlRow = function() {
  * @returns {string}
  */
 PivotTable.prototype.buildTopPaddingHtmlCell = function() {
-    const padding = this.getTopPadding(),
-             cell = new TopPaddingCell(padding);
+    const padding = this.getTopPadding();
+    const cell = new TopPaddingCell(padding);
 
     return this.buildHtmlCell(cell);
 };
@@ -2705,8 +2722,8 @@ PivotTable.prototype.buildTopPaddingHtmlCell = function() {
  * @returns {string}
  */
 PivotTable.prototype.buildBottomPaddingHtmlCell = function() {
-    const padding = this.getBottomPadding(),
-             cell = new BottomPaddingCell(padding);
+    const padding = this.getBottomPadding();
+    const cell = new BottomPaddingCell(padding);
 
     return this.buildHtmlCell(cell);
 };
@@ -2717,8 +2734,8 @@ PivotTable.prototype.buildBottomPaddingHtmlCell = function() {
  * @returns {string}
  */
 PivotTable.prototype.buildLeftPaddingHtmlCell = function() {
-    const padding = this.getLeftPadding(),
-          cell = new LeftPaddingCell(padding);
+    const padding = this.getLeftPadding();
+    const cell = new LeftPaddingCell(padding);
 
     return this.buildHtmlCell(cell);
 };
@@ -2729,8 +2746,8 @@ PivotTable.prototype.buildLeftPaddingHtmlCell = function() {
  * @returns {string}
  */
 PivotTable.prototype.buildRightPaddingHtmlCell = function() {
-    const padding = this.getRightPadding(),
-          cell = new RightPaddingCell(padding);
+    const padding = this.getRightPadding();
+    const cell = new RightPaddingCell(padding);
 
     return this.buildHtmlCell(cell);
 };
@@ -2769,7 +2786,7 @@ PivotTable.prototype.buildHtmlTableRow = function(htmlRow) {
  */
 PivotTable.prototype.buildHtmlTable = function() {
     let cls = 'pivot user-select';
-    let style = `display:flex!important;overflow:visible;`;
+    let style = `display:flex!important; overflow:visible;`;
 
     cls += this.displayDensity ? ' displaydensity-' + this.displayDensity : '';
     cls += this.fontSize       ? ' fontsize-' + this.fontSize : '';
@@ -2986,16 +3003,8 @@ PivotTable.prototype.buildValueTable = function() {
     const rowEnd = this.rowEnd - this.getNumberOfVisibleColumnDimensions();
     const columnEnd = this.columnEnd - this.getNumberOfVisibleRowDimensions();
 
-    let rowSize = (rowEnd - this.rowStart);
-    let colSize = (columnEnd - this.columnStart);
-
-    if (!this.doHideEmptyColumns() && colSize === 0) {
-        colSize = 1;
-    }
-
-    if (!this.doHideEmptyRows() && rowSize === 0) {
-        rowSize = 1;
-    }
+    let rowSize = rowEnd - this.rowStart;
+    let colSize = columnEnd - this.columnStart;
 
     let table = [];
 
