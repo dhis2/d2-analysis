@@ -104,7 +104,7 @@ export const PivotTable = function(refs, layout, response, options={}) {
             numberType: layout.numberType,
         },
         debug: {
-            clipping: true,
+            clipping: false,
         },
         ...options,
     }
