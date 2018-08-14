@@ -71,6 +71,7 @@ export const PivotTable = function(refs, layout, response, options={}) {
         renderOffset: 1,
         cellHeight: 25,
         cellWidth: 120,
+        trueTotals: true,
         showColTotals: !!layout.showColTotals,
         showRowTotals: !!layout.showRowTotals,
         showColSubTotals: !!layout.showColSubTotals,
@@ -149,9 +150,16 @@ export const PivotTable = function(refs, layout, response, options={}) {
 PivotTable.prototype.initialize = function() {
 
     this.idValueMap = this.response.getIdMap(this.layout, 'value');
-    this.idFactorMap = this.response.getIdMap(this.layout, 'factor');
-    this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator');
-    this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator');
+
+    if (this.options.trueTotals) {
+        this.idFactorMap = this.response.getIdMap(this.layout, 'factor');
+        this.idNumeratorMap = this.response.getIdMap(this.layout, 'numerator');
+        this.idDenominatorMap =  this.response.getIdMap(this.layout, 'denominator');
+    } else {
+        this.idFactorMap =  {}
+        this.idNumeratorMap = {}
+        this.idDenominatorMap = {}
+    }
 
     this.rowSize = this.rowAxis.getSize(this.doColSubTotals(), this.doColTotals());
     this.columnSize = this.colAxis.getSize(this.doRowSubTotals(), this.doRowTotals());
