@@ -141,13 +141,6 @@ export const PivotTable = function(refs, layout, response, options={}) {
     this.valueCounter = 0;
     this.numberOfEmptyRows = 0;
     this.numberOfEmptyColumns = 0;
-};
-
-/**
- * @description Pivot table initialization function, does most of the heavy lifting.
- * 
- */
-PivotTable.prototype.initialize = function() {
 
     this.idValueMap = this.response.getIdMap(this.layout, 'value');
 
@@ -484,26 +477,26 @@ PivotTable.prototype.doLegendDisplayStyleText = function() {
 
 PivotTable.prototype.isSubColumnIndex = function(columnIndex) {
 
-    columnIndex = this.normalizeColumnIndex(columnIndex);
+    columnIndex = this.getColumnIndexWithoutTotals(columnIndex);
 
     return (columnIndex % this.colAxis.uniqueFactor + 1) === 0;
 }
 
 PivotTable.prototype.isSubRowIndex = function(rowIndex) {
 
-    rowIndex = this.normalizeColumnIndex(rowIndex);
+    rowIndex = this.getColumnIndexWithoutTotals(rowIndex);
 
     return (rowIndex % this.rowAxis.uniqueFactor + 1) === 0;
 }
 
 PivotTable.prototype.isColumnHidden = function(columnIndex) {
     return this.doHideEmptyColumns() && 
-        this.isColumnEmpty(this.getColumnIndexWithHidden(columnIndex));
+        this.isColumnEmpty(this.getTrueColumnIndex(columnIndex));
 }
 
 PivotTable.prototype.isRowHidden = function(rowIndex) {
     return this.doHideEmptyRows() &&
-        this.isRowEmpty(this.getRowIndexWithHidden(rowIndex));
+        this.isRowEmpty(this.getTrueRowIndex(rowIndex));
 }
 
 PivotTable.prototype.isCellDimensionTotal = function(cell) {
@@ -685,7 +678,13 @@ PivotTable.prototype.getBaseCellStyling = function(cell) {
     return '';
 }
 
-PivotTable.prototype.getColumnIndexWithHidden = function(columnIndex) {
+/**
+ *
+ *
+ * @param {*} columnIndex
+ * @returns
+ */
+PivotTable.prototype.getTrueColumnIndex = function(columnIndex) {
 
     if (this.doHideEmptyColumns()) {
         return this.columnAxisLookup[columnIndex];
@@ -694,7 +693,13 @@ PivotTable.prototype.getColumnIndexWithHidden = function(columnIndex) {
     return columnIndex;
 };
 
-PivotTable.prototype.getRowIndexWithHidden = function(rowIndex) {
+/**
+ *
+ *
+ * @param {*} rowIndex
+ * @returns
+ */
+PivotTable.prototype.getTrueRowIndex = function(rowIndex) {
 
     if (this.doHideEmptyRows()) {
         return this.rowAxisLookup[rowIndex];
@@ -786,7 +791,16 @@ PivotTable.prototype.getRowAxisSpan = function(rowIndex, dimensionIndex) {
 PivotTable.prototype.normalizeRowIndexOffset = function(rowIndex, dimensionIndex) {
     
     if (this.doColSubTotals()) {
-        return rowIndex - Math.floor(this.getRowIndexWithHidden(rowIndex) / (this.rowAxis.uniqueFactor + 1));
+        return rowIndex - Math.floor(this.getTrueRowIndex(rowIndex) / (this.rowAxis.uniqueFactor + 1));
+    }
+    
+    return rowIndex;
+};
+
+PivotTable.prototype.getRowIndexWithoutTotals = function(rowIndex) {
+    
+    if (this.doColSubTotals()) {
+        rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (this.rowAxis.uniqueFactor + 1)));
     }
     
     return rowIndex;
@@ -802,7 +816,7 @@ PivotTable.prototype.normalizeRowIndexOffset = function(rowIndex, dimensionIndex
  */
 PivotTable.prototype.getDistanceFromLastRowDimensionUnitActual = function(rowIndex, dimensionIndex) {
     
-    let normalized = this.normalizeRowIndex(this.getRowIndexWithHidden(rowIndex));
+    let normalized = this.getRowIndexWithoutTotals(this.getTrueRowIndex(rowIndex));
     
     return this.normalizeRowIndexOffset(rowIndex) -
         ((this.sumRowAxisSpanUpToIndex(normalized, dimensionIndex) -
@@ -819,7 +833,7 @@ PivotTable.prototype.getDistanceFromLastRowDimensionUnitActual = function(rowInd
  */
 PivotTable.prototype.getDistanceFromLastRowDimensionUnitOffset = function(rowIndex, dimensionIndex) {
     
-    let normalized = this.normalizeRowIndex(this.getRowIndexWithHidden(rowIndex));
+    let normalized = this.getRowIndexWithoutTotals(this.getTrueRowIndex(rowIndex));
     
     return normalized % this.rowAxis.span[dimensionIndex];
 };
@@ -834,7 +848,7 @@ PivotTable.prototype.getDistanceFromLastRowDimensionUnitOffset = function(rowInd
  */
 PivotTable.prototype.getDistanceToNextRowDimensionUnitActual = function(rowIndex, dimensionIndex) {
     
-    let normalized = this.normalizeRowIndex(this.getRowIndexWithHidden(rowIndex));
+    let normalized = this.getRowIndexWithoutTotals(this.getTrueRowIndex(rowIndex));
     
     return this.getRowAxisSpan(normalized, dimensionIndex) - 
         (this.normalizeRowIndexOffset(rowIndex) -
@@ -852,7 +866,7 @@ PivotTable.prototype.getDistanceToNextRowDimensionUnitActual = function(rowIndex
  */
 PivotTable.prototype.getDistanceToNextRowDimensionUnitOffset = function(rowIndex, dimensionIndex) {
     
-    let normalized = this.normalizeRowIndex(this.getRowIndexWithHidden(rowIndex));
+    let normalized = this.getRowIndexWithoutTotals(this.getTrueRowIndex(rowIndex));
     
     return this.rowAxis.span[dimensionIndex] - 
         (normalized % this.rowAxis.span[dimensionIndex]);
@@ -870,6 +884,37 @@ PivotTable.prototype.getHiddenRowsAbove = function(rowIndex, dimensionIndex) {
     return this.getDistanceFromLastRowDimensionUnitOffset(rowIndex, dimensionIndex) - 
         this.getDistanceFromLastRowDimensionUnitActual(rowIndex, dimensionIndex);
 };
+
+PivotTable.prototype.getHiddenRowsAbove = function(rowIndex, dimensionIndex) {
+
+    const rowIndexWithoutTotals = this.getRowIndexWithoutTotals(this.getTrueRowIndex(rowIndex));
+    const rowAxisUnitSpan = this.rowAxis.spanMap[dimensionIndex][Math.floor(rowIndex / this.rowAxis.span[dimensionIndex])];
+    const rowSpanSum = this.sumRowAxisSpanUpToIndex(rowIndexWithoutTotals, dimensionIndex);
+    
+    const distanceFromLastRowDimensionUnit = rowIndexWithoutTotals % this.rowAxis.span[dimensionIndex];
+    const distanceFromLastRowDimensionUnitActual = rowIndexWithoutTotals - (rowSpanSum - rowAxisUnitSpan);
+
+    return distanceFromLastRowDimensionUnit - distanceFromLastRowDimensionUnitActual;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Gets number of hidden rows below given row index up to end of current
@@ -908,7 +953,7 @@ PivotTable.prototype.getUpdatedRowSpan = function(rowIndex, dimensionIndex) {
 PivotTable.prototype.normalizeColumnIndexOffset = function(columnIndex, dimensionIndex) {
    
     if (this.doRowSubTotals()) {
-        return columnIndex - Math.floor(this.getColumnIndexWithHidden(columnIndex) / (this.colAxis.uniqueFactor + 1));
+        return columnIndex - Math.floor(this.getTrueColumnIndex(columnIndex) / (this.colAxis.uniqueFactor + 1));
     }
 
     return columnIndex;
@@ -922,7 +967,7 @@ PivotTable.prototype.normalizeColumnIndexOffset = function(columnIndex, dimensio
  * @returns {number}
  */
 PivotTable.prototype.getDistanceFromLastColumnDimensionUnitActual = function(columnIndex, dimensionIndex) {
-    let normalized = this.normalizeColumnIndex(this.getColumnIndexWithHidden(columnIndex));
+    let normalized = this.getColumnIndexWithoutTotals(this.getTrueColumnIndex(columnIndex));
     return this.normalizeColumnIndexOffset(columnIndex) -
         ((this.sumColumnAxisSpanUpToIndex(normalized, dimensionIndex) -
         this.getColumnAxisSpan(normalized, dimensionIndex)));
@@ -937,7 +982,7 @@ PivotTable.prototype.getDistanceFromLastColumnDimensionUnitActual = function(col
  * @returns {number}
  */
 PivotTable.prototype.getDistanceFromLastColumnDimensionUnitOffset = function(columnIndex, dimensionIndex) {
-    let normalized = this.normalizeColumnIndex(this.getColumnIndexWithHidden(columnIndex));
+    let normalized = this.getColumnIndexWithoutTotals(this.getTrueColumnIndex(columnIndex));
     return normalized % this.colAxis.span[dimensionIndex];
 };
 
@@ -950,7 +995,7 @@ PivotTable.prototype.getDistanceFromLastColumnDimensionUnitOffset = function(col
  * @returns {number}
  */
 PivotTable.prototype.getDistanceToNextColumnDimensionUnitActual = function(columnIndex, dimensionIndex) {
-    let normalized = this.normalizeColumnIndex(this.getColumnIndexWithHidden(columnIndex));
+    let normalized = this.getColumnIndexWithoutTotals(this.getTrueColumnIndex(columnIndex));
     return this.getColumnAxisSpan(normalized, dimensionIndex) - 
         (this.normalizeColumnIndexOffset(columnIndex) -
         ((this.sumColumnAxisSpanUpToIndex(normalized, dimensionIndex) -
@@ -966,7 +1011,7 @@ PivotTable.prototype.getDistanceToNextColumnDimensionUnitActual = function(colum
  * @returns {number}
  */
 PivotTable.prototype.getDistanceToNextColumnDimensionUnitOffset = function(columnIndex, dimensionIndex) {
-    let normalized = this.normalizeColumnIndex(this.getColumnIndexWithHidden(columnIndex));
+    let normalized = this.getColumnIndexWithoutTotals(this.getTrueColumnIndex(columnIndex));
     return this.colAxis.span[dimensionIndex] - 
         (normalized % this.colAxis.span[dimensionIndex]);
 };
@@ -1022,7 +1067,7 @@ PivotTable.prototype.sumColumnAxisSpanUpToIndex = function(columnIndex, dimensio
     
     let sum = 0;
     
-    for(let i = 0; i < Math.floor(columnIndex / this.colAxis.span[dimensionIndex]) + 1; i++) {
+    for (let i = 0; i < Math.floor(columnIndex / this.colAxis.span[dimensionIndex]) + 1; i++) {
         sum += this.colAxis.spanMap[dimensionIndex][i];
     }
     
@@ -1040,7 +1085,7 @@ PivotTable.prototype.sumRowAxisSpanUpToIndex = function(rowIndex, dimensionIndex
     
     let sum = 0;
     
-    for(let i = 0; i < Math.floor(rowIndex / this.rowAxis.span[dimensionIndex]) + 1; i++) {
+    for (let i = 0; i < Math.floor(rowIndex / this.rowAxis.span[dimensionIndex]) + 1; i++) {
         sum += this.rowAxis.spanMap[dimensionIndex][i];
     }
     
@@ -1318,8 +1363,8 @@ PivotTable.prototype.getLegendSetId = function(dxId) {
  */
 PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
-    rowIndex = this.normalizeRowIndex(rowIndex);
-    columnIndex = this.normalizeColumnIndex(columnIndex);
+    rowIndex = this.getRowIndexWithoutTotals(rowIndex);
+    columnIndex = this.getColumnIndexWithoutTotals(columnIndex);
 
     const rric = new ResponseRowIdCombination();
     
@@ -1407,7 +1452,7 @@ PivotTable.prototype.getTableSize = function(){
  */
 PivotTable.prototype.getNextSubColumnIndex = function(columnIndex) {
 
-    columnIndex = this.normalizeColumnIndex(columnIndex);
+    columnIndex = this.getColumnIndexWithoutTotals(columnIndex);
 
     return columnIndex + Math.floor(columnIndex / this.colAxis.uniqueFactor) +
         (this.colAxis.uniqueFactor - (columnIndex % this.colAxis.uniqueFactor));
@@ -1421,7 +1466,7 @@ PivotTable.prototype.getNextSubColumnIndex = function(columnIndex) {
  */
 PivotTable.prototype.getNextSubRowIndex = function(rowIndex) {
 
-    rowIndex = this.normalizeRowIndex(rowIndex);
+    rowIndex = this.getRowIndexWithoutTotals(rowIndex);
 
     return rowIndex + Math.floor(rowIndex / (this.rowAxis.uniqueFactor)) +
         (this.rowAxis.uniqueFactor - (rowIndex % this.rowAxis.uniqueFactor));
@@ -1786,8 +1831,8 @@ PivotTable.prototype.buildValueColumn = function(columnIndex, rowStart, rowEnd) 
  */
 PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
-    rowIndex = this.getRowIndexWithHidden(rowIndex);
-    columnIndex = this.getColumnIndexWithHidden(columnIndex);
+    rowIndex = this.getTrueRowIndex(rowIndex);
+    columnIndex = this.getTrueColumnIndex(columnIndex);
 
     let value = this.valueLookup[rowIndex][columnIndex];
     let displayValue = value;
@@ -1812,8 +1857,8 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
         return new PlainValueCell(value, displayValue);
     }
 
-    rowIndex = this.normalizeRowIndex(rowIndex);
-    columnIndex = this.normalizeColumnIndex(columnIndex);
+    rowIndex = this.getRowIndexWithoutTotals(rowIndex);
+    columnIndex = this.getColumnIndexWithoutTotals(columnIndex);
     
     let cell = new ValueCell(value, displayValue);
     let rric = new ResponseRowIdCombination();
@@ -1970,7 +2015,7 @@ PivotTable.prototype.buildRowAxisColumn = function(columnIndex, rowStart, rowEnd
  */
 PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
 
-    rowIndex = this.getRowIndexWithHidden(rowIndex);
+    rowIndex = this.getTrueRowIndex(rowIndex);
 
     let config = {};
     let displayValue = NO_BREAK_SPACE;
@@ -1998,7 +2043,7 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
         return new DimensionGrandTotalCell(displayValue, config)
     }
 
-    rowIndex = this.normalizeRowIndex(rowIndex);
+    rowIndex = this.getRowIndexWithoutTotals(rowIndex);
 
     config = this.getRowAxisObject(columnIndex, rowIndex);
     config.showHierarchy = this.doShowHierarchy();
@@ -2017,7 +2062,7 @@ PivotTable.prototype.buildRowAxisCell = function(columnIndex, rowIndex) {
  */
 PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
 
-    columnIndex = this.getColumnIndexWithHidden(columnIndex);
+    columnIndex = this.getTrueColumnIndex(columnIndex);
 
     let config = {};
     let displayValue = NO_BREAK_SPACE;
@@ -2032,17 +2077,18 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
     
     if (this.isColumnGrandTotal(columnIndex)) {
 
+
         config.hidden = rowIndex !== this.rowStart;
         config.rowSpan = this.colAxis.dims - rowIndex;
         config.sort = rowIndex === this.rowStart && this.doSortableColumnHeaders() ? TOTAL_SORT : null;
-        config.generateUuid = rowIndex !== 0;
+        config.generateUuid = rowIndex === 0;
 
         displayValue = rowIndex === 0 ? 'Total' : NO_BREAK_SPACE;
 
         return new DimensionGrandTotalCell(displayValue, config);
     }
 
-    columnIndex = this.normalizeColumnIndex(columnIndex);
+    columnIndex = this.getColumnIndexWithoutTotals(columnIndex);
 
     config = this.getColumnAxisObject(rowIndex, columnIndex)
 
@@ -2391,7 +2437,7 @@ PivotTable.prototype.createRowRenderMap = function() {
         this.numberOfEmptyRows += 1;
         
         for (let columnIndex = 0; columnIndex < this.rowAxis.span.length; columnIndex++) {
-            this.decremenetRowAxisSpan(this.normalizeRowIndex(rowIndex), columnIndex);
+            this.decremenetRowAxisSpan(this.getRowIndexWithoutTotals(rowIndex), columnIndex);
         }
     }
 
@@ -2417,7 +2463,7 @@ PivotTable.prototype.createColumnRenderMap = function() {
         this.numberOfEmptyColumns += 1;
 
         for (let rowIndex = 0; rowIndex < this.colAxis.span.length - 1; rowIndex++) {
-            this.decrementColumnAxisSpan(this.normalizeColumnIndex(columnIndex), rowIndex);
+            this.decrementColumnAxisSpan(this.getColumnIndexWithoutTotals(columnIndex), rowIndex);
         }
     }
 
@@ -2455,7 +2501,7 @@ PivotTable.prototype.constrainWidth = function(columnIndex) {
  * @param {number} rowIndex 
  * @returns {number}
  */
-PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
+PivotTable.prototype.getRowIndexWithoutTotals = function(rowIndex) {
     
     if (this.doColSubTotals()) {
         rowIndex = Math.max(0, rowIndex - Math.floor(rowIndex / (this.rowAxis.uniqueFactor + 1)));
@@ -2469,7 +2515,7 @@ PivotTable.prototype.normalizeRowIndex = function(rowIndex) {
  * @param {number} columnIndex 
  * @returns {number}
  */
-PivotTable.prototype.normalizeColumnIndex = function(columnIndex) {
+PivotTable.prototype.getColumnIndexWithoutTotals = function(columnIndex) {
     
     if (this.doRowSubTotals()) {
         return Math.max(0, columnIndex - Math.floor(columnIndex / (this.colAxis.uniqueFactor + 1)));    
@@ -2792,7 +2838,7 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
     this.setColumnStartAndEnd(columnStart);
     this.setRowStartAndEnd(rowStart);
 
-    const rowAxis = this.buildRowAxis();
+    let rowAxis = this.buildRowAxis();
     let colAxis = this.buildColumnAxis();
 
     const values = this.buildValueTable();
@@ -3000,12 +3046,12 @@ PivotTable.prototype.buildValueTable = function() {
         
         for (let j = 0, columnIndex = this.columnStart; j <= colSize; j++, columnIndex++) {
             
-            if (this.doSortableColumnHeaders()) {
-                
-                let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[rowIndex]]);
-                
+            if (this.doSortableColumnHeaders() && j === colSize) {
+
+                let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
+
                 this.idValueMap[totalIdComb.get()] = this.isRowEmpty(rowIndex) ? 
-                    null : this.getRowTotal(rowIndex);
+                    null : this.getRowTotal(rowIndex)
             }
 
             table[i].push(this.buildValueCell(columnIndex, rowIndex));

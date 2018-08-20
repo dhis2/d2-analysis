@@ -142,8 +142,8 @@ export class DimensionGrandTotalCell extends TextCell {
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
 
-        if (this.sortable) {
-            this.sort = 'total';
+        if (this.sort) {
+            this.cls += ' td-sortable';
         }
 
         if (this.generateUuid) {
