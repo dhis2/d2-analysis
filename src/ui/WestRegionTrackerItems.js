@@ -247,7 +247,6 @@ WestRegionTrackerItems = function(refs) {
         dataElementsByStageStore.removeAll();
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
-        uiManager.get('aggregateLayoutWindow').timeField.resetData();
 
         var getCategories = function(categoryCombo) {
             if (
@@ -313,6 +312,9 @@ WestRegionTrackerItems = function(refs) {
                 stage.setValue(stageId);
                 onStageSelect(stageId, layout);
             }
+
+            // init timeField, depending on programType
+            uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
         };
 
         if (programStorage[programId]) {
@@ -324,7 +326,7 @@ WestRegionTrackerItems = function(refs) {
                 params: [
                     'filter=id:eq:' + programId,
                     [
-                        'fields=programStages[id,displayName~rename(name)]',
+                        'fields=programType,programStages[id,displayName~rename(name)]',
                         'programIndicators[id,' + displayPropertyUrl + ']',
                         'programTrackedEntityAttributes[trackedEntityAttribute[id,' +
                             displayPropertyUrl +
@@ -411,8 +413,11 @@ WestRegionTrackerItems = function(refs) {
         if (!layout) {
             dataElementSelected.removeAllDataElements(true);
             uiManager.get('aggregateLayoutWindow').value.resetData();
-            uiManager.get('aggregateLayoutWindow').timeField.resetData();
         }
+
+        var _program = programStorage[layout ? layout.program.id : program.getValue()];
+
+        uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
 
         dataElementType.enable();
         dataElementSearch.enable();
