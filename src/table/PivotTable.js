@@ -1930,7 +1930,7 @@ PivotTable.prototype.buildColumnAxisCell = function(rowIndex, columnIndex) {
     if (this.isColumnGrandTotal(columnIndex)) {
         return DimensionGrandTotalCell(rowIndex === 0 ? 
             'Total' : '&nbsp;', 1, this.columnDimensionSize - rowIndex, 
-            rowIndex === this.rowStart && this.doSortableColumnHeaders(), rowIndex !== 0, rowIndex !== 0)
+            rowIndex === this.rowStart && this.doSortableColumnHeaders(), rowIndex === 0, rowIndex !== 0)
     }
 
     return ColumnAxisCell(

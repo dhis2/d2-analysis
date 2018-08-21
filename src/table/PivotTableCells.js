@@ -196,6 +196,11 @@ export const DimensionGrandTotalCell = (value, colSpan, rowSpan, sort, generateU
     cell.rowSpan = rowSpan;
 
     cell.sort    = sort ? 'total' : null;
+
+    if (sort) {
+        cell.cls += ' td-sortable';
+    }
+
     cell.uuid    = generateUuid ? uuid() : null;
 
     cell.htmlValue = value;
