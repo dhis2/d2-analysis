@@ -11,6 +11,7 @@ deploy:
   email: jason.p.pickering@gmail.com
   api_key:
     secure: LMreLgxTIwhOSaX0Gs0+xZJPqY8tYK+0eDAK/HJCGitokefjzYoQXQh/2k5Ci6Vpg4tXqJ3DQXvFIlYddLE5p6/X2f/PIDG4oxm8bplwbsMrFY/itqtUTo+4cQRkxKnsmOWC6BrryFR9rOMMTC1BYVKvvoAN0/Ifs5WY1aA9Q0+i1pKEL5MlGwG8EFgr9Gc49GtoO/pWgl8t5IuImy2OdlyKT6FwkshcL1sjsMcIkcBhi2QT+TNkB2kUgvxxO+YMw7EvJdsBO7DBrZM5OWyiHf0FytnBSJR1ts9BEm6rngy4SQ0AbGITNBrgLiIaTo++54CWBy1lcQN3I06OKsZX7QQ8afhR94ZHE3q/dXbPsvZfO4E2SjhYP2FmlI8/cFSnLWCSCy0CFtLB/Ztfduwe/3UsAYI6kzN7Z+UxLC3CZC8yc6/J/NjpvEu/xXs9GMwhhl93fAlXkEq9iizaH++DYSREpTKOOC2/ni4z71LR8obZlCvwv8NjMiI46z7zRBNfY7MdXiT1EngpgTln+18pcPCq/we6ta+0Zf4JU7RavRqbnvC33YQJF/HxjdA2KUnDfo2Ur+cyElGmaJMaKDkxFN0itSUaaZpI+AuRB9JZTPTBLNXF6cST9HtZHUSOxw6+DV5Ndc5gz/hWBCesXkB9pbzY11rOSduDZiXZYqwtedY=
+  skip_cleanup: true
   on:
     tags: true
     repo: dhis2/d2-analysis
