@@ -138,7 +138,7 @@ UiManager = function(refs) {
         t.get(component) && t.get(component).removeScroll();
     }
 
-    t.setOnResizeFn = function(component, fn) {
+    t.setResizeFn = function(component, fn) {
         t.get(component) && t.get(component).setOnResize(fn);
     }
     

@@ -58,7 +58,6 @@ export class ValueCell extends NumberCell {
     
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
-
         this.isValue = true;
         this.uuid = uuid();
     }
@@ -67,7 +66,7 @@ export class ValueCell extends NumberCell {
 export class PlainValueCell extends NumberCell {
 
     type = VALUE_CELL;
-    cls = 'pivot-value pointer';
+    cls = 'pivot-value';
     
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
