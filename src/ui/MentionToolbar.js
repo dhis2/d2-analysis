@@ -18,9 +18,15 @@ MentionToolbar = function (refs) {
         zIndex: 9999,
         cls: 'mentions',
         createMentionLabelsForUser : function(users, splitText, currentMention, component){
+            const currentMentionLowerCase = currentMention.toLowerCase();
+
             return users
-                    .filter(user => (user.userCredentials.username.toLowerCase().includes(currentMention.toLowerCase()) || user.displayName.toLowerCase().includes(currentMention.toLowerCase())))
-                    .map((user) => {
+                    .filter(user => (
+                        user.userCredentials.username.toLowerCase().includes(currentMentionLowerCase) ||
+                        user.displayName.toLowerCase().includes(currentMentionLowerCase)
+                    ))
+                    .slice(0, 50)
+                    .map(user => {
                         return {
                             xtype: 'label',
                             html:  user.displayName + " (" + user.userCredentials.username + ")",
