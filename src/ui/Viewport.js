@@ -591,8 +591,8 @@ Viewport = function(refs, cmp, config) {
                 }, p);
             },
             resize: {
-                fn: function(e) {
-                    this.onResize(e);
+                fn: function(p, newWidth, newHight) {
+                    this.onResize(newWidth, newHight);
                 }
             },
         }

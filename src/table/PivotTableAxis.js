@@ -7,7 +7,7 @@ import uuid from 'd2-utilizr/lib/uuid';
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
-import { defaultProxyGenerator } from './PivotTableUtils';
+import { defaultProxyGenerator, getPercentageHtml } from './PivotTableUtils';
 
 const spanTypes = {
     [COLUMN_AXIS]: 'colSpan',
@@ -18,12 +18,23 @@ const ignoreKeys = [
     'dy', 'longitude', 'latitude',
 ];
 
-export const PivotTableAxis = function(refs, layout, response, type) {
+export const PivotTableAxis = function(refs, layout, response, type, options = {}) {
+
+    this.options = {
+        showTotals: false,
+        showSubTotals: false,
+        hideEmpty: false,
+        ...options,
+    }
 
     this.type = type;
     this.spanType = spanTypes[type];
     this.size = 1;
+    this.numberOfEmpty = 0;
 
+    this.response = response;
+
+    this.totalLookup = defaultProxyGenerator(0);
     this.uuidObjectMap = {};
     this.items = [];
     this.span = [];
@@ -176,8 +187,184 @@ export const PivotTableAxis = function(refs, layout, response, type) {
         all: aaAllFloorObjects
     };
 
+    this.doHideEmpty = this.options.hideEmpty && this.type;
+
+    this.doTotals = this.options.showTotals
+    this.doSubTotals = this.options.showSubTotals && this.type && this.dims > 1;
+
     this.uniqueFactor = this.getUniqueFactor();
     this.spanMap = this.getSpanMap();
+};
+
+PivotTableAxis.prototype.isPositionEmpty = function(positionIndex) {
+    return this.totalLookup[positionIndex] <= 0;
+};
+
+PivotTableAxis.prototype.isPositionHidden = function(positionIndex) {
+    return this.doHideEmpty && this.isPositionEmpty(this.getPositionIndexOffsetHidden(positionIndex));
+};
+
+PivotTableAxis.prototype.isSubTotalPosition = function(positionIndex) {
+    return this.doSubTotals && (positionIndex + 1) % (this.uniqueFactor + 1) === 0;
+};
+
+PivotTableAxis.prototype.isTotalPosition = function(positionIndex) {
+    return this.doTotals && positionIndex === this.actualSize - 1;
+};
+
+PivotTableAxis.prototype.getTotal = function(positionIndex) {
+    this.totalLookup[positionIndex];
+};
+
+PivotTableAxis.prototype.getPercentage = function(value, positionIndex) {
+    return getPercentageHtml(value, this.getTotal(positionIndex));
+};
+
+PivotTableAxis.prototype.getNextTotalPosition = function() {
+    return this.actualSize - 1;
+};
+
+PivotTableAxis.prototype.getAxisSpan = function(positionIndex, dimensionIndex) {
+    return this.spanMap[dimensionIndex][Math.floor(positionIndex / this.span[dimensionIndex])];
+};
+
+PivotTableAxis.prototype.initializeRenderLookup = function() {
+    this.renderLookup = this.createRenderMap();
+};
+
+PivotTableAxis.prototype.getNextSubTotalPosition = function(positionIndex) {
+
+    positionIndex = this.getPositionIndexWithoutTotals(positionIndex);
+
+    return positionIndex + Math.floor(positionIndex / (this.uniqueFactor)) +
+        (this.uniqueFactor - (positionIndex % this.uniqueFactor));
+};
+
+PivotTableAxis.prototype.getAxisLabel = function(positionIndex) {
+        
+    if (this.dims) {
+        return this.response.getNameById(this.dimensionNames[positionIndex]);
+    }
+    
+    return null;
+}
+
+PivotTableAxis.prototype.getDimensionSpan = function(positionIndex, dimensionIndex) {
+    return this.span[dimensionIndex] - 
+        this.getNumberOfHiddenPreceding(positionIndex, dimensionIndex) -
+        this.getNumberOfHiddenProceeding(positionIndex, dimensionIndex) - 
+        this.getDistanceFromLastPositionDimensionUnitActual(positionIndex, dimensionIndex);
+};
+
+PivotTableAxis.prototype.getNumberOfHiddenPreceding = function(positionIndex, dimensionIndex) {
+    return this.getDistanceFromLastPositionDimensionUnitOffset(positionIndex, dimensionIndex) - 
+        this.getDistanceFromLastPositionDimensionUnitActual(positionIndex, dimensionIndex);
+};
+
+PivotTableAxis.prototype.getDistanceFromLastPositionDimensionUnitOffset = function(positionIndex, dimensionIndex) {
+    let actualPositionIndex = this.getPositionIndexOffsetHidden(positionIndex);
+    let normalized = this.getPositionIndexWithoutTotals(actualPositionIndex);
+    
+    return normalized % this.span[dimensionIndex];
+};
+
+PivotTableAxis.prototype.getDistanceFromLastPositionDimensionUnitActual = function(positionIndex, dimensionIndex) {
+    
+    let actualPositionIndex = this.getPositionIndexOffsetHidden(positionIndex);
+    let normalized = this.getPositionIndexWithoutTotals(actualPositionIndex);
+    
+    return this.normalizePositionIndexOffset(positionIndex) -
+        ((this.sumAxisSpanUpToIndex(normalized, dimensionIndex) -
+        this.getAxisSpan(normalized, dimensionIndex)));
+};
+
+PivotTableAxis.prototype.getNumberOfHiddenProceeding = function(positionIndex, dimensionIndex) {
+    return this.getDistanceToNextPositionDimensionUnitOffset(positionIndex, dimensionIndex) - 
+        this.getDistanceToNextPositionDimensionUnitActual(positionIndex, dimensionIndex);
+};
+
+PivotTableAxis.prototype.getDistanceToNextPositionDimensionUnitOffset = function(positionIndex, dimensionIndex) {
+    
+    let actualPositionIndex = this.getPositionIndexOffsetHidden(positionIndex);
+    let normalized = this.getPositionIndexWithoutTotals(actualPositionIndex);
+    
+    return this.span[dimensionIndex] - (normalized % this.span[dimensionIndex]);
+};
+
+PivotTableAxis.prototype.getDistanceToNextPositionDimensionUnitActual = function(positionIndex, dimensionIndex) {
+    
+    let actualPositionIndex = this.getPositionIndexOffsetHidden(positionIndex);
+    let normalized = this.getPositionIndexWithoutTotals(actualPositionIndex);
+    
+    return this.getAxisSpan(normalized, dimensionIndex) - 
+        (this.normalizePositionIndexOffset(positionIndex) -
+        ((this.sumAxisSpanUpToIndex(normalized, dimensionIndex) -
+        this.getAxisSpan(normalized, dimensionIndex))));
+};
+
+PivotTableAxis.prototype.getPositionIndexOffsetHidden = function(positionIndex) {
+
+    if (this.doHideEmpty) {
+        return this.renderLookup[positionIndex];
+    }
+    
+    return positionIndex;
+};
+
+PivotTableAxis.prototype.getPositionIndexWithoutTotals = function(positionIndex) {
+    
+    if (this.doSubTotals) {
+        return Math.max(0, positionIndex - Math.floor(positionIndex / (this.uniqueFactor + 1)));    
+    }
+    
+    return positionIndex;
+};
+
+PivotTableAxis.prototype.normalizePositionIndexOffset = function(positionIndex) {
+    
+    if (this.doSubTotals) {
+        let actualPositionIndex = this.getPositionIndexOffsetHidden(positionIndex);
+        return positionIndex - Math.floor(actualPositionIndex / (this.uniqueFactor + 1));
+    }
+    
+    return positionIndex;
+};
+
+PivotTableAxis.prototype.decrementAxisSpan = function(positionIndex, dimensionIndex) {
+    this.spanMap[dimensionIndex][Math.floor(positionIndex / this.span[dimensionIndex])] -= 1;
+};
+
+PivotTableAxis.prototype.createRenderMap = function() {
+    
+    let map = [];
+
+    for (let positionIndex = 0; positionIndex < this.actualSize; positionIndex++) {
+        
+        if (!this.isPositionEmpty(positionIndex) || !this.doHideEmpty) {
+            map.push(positionIndex);
+            continue;
+        }
+
+        this.numberOfEmpty += 1;
+
+        for (let dimensionIndex = 0; dimensionIndex < this.span.length - 1; dimensionIndex++) {
+            let normalizedPositionIndex = this.getPositionIndexWithoutTotals(positionIndex);
+            this.decrementAxisSpan(normalizedPositionIndex, dimensionIndex);
+        }
+    }
+
+    return map;
+};
+
+PivotTableAxis.prototype.sumAxisSpanUpToIndex = function(positionIndex, dimensionIndex) {
+    
+    let sum = 0;
+    
+    for (let i = 0; i < Math.floor(positionIndex / this.span[dimensionIndex]) + 1; i++) {
+        sum += this.spanMap[dimensionIndex][i];
+    }
+    
+    return sum;
 };
 
 PivotTableAxis.prototype.getSpanMap = function() {
@@ -187,9 +374,9 @@ PivotTableAxis.prototype.getSpanMap = function() {
     }
 
     return Array.from(this.span, value => defaultProxyGenerator(value));
-}
+};
 
-PivotTableAxis.prototype.getSize = function(withSubTotals=false, withTotals=false) {
+PivotTableAxis.prototype.getActualSize = function() {
 
     let size = this.size;
 
@@ -197,16 +384,16 @@ PivotTableAxis.prototype.getSize = function(withSubTotals=false, withTotals=fals
         return 1;
     }
 
-    if (withSubTotals)  {
+    if (this.doSubTotals)  {
         size += this.size / this.uniqueFactor;
     }
     
-    if (withTotals) {
+    if (this.doTotals) {
         size += 1;    
     }
     
     return size;
-}
+};
 
 PivotTableAxis.prototype.getUniqueFactor = function() {
     
