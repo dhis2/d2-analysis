@@ -212,12 +212,8 @@ PivotTableAxis.prototype.isTotalPosition = function(positionIndex) {
     return this.doTotals && positionIndex === this.actualSize - 1;
 };
 
-PivotTableAxis.prototype.getTotal = function(positionIndex) {
-    this.totalLookup[positionIndex];
-};
-
 PivotTableAxis.prototype.getPercentage = function(value, positionIndex) {
-    return getPercentageHtml(value, this.getTotal(positionIndex));
+    return getPercentageHtml(value, this.totalLookup[positionIndex]);
 };
 
 PivotTableAxis.prototype.getNextTotalPosition = function() {

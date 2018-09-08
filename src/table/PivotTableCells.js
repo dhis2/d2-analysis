@@ -34,8 +34,17 @@ export class NumberCell extends TableCell {
 
         this.value = value;
 
-        this.displayValue = typeof displayValue !== 'string' && typeof displayValue !== 'number'  ?
-            '&nbsp;' : getRoundedHtmlValue(displayValue);
+        if (typeof displayValue === 'string') {
+            this.displayValue = displayValue;
+        }
+
+        else if (typeof displayValue === 'number') {
+            this.displayValue = getRoundedHtmlValue(displayValue);
+        }
+
+        else {
+            this.displayValue = '&nbsp;';
+        }
 
         this.title = this.displayValue;
     }
