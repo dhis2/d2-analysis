@@ -77,7 +77,7 @@ export const PivotTable = function(refs, layout, response, options = {}) {
         totalsAggregationType: layout.totalsAggregationType,
         numberType: layout.numberType,
         debug: {
-            clipping: true,
+            clipping: false,
         },
         ...options,
     }
@@ -349,7 +349,7 @@ PivotTable.prototype.isDimensionTotalCell = function(cell) {
  * @returns
  */
 PivotTable.prototype.isCellValid = function(cell) {
-    return cell && !cell.collapsed;
+    return cell && !cell.collapsed;isRowDimensionColumn
 };
 
 /**
@@ -716,7 +716,7 @@ PivotTable.prototype.getTopBarSpan = function(span) {
     let rowDims = this.rowAxis.dims || 0;
 
     if (!this.colAxis.type && this.rowAxis.type) {
-        return rowDims + 1;
+        return rowDims;
     }
 
     return span;
@@ -1058,10 +1058,14 @@ PivotTable.prototype.buildColumnDimensionRow = function(rowIndex, columnStart, c
         Object.assign(row, this.buildCornerDimensionRow(rowIndex, columnStart));
     }
 
+    if (!this.colAxis.type) {
+        return row;
+    }
+
     columnStart += row.length;
 
     columnStart -= this.rowAxis.dims;
-    columnEnd   -= this.rowAxis.dims;
+    columnEnd -= this.rowAxis.dims;
 
     for (let columnIndex = row.length; columnStart <= columnEnd; columnIndex++, columnStart++) {
         row[columnIndex] = this.buildColumnDimensionCell(rowIndex, columnStart);
@@ -1417,11 +1421,11 @@ PivotTable.prototype.initializeLookups = function() {
     let tableRowSize = this.rowAxis.actualSize;
     let tableColumnSize = this.colAxis.actualSize;
 
-    if (this.rowAxis.doTotals) {
+    if (this.rowAxis.doTotals && tableColumnSize !== 1) {
         tableColumnSize -= 1;
     }
 
-    if (this.colAxis.doTotals) {
+    if (this.colAxis.doTotals && tableRowSize !== 1) {
         tableRowSize -= 1;
     }
 
@@ -1855,7 +1859,9 @@ PivotTable.prototype.build = function(columnStart=0, rowStart=0) {
     }
 
     // transpose columnDimension
-    columnDimension = columnDimension[0].map((column, index) => columnDimension.map(row => row[index]));
+    if (this.colAxis.type) {
+        columnDimension = columnDimension[0].map((column, index) => columnDimension.map(row => row[index]));
+    }
     
     this.table = columnDimension.concat(rowDimension);
 };

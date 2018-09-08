@@ -26,10 +26,10 @@ export const PivotTableAxis = function(refs, layout, response, type, options = {
         hideEmpty: false,
         ...options,
     }
-
-    this.type = type;
+    
     this.spanType = spanTypes[type];
     this.size = 1;
+    this.dims = 1;
     this.numberOfEmpty = 0;
 
     this.response = response;
@@ -53,6 +53,8 @@ export const PivotTableAxis = function(refs, layout, response, type, options = {
     if (!(isArray(this.items) && this.items.length)) {
         return;
     }
+
+    this.type = type;
     
     let aAccFloorWidth = [];
 
