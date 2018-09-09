@@ -69,7 +69,8 @@ export const PivotTable = function(refs, layout, response, options = {}) {
         renderOffset: 1,
         cellHeight: 25,
         cellWidth: 120,
-        trueTotals: true,
+        trueTotals: false,
+        unclickable: false,
         hideEmptyRows: !!layout.hideEmptyRows,
         hideEmptyColumns: !!layout.hideEmptyColumns,
         showDimensionLabels: !!layout.showDimensionLabels,
@@ -349,7 +350,7 @@ PivotTable.prototype.isDimensionTotalCell = function(cell) {
  * @returns
  */
 PivotTable.prototype.isCellValid = function(cell) {
-    return cell && !cell.collapsed;isRowDimensionColumn
+    return cell && !cell.collapsed;
 };
 
 /**

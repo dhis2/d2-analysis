@@ -63,7 +63,7 @@ export class TextCell extends TableCell {
 export class ValueCell extends NumberCell {
 
     type = VALUE_CELL;
-    cls = 'pivot-value pointer';
+    cls = 'pivot-value';
     
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
