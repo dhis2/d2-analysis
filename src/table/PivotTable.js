@@ -1465,11 +1465,11 @@ PivotTable.prototype.initializeLookups = function() {
             } 
 
             // calculate totals
-            if (this.colAxis.doTotals) {
+            if (this.rowAxis.doTotals) {
                 this.updateValueTotal(nextRowTotalIndex, columnIndex, valueObject, totalMap);
             }
 
-            if (this.rowAxis.doTotals) {
+            if (this.colAxis.doTotals) {
                 this.updateValueTotal(rowIndex, nextColumnTotalIndex, valueObject, totalMap);
             }
             
