@@ -330,23 +330,33 @@ OptionConfig = function() {
                 id: 'EVENT_DATE',
                 name: i18nManager.get('event_date') || 'Event date',
             },
-            enrollmentdate: {
+            created: {
                 index: 2,
+                id: 'CREATED',
+                name: i18nManager.get('created_date') || 'Created date',
+            },
+            lastupdated: {
+                index: 3,
+                id: 'LAST_UPDATED',
+                name: i18nManager.get('last_updated') || 'Last updated date',
+            },
+            enrollmentdate: {
+                index: 4,
                 id: 'ENROLLMENT_DATE',
                 name: i18nManager.get('enrollment_date') || 'Enrollment date',
             },
             incidentdate: {
-                index: 3,
+                index: 5,
                 id: 'INCIDENT_DATE',
                 name: i18nManager.get('incident_date') || 'Incident date',
             },
             duedate: {
-                index: 4,
+                index: 6,
                 id: 'DUE_DATE',
                 name: i18nManager.get('due_date') || 'Due date',
             },
             completeddate: {
-                index: 5,
+                index: 7,
                 id: 'COMPLETED_DATE',
                 name: i18nManager.get('completed_date') || 'Completed date',
             },
