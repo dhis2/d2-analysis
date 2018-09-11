@@ -144,8 +144,8 @@ PivotTable.prototype.initialize = function() {
 
     // lookup for values
     this.valueLookup = {}
-    this.rowTotalLookup = defaultProxyGenerator(0);
-    this.columnTotalLookup = defaultProxyGenerator(0);
+    this.rowTotalLookup = {};
+    this.columnTotalLookup = {};
 
     // initialize lookup tables
     this.initializeLookups();
@@ -496,7 +496,7 @@ PivotTable.prototype.isRowGrandTotal = function(rowIndex) {
  * @returns {boolean}
  */
 PivotTable.prototype.isRowEmpty = function(rowIndex) {
-    return this.rowTotalLookup[rowIndex] <= 0;
+    return !isNumber(this.rowTotalLookup[rowIndex]);
 };
 
 /**
@@ -506,7 +506,7 @@ PivotTable.prototype.isRowEmpty = function(rowIndex) {
  * @returns {boolean}
  */
 PivotTable.prototype.isColumnEmpty = function(columnIndex) {
-    return this.columnTotalLookup[columnIndex] <= 0;
+    return !isNumber(this.columnTotalLookup[columnIndex]);
 };
 
 /**
@@ -1741,11 +1741,11 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     let value = this.valueLookup[rowIndex][columnIndex],
         htmlValue = null;
 
-    if (this.doColPercentage()) {
+    if (this.doColPercentage() && isNumber(value)) {
         htmlValue = this.getColumnPercentage(value, columnIndex);  
     }
     
-    if (this.doRowPercentage()) {
+    if (this.doRowPercentage() && isNumber(value)) {
         htmlValue = this.getRowPercentage(value, rowIndex);
     }
 
@@ -2187,6 +2187,12 @@ PivotTable.prototype.initializeLookups = function() {
 
             let valueObject = this.getValueObject(i, j);
 
+            let rowTotalIndex = this.getNextTotalRowIndex();
+            let columnTotalIndex = this.getNextTotalColumnIndex();
+
+            let rowSubTotalIndex = this.getNextSubRowIndex(i);
+            let columnSubTotalIndex = this.getNextSubColumnIndex(j);
+
             if (valueObject) {
 
                 if (!this.valueLookup[rowIndex]) {
@@ -2197,34 +2203,45 @@ PivotTable.prototype.initializeLookups = function() {
                     null : valueObject.value;
             }
 
-            this.rowTotalLookup[rowIndex] += valueObject.value;
-            this.columnTotalLookup[columnIndex] += valueObject.value;
-            
-            this.rowTotalLookup[this.getNextTotalRowIndex()] += valueObject.value;
-            this.columnTotalLookup[this.getNextTotalColumnIndex()] += valueObject.value;
+            // used to calculate percentages and check for empties
+            if (!valueObject.empty) {
 
-            if (this.doColSubTotals()) {
-                this.rowTotalLookup[this.getNextSubRowIndex(i)] += valueObject.value;
-            }
+                if (!this.rowTotalLookup[rowIndex]) this.rowTotalLookup[rowIndex] = 0;
+                if (!this.columnTotalLookup[columnIndex]) this.columnTotalLookup[columnIndex] = 0;
+                if (!this.rowTotalLookup[rowTotalIndex]) this.rowTotalLookup[rowTotalIndex] = 0;
+                if (!this.columnTotalLookup[columnTotalIndex]) this.columnTotalLookup[columnTotalIndex] = 0;
 
-            if (this.doRowSubTotals()) {
-                this.columnTotalLookup[this.getNextSubColumnIndex(j)] += valueObject.value;
+                this.rowTotalLookup[rowIndex] += valueObject.value;
+                this.columnTotalLookup[columnIndex] += valueObject.value;
+                
+                this.rowTotalLookup[rowTotalIndex] += valueObject.value;
+                this.columnTotalLookup[columnTotalIndex] += valueObject.value;
+
+                if (this.rowAxis.doSubTotals) {
+                    if (!this.rowTotalLookup[rowSubTotalIndex]) this.rowTotalLookup[rowSubTotalIndex] = 0;
+                    this.rowTotalLookup[rowSubTotalIndex] += valueObject.value;
+                }
+
+                if (this.colAxis.doSubTotals) {
+                    if (!this.columnTotalLookup[columnSubTotalIndex]) this.columnTotalLookup[columnSubTotalIndex]  = 0;
+                    this.columnTotalLookup[columnSubTotalIndex] += valueObject.value;
+                }
             }
 
             // calculate grand totals
-            if (this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), columnIndex, valueObject, totalMap);
-            if (this.doRowTotals()) this.updateValueTotal(rowIndex, this.getNextTotalColumnIndex(), valueObject, totalMap);
+            if (this.doColTotals()) this.updateValueTotal(rowTotalIndex, columnIndex, valueObject, totalMap);
+            if (this.doRowTotals()) this.updateValueTotal(rowIndex, columnTotalIndex, valueObject, totalMap);
 
             // calculate sub totals
-            if (this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), columnIndex, valueObject, totalMap);
-            if (this.doRowSubTotals()) this.updateValueTotal(rowIndex, this.getNextSubColumnIndex(j), valueObject, totalMap);
+            if (this.doColSubTotals()) this.updateValueTotal(rowSubTotalIndex, columnIndex, valueObject, totalMap);
+            if (this.doRowSubTotals()) this.updateValueTotal(rowIndex, columnSubTotalIndex, valueObject, totalMap);
             
             // calculate intersection totals
-            if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextTotalColumnIndex(), valueObject, totalMap);
-            if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextSubColumnIndex(j), valueObject, totalMap);
+            if (this.doRowTotals() && this.doColTotals()) this.updateValueTotal(rowTotalIndex, columnTotalIndex, valueObject, totalMap);
+            if (this.doColSubTotals() && this.doRowSubTotals()) this.updateValueTotal(rowSubTotalIndex, columnSubTotalIndex, valueObject, totalMap);
 
-            if (this.doColTotals() && this.doRowSubTotals()) this.updateValueTotal(this.getNextTotalRowIndex(), this.getNextSubColumnIndex(j), valueObject, totalMap);
-            if (this.doRowTotals() && this.doColSubTotals()) this.updateValueTotal(this.getNextSubRowIndex(i), this.getNextTotalColumnIndex(), valueObject, totalMap);
+            if (this.doColTotals() && this.doRowSubTotals()) this.updateValueTotal(rowTotalIndex, columnSubTotalIndex, valueObject, totalMap);
+            if (this.doRowTotals() && this.doColSubTotals()) this.updateValueTotal(rowSubTotalIndex, columnTotalIndex, valueObject, totalMap);
         }
     }
 
@@ -2863,7 +2880,7 @@ PivotTable.prototype.updateRowAxisDimensionSpan = function() {
 
             if (cell.type === 'dimensionSubtotal' || cell.type === 'dimensionTotal') {
                 rowSpanCounter += 1;
-                cell.hidden =  i !== 0;
+                cell.hidden = i !== 0;
                 continue;
             }
 
