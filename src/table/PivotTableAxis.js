@@ -4,6 +4,7 @@ import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import arrayRepeat from 'd2-utilizr/lib/arrayRepeat';
 import uuid from 'd2-utilizr/lib/uuid';
+import isNumber from 'd2-utilizr/lib/isNumber';
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
@@ -34,7 +35,7 @@ export const PivotTableAxis = function(refs, layout, response, type, options = {
 
     this.response = response;
 
-    this.totalLookup = defaultProxyGenerator(0);
+    this.totalLookup = {};
     this.uuidObjectMap = {};
     this.items = [];
     this.span = [];
@@ -199,7 +200,7 @@ export const PivotTableAxis = function(refs, layout, response, type, options = {
 };
 
 PivotTableAxis.prototype.isPositionEmpty = function(positionIndex) {
-    return this.totalLookup[positionIndex] <= 0;
+    return !isNumber(this.totalLookup[positionIndex]);
 };
 
 PivotTableAxis.prototype.isPositionHidden = function(positionIndex) {

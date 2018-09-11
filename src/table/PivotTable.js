@@ -124,6 +124,7 @@ export const PivotTable = function(refs, layout, response, options = {}) {
     this.legendDisplayStrategy = layout.legendDisplayStrategy;
     
     this.valueCounter = 0;
+    
 };
 
 PivotTable.prototype.initialize = function() {
@@ -940,11 +941,11 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     let value = this.valueLookup[rowIndex][columnIndex];
     let displayValue = value;
 
-    if (this.doColumnPercentage()) {
+    if (this.doColumnPercentage() && isNumber(value)) {
         displayValue = this.colAxis.getPercentage(value, columnIndex);  
     }
     
-    if (this.doRowPercentage()) {
+    if (this.doRowPercentage() && isNumber(value)) {
         displayValue = this.rowAxis.getPercentage(value, rowIndex);
     }
 
@@ -1447,20 +1448,37 @@ PivotTable.prototype.initializeLookups = function() {
                 this.valueLookupInsert(valueObject.empty ? null : valueObject.value, rowIndex, columnIndex);
             }
 
-            this.rowAxis.totalLookup[rowIndex] += valueObject.value;
-            this.colAxis.totalLookup[columnIndex] += valueObject.value;
-            
-            this.rowAxis.totalLookup[nextRowTotalIndex] += valueObject.value;
-            this.colAxis.totalLookup[nextColumnTotalIndex] += valueObject.value;
+            // used to calculate percentages and check for empties
+            if (!valueObject.empty) {
+
+                if (!this.rowAxis.totalLookup[rowIndex]) this.rowAxis.totalLookup[rowIndex] = 0;
+                if (!this.colAxis.totalLookup[columnIndex]) this.colAxis.totalLookup[columnIndex] = 0;
+                if (!this.rowAxis.totalLookup[nextRowTotalIndex]) this.rowAxis.totalLookup[nextRowTotalIndex] = 0;
+                if (!this.colAxis.totalLookup[nextColumnTotalIndex]) this.colAxis.totalLookup[nextColumnTotalIndex] = 0;
+
+                this.rowAxis.totalLookup[rowIndex] += valueObject.value;
+                this.colAxis.totalLookup[columnIndex] += valueObject.value;
+                
+                this.rowAxis.totalLookup[nextRowTotalIndex] += valueObject.value;
+                this.colAxis.totalLookup[nextColumnTotalIndex] += valueObject.value;
+
+                if (this.rowAxis.doSubTotals) {
+                    if (!this.rowAxis.totalLookup[nextRowSubTotalIndex]) this.rowAxis.totalLookup[nextRowSubTotalIndex] = 0;
+                    this.rowAxis.totalLookup[nextRowSubTotalIndex] += valueObject.value;
+                }
+
+                if (this.colAxis.doSubTotals) {
+                    if (!this.colAxis.totalLookup[nextColumnSubTotalIndex]) this.colAxis.totalLookup[nextColumnSubTotalIndex]  = 0;
+                    this.colAxis.totalLookup[nextColumnSubTotalIndex] += valueObject.value;
+                }
+            }
 
             // calculate sub totals
             if (this.rowAxis.doSubTotals) {
-                this.rowAxis.totalLookup[nextRowSubTotalIndex] += valueObject.value;
                 this.updateValueTotal(nextRowSubTotalIndex, columnIndex, valueObject, totalMap);
             }
 
             if (this.colAxis.doSubTotals) {
-                this.colAxis.totalLookup[nextColumnSubTotalIndex] += valueObject.value;
                 this.updateValueTotal(rowIndex, nextColumnSubTotalIndex, valueObject, totalMap);
             } 
 
@@ -1521,6 +1539,7 @@ PivotTable.prototype.initializeLookups = function() {
                     
                 this.valueLookupInsert(total, rowIndex, columnIndex);
             }
+
         }        
     }
 };
