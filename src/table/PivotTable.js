@@ -162,8 +162,6 @@ PivotTable.prototype.initialize = function() {
     if (this.doHideEmptyColumns()) {
         this.colAxis.initializeRenderLookup();
     }
-
-    console.log(this.valueLookup)
 }
 
 // setters
@@ -1415,7 +1413,6 @@ PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) 
     this.valueCounter += 1;
 }
 
-
 /**
  * Initializes value and total lookup tables.
  * TODO: ugly function
@@ -1425,8 +1422,6 @@ PivotTable.prototype.initializeLookups = function() {
     let tableRowSize = this.rowAxis.actualSize;
     let tableColumnSize = this.colAxis.actualSize;
 
-    console.log(tableRowSize, tableColumnSize)
-
     if (this.rowAxis.doTotals && tableColumnSize !== 1) {
         tableRowSize -= 1;
     }
@@ -1434,8 +1429,6 @@ PivotTable.prototype.initializeLookups = function() {
     if (this.colAxis.doTotals && tableRowSize !== 1) {
         tableColumnSize -= 1;
     }
-
-    console.log(tableRowSize, tableColumnSize)
 
     const totalMap = {};
 
