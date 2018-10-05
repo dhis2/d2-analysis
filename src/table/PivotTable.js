@@ -42,6 +42,8 @@ import { VALUE_CELL,
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
+import { AVERAGE_AGGREGATION_TOTAL, SUM_AGGREGATION_TOTAL } from './PivotTableConstants';
+
 import { FIXED_STRATEGY, BY_DATA_ITEM_STRATEGY } from '../table/PivotTableConstants';
 
 import { NO_BREAK_SPACE } from '../table/PivotTableConstants';
@@ -124,7 +126,6 @@ export const PivotTable = function(refs, layout, response, options = {}) {
     this.legendDisplayStrategy = layout.legendDisplayStrategy;
     
     this.valueCounter = 0;
-    
 };
 
 PivotTable.prototype.initialize = function() {
@@ -529,11 +530,18 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
     const rric = new ResponseRowIdCombination();
     
-    if (this.colAxis.type) rric.add(this.colAxis.ids[columnIndex]);
-    if (this.rowAxis.type) rric.add(this.rowAxis.ids[rowIndex]);
+    if (this.colAxis.type) {
+        let columnId = this.colAxis.ids[columnIndex];
+        rric.add(columnId);
+    }
+    
+    if (this.rowAxis.type) {
+        let rowId = this.rowAxis.ids[rowIndex];
+        rric.add(rowId);
+
+    }
     
     const id = rric.get();
-
     const value = this.getValueFromId(id);
     const empty = value === null;
 
@@ -1202,6 +1210,7 @@ PivotTable.prototype.buildColumnDimensionCell = function(rowIndex, columnIndex) 
     config.showHierarchy = this.doShowHierarchy();
     config.sort = this.getRowSortId(rowIndex, columnIndex);
 
+
     displayValue = this.response.getItemName(config.id, config.showHierarchy, true);
 
     return new ColumnAxisCell(displayValue, config);
@@ -1390,6 +1399,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             factor: 0,
             counter: 0,
             empty: 0,
+            value: 0,
         }
     }
 
@@ -1517,8 +1527,8 @@ PivotTable.prototype.initializeLookups = function() {
         
         for (let j = 0; j < columnTotalIndicies.length; j++) {
 
-            let rowIndex = rowTotalIndices[i];
-            let columnIndex = columnTotalIndicies[j];
+            let rowIndex = parseInt(rowTotalIndices[i]);
+            let columnIndex = parseInt(columnTotalIndicies[j]);
             
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
@@ -1526,11 +1536,49 @@ PivotTable.prototype.initializeLookups = function() {
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
-                let total = this.getTrueTotal(
-                    totalMap[rowIndex][columnIndex].numerator,
-                    totalMap[rowIndex][columnIndex].denominator || 1,
-                    totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
-                                
+                let itemsMetadata = this.response.metaData.items;
+
+                let columnAggregationType = null;
+                let rowTotalsAggregationType = null;
+
+                if (this.rowAxis.ids[i]) {
+                    rowTotalsAggregationType = itemsMetadata[
+                        this.rowAxis.ids[i].split('-')[0]
+                    ].totalAggregationType;
+                }
+
+                if (this.colAxis.ids[j]) {
+                    columnAggregationType = itemsMetadata[
+                        this.colAxis.ids[j].split('-')[0]
+                    ].totalAggregationType;
+                }
+
+                let { value, numerator, denominator, factor, counter } = totalMap[rowIndex][columnIndex];
+
+                let total = value;
+
+                if (this.rowAxis.isSubTotalPosition(rowIndex) || this.rowAxis.isTotalPosition(rowIndex)) {
+                    switch(columnAggregationType) {
+                        case AVERAGE_AGGREGATION_TOTAL: {
+                            total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                        }
+                        case SUM_AGGREGATION_TOTAL: {
+                            total = value;
+                        }
+                    }
+                }
+
+                // if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
+                //     switch(rowTotalsAggregationType) {
+                //         case AVERAGE_AGGREGATION_TOTAL: {
+                //             total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                //         }
+                //         case SUM_AGGREGATION_TOTAL: {
+                //             total = value;   
+                //         }
+                //     }
+                // }
+
                 if (this.doSortableColumnHeaders()) {
                     let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
                     this.idValueMap[totalIdComb.get()] = total;

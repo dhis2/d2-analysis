@@ -25,6 +25,9 @@ export const NO_BREAK_SPACE = '&nbsp;';
 export const BLACK_COLOR = 'black';
 export const WHITE_COLOR = 'white';
 
+export const AVERAGE_AGGREGATION_TOTAL = 'AVERAGE';
+export const SUM_AGGREGATION_TOTAL = 'TOTAL';
+
 export const PIVOT_TABLE_CELLS = {
     VALUE_CELL,
     SUB_TOTAL_CELL,

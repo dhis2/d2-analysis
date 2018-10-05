@@ -525,6 +525,10 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
     return this.getHierarchyNameById(id, isHierarchy) + this.getNameById(id);
 };
 
+Response.prototype.getItemAggregationType = function(id) {
+    return this.metaData.items[id].totalAggregationType;
+};
+
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var refs = this.getRefs(),
         { Record } = refs.api;
