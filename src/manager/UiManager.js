@@ -20,6 +20,9 @@ UiManager = function(refs) {
     t.preventMask = false;
     t.introHtmlIsAsync = false;
 
+    t.minWidth = 800;
+    t.minHeight = 600;
+
     var components = {};
 
     var componentTags = {
@@ -141,7 +144,7 @@ UiManager = function(refs) {
     t.setResizeFn = function(component, fn) {
         t.get(component) && t.get(component).setOnResize(fn);
     }
-    
+
     t.removeResizeFn = function(component) {
         t.get(component) && t.get(component).removeOnResize();
     }
@@ -735,7 +738,7 @@ UiManager.prototype.getWidth = function(cmpName) {
 
     var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
 
-    return cmp.getWidth();
+    return cmp ? cmp.getWidth() : t.minWidth;
 };
 
 UiManager.prototype.getHeight = function(cmpName) {
@@ -743,7 +746,7 @@ UiManager.prototype.getHeight = function(cmpName) {
 
     var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
 
-    return cmp.getHeight();
+    return cmp ? cmp.getHeight() : t.minHeight;
 };
 
 UiManager.prototype.getUiState = function() {
