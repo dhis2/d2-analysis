@@ -1558,13 +1558,12 @@ PivotTable.prototype.initializeLookups = function() {
                 let total = value;
 
                 if (this.rowAxis.isSubTotalPosition(rowIndex) || this.rowAxis.isTotalPosition(rowIndex)) {
-                    switch(columnAggregationType) {
-                        case AVERAGE_AGGREGATION_TOTAL: {
-                            total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
-                        }
-                        case SUM_AGGREGATION_TOTAL: {
-                            total = value;
-                        }
+                    if (AVERAGE_AGGREGATION_TOTAL === columnAggregationType) {
+                        total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                    } 
+                    
+                    else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
+                        total = value
                     }
                 }
 
