@@ -100,9 +100,6 @@ AppManager = function(refs) {
     t.periodGenerator;
     t.viewUnapprovedData;
 
-    t.users = [];
-    t.mostMentionedUsers = [];
-
     t.rootNodes = [];
     t.organisationUnitLevels = [];
     t.dimensions = [];
