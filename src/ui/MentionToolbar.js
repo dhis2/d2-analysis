@@ -32,6 +32,8 @@ MentionToolbar = function (refs) {
         items: [],
         zIndex: 9999,
         cls: 'mentions',
+        _lastText: null,
+        _isOpen: false,
         createMentionLabelsForUser: function(users, splitText, component) {
             return users
                     .map((user) => {
@@ -51,15 +53,21 @@ MentionToolbar = function (refs) {
                         }
                     });
         },
-        displayMentionSuggestion : function(component, event) {
+        displayMentionSuggestion: function(component, event) {
             // Get text from 0 to cursor position
             var text = component.getValue().substring(0,$(event.target).prop("selectionStart"));
+            if (text === this._lastText)
+                return;
+            this._lastText = text;
             // Split by @ and take last bit
             var splitText = text.split('@');
             var currentMention = splitText[splitText.length -1];
 
             if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")) {
+                this._isOpen = true;
                 usersReq(currentMention, users => {
+                    if (!this._isOpen)
+                        return;
                     mentionsPanel.removeAll(true);
 
                     var userLabels = this.createMentionLabelsForUser(users, splitText, component);
@@ -77,6 +85,7 @@ MentionToolbar = function (refs) {
                 });
             }
             else {
+                this._isOpen = false;
                 mentionsPanel.hide();
             }
         },
