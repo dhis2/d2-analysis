@@ -165,23 +165,8 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
             }
         },
         success: function(r) {
-            $.ajax({
-                url: appManager.getApiPath() + '/' + t.apiEndpoint + '/' + id,
-                type: 'PATCH',
-                data: JSON.stringify({}),
-                // avoid jQuery choke on empty 200 Success response
-                dataType: 'text',
-                headers: appManager.defaultRequestHeaders,
-                success: function(sharing) {
-                    var layout = new Layout(refs, r, {permission: "write"});
-                    fn(layout, true);
-                },
-                error: function(xhr) {
-                    var permission = xhr.status === 404 ? "none" : "read";
-                    var layout = new Layout(refs, r, {permission: permission});
-                    fn(layout, true);
-                }
-            });
+            var layout = new Layout(refs, r);
+            fn(layout, true);
         },
         error: function(r) {
             if (arrayContains([403], parseInt(r.httpStatusCode))) {

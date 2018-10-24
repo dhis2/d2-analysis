@@ -178,7 +178,7 @@ EastRegion = function(c) {
                 }
 
                 // Change Link
-                if (layout && layout.permission === "write") {
+                if (layout && layout.getAccess().update) {
                     descriptionItems.push({
                         xtype: 'label',
                         html: getLink(editText, false, true),
@@ -241,7 +241,7 @@ EastRegion = function(c) {
             }
 
             // Favorite Details Panel content when favorite loaded
-            var userCanEditSharing = layout && layout.permission === 'write';
+            var userCanEditSharing = layout && layout.getAccess().update;
 
             detailsPanelItems = [{
                 xtype: 'panel',
@@ -397,7 +397,7 @@ EastRegion = function(c) {
                 bodyStyle: 'border-style:none',
                 layout: 'column',
                 itemId: 'commentPanel-' + (comment ? comment.id : "new"),
-                hidden: !visible || (!layout || layout.permission === "none"),
+                hidden: !visible || !interpretation.access.update,
                 style: 'margin-top: 1px;',
                 cls: 'comment greyBackground',
                 items: [{
@@ -536,11 +536,13 @@ EastRegion = function(c) {
                         }, {
                             xtype: 'label',
                             style: 'color: #666',
+                            hidden: !interpretation.access.update,
                             text: DateManager.getTimeDifference(comment.lastUpdated) + ' ' + i18n.ago
                         }, {
                             xtype: 'label',
                             html: getLink(i18n.reply),
                             style: 'margin-right: 5px; margin-left: 5px',
+                            hidden: !interpretation.access.update,
                             listeners: {
                                 'render': (function(comment_) {
                                     return function(label) {
@@ -823,7 +825,7 @@ EastRegion = function(c) {
                     xtype: 'panel',
                     bodyStyle: 'border-style:none',
                     style: 'margin-bottom: 5px;',
-                    hidden: !layout || layout.permission === "none",
+                    hidden: !interpretation.access.read,
 
                     items: [{
                         xtype: 'label',
@@ -836,10 +838,12 @@ EastRegion = function(c) {
                         }
                     }, {
                         xtype: 'label',
+                        hidden: !interpretation.access.update,
                         text: '·',
                         style: 'margin-right: 5px;'
                     }, {
                         xtype: 'label',
+                        hidden: !interpretation.access.update,
                         html: getLink(i18n.reply),
                         style: 'margin-right: 5px;',
                         listeners: {
@@ -984,7 +988,7 @@ EastRegion = function(c) {
             xtype: 'panel',
             bodyStyle: 'border-style:none',
             style: 'padding:6px; border-width:0 0 1px 0; border-style:solid;',
-            hidden: displayingInterpretation || (!layout || layout.permission === "none"),
+            hidden: displayingInterpretation || (!layout || !layout.getAccess().read),
             itemId: 'shareInterpretation',
             items: [{
                 xtype: 'label',
