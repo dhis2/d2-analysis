@@ -33,6 +33,10 @@ import { ValueSubTotalCell,
          HorizontalPaddingCell,
          VerticalPaddingCell } from './PivotTableCells';
 
+const AVERAGE_AGGREGATION_TOTAL = 'AVERAGE';
+const SUM_AGGREGATION_TOTAL = 'TOTAL';
+const TOTAL_SORT = 'total';
+
 /**
  * 
  * 
@@ -2126,6 +2130,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             factor: 0,
             counter: 0,
             empty: 0,
+            value: 0,
         }
     }
 
@@ -2253,21 +2258,69 @@ PivotTable.prototype.initializeLookups = function() {
         
         for (let j=0; j < columnTotalIndicies.length; j++) {
 
-            let rowIndex = rowTotalIndices[i],
-                columnIndex = columnTotalIndicies[j];
-
+            let rowIndex = parseInt(rowTotalIndices[i]);
+            let columnIndex = parseInt(columnTotalIndicies[j]);
+            
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
-                let total = this.getTrueTotal(
-                    totalMap[rowIndex][columnIndex].numerator,
-                    totalMap[rowIndex][columnIndex].denominator || 1,
-                    totalMap[rowIndex][columnIndex].factor / totalMap[rowIndex][columnIndex].counter);
-    
+                let itemsMetadata = this.response.metaData.items;
+
+                let columnAggregationType = null;
+                let rowTotalsAggregationType = null;
+
+                if (this.rowAxis.ids[i]) {
+                    rowTotalsAggregationType = itemsMetadata[
+                        this.rowAxis.ids[i].split('-')[0]
+                    ].totalAggregationType;
+                }
+
+                if (this.colAxis.ids[j]) {
+                    columnAggregationType = itemsMetadata[
+                        this.colAxis.ids[j].split('-')[0]
+                    ].totalAggregationType;
+                }
+
+                let { value, numerator, denominator, factor, counter } = totalMap[rowIndex][columnIndex];
+
+                let total = value;
+
+                if (this.isRowSubTotal(rowIndex) || this.isRowGrandTotal(rowIndex)) {
+                    if (AVERAGE_AGGREGATION_TOTAL === columnAggregationType) {
+                        total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                    } 
+                    
+                    else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
+                        total = value
+                    }
+                }
+
+                // if (this.isRowSubTotal(columnIndex) || this.isRowGrandTotal(columnIndex)) {
+                //     switch(rowTotalsAggregationType) {
+                //         case AVERAGE_AGGREGATION_TOTAL: {
+                //             total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                //         }
+                //         case SUM_AGGREGATION_TOTAL: {
+                //             total = value;
+                //         }
+                //     }
+                // }
+
+                if (this.doSortableColumnHeaders()) {
+                    let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
+                    this.idValueMap[totalIdComb.get()] = total;
+                }
+
+                if (!this.valueLookup[rowIndex]) {
+                    this.valueLookup[rowIndex] = {};
+                }
+            
                 this.valueLookup[rowIndex][columnIndex] = total;
+            
+                this.valueCounter += 1;
             }
         }        
     }
