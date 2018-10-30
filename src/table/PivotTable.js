@@ -1567,16 +1567,16 @@ PivotTable.prototype.initializeLookups = function() {
                     }
                 }
 
-                // if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
-                //     switch(rowTotalsAggregationType) {
-                //         case AVERAGE_AGGREGATION_TOTAL: {
-                //             total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
-                //         }
-                //         case SUM_AGGREGATION_TOTAL: {
-                //             total = value;   
-                //         }
-                //     }
-                // }
+                if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
+
+                    if (AVERAGE_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                        total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                    } 
+                    
+                    else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                        total = value
+                    }
+                }
 
                 if (this.doSortableColumnHeaders()) {
                     let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
