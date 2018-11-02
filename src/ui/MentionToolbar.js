@@ -8,6 +8,21 @@ MentionToolbar = function (refs) {
     
     var i18n = i18nManager.get();
 
+    var usersReq = function(search, onSuccess) {
+        new refs.api.Request(refs, {
+            baseUrl: appManager.getApiPath() + '/users.json',
+            type: 'json',
+            params: [
+                'query=' + search,
+                'fields=displayName,userCredentials[username]',
+                'order=displayName:asc',
+            ],
+            success: function(response) {
+                onSuccess(response.users);
+            },
+        }).run();
+    };
+
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
         layout: {
@@ -17,9 +32,10 @@ MentionToolbar = function (refs) {
         items: [],
         zIndex: 9999,
         cls: 'mentions',
-        createMentionLabelsForUser : function(users, splitText, currentMention, component){
+        _lastText: null,
+        _isOpen: false,
+        createMentionLabelsForUser: function(users, splitText, component) {
             return users
-                    .filter(user => (user.userCredentials.username.toLowerCase().includes(currentMention.toLowerCase()) || user.displayName.toLowerCase().includes(currentMention.toLowerCase())))
                     .map((user) => {
                         return {
                             xtype: 'label',
@@ -37,44 +53,39 @@ MentionToolbar = function (refs) {
                         }
                     });
         },
-        displayMentionSuggestion : function(component, event) {
+        displayMentionSuggestion: function(component, event) {
             // Get text from 0 to cursor position
             var text = component.getValue().substring(0,$(event.target).prop("selectionStart"));
+            if (text === this._lastText)
+                return;
+            this._lastText = text;
             // Split by @ and take last bit
             var splitText = text.split('@');
             var currentMention = splitText[splitText.length -1];
-            if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")){
-    
-                mentionsPanel.removeAll(true);
-    
-                var potentialMostMentionedUsers= this.createMentionLabelsForUser(appManager.mostMentionedUsers, splitText, currentMention, component);
-                var potentialUsers = this.createMentionLabelsForUser(appManager.users, splitText, currentMention, component);
-    
-                if (potentialMostMentionedUsers && potentialMostMentionedUsers.length > 0){
-                    mentionsPanel.add({
-                        html: i18n.most_common_users_matching + ' @' + currentMention,
-                        cls: 'mentionsTitle',
-                    });
-                    mentionsPanel.add(potentialMostMentionedUsers);
-                    
-                }
-                if (potentialUsers && potentialUsers.length > 0){
-                    mentionsPanel.add({
-                        html: i18n.other_users_matching + ' @' + currentMention,
-                        cls: 'mentionsTitle',
-                    });
-                    mentionsPanel.add(potentialUsers);
-                }
-    
-                if (potentialMostMentionedUsers && potentialMostMentionedUsers.length == 0 && potentialUsers && potentialUsers.length == 0){
-                    mentionsPanel.hide();
-                }
-                else{
-                    mentionsPanel.show().alignTo(event.target,'bl-tl');
-                }    
-    
+
+            if (splitText.length > 1 && currentMention == currentMention.replace(" ", "").replace(/(?:\r\n|\r|\n)/g, "")) {
+                this._isOpen = true;
+                usersReq(currentMention, users => {
+                    if (!this._isOpen)
+                        return;
+                    mentionsPanel.removeAll(true);
+
+                    var userLabels = this.createMentionLabelsForUser(users, splitText, component);
+        
+                    if (userLabels.length === 0) {
+                        mentionsPanel.hide();
+                    } else {
+                        mentionsPanel.add({
+                            html: i18n.users_matching + ' @' + currentMention,
+                            cls: 'mentionsTitle',
+                        });
+                        mentionsPanel.add(userLabels);
+                        mentionsPanel.show().alignTo(event.target,'bl-tl');
+                    }
+                });
             }
-            else{
+            else {
+                this._isOpen = false;
                 mentionsPanel.hide();
             }
         },
