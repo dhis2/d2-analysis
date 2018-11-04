@@ -2294,20 +2294,19 @@ PivotTable.prototype.initializeLookups = function() {
                     } 
                     
                     else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
-                        total = value
+                        total = value;
                     }
                 }
 
-                // if (this.isRowSubTotal(columnIndex) || this.isRowGrandTotal(columnIndex)) {
-                //     switch(rowTotalsAggregationType) {
-                //         case AVERAGE_AGGREGATION_TOTAL: {
-                //             total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
-                //         }
-                //         case SUM_AGGREGATION_TOTAL: {
-                //             total = value;
-                //         }
-                //     }
-                // }
+                if (this.isColumnSubTotal(columnIndex) || this.isColumnGrandTotal(columnIndex)) {
+                    if (AVERAGE_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                        total = this.getTrueTotal(numerator, denominator || 1, factor / counter);
+                    } 
+                    
+                    else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                        total = value;
+                    }
+                }
 
                 if (this.doSortableColumnHeaders()) {
                     let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
