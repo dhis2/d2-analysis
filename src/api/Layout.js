@@ -171,6 +171,14 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         return _access;
     };
 
+    t.canRead = function() {
+        return _access ? _access.read : false;
+    };
+
+    t.canUpdate = function() {
+        return _access ? _access.update : false;
+    };
+
     t.setAccess = function(a) {
         _access = a;
     };
@@ -550,6 +558,8 @@ Layout.prototype.toPostSuper = function() {
     delete this.getResponse;
     delete this.setResponse;
     delete this.getAccess;
+    delete this.canRead;
+    delete this.canUpdate;
     delete this.setAccess;
     delete this.getDataDimensionItems;
     delete this.setDataDimensionItems;
