@@ -136,11 +136,6 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.publicAccess = c.publicAccess;
     }
 
-    //permission
-    if (isString(c.permission)) {
-        t.permission = c.permission;
-    }
-
     //user group accesses
     if (arrayFrom(c.userGroupAccesses).length) {
         t.userGroupAccesses = c.userGroupAccesses;
@@ -482,7 +477,6 @@ Layout.prototype.toPlugin = function(el) {
             'created',
             'user',
             'publicAccess',
-            'permission',
             'userGroupAccesses',
             'prototype',
             'url',
@@ -592,7 +586,7 @@ Layout.prototype.toPostSuper = function() {
     delete this.created;
     delete this.user;
     delete this.publicAccess;
-    delete this.permission, delete this.userGroupAccesses;
+    delete this.userGroupAccesses;
     delete this.displayName;
 };
 
