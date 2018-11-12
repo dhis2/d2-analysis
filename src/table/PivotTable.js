@@ -1212,8 +1212,8 @@ PivotTable.prototype.getLegendSetId = function(dxId) {
 PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     const id = this.getRRIC(rowIndex, columnIndex).get();
 
-    let value = this.getValue(id),
-        empty = value === null;
+    let value = this.getValue(id);
+    let empty = value === null;
 
     return {
         empty,
@@ -1232,18 +1232,22 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
  */
 PivotTable.prototype.getValue = function(id) {
 
-    const value = this.idValueMap[id],
-          n = parseFloat(value);
+    const value = this.idValueMap[id];
+    const n = parseFloat(value);
 
     if (isBoolean(value)) {
         return 1;
     }
 
-    if (!isNumber(n) || n != value) {
+    if ((isNumber(n) && n != value) || typeof value === 'undefined') {
         return  null;
     }
+
+    if (isNumber(n)) {
+        return n;
+    }
     
-    return n;
+    return value;
 };
 /**
  * Gets factor value from id factor map
