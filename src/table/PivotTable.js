@@ -2212,6 +2212,10 @@ PivotTable.prototype.initializeLookups = function() {
                     null : valueObject.value;
             }
 
+            if (!isNumber(valueObject.value)) {
+                continue;
+            }
+
             // used to calculate percentages and check for empties
             if (!valueObject.empty) {
 
