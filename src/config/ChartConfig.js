@@ -16,6 +16,8 @@ ChartConfig = function() {
         pie: 'pie',
         radar: 'radar',
         gauge: 'gauge',
+        yearoveryearcolumn: 'YEAR_OVER_YEAR_COLUMN',
+        yearoveryearline: 'YEAR_OVER_YEAR_LINE',
     };
 
     t.server = {
@@ -28,6 +30,8 @@ ChartConfig = function() {
         pie: 'PIE',
         radar: 'RADAR',
         gauge: 'GAUGE',
+        yearoveryearcolumn: 'YEAR_OVER_YEAR_COLUMN',
+        yearoveryearline: 'YEAR_OVER_YEAR_LINE',
     };
 
     t.consts = {
