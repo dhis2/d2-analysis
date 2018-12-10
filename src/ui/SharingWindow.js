@@ -1,4 +1,5 @@
 import isArray from 'd2-utilizr/lib/isArray';
+import { validateFieldAccess, validateSharing } from '../util/permissions';
 
 export var SharingWindow;
 
@@ -27,6 +28,21 @@ SharingWindow = function(c, sharing, configOnly) {
 
         items,
         window;
+
+    var showSharingError = function() {
+        var modelName = sharing.object.modelName;
+        var errorMessage = modelName === "interpretation"
+            ? i18n.validation_error_interpretation_sharing
+            : i18n.validation_error_object_sharing;
+        uiManager.alert(errorMessage);
+    };
+
+    var favorite = instanceManager.getStateFavorite();
+
+    var validateAccessField = function(field, oldValue, newValue) {
+        var modelName = sharing.object.modelName;
+        return validateFieldAccess(modelName, favorite, showSharingError, field, oldValue, newValue);
+    };
 
     SharingAccessRow = function(obj, isPublicAccess, disallowPublicAccess) {
         var getData,
@@ -71,7 +87,14 @@ SharingWindow = function(c, sharing, configOnly) {
                 editable: false,
                 disabled: !!disallowPublicAccess,
                 value: obj.access || 'rw------',
-                store: store
+                store: store,
+                listeners: {
+                    select: function(combo) {
+                        if (isPublicAccess && !validateAccessField("publicAccess", obj.access, combo.getValue())) {
+                            combo.setValue(obj.access);
+                        }
+                    }
+                },
             });
 
             items.push(combo);
@@ -87,10 +110,18 @@ SharingWindow = function(c, sharing, configOnly) {
                     listeners: {
                         render: function(cmp) {
                             cmp.getEl().on('click', function(e) {
-                                cmp.up('panel').destroy();
+                                const currentObject = getBody().object;
+                                const accessToRemove = cmp.up('panel').getAccess();
+                                const field = cmp.up('#' + userGroupRowContainer.id) ? "userGroupAccesses" : "userAccesses"
+                                const currentAccesses = currentObject[field] || [];
+                                const newAccesses = currentAccesses.filter(access => access.id !== accessToRemove.id);
 
-                                if (window) {
-                                    window.doLayout();
+                                if (validateAccessField(field, currentAccesses, newAccesses)) {
+                                    cmp.up('panel').destroy();
+
+                                    if (window) {
+                                        window.doLayout();
+                                    }
                                 }
                             });
                         }
@@ -224,21 +255,30 @@ SharingWindow = function(c, sharing, configOnly) {
         Object.assign({}, buttonConfig, {
             handler: function(b) {
                 const record = sharingStore.getById(sharingField.getValue());
+                const currentObject = getBody().object;
 
                 if (record && record.data) {
+                    var newAccess = {
+                        id: record.data.id,
+                        name: record.data.name,
+                        access: 'r-------'
+                    };
+
                     if (record.data.isGroup) {
-                        userGroupRowContainer.add(SharingAccessRow({
-                            id: record.data.id,
-                            name: record.data.name,
-                            access: 'r-------'
-                        }));
+                        const userGroupAccesses = currentObject.userGroupAccesses || [];
+                        if (validateAccessField("userGroupAccesses",
+                                userGroupAccesses,
+                                userGroupAccesses.concat([newAccess]))) {
+                            userGroupRowContainer.add(SharingAccessRow(newAccess));
+                        }
                     }
                     else {
-                        userRowContainer.add(SharingAccessRow({
-                            id: record.data.id,
-                            name: record.data.name,
-                            access: 'r-------'
-                        }));
+                        const userAccesses = currentObject.userAccesses || [];
+                        if (validateAccessField("userAccesses",
+                                userAccesses,
+                                userAccesses.concat([newAccess]))) {
+                            userRowContainer.add(SharingAccessRow(newAccess));
+                        }
                     }
                 }
 
@@ -368,6 +408,9 @@ SharingWindow = function(c, sharing, configOnly) {
                 {
                     text: i18n.save,
                     handler: function() {
+                        if (!validateSharing(sharing.object.modelName, favorite, getBody().object, showSharingError))
+                            return;
+
                         Ext.Ajax.request({
                             url: encodeURI(apiPath + '/sharing?type=' + instanceManager.apiResource + '&id=' + sharing.object.id),
                             method: 'POST',
