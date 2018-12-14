@@ -2280,13 +2280,13 @@ PivotTable.prototype.initializeLookups = function() {
                 let columnAggregationType = null;
                 let rowTotalsAggregationType = null;
 
-                if (this.rowAxis.ids[i]) {
+                if (this.rowAxis.ids && this.rowAxis.ids[i]) {
                     rowTotalsAggregationType = itemsMetadata[
                         this.rowAxis.ids[i].split('-')[0]
                     ].totalAggregationType;
                 }
 
-                if (this.colAxis.ids[j]) {
+                if (this.colAxis.ids && this.colAxis.ids[j]) {
                     columnAggregationType = itemsMetadata[
                         this.colAxis.ids[j].split('-')[0]
                     ].totalAggregationType;
