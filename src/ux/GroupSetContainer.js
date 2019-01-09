@@ -52,6 +52,8 @@ GroupSetContainer = function(refs) {
 
             if (limit) {
                 params.push(`pageSize=${defaultPageSize}`);
+            } else {
+                params.push('paging=false');
             }
 
             if (filters) {
