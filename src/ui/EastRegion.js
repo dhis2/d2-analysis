@@ -533,7 +533,6 @@ EastRegion = function(c) {
                             }, {
                                 xtype: 'label',
                                 style: 'color: #666; float: right',
-                                hidden: !interpretation.access || !interpretation.access.update,
                                 text: formatDate(comment.lastUpdated, appManager.getUiLocale()),
                             }]
                         }, {
