@@ -3,6 +3,7 @@ import {InterpretationWindow} from './InterpretationWindow.js';
 import {SharingWindow} from './SharingWindow.js';
 import {RenameWindow} from './RenameWindow.js';
 import {MentionToolbar } from './MentionToolbar.js';
+import {formatDate} from '../util/dateUtils.js';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
 export var EastRegion;
@@ -542,17 +543,21 @@ EastRegion = function(c) {
                                 }
                             }, {
                                 xtype: 'label',
-                                text: comment.text,
+                                style: 'color: #666; float: right',
+                                text: formatDate(comment.lastUpdated, appManager.getUiLocale()),
                             }]
                         }, {
-                            xtype: 'label',
-                            style: 'color: #666',
-                            hidden: !interpretation.access || !interpretation.access.update,
-                            text: DateManager.getTimeDifference(comment.lastUpdated) + ' ' + i18n.ago
+                            xtype: 'panel',
+                            bodyStyle: 'border-style:none',
+                            style: 'margin-top: 5px; margin-bottom: 6px;',
+                            items: [{
+                                xtype: 'label',
+                                text: comment.text,
+                            }],
                         }, {
                             xtype: 'label',
                             html: getLink(i18n.reply),
-                            style: 'margin-right: 5px; margin-left: 5px',
+                            style: 'margin-right: 5px',
                             hidden: !interpretation.access || !interpretation.access.update,
                             listeners: {
                                 'render': (function(comment_) {
@@ -804,8 +809,8 @@ EastRegion = function(c) {
                     }
                 }, {
                     xtype: 'label',
-                    style: 'color:#666',
-                    text: DateManager.getYYYYMMDD(interpretation.lastUpdated, true),
+                    style: 'color:#666; float: right; padding-right: 5px',
+                    text: formatDate(interpretation.lastUpdated, appManager.getUiLocale()),
                 }]
             }, {
                 xtype: 'panel',
