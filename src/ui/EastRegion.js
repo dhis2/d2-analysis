@@ -22,7 +22,7 @@ EastRegion = function(c) {
     var i18n = i18nManager.get(),
         path = appManager.getPath(),
         apiPath = appManager.getApiPath();
-    
+
     var descriptionMaxNumberCharacter = 500;
 
     var mdParser = new MdParser();
