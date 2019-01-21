@@ -1,12 +1,27 @@
 export var MentionToolbar;
 
 MentionToolbar = function (refs) {
+    var appManager = refs.appManager;
+    var i18n = refs.i18nManager.get();
 
-    var appManager = refs.appManager,
-    i18nManager = refs.i18nManager,
-    uiManager = refs.uiManager;
-    
-    var i18n = i18nManager.get();
+    var canUserAccessCurrentFavorite = function(user) {
+        const currentFavorite = refs.instanceManager.getStateCurrent() || {};
+        const { publicAccess, userAccesses = [], userGroupAccesses = [] } = currentFavorite || {};
+        const hasReadAccess = permission => permission && permission[0] === "r";
+
+        const userHasPublicAccess = () =>
+            hasReadAccess(publicAccess);
+
+        const userHasUserAccess = () =>
+            userAccesses.some(userAccess => userAccess.id === user.id && hasReadAccess(userAccess.access));
+
+        const userHasUserGroupAccess = () =>
+            userGroupAccesses.some(userGroupAccess =>
+                (user.userGroups || []).some(userGroupOfUser =>
+                    userGroupAccess.id === userGroupOfUser.id && hasReadAccess(userGroupAccess.access)));
+
+        return userHasPublicAccess() || userHasUserAccess() || userHasUserGroupAccess();
+    }
 
     var usersReq = function(search, onSuccess) {
         new refs.api.Request(refs, {
@@ -14,14 +29,17 @@ MentionToolbar = function (refs) {
             type: 'json',
             params: [
                 'query=' + search,
-                'fields=displayName,userCredentials[username]',
+                'fields=id,displayName,userCredentials[username],userGroups[id]',
                 'order=displayName:asc',
+                'pageSize=5',
             ],
             success: function(response) {
                 onSuccess(response.users);
             },
         }).run();
     };
+
+    var disabledRowStyle = "display: block; background-color: white; color: grey; cursor: default";
 
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
@@ -37,10 +55,13 @@ MentionToolbar = function (refs) {
         createMentionLabelsForUser: function(users, splitText, component) {
             return users
                     .map((user) => {
+                        const hasAccess = canUserAccessCurrentFavorite(user);
+
                         return {
                             xtype: 'label',
                             html:  user.displayName + " (" + user.userCredentials.username + ")",
-                            listeners: {
+                            style: hasAccess ? "" : disabledRowStyle,
+                            listeners: !hasAccess ? {} : {
                                 'render': function(label) {
                                     label.getEl().parent().on('click', function() {
                                         splitText.splice(-1,1);
