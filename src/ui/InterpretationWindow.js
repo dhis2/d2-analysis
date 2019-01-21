@@ -1,6 +1,7 @@
 import { SharingWindow } from './SharingWindow';
 import { MentionToolbar } from './MentionToolbar.js';
 import { validateSharing } from '../util/permissions';
+import {onMarkdownEditorKeyDown} from '../util/dom';
 
 export var InterpretationWindow;
 
@@ -29,6 +30,7 @@ InterpretationWindow = function(c, sharing, interpretation, success, options) {
                 shareButton.xable();
                 this.mentionToolbar.displayMentionSuggestion(f, e);
             },
+            keydown: onMarkdownEditorKeyDown,
             destroy: function(f, e) {
                 this.mentionToolbar.destroy();
             }
