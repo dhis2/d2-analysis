@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@dhis2/d2-ui-rich-text@^5.0.17":
-  version "5.0.17"
-  resolved "https://registry.yarnpkg.com/@dhis2/d2-ui-rich-text/-/d2-ui-rich-text-5.0.17.tgz#bc16fb8c3b439f4d7e7bd0c9788858ddcab623f8"
-  integrity sha512-dulmBFIjFC5BhTmBJriPjxNNMocBzsSTQtromRlPJayrEwIHUOY700lTFrPH1kLzW0F+a/rkGSIWeM1ioQ9n/g==
+"@dhis2/d2-ui-rich-text@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@dhis2/d2-ui-rich-text/-/d2-ui-rich-text-5.1.0.tgz#87aa6e2214edbc5c686785ef717eef6f3e0d2e02"
+  integrity sha512-v9jARS9kJ0A9B8n3/vS7Gdyi1eB6hTYSkdEVi4tZvEMyVDzQjeEQhPZjRUo7r135KyNTh5zakp08ckLzgCu//A==
   dependencies:
     babel-runtime "^6.26.0"
     markdown-it "^8.4.2"
