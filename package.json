@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/dhis2/d2-analysis#readme",
   "dependencies": {
-    "@dhis2/d2-ui-rich-text": "^5.0.17",
+    "@dhis2/d2-ui-rich-text": "^5.1.0",
     "d2-utilizr": "^0.2.16",
     "jquery": "2.1.4"
   },

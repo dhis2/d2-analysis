@@ -15,12 +15,9 @@ export const validateTargetDiv = (elementId, msg) => {
 };
 
 export const onMarkdownEditorKeyDown = function(f, e) {
-    convertCtrlKey(e.browserEvent, newValue => {
+    convertCtrlKey(e.browserEvent, (newValue, newCursorPos) => {
         const textarea = e.target;
-        const prevCursorPos = textarea.selectionEnd;
         textarea.value = newValue;
-        if (prevCursorPos) {
-            textarea.setSelectionRange(prevCursorPos + 1, prevCursorPos + 1);
-        }
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
     });
 };
