@@ -5,6 +5,8 @@ import {RenameWindow} from './RenameWindow.js';
 import {MentionToolbar } from './MentionToolbar.js';
 import {formatDate} from '../util/dateUtils.js';
 import arraySort from 'd2-utilizr/lib/arraySort';
+import MdParser from '@dhis2/d2-ui-rich-text/parser/MdParser';
+import {onMarkdownEditorKeyDown} from '../util/dom';
 
 export var EastRegion;
 
@@ -22,6 +24,12 @@ EastRegion = function(c) {
         apiPath = appManager.getApiPath();
 
     var descriptionMaxNumberCharacter = 500;
+
+    var mdParser = new MdParser();
+
+    var renderMd = function(plain) {
+        return '<span class="markdown"> ' + mdParser.render(plain) + '</span>';
+    }
 
     var openInterpretationWindow = function(id, interpretation, success) {
         var favoriteId = id || instanceManager.getStateFavoriteId();
@@ -146,7 +154,7 @@ EastRegion = function(c) {
                 descriptionItems.push({
                     xtype: 'label',
                     itemId: 'descriptionLabel',
-                    html: isTooLongDescription ? shortDescription : description,
+                    html: renderMd(isTooLongDescription ? shortDescription : description),
                     cls: 'interpretationActions'
                 });
 
@@ -421,7 +429,7 @@ EastRegion = function(c) {
                         itemId: 'commentArea',
                         cls: 'commentArea',
                         emptyText: i18n.write_your_interpretation,
-                        value : comment && comment.text,
+                        value: comment && comment.text,
                         submitEmptyText: false,
                         mentionToolbar: MentionToolbar(c),
                         flex: 1,
@@ -440,6 +448,7 @@ EastRegion = function(c) {
                                     commentInterpretation(f, comment);
                                 }
                             },
+                            keydown: onMarkdownEditorKeyDown,
                             keyup: function(f, e) {
                                 this.mentionToolbar.displayMentionSuggestion(f, e);
                             },
@@ -541,7 +550,7 @@ EastRegion = function(c) {
                             style: 'margin-top: 5px; margin-bottom: 6px;',
                             items: [{
                                 xtype: 'label',
-                                text: comment.text,
+                                html: renderMd(comment.text),
                             }],
                         }, {
                             xtype: 'label',
@@ -807,7 +816,7 @@ EastRegion = function(c) {
                 style: 'margin-bottom: 8px;',
                 items: [{
                     xtype: 'label',
-                    text: interpretation.text,
+                    html: renderMd(interpretation.text),
                 }]
             }, {
                 xtype: 'panel',
