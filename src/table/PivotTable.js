@@ -1611,7 +1611,7 @@ console.log("totalMap[rowIndex][columnIndex]", totalMap[rowIndex][columnIndex]);
                     }
 
                     else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
-                        total = this.getSumTotal(numerator, denominator || 1);
+                        total = value;
                     }
                 }
 
@@ -1622,7 +1622,7 @@ console.log("totalMap[rowIndex][columnIndex]", totalMap[rowIndex][columnIndex]);
                     }
 
                     else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
-                        total = this.getSumTotal(numerator, denominator || 1);
+                        total = value;
                     }
                 }
 
