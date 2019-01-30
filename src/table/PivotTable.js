@@ -15,7 +15,7 @@ import { isColorBright } from '../util/colorUtils';
 
 import { PivotTableAxis } from './PivotTableAxis';
 
-import { addMerge } from './PivotTableUtils';
+import { addMergeValueObject } from './PivotTableUtils';
 
 import { SubTotalCell,
          TotalCell,
@@ -424,7 +424,7 @@ PivotTable.prototype.getNumberOfVisibleRowDimensions = function() {
  * @returns
  */
 PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
-    return numerator === 0 ? numerator : ((numerator * (multiplier || 1)) / ((denominator || 1) * (divisor || 1)));
+    return (numerator * multiplier) / ((denominator * divisor) || 1);
 };
 // PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
 //     return (numerator * multiplier) / ((denominator || 1) * divisor);
@@ -1457,7 +1457,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
 
     totalObject[rowIndex][columnIndex].counter++;
 
-    addMerge(totalObject[rowIndex][columnIndex], valueObject);
+    addMergeValueObject(totalObject[rowIndex][columnIndex], valueObject);
 };
 
 PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) {
@@ -1635,7 +1635,7 @@ console.log("totalMap item:", totalMap[rowIndex][columnIndex]);
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
-                let total = value;
+                let total;
 
                 if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {
                     switch (totalAggregationType) {
@@ -1643,13 +1643,8 @@ console.log("totalMap item:", totalMap[rowIndex][columnIndex]);
                             total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
                             break;
                         }
-                        case SUM_AGGREGATION_TOTAL: {
-                            total = this.getAverageTotal(numerator, denominator, multiplier, divisor);
-                            // total = this.getSumTotal(numerator || value, denominator, factor, counter);
-                            break;
-                        }
                         default:
-                            total = total;
+                            total = value;
                     }
                 }
 

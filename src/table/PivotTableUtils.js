@@ -1,5 +1,6 @@
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import isNumber from 'd2-utilizr/lib/isNumber';
+import isNumeric from 'd2-utilizr/lib/isNumeric';
 import { MIXED_AGGREGATION_TOTAL } from './PivotTableConstants';
 
 /** @description returns the number of decumal of given float
@@ -18,7 +19,7 @@ export const getNumberOfDecimals = (number) => {
  *  @returns {number}
  */
 export const getRoundedHtmlValue = (value, dec=2) => {
-    return parseFloat(roundIf(value, 2)).toString();
+    return parseFloat(roundAndStrip(value, dec)).toString();
 };
 
 /** @description get percentage representation of value.
@@ -47,15 +48,35 @@ export const roundIf = (number, precision) => {
     return number;
 };
 
-// export const addMerge = (a, b) => {
-//     Object.keys(a).forEach(key => {
-//         if(b[key]) {
-//             a[key] += b[key];
-//         }
-//     });
-// };
+
+/** @description round number if needed.
+ *  @param   {number} number
+ *  @param   {number} precision
+ *  @returns {number}
+ */
+export const roundAndStrip = (number, precision) => {
+    var n = parseFloat(number);
+
+    if (!(isNumeric(number) && isNumber(n))) {
+        return number;
+    }
+
+    if (!isNumeric(precision)) {
+        return n;
+    }
+
+    return n.toFixed(precision);
+};
 
 export const addMerge = (a, b) => {
+    Object.keys(a).forEach(key => {
+        if(b[key]) {
+            a[key] += b[key];
+        }
+    });
+};
+
+export const addMergeValueObject = (a, b) => {
     Object.keys(a).forEach(key => {
         if (Boolean(b[key])) {
             if (typeof a[key] === 'number') {
