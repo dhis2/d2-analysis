@@ -146,8 +146,7 @@ PivotTable.prototype.initialize = function() {
         this.idMultiplierMap = {}
         this.idDivisorMap = {}
     }
-console.log("this.idMultiplierMap", this.idMultiplierMap);
-console.log("this.idDivisorMap", this.idDivisorMap);
+
     // lookup for values
     this.valueLookup = {}
 
@@ -420,24 +419,28 @@ PivotTable.prototype.getNumberOfVisibleRowDimensions = function() {
  *
  * @param {number} numerator
  * @param {number} denominator
- * @param {number} factor
  * @param {number} multiplier
  * @param {number} divisor
  * @returns
  */
 PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
-    return (numerator * multiplier) / (denominator * divisor);
+    return numerator === 0 ? numerator : ((numerator * (multiplier || 1)) / ((denominator || 1) * (divisor || 1)));
 };
+// PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
+//     return (numerator * multiplier) / ((denominator || 1) * divisor);
+// };
 
 /**
  * TODO: This needs a better name
  *
  * @param {number} numerator
  * @param {number} denominator
+ * @param {number} factor
+ * @param {number} counter
  * @returns
  */
-PivotTable.prototype.getSumTotal = function(numerator, denominator) {
-    return numerator / denominator;
+PivotTable.prototype.getSumTotal = function(numerator, denominator, factor, counter) {
+    return (numerator * (factor || 1)) / ((denominator || 1) * counter);
 };
 
 /**
@@ -547,21 +550,25 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
 
     const rric = new ResponseRowIdCombination();
+    let dimensionNames = [];
 
     if (this.colAxis.type) {
         let columnId = this.colAxis.ids[columnIndex];
         rric.add(columnId);
+        dimensionNames.push(...this.colAxis.dimensionNames);
     }
 
     if (this.rowAxis.type) {
         let rowId = this.rowAxis.ids[rowIndex];
         rric.add(rowId);
-
+        dimensionNames.push(...this.rowAxis.dimensionNames);
     }
 
     const id = rric.get();
     const value = this.getValueFromId(id);
     const empty = value === null;
+
+    const dxId = id.split('-')[dimensionNames.findIndex(item => item === 'dx')];
 
     return {
         empty,
@@ -571,6 +578,7 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
         factor: this.getFactorValue(id),
         multiplier: this.getMultiplierValue(id),
         divisor: this.getDivisorValue(id),
+        totalAggregationType: this.response.getTotalAggregationType(dxId),
     };
 };
 
@@ -1425,21 +1433,21 @@ PivotTable.prototype.buildCornerDimensionRow = function(rowIndex, columnStart) {
  * @param {object} totalObject
  */
 PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObject, totalObject) {
-console.log("valueObject", valueObject);
     if (!totalObject[rowIndex]) {
         totalObject[rowIndex] = {};
     }
 
     if (!totalObject[rowIndex][columnIndex]) {
         totalObject[rowIndex][columnIndex] = {
+            value: 0,
+            counter: 0,
+            empty: 0,
             numerator: 0,
             denominator: 0,
             factor: 0,
             multiplier: 0,
             divisor: 0,
-            counter: 0,
-            empty: 0,
-            value: 0,
+            totalAggregationType: '',
         }
     }
 
@@ -1453,22 +1461,47 @@ console.log("valueObject", valueObject);
 };
 
 PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) {
-
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
 
-    this.valueLookup[rowIndex][columnIndex] = value
+    this.valueLookup[rowIndex][columnIndex] = value;
 
     this.valueCounter += 1;
-}
+};
+
+PivotTable.prototype.hasDxInColumns = function() {
+    return this.colAxis && Array.isArray(this.colAxis.dimensionNames) && this.colAxis.dimensionNames.includes('dx');
+};
+
+PivotTable.prototype.hasDxInRows = function() {
+    return this.rowAxis && Array.isArray(this.rowAxis.dimensionNames) && this.rowAxis.dimensionNames.includes('dx');
+};
+
+PivotTable.prototype.isSubTotalPosition = function(rowIndex, columnIndex) {
+    return Boolean(
+        this.rowAxis.isSubTotalPosition(rowIndex) ||
+        this.colAxis.isSubTotalPosition(columnIndex)
+    );
+};
+
+PivotTable.prototype.isTotalPosition = function(rowIndex, columnIndex) {
+    return Boolean(
+        this.rowAxis.isTotalPosition(rowIndex) ||
+        this.colAxis.isTotalPosition(columnIndex)
+    );
+};
+
+PivotTable.prototype.isSubTotalOrTotalPosition = function(rowIndex, columnIndex) {
+    return this.isSubTotalPosition(rowIndex, columnIndex) || this.isTotalPosition(rowIndex, columnIndex);
+};
 
 /**
  * Initializes value and total lookup tables.
  * TODO: ugly function
  */
 PivotTable.prototype.initializeLookups = function() {
-
+console.log("THIS", this);
     let tableRowSize = this.rowAxis.actualSize;
     let tableColumnSize = this.colAxis.actualSize;
 
@@ -1481,18 +1514,21 @@ PivotTable.prototype.initializeLookups = function() {
     }
 
     const totalMap = {};
-
+console.log("TABLE ROW SIZE:", tableRowSize);
+console.log("TABLE COL SIZE:", tableColumnSize);
     for (let rowIndex = 0; rowIndex < tableRowSize; rowIndex += this.rowAxis.isSubTotalPosition(rowIndex + 1) ? 2 : 1) {
         for (let columnIndex = 0; columnIndex < tableColumnSize; columnIndex += this.colAxis.isSubTotalPosition(columnIndex + 1) ? 2 : 1) {
 
             let valueObject = this.getValueObject(rowIndex, columnIndex);
 
+console.log("valueObject", valueObject);
             let nextRowTotalIndex = this.rowAxis.getNextTotalPosition();
             let nextColumnTotalIndex = this.colAxis.getNextTotalPosition();
 
             let nextRowSubTotalIndex = this.rowAxis.getNextSubTotalPosition(rowIndex);
             let nextColumnSubTotalIndex = this.colAxis.getNextSubTotalPosition(columnIndex);
 
+            // insert value
             if (valueObject) {
                 this.valueLookupInsert(valueObject.empty ? null : valueObject.value, rowIndex, columnIndex);
             }
@@ -1559,9 +1595,6 @@ PivotTable.prototype.initializeLookups = function() {
         }
     }
 
-    const totalAggregationTypes = this.response.getTotalAggregationTypes();
-    const tableAggregationType = totalAggregationTypes.length === 1 ? totalAggregationTypes[0] : null;
-console.log("TAT", totalAggregationTypes, tableAggregationType);
     let rowTotalIndices = Object.keys(totalMap);
 
     for (let i = 0; i < rowTotalIndices.length; i++) {
@@ -1576,17 +1609,17 @@ console.log("TAT", totalAggregationTypes, tableAggregationType);
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
-
+console.log("totalMap item:", totalMap[rowIndex][columnIndex]);
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
-                let itemsMetadata = this.response.metaData.items;
+                // let itemsMetadata = this.response.metaData.items;
 
                 // let columnAggregationType = null;
                 // let rowTotalsAggregationType = null;
 
                  // should also handle individual aggtype for dx
-                const rowTotalsAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
-                const columnAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
+// const rowTotalsAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
+// const columnAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
 
                 // if (this.rowAxis.ids[i]) {
                 //     rowTotalsAggregationType = itemsMetadata[
@@ -1599,32 +1632,47 @@ console.log("TAT", totalAggregationTypes, tableAggregationType);
                 //         this.colAxis.ids[j].split('-')[0]
                 //     ].totalAggregationType;
                 // }
-console.log("totalMap", totalMap);
-console.log("totalMap[rowIndex][columnIndex]", totalMap[rowIndex][columnIndex]);
-                let { value, numerator, denominator, factor, multiplier, divisor, counter } = totalMap[rowIndex][columnIndex];
+
+                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
                 let total = value;
 
-                if (this.rowAxis.isSubTotalPosition(rowIndex) || this.rowAxis.isTotalPosition(rowIndex)) {
-                    if (AVERAGE_AGGREGATION_TOTAL === columnAggregationType) {
-                        total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
-                    }
-
-                    else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
-                        total = value;
-                    }
-                }
-
-                if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
-
-                    if (AVERAGE_AGGREGATION_TOTAL === rowTotalsAggregationType) {
-                        total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
-                    }
-
-                    else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
-                        total = value;
+                if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {
+                    switch (totalAggregationType) {
+                        case AVERAGE_AGGREGATION_TOTAL: {
+                            total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
+                            break;
+                        }
+                        case SUM_AGGREGATION_TOTAL: {
+                            total = this.getAverageTotal(numerator, denominator, multiplier, divisor);
+                            // total = this.getSumTotal(numerator || value, denominator, factor, counter);
+                            break;
+                        }
+                        default:
+                            total = total;
                     }
                 }
+
+                // if (this.rowAxis.isSubTotalPosition(rowIndex) || this.rowAxis.isTotalPosition(rowIndex)) {
+                //     if (AVERAGE_AGGREGATION_TOTAL === columnAggregationType) {
+                //         total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
+                //     }
+
+                //     else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
+                //         total = value;
+                //     }
+                // }
+
+                // if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
+
+                //     if (AVERAGE_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                //         total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
+                //     }
+
+                //     else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
+                //         total = value;
+                //     }
+                // }
 
                 if (this.doSortableColumnHeaders()) {
                     let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
@@ -1636,6 +1684,8 @@ console.log("totalMap[rowIndex][columnIndex]", totalMap[rowIndex][columnIndex]);
 
         }
     }
+
+    console.log("totalMap", totalMap);
 };
 
 /**

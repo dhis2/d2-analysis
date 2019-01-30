@@ -22,7 +22,7 @@ export class TableCell {
     width = 120;
     height = 25;
     style = '';
-    
+
     constructor(config={}) {
         Object.assign(this, config);
     }
@@ -54,7 +54,7 @@ export class TextCell extends TableCell {
     constructor(displayValue, config) {
         super(config);
 
-        this.displayValue = typeof displayValue !== 'string' && typeof displayValue !== 'number' ? 
+        this.displayValue = typeof displayValue !== 'string' && typeof displayValue !== 'number' ?
             '&nbsp;' : displayValue;
         this.title = this.displayValue;
     }
@@ -64,7 +64,7 @@ export class ValueCell extends NumberCell {
 
     type = VALUE_CELL;
     cls = 'pivot-value';
-    
+
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
         this.isValue = true;
@@ -76,14 +76,14 @@ export class PlainValueCell extends NumberCell {
 
     type = VALUE_CELL;
     cls = 'pivot-value';
-    
+
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
     }
 }
 
 export class SubTotalCell extends NumberCell {
-    
+
     type = SUB_TOTAL_CELL;
     cls = 'pivot-value-subtotal';
 
@@ -93,7 +93,7 @@ export class SubTotalCell extends NumberCell {
 };
 
 export class TotalCell extends NumberCell {
-    
+
     type = TOTAL_CELL;
     cls = 'pivot-value-total-subgrandtotal';
 
@@ -194,7 +194,7 @@ export class PaddingCell extends TableCell {
 export class BottomPaddingCell extends PaddingCell {
 
     cls = 'pivot-padding bottom-padding';
-    
+
     constructor(heightInPixels, config) {
         super(config);
 

@@ -1,8 +1,9 @@
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import isNumber from 'd2-utilizr/lib/isNumber';
+import { MIXED_AGGREGATION_TOTAL } from './PivotTableConstants';
 
 /** @description returns the number of decumal of given float
- *  @param   {number} number 
+ *  @param   {number} number
  *  @returns {number}
  *  @deprecated should switch to use function located in d2-utilizr
  */
@@ -12,8 +13,8 @@ export const getNumberOfDecimals = (number) => {
 };
 
 /** @description returns the rounded value of the given float.
- *  @param   {number} value 
- *  @param   {number} [dec=2] 
+ *  @param   {number} value
+ *  @param   {number} [dec=2]
  *  @returns {number}
  */
 export const getRoundedHtmlValue = (value, dec=2) => {
@@ -21,8 +22,8 @@ export const getRoundedHtmlValue = (value, dec=2) => {
 };
 
 /** @description get percentage representation of value.
- *  @param   {number} value 
- *  @param   {number} total 
+ *  @param   {number} value
+ *  @param   {number} total
  *  @returns {string}
  */
 export const getPercentageHtml = (value, total) => {
@@ -30,8 +31,8 @@ export const getPercentageHtml = (value, total) => {
 };
 
 /** @description round number if needed.
- *  @param   {number} number 
- *  @param   {number} precision 
+ *  @param   {number} number
+ *  @param   {number} precision
  *  @returns {number}
  */
 export const roundIf = (number, precision) => {
@@ -46,17 +47,31 @@ export const roundIf = (number, precision) => {
     return number;
 };
 
+// export const addMerge = (a, b) => {
+//     Object.keys(a).forEach(key => {
+//         if(b[key]) {
+//             a[key] += b[key];
+//         }
+//     });
+// };
+
 export const addMerge = (a, b) => {
     Object.keys(a).forEach(key => {
-        if(b[key]) {
-            a[key] += b[key];
+        if (Boolean(b[key])) {
+            if (typeof a[key] === 'number') {
+                a[key] += b[key];
+                return;
+            }
+            else if (typeof a[key] === 'string') {
+                a[key] = !a[key] ? b[key] : (a[key] !== b[key]) ? MIXED_AGGREGATION_TOTAL : a[key];
+            }
         }
     });
 };
 
 export const defaultProxyGenerator = defaultReturnValue => {
     return new Proxy(
-        {}, 
+        {},
         { get: (target, name) => name in target ? target[name] : defaultReturnValue }
     );
 };
