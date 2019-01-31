@@ -39,7 +39,7 @@ MentionToolbar = function (refs) {
         }).run();
     };
 
-    var disabledRowStyle = "display: block; background-color: white; color: grey; cursor: default";
+    var disabledRowStyle = "display: block; background-color: white; color: grey; cursor: not-allowed";
 
     var mentionsPanel = Ext.create('Ext.panel.Panel', {
         floating: true,
@@ -56,10 +56,13 @@ MentionToolbar = function (refs) {
             return users
                     .map((user) => {
                         const hasAccess = canUserAccessCurrentFavorite(user);
+                        const text = user.displayName +
+                            " (" + user.userCredentials.username + ")" +
+                            (hasAccess ? "" : (" - " + i18n.user_cannot_view));
 
                         return {
                             xtype: 'label',
-                            html:  user.displayName + " (" + user.userCredentials.username + ")",
+                            text: text,
                             style: hasAccess ? "" : disabledRowStyle,
                             listeners: !hasAccess ? {} : {
                                 'render': function(label) {
