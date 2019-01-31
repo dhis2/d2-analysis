@@ -27,7 +27,7 @@ export const WHITE_COLOR = 'white';
 
 export const AVERAGE_AGGREGATION_TOTAL = 'AVERAGE';
 export const SUM_AGGREGATION_TOTAL = 'SUM';
-export const MIXED_AGGREGATION_TOTAL = 'MIXED';
+export const NA_AGGREGATION_TOTAL = 'N/A';
 
 export const PIVOT_TABLE_CELLS = {
     VALUE_CELL,

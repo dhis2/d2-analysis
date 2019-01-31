@@ -1,7 +1,7 @@
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import isNumber from 'd2-utilizr/lib/isNumber';
 import isNumeric from 'd2-utilizr/lib/isNumeric';
-import { MIXED_AGGREGATION_TOTAL } from './PivotTableConstants';
+import { NA_AGGREGATION_TOTAL } from './PivotTableConstants';
 
 /** @description returns the number of decumal of given float
  *  @param   {number} number
@@ -84,7 +84,7 @@ export const addMergeValueObject = (a, b) => {
                 return;
             }
             else if (typeof a[key] === 'string') {
-                a[key] = !a[key] ? b[key] : (a[key] !== b[key]) ? MIXED_AGGREGATION_TOTAL : a[key];
+                a[key] = !a[key] ? b[key] : (a[key] !== b[key]) ? NA_AGGREGATION_TOTAL : a[key];
             }
         }
     });
