@@ -550,25 +550,22 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
 
     const rric = new ResponseRowIdCombination();
-    let dimensionNames = [];
 
     if (this.colAxis.type) {
         let columnId = this.colAxis.ids[columnIndex];
         rric.add(columnId);
-        dimensionNames.push(...this.colAxis.dimensionNames);
     }
 
     if (this.rowAxis.type) {
         let rowId = this.rowAxis.ids[rowIndex];
         rric.add(rowId);
-        dimensionNames.push(...this.rowAxis.dimensionNames);
     }
 
     const id = rric.get();
     const value = this.getValueFromId(id);
     const empty = value === null;
 
-    const dxId = id.split('-')[dimensionNames.findIndex(item => item === 'dx')];
+    const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
 
     return {
         empty,
@@ -1609,29 +1606,8 @@ console.log("valueObject", valueObject);
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
-console.log("totalMap item:", totalMap[rowIndex][columnIndex]);
+
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
-
-                // let itemsMetadata = this.response.metaData.items;
-
-                // let columnAggregationType = null;
-                // let rowTotalsAggregationType = null;
-
-                 // should also handle individual aggtype for dx
-// const rowTotalsAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
-// const columnAggregationType = tableAggregationType ? tableAggregationType : SUM_AGGREGATION_TOTAL;
-
-                // if (this.rowAxis.ids[i]) {
-                //     rowTotalsAggregationType = itemsMetadata[
-                //         this.rowAxis.ids[i].split('-')[0]
-                //     ].totalAggregationType;
-                // }
-
-                // if (this.colAxis.ids[j]) {
-                //     columnAggregationType = itemsMetadata[
-                //         this.colAxis.ids[j].split('-')[0]
-                //     ].totalAggregationType;
-                // }
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
@@ -1647,27 +1623,6 @@ console.log("totalMap item:", totalMap[rowIndex][columnIndex]);
                             total = value;
                     }
                 }
-
-                // if (this.rowAxis.isSubTotalPosition(rowIndex) || this.rowAxis.isTotalPosition(rowIndex)) {
-                //     if (AVERAGE_AGGREGATION_TOTAL === columnAggregationType) {
-                //         total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
-                //     }
-
-                //     else if (SUM_AGGREGATION_TOTAL === columnAggregationType) {
-                //         total = value;
-                //     }
-                // }
-
-                // if (this.colAxis.isSubTotalPosition(columnIndex) || this.colAxis.isTotalPosition(columnIndex)) {
-
-                //     if (AVERAGE_AGGREGATION_TOTAL === rowTotalsAggregationType) {
-                //         total = this.getAverageTotal(numerator, denominator || 1, multiplier, divisor);
-                //     }
-
-                //     else if (SUM_AGGREGATION_TOTAL === rowTotalsAggregationType) {
-                //         total = value;
-                //     }
-                // }
 
                 if (this.doSortableColumnHeaders()) {
                     let totalIdComb = new ResponseRowIdCombination(this.refs, [TOTAL_SORT, this.rowAxis.ids[i]]);
