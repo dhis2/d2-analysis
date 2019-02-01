@@ -16,6 +16,7 @@ MentionToolbar = function (refs) {
                 'query=' + search,
                 'fields=displayName,userCredentials[username]',
                 'order=displayName:asc',
+                'pageSize=5',
             ],
             success: function(response) {
                 onSuccess(response.users);
