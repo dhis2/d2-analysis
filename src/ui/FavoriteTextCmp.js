@@ -1,4 +1,5 @@
 import fs from './FavoriteStyle';
+import {onMarkdownEditorKeyDown} from '../util/dom';
 
 export default function({ layout, i18n }) {
 
@@ -48,7 +49,10 @@ export default function({ layout, i18n }) {
         labelSeparator: '',
         emptyText: 'No description (optional)',
         enableKeyEvents: true,
-        value: layout.description
+        value: layout.description,
+        listeners: {
+            keydown: onMarkdownEditorKeyDown,
+        },
     });
 
     const titleTextField = Ext.create('Ext.form.field.Text', {		
