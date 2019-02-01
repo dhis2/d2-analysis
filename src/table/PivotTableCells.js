@@ -99,6 +99,8 @@ export class TotalCell extends NumberCell {
 
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
+
+        this.cls += this.config.totalAggregationType === 'N/A' ? ' total-na' : '';
     }
 };
 

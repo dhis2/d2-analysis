@@ -1001,7 +1001,9 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     }
 
     if (this.rowAxis.isTotalPosition(rowIndex) || this.colAxis.isTotalPosition(columnIndex)) {
-        return new TotalCell(value, displayValue);
+        console.log("BUILD this.totalMap", rowIndex, columnIndex, this.totalMap);
+        console.log("BUILD this.totalMap2", this.totalMap[rowIndex]);
+        return new TotalCell(value, displayValue, this.totalMap[rowIndex][columnIndex].totalAggregationType);
     }
 
     if (this.colAxis.isSubTotalPosition(columnIndex) || this.rowAxis.isSubTotalPosition(rowIndex)) {
@@ -1634,6 +1636,8 @@ console.log("valueObject", valueObject);
 
         }
     }
+
+    this.totalMap = totalMap;
 
     console.log("totalMap", totalMap);
 };
