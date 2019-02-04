@@ -10,7 +10,40 @@ import { VALUE_CELL,
          EMPTY_CELL,
          LABELED_CELL,
          PADDING_CELL,
-         FILTER_CELL } from '../table/PivotTableConstants';
+         FILTER_CELL,
+         NA_AGGREGATION_TOTAL} from '../table/PivotTableConstants';
+
+const TITLE_AGGTYPE_NA = 'Irrelevant value - summed across aggregation types';
+
+const cellClsMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: 'aggtype-na',
+        },
+    },
+};
+
+const getCls = function(type, prop, value) {
+    return (type in cellClsMap) &&
+        (prop in cellClsMap[type]) &&
+        (value in cellClsMap[type][prop]) &&
+        cellClsMap[type][prop][value];
+};
+
+const cellTitleMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: 'Irrelevant total - summed across aggregation types',
+        },
+    },
+};
+
+const getTitle = function(type, prop, value) {
+    return (type in cellTitleMap) &&
+        (prop in cellTitleMap[type]) &&
+        (value in cellTitleMap[type][prop]) &&
+        cellTitleMap[type][prop][value];
+};
 
 export class TableCell {
 
@@ -100,7 +133,11 @@ export class TotalCell extends NumberCell {
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
 
-        this.cls += this.config.totalAggregationType === 'N/A' ? ' total-na' : '';
+        const aggTypeCls = getCls(this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeCls && (this.cls += (' ' + aggTypeCls));
+
+        const aggTypeTitle = getTitle(this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeTitle && (this.title += (' (' + aggTypeTitle + ')'));
     }
 };
 
