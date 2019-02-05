@@ -13,8 +13,6 @@ import { VALUE_CELL,
          FILTER_CELL,
          NA_AGGREGATION_TOTAL} from '../table/PivotTableConstants';
 
-const TITLE_AGGTYPE_NA = 'Irrelevant value - summed across aggregation types';
-
 const cellClsMap = {
     [TOTAL_CELL]: {
         totalAggregationType: {
