@@ -29,6 +29,9 @@ export const AVERAGE_AGGREGATION_TOTAL = 'AVERAGE';
 export const SUM_AGGREGATION_TOTAL = 'SUM';
 export const NA_AGGREGATION_TOTAL = 'N/A';
 
+export const DEFAULT_NUMBER_DECIMALS = 1;
+export const SMALL_NUMBER_DECIMALS = 2;
+
 export const PIVOT_TABLE_CELLS = {
     VALUE_CELL,
     SUB_TOTAL_CELL,

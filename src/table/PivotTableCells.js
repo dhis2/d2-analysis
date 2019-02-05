@@ -1,4 +1,4 @@
-import { getRoundedHtmlValue } from './PivotTableUtils';
+import { getRoundedHtmlValue, getDefaultNumberDisplayValue } from './PivotTableUtils';
 import uuid from 'd2-utilizr/lib/uuid';
 
 import { VALUE_CELL,
@@ -21,13 +21,6 @@ const cellClsMap = {
     },
 };
 
-const getCls = function(type, prop, value) {
-    return (type in cellClsMap) &&
-        (prop in cellClsMap[type]) &&
-        (value in cellClsMap[type][prop]) &&
-        cellClsMap[type][prop][value];
-};
-
 const cellTitleMap = {
     [TOTAL_CELL]: {
         totalAggregationType: {
@@ -36,11 +29,11 @@ const cellTitleMap = {
     },
 };
 
-const getTitle = function(type, prop, value) {
-    return (type in cellTitleMap) &&
-        (prop in cellTitleMap[type]) &&
-        (value in cellTitleMap[type][prop]) &&
-        cellTitleMap[type][prop][value];
+const getFromCellMap = function(map, type, prop, value) {
+    return (type in map) &&
+        (prop in map[type]) &&
+        (value in map[type][prop]) &&
+        map[type][prop][value];
 };
 
 export class TableCell {
@@ -65,14 +58,13 @@ export class NumberCell extends TableCell {
 
         this.value = value;
 
+        console.log("NUMBERCELL", value, displayValue, config);
         if (typeof displayValue === 'string') {
             this.displayValue = displayValue;
         }
-
         else if (typeof displayValue === 'number') {
-            this.displayValue = getRoundedHtmlValue(displayValue);
+            this.displayValue = getDefaultNumberDisplayValue(displayValue, config.skipRounding);
         }
-
         else {
             this.displayValue = '&nbsp;';
         }
@@ -131,10 +123,10 @@ export class TotalCell extends NumberCell {
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
 
-        const aggTypeCls = getCls(this.type, 'totalAggregationType', config.totalAggregationType);
+        const aggTypeCls = getFromCellMap(cellClsMap, this.type, 'totalAggregationType', config.totalAggregationType);
         aggTypeCls && (this.cls += (' ' + aggTypeCls));
 
-        const aggTypeTitle = getTitle(this.type, 'totalAggregationType', config.totalAggregationType);
+        const aggTypeTitle = getFromCellMap(cellTitleMap, this.type, 'totalAggregationType', config.totalAggregationType);
         aggTypeTitle && (this.title += (' (' + aggTypeTitle + ')'));
     }
 };

@@ -1003,21 +1003,23 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     if (this.rowAxis.isTotalPosition(rowIndex) || this.colAxis.isTotalPosition(columnIndex)) {
         const totalObj = this.totalMap[rowIndex][columnIndex];
 
-        return new TotalCell(value, displayValue, totalObj);
+        return new TotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (this.colAxis.isSubTotalPosition(columnIndex) || this.rowAxis.isSubTotalPosition(rowIndex)) {
-        return new SubTotalCell(value, displayValue);
+        const totalObj = this.totalMap[rowIndex][columnIndex];
+
+        return new SubTotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (value === null || typeof(value) === 'undefined') {
-        return new PlainValueCell(value, displayValue);
+        return new PlainValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
 
-    let cell = new ValueCell(value, displayValue);
+    let cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     let rric = new ResponseRowIdCombination();
 
     if (this.colAxis.type) rric.add(this.colAxis.ids[columnIndex]);

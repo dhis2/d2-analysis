@@ -907,9 +907,9 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
     }
 
     // skip rounding
-    // if (this.skipRounding) {
+    if (this.skipRounding) {
         request.add('skipRounding=true');
-    // }
+    }
 
     // display property
     request.add('displayProperty=' + displayProperty.toUpperCase());

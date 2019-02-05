@@ -1,7 +1,12 @@
 import numberToFixed from 'd2-utilizr/lib/numberToFixed';
 import isNumber from 'd2-utilizr/lib/isNumber';
 import isNumeric from 'd2-utilizr/lib/isNumeric';
-import { NA_AGGREGATION_TOTAL } from './PivotTableConstants';
+import { NA_AGGREGATION_TOTAL, DEFAULT_NUMBER_DECIMALS, SKIP_ROUNDING_NUMBER_DECIMALS, SMALL_NUMBER_DECIMALS } from './PivotTableConstants';
+
+export const getDefaultNumberDisplayValue = (value, skipRounding) =>
+    skipRounding ?
+        getRoundedHtmlValue(value, SKIP_ROUNDING_NUMBER_DECIMALS) :
+        getRoundedHtmlValue(value, value < 1 && value > -1 ? SMALL_NUMBER_DECIMALS : DEFAULT_NUMBER_DECIMALS);
 
 /** @description returns the number of decumal of given float
  *  @param   {number} number
@@ -15,10 +20,10 @@ export const getNumberOfDecimals = (number) => {
 
 /** @description returns the rounded value of the given float.
  *  @param   {number} value
- *  @param   {number} [dec=2]
+ *  @param   {number} [dec=NUMBER_OF_DECIMALS]
  *  @returns {number}
  */
-export const getRoundedHtmlValue = (value, dec=2) => {
+export const getRoundedHtmlValue = (value, dec = DEFAULT_NUMBER_DECIMALS) => {
     return parseFloat(roundAndStrip(value, dec)).toString();
 };
 
@@ -47,7 +52,6 @@ export const roundIf = (number, precision) => {
 
     return number;
 };
-
 
 /** @description round number if needed.
  *  @param   {number} number
