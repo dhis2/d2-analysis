@@ -1,5 +1,6 @@
 import isString from 'd2-utilizr/lib/isString';
 import isNumber from 'd2-utilizr/lib/isNumber';
+import isNumeric from 'd2-utilizr/lib/isNumeric';
 import isObject from 'd2-utilizr/lib/isObject';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isEmpty from 'd2-utilizr/lib/isEmpty';
@@ -587,20 +588,39 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
  */
 PivotTable.prototype.getValueFromId = function(id) {
 
-    let value = this.idValueMap[id];
+    const value = this.idValueMap[id];
+    const n = parseFloat(value);
 
     if (isBoolean(value)) {
         return 1;
     }
 
-    value = parseFloat(value);
+    if ((isNumber(n) && n != value) || typeof value === 'undefined') {
+        return null;
+    }
 
-    if (!isNumber(value)) {
-        return  null;
+    if (isNumber(n)) {
+        return n;
     }
 
     return value;
 };
+// PivotTable.prototype.getValueFromId = function(id) {
+
+//     let value = this.idValueMap[id];
+
+//     if (isBoolean(value)) {
+//         return 1;
+//     }
+
+//     value = parseFloat(value);
+
+//     if (!isNumber(value)) {
+//         return  null;
+//     }
+
+//     return value;
+// };
 /**
  * Gets factor value from id factor map
  *
@@ -988,7 +1008,7 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
-
+console.log("this.valueLookup", this.valueLookup);
     let value = this.valueLookup[rowIndex][columnIndex];
     let displayValue = value;
 
@@ -1615,16 +1635,18 @@ console.log("valueObject", valueObject);
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
-                let total;
+                let total = null;
 
                 if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {
-                    switch (totalAggregationType) {
-                        case AVERAGE_AGGREGATION_TOTAL: {
-                            total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
-                            break;
+                    if (isNumeric(value)) {
+                        switch (totalAggregationType) {
+                            case AVERAGE_AGGREGATION_TOTAL: {
+                                total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
+                                break;
+                            }
+                            default:
+                                total = value;
                         }
-                        default:
-                            total = value;
                     }
                 }
 
