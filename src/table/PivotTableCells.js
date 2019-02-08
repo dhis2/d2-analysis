@@ -92,8 +92,6 @@ export class ValueCell extends NumberCell {
         super(value, displayValue, config);
         this.isValue = true;
         this.uuid = uuid();
-
-        console.log("ValueCell", value, displayValue);
     }
 }
 
