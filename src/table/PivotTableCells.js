@@ -92,6 +92,17 @@ export class ValueCell extends NumberCell {
         super(value, displayValue, config);
         this.isValue = true;
         this.uuid = uuid();
+
+        console.log("ValueCell", value, displayValue);
+    }
+}
+
+export class TextValueCell extends ValueCell {
+
+    constructor(value, displayValue, config) {
+        super(value, displayValue, config);
+
+        this.cls += ' align-left cursor-default';
     }
 }
 

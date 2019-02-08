@@ -32,7 +32,8 @@ import { SubTotalCell,
          TopPaddingCell,
          BottomPaddingCell,
          LeftPaddingCell,
-         RightPaddingCell } from './PivotTableCells';
+         RightPaddingCell,
+         TextValueCell } from './PivotTableCells';
 
 import { VALUE_CELL,
          DIMENSION_CELL,
@@ -1036,14 +1037,22 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
         return new PlainValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
+    let cell;
+
+    if (!isNumeric(value)) {
+        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    }
+    else {
+        cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    }
+
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
 
-    let cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     let rric = new ResponseRowIdCombination();
 
-    if (this.colAxis.type) rric.add(this.colAxis.ids[columnIndex]);
-    if (this.rowAxis.type) rric.add(this.rowAxis.ids[rowIndex]);
+    this.colAxis.type && (rric.add(this.colAxis.ids[columnIndex]));
+    this.rowAxis.type && (rric.add(this.rowAxis.ids[rowIndex]));
 
     cell.dxId = rric.getIdByIds(this.response.metaData.dimensions.dx);
     cell.peId = rric.getIdByIds(this.response.metaData.dimensions.pe);
