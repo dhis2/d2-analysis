@@ -83,11 +83,12 @@ export const addMerge = (a, b) => {
 export const addMergeValueObject = (a, b) => {
     Object.keys(a).forEach(key => {
         if (Boolean(b[key])) {
+            console.log("key", key);
             if (typeof a[key] === 'number') {
                 a[key] += b[key];
                 return;
             }
-            else if (typeof a[key] === 'string') {
+            else if (key === 'totalAggregationType') {
                 a[key] = !a[key] ? b[key] : (a[key] !== b[key]) ? NA_AGGREGATION_TOTAL : a[key];
             }
         }
