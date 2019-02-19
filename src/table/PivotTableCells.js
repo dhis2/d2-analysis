@@ -1,4 +1,4 @@
-import { getRoundedHtmlValue, getDefaultNumberDisplayValue } from './PivotTableUtils';
+import { getDefaultNumberDisplayValue } from './PivotTableUtils';
 import uuid from 'd2-utilizr/lib/uuid';
 
 import { VALUE_CELL,
