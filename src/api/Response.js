@@ -503,6 +503,10 @@ Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
 
+Response.prototype.getDxIds = function() {
+    return this.metaData.dimensions.dx;
+};
+
 Response.prototype.getOrganisationUnitsIds = function() {
     return this.metaData.dimensions.ou;
 };
@@ -525,8 +529,8 @@ Response.prototype.getItemName = function(id, isHierarchy, isHtml) {
     return this.getHierarchyNameById(id, isHierarchy) + this.getNameById(id);
 };
 
-Response.prototype.getItemAggregationType = function(id) {
-    return this.metaData.items[id].totalAggregationType;
+Response.prototype.getTotalAggregationType = function(id) {
+    return (this.metaData.items[id] || {}).totalAggregationType;
 };
 
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
@@ -555,8 +559,23 @@ Response.prototype.getFactorHeader = function() {
     return this.getHeaderByName('factor');
 }
 
+Response.prototype.getMultiplierHeader = function() {
+    return this.getHeaderByName('multiplier');
+}
+
+Response.prototype.getDivisorHeader = function() {
+    return this.getHeaderByName('divisor');
+}
+
 Response.prototype.hasIdByDimensionName = function(id, dimensionName) {
     return arrayContains(this.getIdsByDimensionName(dimensionName), id);
+};
+
+Response.prototype.getTotalAggregationTypes = function() {
+    return [...new Set((this.getDxIds() || [])
+        .map(id => this.getTotalAggregationType(id))
+        .filter(aggType => typeof aggType === 'string'))
+    ];
 };
 
 // dep 2

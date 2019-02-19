@@ -1,4 +1,4 @@
-import { getRoundedHtmlValue } from './PivotTableUtils';
+import { getDefaultNumberDisplayValue } from './PivotTableUtils';
 import uuid from 'd2-utilizr/lib/uuid';
 
 import { VALUE_CELL,
@@ -10,7 +10,39 @@ import { VALUE_CELL,
          EMPTY_CELL,
          LABELED_CELL,
          PADDING_CELL,
-         FILTER_CELL } from '../table/PivotTableConstants';
+         FILTER_CELL,
+         NA_AGGREGATION_TOTAL} from '../table/PivotTableConstants';
+
+const cellClsMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: 'aggtype-na',
+        },
+    },
+};
+
+const cellTitleMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: 'Irrelevant total - sum across aggregation types',
+        },
+    },
+};
+
+const cellDisplayValueMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: '-',
+        }
+    }
+}
+
+const getFromCellMap = function(map, type, prop, value) {
+    return (type in map) &&
+        (prop in map[type]) &&
+        (value in map[type][prop]) &&
+        map[type][prop][value];
+};
 
 export class TableCell {
 
@@ -22,7 +54,7 @@ export class TableCell {
     width = 120;
     height = 25;
     style = '';
-    
+
     constructor(config={}) {
         Object.assign(this, config);
     }
@@ -37,11 +69,9 @@ export class NumberCell extends TableCell {
         if (typeof displayValue === 'string') {
             this.displayValue = displayValue;
         }
-
         else if (typeof displayValue === 'number') {
-            this.displayValue = getRoundedHtmlValue(displayValue);
+            this.displayValue = getDefaultNumberDisplayValue(displayValue, config.skipRounding);
         }
-
         else {
             this.displayValue = '&nbsp;';
         }
@@ -54,7 +84,7 @@ export class TextCell extends TableCell {
     constructor(displayValue, config) {
         super(config);
 
-        this.displayValue = typeof displayValue !== 'string' && typeof displayValue !== 'number' ? 
+        this.displayValue = typeof displayValue !== 'string' && typeof displayValue !== 'number' ?
             '&nbsp;' : displayValue;
         this.title = this.displayValue;
     }
@@ -64,7 +94,7 @@ export class ValueCell extends NumberCell {
 
     type = VALUE_CELL;
     cls = 'pivot-value';
-    
+
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
         this.isValue = true;
@@ -72,18 +102,27 @@ export class ValueCell extends NumberCell {
     }
 }
 
+export class TextValueCell extends ValueCell {
+
+    constructor(value, displayValue, config) {
+        super(value, displayValue, config);
+
+        this.cls += ' align-left cursor-default';
+    }
+}
+
 export class PlainValueCell extends NumberCell {
 
     type = VALUE_CELL;
     cls = 'pivot-value';
-    
+
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
     }
 }
 
 export class SubTotalCell extends NumberCell {
-    
+
     type = SUB_TOTAL_CELL;
     cls = 'pivot-value-subtotal';
 
@@ -93,12 +132,21 @@ export class SubTotalCell extends NumberCell {
 };
 
 export class TotalCell extends NumberCell {
-    
+
     type = TOTAL_CELL;
     cls = 'pivot-value-total-subgrandtotal';
 
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
+
+        const aggTypeCls = getFromCellMap(cellClsMap, this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeCls && (this.cls += (' ' + aggTypeCls));
+
+        const aggTypeTitle = getFromCellMap(cellTitleMap, this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeTitle && (this.title += (' (' + aggTypeTitle + ')'));
+
+        const aggTypeDisplayValue = getFromCellMap(cellDisplayValueMap, this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeDisplayValue && (this.displayValue = aggTypeDisplayValue);
     }
 };
 
@@ -194,7 +242,7 @@ export class PaddingCell extends TableCell {
 export class BottomPaddingCell extends PaddingCell {
 
     cls = 'pivot-padding bottom-padding';
-    
+
     constructor(heightInPixels, config) {
         super(config);
 
