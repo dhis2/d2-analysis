@@ -24,10 +24,18 @@ const cellClsMap = {
 const cellTitleMap = {
     [TOTAL_CELL]: {
         totalAggregationType: {
-            [NA_AGGREGATION_TOTAL]: 'Irrelevant total - summed across aggregation types',
+            [NA_AGGREGATION_TOTAL]: 'Irrelevant total - sum across aggregation types',
         },
     },
 };
+
+const cellDisplayValueMap = {
+    [TOTAL_CELL]: {
+        totalAggregationType: {
+            [NA_AGGREGATION_TOTAL]: '-',
+        }
+    }
+}
 
 const getFromCellMap = function(map, type, prop, value) {
     return (type in map) &&
@@ -58,7 +66,6 @@ export class NumberCell extends TableCell {
 
         this.value = value;
 
-        console.log("NUMBERCELL", value, displayValue, config);
         if (typeof displayValue === 'string') {
             this.displayValue = displayValue;
         }
@@ -137,6 +144,9 @@ export class TotalCell extends NumberCell {
 
         const aggTypeTitle = getFromCellMap(cellTitleMap, this.type, 'totalAggregationType', config.totalAggregationType);
         aggTypeTitle && (this.title += (' (' + aggTypeTitle + ')'));
+
+        const aggTypeDisplayValue = getFromCellMap(cellDisplayValueMap, this.type, 'totalAggregationType', config.totalAggregationType);
+        aggTypeDisplayValue && (this.displayValue = aggTypeDisplayValue);
     }
 };
 

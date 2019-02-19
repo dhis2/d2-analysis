@@ -67,7 +67,6 @@ import { WHITE_COLOR, BLACK_COLOR } from '../table/PivotTableConstants';
  * @param {object} [options={}]
  */
 export const PivotTable = function(refs, layout, response, options = {}) {
-
     this.options = {
         renderLimit: 100000,
         renderOffset: 1,
@@ -1531,7 +1530,6 @@ PivotTable.prototype.isSubTotalOrTotalPosition = function(rowIndex, columnIndex)
  * TODO: ugly function
  */
 PivotTable.prototype.initializeLookups = function() {
-console.log("THIS", this);
     let tableRowSize = this.rowAxis.actualSize;
     let tableColumnSize = this.colAxis.actualSize;
 
@@ -1544,14 +1542,11 @@ console.log("THIS", this);
     }
 
     const totalMap = {};
-console.log("TABLE ROW SIZE:", tableRowSize);
-console.log("TABLE COL SIZE:", tableColumnSize);
     for (let rowIndex = 0; rowIndex < tableRowSize; rowIndex += this.rowAxis.isSubTotalPosition(rowIndex + 1) ? 2 : 1) {
         for (let columnIndex = 0; columnIndex < tableColumnSize; columnIndex += this.colAxis.isSubTotalPosition(columnIndex + 1) ? 2 : 1) {
 
             let valueObject = this.getValueObject(rowIndex, columnIndex);
 
-console.log("valueObject", valueObject);
             let nextRowTotalIndex = this.rowAxis.getNextTotalPosition();
             let nextColumnTotalIndex = this.colAxis.getNextTotalPosition();
 
@@ -1675,9 +1670,6 @@ console.log("valueObject", valueObject);
     }
 
     this.totalMap = totalMap;
-
-    console.log("totalMap", totalMap);
-    console.log("valueLookup", this.valueLookup);
 };
 
 /**
