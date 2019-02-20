@@ -566,9 +566,7 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
     const value = this.getValueFromId(id);
     const empty = value === null;
 
-    const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
-
-    return {
+    const valueObject = {
         empty,
         value: empty ? 0 : value,
         numerator: this.getNumeratorValue(id),
@@ -576,8 +574,15 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
         factor: this.getFactorValue(id),
         multiplier: this.getMultiplierValue(id),
         divisor: this.getDivisorValue(id),
-        totalAggregationType: this.response.getTotalAggregationType(dxId),
     };
+
+    if (this.response.getDxIds()) {
+        const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
+
+        valueObject['totalAggregationType'] = this.response.getTotalAggregationType(dxId);
+    }
+
+    return valueObject;
 };
 
 /**
