@@ -1120,6 +1120,7 @@ EastRegion = function(c) {
             this.removeAll(true);
 
             var interpretations = layout.interpretations;
+            arraySort(interpretations, 'DESC', 'created');
             var interpretationId = layout.interpretationId;
 
             //Get top interpretations panel depending on interpretations and if we are displaying an interpretation
