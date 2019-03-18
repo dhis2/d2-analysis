@@ -533,6 +533,10 @@ Response.prototype.getTotalAggregationType = function(id) {
     return (this.metaData.items[id] || {}).totalAggregationType;
 };
 
+Response.prototype.getValueType = function(id) {
+    return (this.metaData.items[id] || {}).valueType;
+};
+
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var refs = this.getRefs(),
         { Record } = refs.api;
@@ -631,7 +635,7 @@ Response.prototype.getIdFactorMap = function(layout) {
     return this.idFactorMap = this.getIdMap(layout, 'factor');
 };
 
-Response.prototype.getIdMap = function(layout, name) {
+Response.prototype.getIdMap = function(layout, name = 'value') {
 
     const refs = this.getRefs(),
           { ResponseRowIdCombination } = refs.api,

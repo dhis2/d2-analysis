@@ -40,7 +40,9 @@ import { VALUE_CELL,
          DIMENSION_SUB_TOTAL_CELL,
          DIMENSION_TOTAL_CELL,
          EMPTY_CELL,
-         LABELED_CELL } from '../table/PivotTableConstants';
+         LABELED_CELL,
+         TOTALABLE_TYPES,
+         NUMBER_VALUE_TYPE} from '../table/PivotTableConstants';
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
@@ -427,9 +429,6 @@ PivotTable.prototype.getNumberOfVisibleRowDimensions = function() {
 PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
     return (numerator * multiplier) / ((denominator * divisor) || 1);
 };
-// PivotTable.prototype.getAverageTotal = function(numerator, denominator, multiplier, divisor) {
-//     return (numerator * multiplier) / ((denominator || 1) * divisor);
-// };
 
 /**
  * TODO: This needs a better name
@@ -564,11 +563,10 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
     const id = rric.get();
     const value = this.getValueFromId(id);
-    const empty = value === null;
+    const empty = value === null || value === undefined;
 
     const valueObject = {
         empty,
-        value: empty ? 0 : value,
         numerator: this.getNumeratorValue(id),
         denominator: this.getDenominatorValue(id),
         factor: this.getFactorValue(id),
@@ -578,8 +576,13 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
     if (this.response.getDxIds()) {
         const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
+        const valueType = this.response.getValueType(dxId);
 
         valueObject['totalAggregationType'] = this.response.getTotalAggregationType(dxId);
+
+        valueObject['valueType'] = valueType;
+
+        valueObject['value'] = valueType === 'NUMBER' && !empty ? parseFloat(value) : value;
     }
 
     return valueObject;
@@ -592,23 +595,26 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
  * @returns {number}
  */
 PivotTable.prototype.getValueFromId = function(id) {
+    return this.idValueMap[id];
 
-    const value = this.idValueMap[id];
-    const n = parseFloat(value);
 
-    if (isBoolean(value)) {
-        return 1;
-    }
+    // const value = this.idValueMap[id];
+    // console.log("--getValueFromId", id, value);
+    // const n = parseFloat(value);
 
-    if ((isNumber(n) && n != value) || typeof value === 'undefined') {
-        return null;
-    }
+    // if (isBoolean(value)) {
+    //     return 1;
+    // }
 
-    if (isNumber(n)) {
-        return n;
-    }
+    // if ((isNumber(n) && n != value) || typeof value === 'undefined') {
+    //     return null;
+    // }
 
-    return value;
+    // if (isNumber(n)) {
+    //     return n;
+    // }
+
+    // return value;
 };
 // PivotTable.prototype.getValueFromId = function(id) {
 
@@ -1014,14 +1020,15 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
 
-    let value = this.valueLookup[rowIndex][columnIndex];
-    let displayValue = value;
+    const valueObject = this.valueLookup[rowIndex][columnIndex];
+    const value = valueObject.value;
+    let displayValue = valueObject.value;
 
-    if (this.doColumnPercentage() && isNumber(value)) {
+    if (this.doColumnPercentage() && valueObject.valueType === NUMBER_VALUE_TYPE) {
         displayValue = this.colAxis.getPercentage(value, columnIndex);
     }
 
-    if (this.doRowPercentage() && isNumber(value)) {
+    if (this.doRowPercentage() && valueObject.valueType === NUMBER_VALUE_TYPE) {
         displayValue = this.rowAxis.getPercentage(value, rowIndex);
     }
 
@@ -1037,17 +1044,18 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
         return new SubTotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
-    if (value === null || typeof(value) === 'undefined') {
+    // if (value === null || typeof(value) === 'undefined') {
+    if (valueObject.empty) {
         return new PlainValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     let cell;
 
-    if (!isNumeric(value)) {
-        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    if (valueObject.valueType === NUMBER_VALUE_TYPE) {
+        cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
     else {
-        cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
@@ -1482,10 +1490,11 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             multiplier: 0,
             divisor: 0,
             totalAggregationType: '',
+            valueType: 'NUMBER',
         }
     }
 
-    if (valueObject.value === null) {
+    if (valueObject.empty) {
         totalObject[rowIndex][columnIndex].empty++;
     }
 
@@ -1494,12 +1503,12 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     addMergeValueObject(totalObject[rowIndex][columnIndex], valueObject);
 };
 
-PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) {
+PivotTable.prototype.valueLookupInsert = function(valueObject, rowIndex, columnIndex) {
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
 
-    this.valueLookup[rowIndex][columnIndex] = value;
+    this.valueLookup[rowIndex][columnIndex] = valueObject;
 
     this.valueCounter += 1;
 };
@@ -1551,7 +1560,7 @@ PivotTable.prototype.initializeLookups = function() {
         for (let columnIndex = 0; columnIndex < tableColumnSize; columnIndex += this.colAxis.isSubTotalPosition(columnIndex + 1) ? 2 : 1) {
 
             let valueObject = this.getValueObject(rowIndex, columnIndex);
-
+console.log("VO", valueObject);
             let nextRowTotalIndex = this.rowAxis.getNextTotalPosition();
             let nextColumnTotalIndex = this.colAxis.getNextTotalPosition();
 
@@ -1560,11 +1569,11 @@ PivotTable.prototype.initializeLookups = function() {
 
             // insert value
             if (valueObject) {
-                this.valueLookupInsert(valueObject.empty ? null : valueObject.value, rowIndex, columnIndex);
+                this.valueLookupInsert(valueObject, rowIndex, columnIndex);
             }
 
             // add to totals if numeric value
-            if (isNumeric(valueObject.value)) {
+            if (TOTALABLE_TYPES.includes(valueObject.valueType)) {
 
                 // used to calculate percentages and check for empties
                 if (!valueObject.empty) {
@@ -1630,36 +1639,41 @@ PivotTable.prototype.initializeLookups = function() {
     }
 
     let rowTotalIndices = Object.keys(totalMap);
+    let columnTotalIndicies;
+    let rowIndex;
+    let columnIndex;
+    let totalObject;
+    let total;
 
     for (let i = 0; i < rowTotalIndices.length; i++) {
 
-        let columnTotalIndicies = Object.keys(totalMap[rowTotalIndices[i]]);
+        columnTotalIndicies = Object.keys(totalMap[rowTotalIndices[i]]);
 
         for (let j = 0; j < columnTotalIndicies.length; j++) {
 
-            let rowIndex = parseInt(rowTotalIndices[i]);
-            let columnIndex = parseInt(columnTotalIndicies[j]);
+            rowIndex = parseInt(rowTotalIndices[i]);
+            columnIndex = parseInt(columnTotalIndicies[j]);
 
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
 
-            if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
+            totalObject = totalMap[rowIndex][columnIndex];
 
-                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
+            if (totalObject.counter !== totalObject.empty) {
 
-                let total = null;
+                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalObject;
+console.log("TOTAL OBJECT", totalObject);
+                total = null;
 
                 if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {
-                    if (isNumeric(value)) {
-                        switch (totalAggregationType) {
-                            case AVERAGE_AGGREGATION_TOTAL: {
-                                total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
-                                break;
-                            }
-                            default:
-                                total = value;
+                    switch (totalAggregationType) {
+                        case AVERAGE_AGGREGATION_TOTAL: {
+                            total = this.getAverageTotal(numerator || value, denominator, multiplier, divisor);
+                            break;
                         }
+                        default:
+                            total = value;
                     }
                 }
 
@@ -1668,7 +1682,7 @@ PivotTable.prototype.initializeLookups = function() {
                     this.idValueMap[totalIdComb.get()] = total;
                 }
 
-                this.valueLookupInsert(total, rowIndex, columnIndex);
+                this.valueLookupInsert({ value: total }, rowIndex, columnIndex);
             }
 
         }

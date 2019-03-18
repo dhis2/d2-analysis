@@ -82,7 +82,7 @@ export const addMerge = (a, b) => {
 
 export const addMergeValueObject = (a, b) => {
     Object.keys(a).forEach(key => {
-        if (Boolean(b[key])) {
+        if (key in b) {
             if (typeof a[key] === 'number') {
                 a[key] += b[key];
                 return;
