@@ -1014,8 +1014,6 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     const value = isObject(valueItem) ? valueItem.value : value;
     let displayValue = value;
 
-    console.log("buildValueCell", value, displayValue);
-
     // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
@@ -1471,7 +1469,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     if (!totalObject[rowIndex]) {
         totalObject[rowIndex] = {};
     }
-console.log("updateValueTotal", rowIndex, columnIndex, valueObject, totalObject);
+
     if (!totalObject[rowIndex][columnIndex]) {
         totalObject[rowIndex][columnIndex] = {
             value: 0,
@@ -1499,7 +1497,7 @@ PivotTable.prototype.valueLookupInsert = function(valueObject, rowIndex, columnI
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
-
+console.log("valueLookupInsert", valueObject);
     this.valueLookup[rowIndex][columnIndex] = valueObject;
 
     this.valueCounter += 1;
@@ -1563,7 +1561,7 @@ PivotTable.prototype.initializeLookups = function() {
             if (valueObject) {
                 this.valueLookupInsert(valueObject.empty ? null : valueObject, rowIndex, columnIndex);
             }
-console.log("valueObject", valueObject.value, valueObject.empty);
+
             // add to totals if numeric value
             if (isNumeric(valueObject.value)) {
 
