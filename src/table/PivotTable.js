@@ -1643,7 +1643,7 @@ PivotTable.prototype.initializeLookups = function() {
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
-console.log("INSERT TOTAL", totalMap[rowIndex][columnIndex], totalMap[rowIndex][columnIndex].counter, totalMap[rowIndex][columnIndex].empty);
+
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
