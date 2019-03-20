@@ -16,7 +16,7 @@ import { isColorBright } from '../util/colorUtils';
 
 import { PivotTableAxis } from './PivotTableAxis';
 
-import { addMergeValueObject } from './PivotTableUtils';
+import { addMergeValueObject, getDefaultNumberDisplayValue } from './PivotTableUtils';
 
 import { SubTotalCell,
          TotalCell,
@@ -387,6 +387,7 @@ PivotTable.prototype.isRowDimensionColumn = function(columnIndex) {
  * @returns
  */
 PivotTable.prototype.isTextCell = function(cell) {
+    console.log("cell.type", cell.type, cell);
     return !arrayContains(['dimension', 'filter'], cell.type);
 };
 
@@ -467,7 +468,8 @@ PivotTable.prototype.getDisplayValue = function(cell) {
  * @returns {string}
  */
 PivotTable.prototype.getPrettyHtml = function(displayValue) {
-    return this.optionConfig.prettyPrint(displayValue, this.digitGroupSeparator);
+    return displayValue === null || displayValue === undefined ? '' :
+        this.optionConfig.prettyPrint(displayValue, this.digitGroupSeparator);
 };
 
 /**
@@ -1028,34 +1030,38 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     if (this.rowAxis.isTotalPosition(rowIndex) || this.colAxis.isTotalPosition(columnIndex)) {
         const totalObj = this.totalMap[rowIndex][columnIndex];
 
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new TotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (this.colAxis.isSubTotalPosition(columnIndex) || this.rowAxis.isSubTotalPosition(rowIndex)) {
         const totalObj = this.totalMap[rowIndex][columnIndex];
 
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new SubTotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (value === null || typeof(value) === 'undefined') {
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new PlainValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     let cell;
 
     if (valueObject.valueType === 'NUMBER') {
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
         cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
     else {
         cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
-
-    // if (!isNumeric(value)) {
-        // cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
-    // }
-    // else {
-    //     cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
-    // }
 
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
@@ -1856,7 +1862,7 @@ PivotTable.prototype.buildHtmlCell = function(cell) {
             colspan="${cell.colSpan || ''}"
             rowSpan="${cell.rowSpan || ''}"
         >
-            ${this.getDisplayValue(cell)}
+            ${cell.displayValue}
         </td>
     `;
 };

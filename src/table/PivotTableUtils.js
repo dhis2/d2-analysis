@@ -4,6 +4,7 @@ import isNumeric from 'd2-utilizr/lib/isNumeric';
 import { NA_AGGREGATION_TOTAL, DEFAULT_NUMBER_DECIMALS, SKIP_ROUNDING_NUMBER_DECIMALS, SMALL_NUMBER_DECIMALS } from './PivotTableConstants';
 
 export const getDefaultNumberDisplayValue = (value, skipRounding) =>
+    typeof value === null || value === undefined ? '' :
     skipRounding ?
         getRoundedHtmlValue(value, SKIP_ROUNDING_NUMBER_DECIMALS) :
         getRoundedHtmlValue(value, value < 1 && value > -1 ? SMALL_NUMBER_DECIMALS : DEFAULT_NUMBER_DECIMALS);
