@@ -40,7 +40,8 @@ import { VALUE_CELL,
          DIMENSION_SUB_TOTAL_CELL,
          DIMENSION_TOTAL_CELL,
          EMPTY_CELL,
-         LABELED_CELL } from '../table/PivotTableConstants';
+         LABELED_CELL,
+         NUMBER_VALUE_TYPE} from '../table/PivotTableConstants';
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
@@ -387,7 +388,6 @@ PivotTable.prototype.isRowDimensionColumn = function(columnIndex) {
  * @returns
  */
 PivotTable.prototype.isTextCell = function(cell) {
-    console.log("cell.type", cell.type, cell);
     return !arrayContains(['dimension', 'filter'], cell.type);
 };
 
@@ -1053,7 +1053,7 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     let cell;
 
-    if (valueObject.valueType === 'NUMBER') {
+    if (valueObject.valueType === NUMBER_VALUE_TYPE) {
         displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
         displayValue = this.getPrettyHtml(displayValue);
 
@@ -1576,10 +1576,8 @@ PivotTable.prototype.initializeLookups = function() {
                 this.valueLookupInsert(valueObject.empty ? null : valueObject, rowIndex, columnIndex);
             }
 
-            // add to totals if numeric value
-            if (valueObject.valueType === 'NUMBER' || (valueObject.valueType === undefined && isNumeric(valueObject.value))) {
-            // if (isNumeric(valueObject.value)) {
-console.log("add to totals if numeric value", valueObject.valueType, valueObject.value, valueObject);
+            // add to totals if number
+            if (valueObject.valueType === NUMBER_VALUE_TYPE || (valueObject.valueType === undefined && isNumeric(valueObject.value))) {
 
                 // used to calculate percentages and check for empties
                 if (!valueObject.empty) {
@@ -1662,7 +1660,7 @@ console.log("add to totals if numeric value", valueObject.valueType, valueObject
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType, valueType } = totalMap[rowIndex][columnIndex];
-console.log("total obj value type", valueType);
+
                 let total = null;
 
                 if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {
@@ -1683,7 +1681,7 @@ console.log("total obj value type", valueType);
                     this.idValueMap[totalIdComb.get()] = total;
                 }
 
-                this.valueLookupInsert({ value: total, valueType: 'NUMBER' }, rowIndex, columnIndex);
+                this.valueLookupInsert({ value: total, valueType: NUMBER_VALUE_TYPE }, rowIndex, columnIndex);
             }
 
         }

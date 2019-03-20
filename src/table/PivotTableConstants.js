@@ -33,6 +33,13 @@ export const DEFAULT_NUMBER_DECIMALS = 1;
 export const SMALL_NUMBER_DECIMALS = 2;
 export const SKIP_ROUNDING_NUMBER_DECIMALS = 10;
 
+export const NUMBER_VALUE_TYPE = 'NUMBER';
+export const BOOLEAN_VALUE_TYPE = 'BOOLEAN';
+export const DATE_VALUE_TYPE = 'DATE';
+export const FILE_RESOURCE_VALUE_TYPE = 'FILE_RESOURCE';
+export const COORDINATE_VALUE_TYPE = 'COORDINATE';
+export const TEXT_VALUE_TYPE = 'TEXT';
+
 export const PIVOT_TABLE_CELLS = {
     VALUE_CELL,
     SUB_TOTAL_CELL,
