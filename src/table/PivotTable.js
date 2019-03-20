@@ -1009,11 +1009,10 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
 
-    const valueItem = this.valueLookup[rowIndex][columnIndex];
+    const valueObject = this.valueLookup[rowIndex][columnIndex];
 
-    const value = isObject(valueItem) ? valueItem.value : value;
+    const value = isObject(valueObject) ? valueObject.value : value;
     let displayValue = value;
-console.log("buildValueCell", value, isObject(valueItem), valueItem);
     // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
@@ -1627,7 +1626,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
         }
     }
-console.log("totalMap", totalMap);
+
     let rowTotalIndices = Object.keys(totalMap);
 
     for (let i = 0; i < rowTotalIndices.length; i++) {
@@ -1644,7 +1643,7 @@ console.log("totalMap", totalMap);
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
-console.log("totmap", totalMap[rowIndex][columnIndex]);
+
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
                 let total = null;
