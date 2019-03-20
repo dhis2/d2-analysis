@@ -1014,6 +1014,8 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     const value = isObject(valueItem) ? valueItem.value : value;
     let displayValue = value;
 
+    console.log("buildValueCell", value, displayValue);
+
     // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
@@ -1469,7 +1471,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     if (!totalObject[rowIndex]) {
         totalObject[rowIndex] = {};
     }
-
+console.log("updateValueTotal", rowIndex, columnIndex, valueObject, totalObject);
     if (!totalObject[rowIndex][columnIndex]) {
         totalObject[rowIndex][columnIndex] = {
             value: 0,
