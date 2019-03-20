@@ -580,6 +580,8 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
         const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
 
         valueObject['totalAggregationType'] = this.response.getTotalAggregationType(dxId);
+
+        valueObject['valueType'] = this.response.getValueType(dxId);
     }
 
     return valueObject;
@@ -1041,12 +1043,19 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     let cell;
 
-    if (!isNumeric(value)) {
-        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
-    }
-    else {
+    if (valueObject.valueType === 'NUMBER') {
         cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
+    else {
+        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    }
+
+    // if (!isNumeric(value)) {
+        // cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    // }
+    // else {
+    //     cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    // }
 
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
     columnIndex = this.colAxis.getPositionIndexWithoutTotals(columnIndex);
@@ -1562,7 +1571,9 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             // add to totals if numeric value
-            if (isNumeric(valueObject.value)) {
+            if (valueObject.valueType === 'NUMBER' || (valueObject.valueType === undefined && isNumeric(valueObject.value))) {
+            // if (isNumeric(valueObject.value)) {
+console.log("add to totals if numeric value", valueObject.valueType, valueObject.value, valueObject);
 
                 // used to calculate percentages and check for empties
                 if (!valueObject.empty) {
@@ -1644,8 +1655,8 @@ PivotTable.prototype.initializeLookups = function() {
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
-                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
-
+                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType, valueType } = totalMap[rowIndex][columnIndex];
+console.log("total obj value type", valueType);
                 let total = null;
 
                 if (this.isSubTotalOrTotalPosition(rowIndex, columnIndex)) {

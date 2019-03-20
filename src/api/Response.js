@@ -533,6 +533,10 @@ Response.prototype.getTotalAggregationType = function(id) {
     return (this.metaData.items[id] || {}).totalAggregationType;
 };
 
+Response.prototype.getValueType = function(id) {
+    return (this.metaData.items[id] || {}).valueType;
+};
+
 Response.prototype.getRecordsByDimensionName = function(dimensionName) {
     var refs = this.getRefs(),
         { Record } = refs.api;
