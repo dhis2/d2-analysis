@@ -1009,8 +1009,12 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
 
-    let value = this.valueLookup[rowIndex][columnIndex];
+    const valueItem = this.valueLookup[rowIndex][columnIndex];
+
+    const value = isObject(valueItem) ? valueItem.value : value;
     let displayValue = value;
+
+    // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
         displayValue = this.colAxis.getPercentage(value, columnIndex);
@@ -1489,12 +1493,12 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     addMergeValueObject(totalObject[rowIndex][columnIndex], valueObject);
 };
 
-PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) {
+PivotTable.prototype.valueLookupInsert = function(valueObject, rowIndex, columnIndex) {
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
 
-    this.valueLookup[rowIndex][columnIndex] = value;
+    this.valueLookup[rowIndex][columnIndex] = valueObject;
 
     this.valueCounter += 1;
 };
@@ -1555,9 +1559,9 @@ PivotTable.prototype.initializeLookups = function() {
 
             // insert value
             if (valueObject) {
-                this.valueLookupInsert(valueObject.empty ? null : valueObject.value, rowIndex, columnIndex);
+                this.valueLookupInsert(valueObject.empty ? null : valueObject, rowIndex, columnIndex);
             }
-
+console.log("valueObject", valueObject.value, valueObject.empty);
             // add to totals if numeric value
             if (isNumeric(valueObject.value)) {
 
@@ -1663,7 +1667,7 @@ PivotTable.prototype.initializeLookups = function() {
                     this.idValueMap[totalIdComb.get()] = total;
                 }
 
-                this.valueLookupInsert(total, rowIndex, columnIndex);
+                this.valueLookupInsert({ value: total, valueType: 'NUMBER' }, rowIndex, columnIndex);
             }
 
         }
