@@ -1485,6 +1485,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     }
 
     if (valueObject.value === null) {
+console.log("updateValueTotal", valueObject.value);
         totalObject[rowIndex][columnIndex].empty++;
     }
 
@@ -1497,7 +1498,7 @@ PivotTable.prototype.valueLookupInsert = function(valueObject, rowIndex, columnI
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
-console.log("valueLookupInsert", valueObject);
+
     this.valueLookup[rowIndex][columnIndex] = valueObject;
 
     this.valueCounter += 1;
@@ -1642,7 +1643,7 @@ PivotTable.prototype.initializeLookups = function() {
             if (!this.valueLookup[rowIndex]) {
                 this.valueLookup[rowIndex] = {};
             }
-
+console.log("INSERT TOTAL", totalMap[rowIndex][columnIndex], totalMap[rowIndex][columnIndex].counter, totalMap[rowIndex][columnIndex].empty);
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
