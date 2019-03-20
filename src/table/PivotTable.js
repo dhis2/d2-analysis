@@ -564,6 +564,7 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
     const id = rric.get();
     const value = this.getValueFromId(id);
+console.log("->", value);
     const empty = value === null;
 
     const valueObject = {
@@ -594,7 +595,7 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 PivotTable.prototype.getValueFromId = function(id) {
 
     const value = this.idValueMap[id];
-
+console.log("getValueFromId", value);
     if (isBoolean(value)) {
         return 1;
     }
@@ -1013,7 +1014,7 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
 
     const value = isObject(valueItem) ? valueItem.value : value;
     let displayValue = value;
-
+console.log("buildValueCell", value, isObject(valueItem), valueItem);
     // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
@@ -1485,7 +1486,6 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     }
 
     if (valueObject.value === null) {
-console.log("updateValueTotal", valueObject.value);
         totalObject[rowIndex][columnIndex].empty++;
     }
 
@@ -1645,7 +1645,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
-
+console.log("totmap", totalMap[rowIndex][columnIndex]);
                 let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
 
                 let total = null;
