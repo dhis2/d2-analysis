@@ -564,7 +564,6 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 
     const id = rric.get();
     const value = this.getValueFromId(id);
-console.log("->", value);
     const empty = value === null;
 
     const valueObject = {
@@ -595,7 +594,7 @@ console.log("->", value);
 PivotTable.prototype.getValueFromId = function(id) {
 
     const value = this.idValueMap[id];
-console.log("getValueFromId", value);
+
     if (isBoolean(value)) {
         return 1;
     }
@@ -1628,7 +1627,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
         }
     }
-
+console.log("totalMap", totalMap);
     let rowTotalIndices = Object.keys(totalMap);
 
     for (let i = 0; i < rowTotalIndices.length; i++) {
