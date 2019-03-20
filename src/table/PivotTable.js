@@ -594,21 +594,16 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 PivotTable.prototype.getValueFromId = function(id) {
 
     const value = this.idValueMap[id];
-    const n = parseFloat(value);
 
     if (isBoolean(value)) {
         return 1;
     }
 
-    if ((isNumber(n) && n != value) || typeof value === 'undefined') {
+    if (value === null || typeof value === 'undefined') {
         return null;
     }
 
-    if (isNumber(n)) {
-        return n;
-    }
-
-    return value;
+    return isNumeric(value) ? parseFloat(value) : value;
 };
 // PivotTable.prototype.getValueFromId = function(id) {
 
