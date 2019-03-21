@@ -1495,6 +1495,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             multiplier: 0,
             divisor: 0,
             totalAggregationType: '',
+            valueType: null,
         }
     }
 
@@ -1577,7 +1578,7 @@ PivotTable.prototype.initializeLookups = function() {
             }
 
             // add to totals if number
-            if (valueObject.valueType === NUMBER_VALUE_TYPE || (valueObject.valueType === undefined && isNumeric(valueObject.value))) {
+            if (valueObject.valueType === NUMBER_VALUE_TYPE || (!valueObject.valueType && isNumeric(valueObject.value))) {
 
                 // used to calculate percentages and check for empties
                 if (!valueObject.empty) {
