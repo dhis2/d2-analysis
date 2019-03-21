@@ -154,24 +154,21 @@ EastRegion = function(c) {
                 }
 
                 var isTooLongDescription = (description.length > descriptionMaxNumberCharacter);
-                var shortDescription = description.substring(0, descriptionMaxNumberCharacter) + ' ... ';
-
-                // DHIS2-2210: render line breaks
-                description = description.replace(/\n/g, '<br />');
-                shortDescription = shortDescription.replace(/\n/g, '<br />');
+                var longDescription = renderMd(description);
+                var shortDescription = isTooLongDescription ?
+                  (renderMd(description.substring(0, descriptionMaxNumberCharacter)) + ' ... ')
+                  : longDescription;
 
                 // Description label
                 descriptionItems.push({
                     xtype: 'label',
                     itemId: 'descriptionLabel',
-                    html: renderMd(isTooLongDescription ? shortDescription : description),
+                    html: shortDescription,
                     cls: 'interpretationActions'
                 });
 
                 // Longer than [descriptionMaxNumberCharacter] characters -> Create More/Less link
                 if (isTooLongDescription) {
-                    var longDescription = description;
-
                     descriptionItems.push({
                         xtype: 'label',
                         html: getLink(moreText, false, true),
