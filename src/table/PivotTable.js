@@ -16,7 +16,7 @@ import { isColorBright } from '../util/colorUtils';
 
 import { PivotTableAxis } from './PivotTableAxis';
 
-import { addMergeValueObject } from './PivotTableUtils';
+import { addMergeValueObject, getDefaultNumberDisplayValue } from './PivotTableUtils';
 
 import { SubTotalCell,
          TotalCell,
@@ -40,7 +40,8 @@ import { VALUE_CELL,
          DIMENSION_SUB_TOTAL_CELL,
          DIMENSION_TOTAL_CELL,
          EMPTY_CELL,
-         LABELED_CELL } from '../table/PivotTableConstants';
+         LABELED_CELL,
+         NUMBER_VALUE_TYPE} from '../table/PivotTableConstants';
 
 import { COLUMN_AXIS, ROW_AXIS } from './PivotTableConstants';
 
@@ -467,7 +468,8 @@ PivotTable.prototype.getDisplayValue = function(cell) {
  * @returns {string}
  */
 PivotTable.prototype.getPrettyHtml = function(displayValue) {
-    return this.optionConfig.prettyPrint(displayValue, this.digitGroupSeparator);
+    return displayValue === null || displayValue === undefined ? '' :
+        this.optionConfig.prettyPrint(displayValue, this.digitGroupSeparator);
 };
 
 /**
@@ -580,6 +582,8 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
         const dxId = this.response.getDxIds().find(dxId => id.includes(dxId));
 
         valueObject['totalAggregationType'] = this.response.getTotalAggregationType(dxId);
+
+        valueObject['valueType'] = this.response.getValueType(dxId);
     }
 
     return valueObject;
@@ -594,21 +598,16 @@ PivotTable.prototype.getValueObject = function(rowIndex, columnIndex) {
 PivotTable.prototype.getValueFromId = function(id) {
 
     const value = this.idValueMap[id];
-    const n = parseFloat(value);
 
     if (isBoolean(value)) {
         return 1;
     }
 
-    if ((isNumber(n) && n != value) || typeof value === 'undefined') {
+    if (value === null || typeof value === 'undefined') {
         return null;
     }
 
-    if (isNumber(n)) {
-        return n;
-    }
-
-    return value;
+    return isNumeric(value) ? parseFloat(value) : value;
 };
 // PivotTable.prototype.getValueFromId = function(id) {
 
@@ -1014,8 +1013,11 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
 
-    let value = this.valueLookup[rowIndex][columnIndex];
+    const valueObject = this.valueLookup[rowIndex][columnIndex];
+
+    const value = isObject(valueObject) ? valueObject.value : value;
     let displayValue = value;
+    // let value = this.valueLookup[rowIndex][columnIndex].value;
 
     if (this.doColumnPercentage() && isNumber(value)) {
         displayValue = this.colAxis.getPercentage(value, columnIndex);
@@ -1028,26 +1030,37 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     if (this.rowAxis.isTotalPosition(rowIndex) || this.colAxis.isTotalPosition(columnIndex)) {
         const totalObj = this.totalMap[rowIndex][columnIndex];
 
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new TotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (this.colAxis.isSubTotalPosition(columnIndex) || this.rowAxis.isSubTotalPosition(rowIndex)) {
         const totalObj = this.totalMap[rowIndex][columnIndex];
 
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new SubTotalCell(value, displayValue, { ...totalObj, skipRounding: this.layout.skipRounding });
     }
 
     if (value === null || typeof(value) === 'undefined') {
+        displayValue = this.getPrettyHtml(displayValue);
+
         return new PlainValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     let cell;
 
-    if (!isNumeric(value)) {
-        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+    if (valueObject.valueType === NUMBER_VALUE_TYPE) {
+        displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
+        displayValue = this.getPrettyHtml(displayValue);
+
+        cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
     else {
-        cell = new ValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
+        cell = new TextValueCell(value, displayValue, { skipRounding: this.layout.skipRounding });
     }
 
     rowIndex = this.rowAxis.getPositionIndexWithoutTotals(rowIndex);
@@ -1482,6 +1495,7 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
             multiplier: 0,
             divisor: 0,
             totalAggregationType: '',
+            valueType: null,
         }
     }
 
@@ -1494,12 +1508,12 @@ PivotTable.prototype.updateValueTotal = function(rowIndex, columnIndex, valueObj
     addMergeValueObject(totalObject[rowIndex][columnIndex], valueObject);
 };
 
-PivotTable.prototype.valueLookupInsert = function(value, rowIndex, columnIndex) {
+PivotTable.prototype.valueLookupInsert = function(valueObject, rowIndex, columnIndex) {
     if (!this.valueLookup[rowIndex]) {
         this.valueLookup[rowIndex] = {};
     }
 
-    this.valueLookup[rowIndex][columnIndex] = value;
+    this.valueLookup[rowIndex][columnIndex] = valueObject;
 
     this.valueCounter += 1;
 };
@@ -1560,11 +1574,11 @@ PivotTable.prototype.initializeLookups = function() {
 
             // insert value
             if (valueObject) {
-                this.valueLookupInsert(valueObject.empty ? null : valueObject.value, rowIndex, columnIndex);
+                this.valueLookupInsert(valueObject.empty ? null : valueObject, rowIndex, columnIndex);
             }
 
-            // add to totals if numeric value
-            if (isNumeric(valueObject.value)) {
+            // add to totals if number
+            if (valueObject.valueType === NUMBER_VALUE_TYPE || (!valueObject.valueType && isNumeric(valueObject.value))) {
 
                 // used to calculate percentages and check for empties
                 if (!valueObject.empty) {
@@ -1646,7 +1660,7 @@ PivotTable.prototype.initializeLookups = function() {
 
             if (totalMap[rowIndex][columnIndex].counter !== totalMap[rowIndex][columnIndex].empty) {
 
-                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType } = totalMap[rowIndex][columnIndex];
+                let { value, numerator, denominator, factor, multiplier, divisor, counter, totalAggregationType, valueType } = totalMap[rowIndex][columnIndex];
 
                 let total = null;
 
@@ -1668,7 +1682,7 @@ PivotTable.prototype.initializeLookups = function() {
                     this.idValueMap[totalIdComb.get()] = total;
                 }
 
-                this.valueLookupInsert(total, rowIndex, columnIndex);
+                this.valueLookupInsert({ value: total, valueType: NUMBER_VALUE_TYPE }, rowIndex, columnIndex);
             }
 
         }
@@ -1847,7 +1861,7 @@ PivotTable.prototype.buildHtmlCell = function(cell) {
             colspan="${cell.colSpan || ''}"
             rowSpan="${cell.rowSpan || ''}"
         >
-            ${this.getDisplayValue(cell)}
+            ${cell.displayValue}
         </td>
     `;
 };

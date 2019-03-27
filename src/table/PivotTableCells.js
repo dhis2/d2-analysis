@@ -65,16 +65,8 @@ export class NumberCell extends TableCell {
         super(config);
 
         this.value = value;
-
-        if (typeof displayValue === 'string') {
-            this.displayValue = displayValue;
-        }
-        else if (typeof displayValue === 'number') {
-            this.displayValue = getDefaultNumberDisplayValue(displayValue, config.skipRounding);
-        }
-        else {
-            this.displayValue = '&nbsp;';
-        }
+        this.displayValue = displayValue;
+        // this.displayValue = getDefaultNumberDisplayValue(displayValue, config.skipRounding);
 
         this.title = this.displayValue;
     }
@@ -106,6 +98,8 @@ export class TextValueCell extends ValueCell {
 
     constructor(value, displayValue, config) {
         super(value, displayValue, config);
+
+        this.displayValue = displayValue;
 
         this.cls += ' align-left cursor-default';
     }
