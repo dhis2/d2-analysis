@@ -67,8 +67,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
         ...options,
     }
 
-    this.cellHeight = 25;
-    this.cellWidth = 120;
+    this.cellHeight = this.options.cellHeight ? this.options.cellHeight : 25;
+    this.cellWidth = this.options.cellWidth ? this.options.cellWidth : 120;;
     this.renderOffset = 1;
 
     this.title = layout.title;
@@ -86,6 +86,7 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
     this.filters = layout.filters;
     this.layout = layout;
     this.response = response;
+
     this.appManager = refs.appManager;
     this.optionConfig = refs.optionConfig;
     this.uiManager = refs.uiManager;
@@ -95,6 +96,8 @@ export const PivotTable = function(refs, layout, response, colAxis, rowAxis, opt
 
     this.colAxis = colAxis;
     this.rowAxis = rowAxis;
+
+    console.log(this.response, this.layout, colAxis, rowAxis);
 
     this.legendDisplayStyle = layout.legendDisplayStyle;
     this.legendDisplayStrategy = layout.legendDisplayStrategy;
@@ -281,7 +284,8 @@ PivotTable.prototype.setViewportSize = function(width=0, height=0) {
  * @returns {boolean}
  */
 PivotTable.prototype.doRender = function() {
-    return (this.rowAxis.size * this.colAxis.size) > this.options.renderLimit;
+    return (this.rowAxis.size * this.colAxis.size) > this.options.renderLimit && 
+        this.viewportWidth && this.viewportHeight;
 };
 
 /**
@@ -547,12 +551,12 @@ PivotTable.prototype.isTextField = function(type) {
 PivotTable.prototype.getBaseCellStyling = function(cell) {
     if (this.doDynamicRendering()) {
         return `
+            width:${cell.width}px!important;
+            height:${cell.height}px!important;
             min-width:${cell.width}px!important;
             min-height:${cell.height}px!important;
             max-width:${cell.width}px!important;
             max-height:${cell.height}px!important;
-            width:${cell.width}px!important;
-            height:${cell.height}px!important;
             white-space: nowrap!important;
             overflow: hidden!important;
             text-overflow: ellipsis!important;
