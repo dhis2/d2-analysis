@@ -3067,7 +3067,10 @@ WestRegionTrackerItems = function(refs) {
 
         if (layout) {
             // data
-            programStore.add(layout.program);
+            if (!programStore.getById(layout.program.id)) {
+                programStore.add(layout.program);
+            }
+
             program.setValue(layout.program.id);
 
             // periods
