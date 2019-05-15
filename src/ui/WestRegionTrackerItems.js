@@ -80,6 +80,7 @@ WestRegionTrackerItems = function(refs) {
                 }
             },
         },
+        autoLoad: true
     });
 
     var stagesByProgramStore = Ext.create('Ext.data.Store', {
@@ -212,7 +213,7 @@ WestRegionTrackerItems = function(refs) {
         labelSeparator: '',
         emptyText: 'Select program',
         forceSelection: true,
-        queryMode: 'remote',
+        queryMode: 'local',
         columnWidth: 0.5,
         style: 'margin:1px 1px 1px 0',
         storage: {},
