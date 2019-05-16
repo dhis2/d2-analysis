@@ -13,7 +13,7 @@ EventDataTable = function(refs, layout, response) {
 
     var i18n = i18nManager.get();
 
-    var FIXED_HEADERS = ['eventdate'];
+    var FIXED_HEADERS = ['eventdate', 'enrollmentdate', 'incidentdate'];
 
     var filteredHeaders = response.getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()));
 
