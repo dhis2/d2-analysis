@@ -36,6 +36,7 @@ AppManager = function(refs) {
         'columns[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'rows[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'filters[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'program[id,displayName~rename(name)]',
         'access',
         'userGroupAccesses',
         'publicAccess',
