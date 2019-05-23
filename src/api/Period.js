@@ -108,6 +108,9 @@ Period.prototype.getTypeById = function(id) {
         if (isNumeric(id.slice(4, 8))) {
             return 'Daily';
         }
+        else if (id.indexOf('BiW') !== -1) {
+            return 'BiWeekly';
+        }
         else if (id.indexOf('July') !== -1) {
             return 'FinancialJuly';
         }
@@ -115,6 +118,9 @@ Period.prototype.getTypeById = function(id) {
     else if (id.length === 9) {
         if (id.indexOf('April') !== -1) {
             return 'FinancialApril';
+        }
+        else if (id.indexOf('BiW') !== -1) {
+            return 'BiWeekly';
         }
     }
     else if (id.length === 11) {
@@ -193,6 +199,25 @@ Period.prototype.getItemsByTypeByFinancialApril = function(type, isAll) {
             month = nextPeriods[j];
 
             if (month.startDate.slice(0, 7) === endMonth) {
+                nextSliceEndIndex = j;
+            }
+        }
+
+        return this.getItemifiedPeriods([].concat(thisPeriods.slice(thisSliceStartIndex), nextPeriods.slice(0, nextSliceEndIndex)));
+    }
+    else if (type === 'BiWeekly') {
+        for (var i = 0, biWeek; i < thisPeriods.length; i++) {
+            biWeek = thisPeriods[i];
+
+            if (biWeek.startDate.slice(0, 7) === startMonth || biWeek.endDate.slice(0, 7) === startMonth) {
+                thisSliceStartIndex = i;
+            }
+        }
+
+        for (var j = 0, biWeek; j < nextPeriods.length; j++) {
+            biWeek = nextPeriods[j];
+
+            if (biWeek.startDate.slice(0, 7) === endMonth && biWeek.endDate.slice(0, 7) === endMonth) {
                 nextSliceEndIndex = j;
             }
         }
@@ -302,6 +327,25 @@ Period.prototype.getItemsByTypeByFinancialJuly = function(type, isAll) {
 
         return this.getItemifiedPeriods([].concat(thisPeriods.slice(thisSliceStartIndex), nextPeriods.slice(0, nextSliceEndIndex)));
     }
+    else if (type === 'BiWeekly') {
+        for (var i = 0, biWeek; i < thisPeriods.length; i++) {
+            biWeek = thisPeriods[i];
+
+            if (biWeek.startDate.slice(0, 7) === startMonth || biWeek.endDate.slice(0, 7) === startMonth) {
+                thisSliceStartIndex = i;
+            }
+        }
+
+        for (var j = 0, biWeek; j < nextPeriods.length; j++) {
+            biWeek = nextPeriods[j];
+
+            if (biWeek.startDate.slice(0, 7) === endMonth && biWeek.endDate.slice(0, 7) === endMonth) {
+                nextSliceEndIndex = j;
+            }
+        }
+
+        return this.getItemifiedPeriods([].concat(thisPeriods.slice(thisSliceStartIndex), nextPeriods.slice(0, nextSliceEndIndex)));
+    }
     else if (type === 'Weekly') {
         for (var i = 0, week; i < thisPeriods.length; i++) {
             week = thisPeriods[i];
@@ -405,6 +449,25 @@ Period.prototype.getItemsByTypeByFinancialOct = function(type, isAll) {
 
         return this.getItemifiedPeriods([].concat(thisPeriods.slice(thisSliceStartIndex), nextPeriods.slice(0, nextSliceEndIndex)));
     }
+    else if (type === 'BiWeekly') {
+        for (var i = 0, biWeek; i < thisPeriods.length; i++) {
+            biWeek = thisPeriods[i];
+
+            if (biWeek.startDate.slice(0, 7) === startMonth || biWeek.endDate.slice(0, 7) === startMonth) {
+                thisSliceStartIndex = i;
+            }
+        }
+
+        for (var j = 0, biWeek; j < nextPeriods.length; j++) {
+            biWeek = nextPeriods[j];
+
+            if (biWeek.startDate.slice(0, 7) === endMonth && biWeek.endDate.slice(0, 7) === endMonth) {
+                nextSliceEndIndex = j;
+            }
+        }
+
+        return this.getItemifiedPeriods([].concat(thisPeriods.slice(thisSliceStartIndex), nextPeriods.slice(0, nextSliceEndIndex)));
+    }
     else if (type === 'Weekly') {
         for (var i = 0, week; i < thisPeriods.length; i++) {
             week = thisPeriods[i];
@@ -469,6 +532,9 @@ Period.prototype.getItemsByTypeByYear = function(type) {
         return this.getItemifiedPeriods(this.genRev(type, this.offset));
     }
     else if (type === 'Monthly') {
+        return this.getItemifiedPeriods(this.genRev(type, this.offset));
+    }
+    else if (type == 'BiWeekly') {
         return this.getItemifiedPeriods(this.genRev(type, this.offset));
     }
     else if (type === 'Weekly') {
@@ -551,6 +617,57 @@ Period.prototype.getItemsByTypeBySixmonthApril = function(type, isAll) {
         }
 
         return this.getItemifiedPeriods(months);
+    }
+    else if (type === 'BiWeekly') {
+        var allBiweeks = this.gen(type, this.offset),
+            biweeks = [];
+
+        if (sixmonthapril === 1) {
+            for (var i = 0, biweek, sm, em; i < allBiweeks.length; i++) {
+                biweek = allBiweeks[i];
+                sm = parseInt(biweek.startDate.substring(5, 7));
+                em = parseInt(biweek.endDate.substring(5, 7));
+
+                if (numberConstrain(sm, 4, 9) === sm || numberConstrain(em, 4, 9) === em) {
+                    biweeks.push(biweek);
+                }
+            }
+        }
+        else {
+            var allBiweeksNext = this.gen(type, this.offset + 1),
+                sliceStartIndex,
+                sliceEndIndex;
+
+            // this year
+            for (var i = 0, biweek, sm, em; i < allBiweeks.length; i++) {
+                biweek = allBiweeks[i];
+                sm = parseInt(biweek.startDate.substring(5, 7));
+                em = parseInt(biweek.endDate.substring(5, 7));
+
+                if (sm === 10 || em === 10) {
+                    sliceStartIndex = i;
+                    break;
+                }
+            }
+
+            biweeks = biweeks.concat(allBiweeks.slice(sliceStartIndex));
+
+            // next year
+            for (var i = 0, biweek, sm, em; i < allBiweeksNext.length; i++) {
+                biweek = allBiweeks[i];
+                sm = parseInt(biweek.startDate.substring(5, 7));
+                em = parseInt(biweek.endDate.substring(5, 7));
+
+                if (sm === 4 && em === 4) {
+                    sliceEndIndex = i - 1;
+                    break;
+                }
+            }
+
+            biweeks = biweeks.concat(allBiweeksNext.slice(0, sliceEndIndex));
+        }
+
+        return this.getItemifiedPeriods(biweeks);
     }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
@@ -717,11 +834,33 @@ Period.prototype.getItemsByTypeBySixmonth = function(type, isAll) {
 
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(sliceStartIndex, sliceEndIndex));
     }
+
     else if (type === 'Monthly') {
         var sliceStartIndex = sixmonth === 1 ? 0 : 6,
             sliceEndIndex = sixmonth === 1 ? 6 : 12;
 
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(sliceStartIndex, sliceEndIndex));
+    }
+    else if (type === 'BiWeekly') {
+        var allBiweeks = this.gen(type, this.offset),
+            biweeks = [];
+
+        for (var i = 0, sd, ed, sy, ey; i < allBiweeks.length; i++) {
+            sd = parseInt(allBiweeks[i].startDate.substring(5, 7));
+            ed = parseInt(allBiweeks[i].endDate.substring(5, 7));
+            sy = allBiweeks[i].startDate.substring(0, 4);
+            ey = allBiweeks[i].endDate.substring(0, 4);
+
+            if ((sd >= firstMonth && sd <= lastMonth) || (ed >= firstMonth && ed <= lastMonth)) {
+                if ((sixmonth === 1 && ey !== this.year) || (sixmonth === 2 && sy !== this.year)) {
+                    continue;
+                }
+
+                biweeks.push(allBiweeks[i]);
+            }
+        }
+
+        return this.getItemifiedPeriods(biweeks);
     }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
@@ -816,6 +955,27 @@ Period.prototype.getItemsByTypeByQuarter = function(type, isAll) {
         endIndex = startIndex + 3;
 
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(startIndex, endIndex));
+    }
+    else if (type === 'BiWeekly') {
+        var allBiWeeks = this.gen(type, this.offset),
+            biWeeks = [];
+
+        for (var i = 0, sd, ed, sy, ey; i < allBiWeeks.length; i++) {
+            sd = parseInt(allBiWeeks[i].startDate.substring(5, 7));
+            ed = parseInt(allBiWeeks[i].endDate.substring(5, 7));
+            sy = allBiWeeks[i].startDate.substring(0, 4);
+            ey = allBiWeeks[i].endDate.substring(0, 4);
+
+            if ((sd >= firstMonth && sd <= lastMonth) || (ed >= firstMonth && ed <= lastMonth)) {
+                if ((quarter === 1 && ey !== this.year) || (quarter === 4 && sy !== this.year)) {
+                    continue;
+                }
+
+                biWeeks.push(allBiWeeks[i]);
+            }
+        }
+
+        return this.getItemifiedPeriods(biWeeks);
     }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
@@ -943,6 +1103,27 @@ Period.prototype.getItemsByTypeByBimonth = function(type, isAll) {
 
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(sliceStartIndex, sliceEndIndex));
     }
+    else if (type === 'BiWeekly') {
+        var allBiWeeks = this.gen(type, this.offset),
+            biWeeks = [];
+
+        for (var i = 0, sd, ed, sy, ey; i < allBiWeeks.length; i++) {
+            sd = parseInt(allBiWeeks[i].startDate.substring(5, 7));
+            ed = parseInt(allBiWeeks[i].endDate.substring(5, 7));
+            sy = allBiWeeks[i].startDate.substring(0, 4);
+            ey = allBiWeeks[i].endDate.substring(0, 4);
+
+            if ((sd >= firstMonth && sd <= lastMonth) || (ed >= firstMonth && ed <= lastMonth)) {
+                if ((bimonth === 1 && ey !== this.year) || (bimonth === 4 && sy !== this.year)) {
+                    continue;
+                }
+
+                biWeeks.push(allBiWeeks[i]);
+            }
+        }
+
+        return this.getItemifiedPeriods(biWeeks);
+    }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
             weeks = [];
@@ -1033,6 +1214,31 @@ Period.prototype.getItemsByTypeByMonth = function(type, isAll) {
 
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(month - 1, month));
     }
+    else if (type === 'BiWeekly') {
+        var t = this,
+            isFirstOrLast = month === 1 || month === 12,
+            allBiWeeks = function() {
+                var a = [];
+                a = a.concat(isFirstOrLast ? t.gen(type, t.offset - 1) : []);
+                a = a.concat(t.gen(type, t.offset));
+                a = a.concat(isFirstOrLast ? t.gen(type, t.offset + 1) : []);
+                return a;
+            }(),
+            monthTestString = this.year + '-' + monthStr,
+            biWeeks = [];
+
+        for (var i = 0, sd, ed, biweek; i < allBiWeeks.length; i++) {
+            biweek = allBiWeeks[i];
+            sd = biweek.startDate;
+            ed = biweek.endDate;
+
+            if (sd.substring(0, 7) === monthTestString || ed.substring(0, 7) === monthTestString) {
+                biWeeks.push(biweek);
+            }
+        }
+
+        return this.getItemifiedPeriods(biWeeks);
+    }
     else if (type === 'Weekly') {
         var t = this,
             isFirstOrLast = month === 1 || month === 12,
@@ -1067,6 +1273,212 @@ Period.prototype.getItemsByTypeByMonth = function(type, isAll) {
 
             if (m.substring(4, 6) === monthStr) {
                 days.push(allDays[i]);
+            }
+        }
+
+        return this.getItemifiedPeriods(days);
+    }
+
+    return [];
+};
+
+Period.prototype.getItemsByTypeByBiweek = function(type, isAll) {
+    var biweekStr = this.id.slice(7,9),
+        biweekIndex = parseInt(biweekStr), // XXX index should be 0 based, so add -1 here when the backend is ready
+        allBiweeks = this.gen('BiWeekly', this.offset),
+        biweekPeriod = allBiweeks[biweekIndex],
+        startDateMonth = parseInt(biweekPeriod.startDate.substring(5, 7)),
+        endDateMonth = parseInt(biweekPeriod.endDate.substring(5, 7)),
+        startDateYear = parseInt(biweekPeriod.startDate.substring(0, 4)),
+        endDateYear = parseInt(biweekPeriod.endDate.substring(0, 4)),
+        offset;
+
+    if (type === 'FinancialOct') {
+        var isPrev = startDateMonth < 10 || startDateYear < this.year,
+            isThis = endDateMonth >= 10 || startDateYear > this.year,
+            offset = isPrev ? -1 : 0,
+            sliceEndIndex = 1 + (isPrev ? 1 : 0) + (isThis ? 1 : 0),
+            financialaprils = [];
+
+        return this.getItemifiedPeriods(this.gen('FinancialOct', this.offset + this.yearOffset + offset).slice(0, sliceEndIndex));
+    }
+    else if (type === 'FinancialJuly') {
+        var isPrev = startDateMonth < 7 || startDateYear < this.year,
+            isThis = endDateMonth >= 7 || startDateYear > this.year,
+            offset = isPrev ? -1 : 0,
+            sliceEndIndex = 1 + (isPrev ? 1 : 0) + (isThis ? 1 : 0),
+            financialaprils = [];
+
+        return this.getItemifiedPeriods(this.gen('FinancialJuly', this.offset + this.yearOffset + offset).slice(0, sliceEndIndex));
+    }
+    else if (type === 'FinancialApril') {
+        var isPrev = startDateMonth < 4 || startDateYear < this.year,
+            isThis = endDateMonth >= 4 || startDateYear > this.year,
+            offset = isPrev ? -1 : 0,
+            sliceEndIndex = 1 + (isPrev ? 1 : 0) + (isThis ? 1 : 0),
+            financialaprils = [];
+
+        return this.getItemifiedPeriods(this.gen('FinancialApril', this.offset + this.yearOffset + offset).slice(0, sliceEndIndex));
+    }
+    else if (type === 'Yearly') {
+        var offset = startDateYear < parseInt(this.year) ? -1 : 0,
+            sliceEndIndex = 1 + (startDateYear !== endDateYear ? 1 : 0);
+
+        return this.getItemifiedPeriods(this.gen('Yearly', (this.offset + this.yearOffset + offset)).slice(0, sliceEndIndex));
+    }
+    else if (type === 'SixMonthlyApril') {
+        var sixmonthaprils = [];
+
+        if (startDateMonth < 4 || startDateYear < this.year) {
+            sixmonthaprils.push(this.gen('SixMonthlyApril', this.offset - 1)[1]);
+        }
+
+        if (numberConstrain(startDateMonth, 4, 9) === startDateMonth || numberConstrain(endDateMonth, 4, 9) === endDateMonth) {
+            sixmonthaprils.push(this.gen('SixMonthlyApril', this.offset)[0]);
+        }
+
+        if (endDateMonth > 9 || endDateYear > this.year) {
+            sixmonthaprils.push(this.gen('SixMonthlyApril', this.offset)[1]);
+        }
+
+        return this.getItemifiedPeriods(sixmonthaprils);
+    }
+    else if (type === 'SixMonthly') {
+        var allSixmonths = this.gen(type, this.offset),
+            actualSixmonthIndexes = arrayUnique([Math.ceil(startDateMonth / 6), Math.ceil(endDateMonth / 6)]),
+            sixmonths = [];
+
+        for (var i = 0; i < actualSixmonthIndexes.length; i++) {
+            sixmonths.push(allSixmonths[actualSixmonthIndexes[i] - 1]);
+        }
+
+        return this.getItemifiedPeriods(sixmonths);
+    }
+    else if (type === 'Quarterly') {
+        var allQuarters = this.gen(type, this.offset),
+            actualQuarterIndexes = arrayUnique([Math.ceil(startDateMonth / 3), Math.ceil(endDateMonth / 3)]),
+            quarters = [];
+
+        for (var i = 0; i < actualQuarterIndexes.length; i++) {
+            quarters.push(allQuarters[actualQuarterIndexes[i] - 1]);
+        }
+
+        return this.getItemifiedPeriods(quarters);
+    }
+    else if (type === 'BiMonthly') {
+        var allBimonths = this.gen(type, this.offset),
+            actualBimonthIndexes = arrayUnique([Math.ceil(startDateMonth / 2), Math.ceil(endDateMonth / 2)]),
+            bimonths = [];
+
+        for (var i = 0; i < actualBimonthIndexes.length; i++) {
+            bimonths.push(allBimonths[actualBimonthIndexes[i] - 1]);
+        }
+
+        return this.getItemifiedPeriods(bimonths);
+    }
+    else if (type === 'Monthly') {
+        var allMonths = this.gen(type, this.offset),
+            months = [];
+
+        if (startDateMonth === 12 && endDateMonth === 1) {
+            months.push(this.gen(type, this.offset - 1)[11]);
+            months.push(allMonths[0]);
+        }
+        else if (startDateMonth === 1 && endDateMonth === 12) {
+            months.push(allMonths[11]);
+            months.push(this.gen(type, this.offset + 1)[0]);
+        }
+        else {
+            var actualMonthIndexes = arrayUnique([startDateMonth, endDateMonth]);
+
+            for (var i = 0, monthIndexes = arrayUnique([startDateMonth, endDateMonth]); i < monthIndexes.length; i++) {
+                months.push(allMonths[monthIndexes[i] - 1]);
+            }
+        }
+
+        return this.getItemifiedPeriods(months);
+    }
+    else if (type === 'BiWeekly') {
+        var allBiWeeks = this.gen(type, this.offset),
+            biWeekPeriod = allBiWeeks[biweekIndex];
+
+        if (isAll) {
+            return this.getItemifiedPeriods(allBiWeeks);
+        }
+
+        return this.getItemifiedPeriods(biWeekPeriod);
+    }
+    else if (type === 'Weekly') {
+        var allWeeks = this.gen(type, this.offset),
+            startSlice,
+            endSlice,
+            biweekPeriod = this.gen('BiWeekly', this.offset)[biweekIndex],
+            weeks = [];
+
+        // last year
+        if (biweekPeriod.startDate.slice(0, 4) < this.year) {
+            weeks.push(this.gen(type, this.offset - 1).slice(-1));
+        }
+
+        // this year
+        startSlice = allWeeks.findIndex(week => week.startDate === biweekPeriod.startDate);
+        endSlice = startSlice + 2;
+
+        weeks = weeks.concat(allWeeks.slice(startSlice, endSlice));
+
+        // next year
+        if (biweekPeriod.endDate.slice(0, 4) > this.year) {
+            weeks.push(this.gen(type, this.offset + 1).slice(0, 1));
+        }
+
+        return this.getItemifiedPeriods(weeks);
+    }
+    else if (type === 'Daily') {
+        var allDays = this.gen(type, this.offset),
+            startSlice,
+            endSlice,
+            biweekPeriod = this.gen('BiWeekly', this.offset)[biweekIndex],
+            days = [];
+
+        if (isAll) {
+            return this.getItemifiedPeriods(allDays);
+        }
+
+        // last year
+        if (biweekPeriod.startDate.slice(0, 4) < this.year) {
+            for (var i = 0, lastDaysLastYear = this.gen(type, this.offset - 1).slice(358), day; i < lastDaysLastYear.length; i++) {
+                day = lastDaysLastYear[i];
+
+                if (day.startDate === biweekPeriod.startDate) {
+                    days = days.concat(lastDaysLastYear.slice(i));
+                }
+            }
+        }
+
+        // this year
+        for (var i = 0, sd; i < allDays.length; i++) {
+            sd = allDays[i].startDate;
+
+            if (sd === biweekPeriod.startDate) {
+                startSlice = i;
+            }
+            else if (sd === biweekPeriod.endDate) {
+                endSlice = i + 1;
+            }
+        }
+
+        days = days.concat(allDays.slice(startSlice, endSlice));
+
+        // next year
+        if (biweekPeriod.endDate.slice(0, 4) > this.year) {
+            for (var i = 0, firstDaysNextYear = this.gen(type, this.offset + 1).slice(0, 7), day; i < firstDaysNextYear.length; i++) {
+                day = firstDaysNextYear[i];
+
+                days.push(day);
+
+                if (day.endDate === biweekPeriod.endDate) {
+                    break;
+                }
             }
         }
 
@@ -1192,6 +1604,19 @@ Period.prototype.getItemsByTypeByWeek = function(type, isAll) {
 
         return this.getItemifiedPeriods(months);
     }
+    else if (type === 'BiWeekly') {
+        var startSlice = week % 2 ? week : week - 1; // week numbering starts from 1
+        var endSlice = startSlice + 2;
+
+        var allBiWeeks = this.gen(type, this.offset),
+            biWeekPeriod = allBiWeeks[week - 1];
+
+        if (isAll) {
+            return this.getItemifiedPeriods(allBiWeeks);
+        }
+
+        return this.getItemifiedPeriods(biWeekPeriod);
+    }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
             weekPeriod = allWeeks[week - 1];
@@ -1307,6 +1732,24 @@ Period.prototype.getItemsByTypeByDay = function(type, isAll) {
     else if (type === 'Monthly') {
         return this.getItemifiedPeriods(this.gen(type, this.offset).slice(month - 1, month));
     }
+    else if (type === 'BiWeekly') {
+        var allBiWeeks = this.gen(type, this.offset),
+            biWeek;
+
+        for (var i = 0, sd, ed; i < allBiWeeks.length; i++) {
+            sd = allBiWeeks[i].startDate;
+            ed = allBiWeeks[i].endDate;
+
+            if (sd.substring(5, 7) === monthStr || ed.substring(5, 7) === monthStr) {
+                if (sd.substring(8, 10) <= dayStr || ed.substring(8, 10) >= dayStr) {
+                    biWeek = allBiWeeks[i];
+                    break;
+                }
+            }
+        }
+
+        return this.getItemifiedPeriods(biWeek);
+    }
     else if (type === 'Weekly') {
         var allWeeks = this.gen(type, this.offset),
             week;
@@ -1359,6 +1802,7 @@ Period.prototype.getItemsByTypeByDay = function(type, isAll) {
 //Bi-monthly          201501B         Jan to Feb 2015
 //Monthly             201501          January 2015
 //Weekly              2015W1          2015W1
+//BiWeekly            2015BiW1        2015 W 1 to W 2
 //Daily               20150101        2015-01-01
 
 // dep 2
@@ -1483,11 +1927,24 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+            // biweekly
+            (function() {
+                var periods = p.getItemsByTypeByDay('BiWeekly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'bi-week') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
+                var periods = p.getItemsByTypeByDay('Weekly');
+
                 items.push({
-                    items: p.getItemsByTypeByDay('Weekly'),
-                    text: 'Show <span class="name">week ' + p.year + '</span>',
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'week') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -1621,10 +2078,22 @@ Period.prototype.generateDisplayProperties = function() {
 
                 items.push({
                     items: periods,
-                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'monthly') + '</span>',
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'month') + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
+
+            // biweekly
+            (function() {
+                var periods = p.getItemsByTypeByWeek('BiWeekly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'bi-week') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
 
             // same level
             items.push({
@@ -1656,6 +2125,165 @@ Period.prototype.generateDisplayProperties = function() {
             (function() {
                 items.push({
                     items: p.getItemsByTypeByWeek('Daily'),
+                    text: 'Show <span class="name">days</span> in <span class="name">' + p.displayName + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            return items;
+        };
+    }
+    else if (type === 'BiWeekly') {
+        this.sortId = function() {
+            var a = id.split('BiW');
+            return a[0] + (a[1].length === 1 ? '000' : '00') + a[1];
+        }();
+        this.typeSortId = '02';
+        this.typeName = 'BiWeekly';
+        this.displayName = 'bi-week ' + id.split('BiW')[1] + ', ' + this.year;
+
+        this.getContextMenuItemsConfig = function() {
+            var items = [];
+
+            // drill up
+            items.push({
+                isSubtitle: true,
+                style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
+                text: this.i18n.drill_up
+            });
+
+            // financial april
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBiweek('FinancialApril'),
+                    text: 'Show <span class="name">financial April ' + p.year + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // financial july
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBiweek('FinancialJuly'),
+                    text: 'Show <span class="name">financial July ' + p.year + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // financial october
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('FinancialOct');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">financial October' + getSuffix(periods) + ' ' + p.year + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // yearly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBiweek('Yearly'),
+                    text: 'Show <span class="name">' + p.year + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // six-monthly april
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('SixMonthlyApril');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'six-month') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // six-monthly
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('SixMonthly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'six-month') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // quarterly
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('Quarterly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'quarter') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // bi-monthly
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('BiMonthly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'bi-month') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // monthly
+            (function() {
+                var periods = p.getItemsByTypeByBiweek('Monthly');
+
+                items.push({
+                    items: periods,
+                    text: 'Show <span class="name">' + p.getNameByParents(periods, 'monthly') + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // same level
+            items.push({
+                isSubtitle: true,
+                style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
+                text: this.i18n.biweekly
+            });
+
+            items.push({
+                items: p.getItemsByTypeByBiweek('BiWeekly'),
+                text: 'Show <span class="name">' + p.displayName + '</span> only',
+                iconCls: 'ns-menu-item-float'
+            });
+
+            items.push({
+                items: p.getItemsByTypeByBiweek('BiWeekly', true),
+                text: 'Show all <span class="name">bi-weeks</span> in <span class="name">' + p.year + '</span>',
+                iconCls: 'ns-menu-item-float'
+            });
+
+            // drill down
+            items.push({
+                isSubtitle: true,
+                style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
+                text: this.i18n.drill_down
+            });
+
+            // weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBiweek('Weekly'),
+                    text: 'Show <span class="name">weeks</span> in <span class="name">' + p.displayName + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // daily
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBiweek('Daily'),
                     text: 'Show <span class="name">days</span> in <span class="name">' + p.displayName + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
@@ -1793,6 +2421,15 @@ Period.prototype.generateDisplayProperties = function() {
                 style: 'padding: 5px 5px 5px 5px; font-size: 120%; font-weight:bold',
                 text: this.i18n.drill_down
             });
+
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByMonth('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
 
             // weekly
             (function() {
@@ -1944,6 +2581,15 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByBimonth('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
                 items.push({
@@ -2086,6 +2732,15 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByQuarter('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
                 items.push({
@@ -2222,6 +2877,24 @@ Period.prototype.generateDisplayProperties = function() {
                 items.push({
                     items: p.getItemsByTypeBySixmonth('BiMonthly'),
                     text: 'Show <span class="name">bi-months</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+             // monthly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByYear('Monthly'),
+                    text: 'Show <span class="name">months</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+           // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeBySixmonth('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2367,6 +3040,24 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+             // monthly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByYear('Monthly'),
+                    text: 'Show <span class="name">months</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+           // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeBySixmonthApril('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
                 items.push({
@@ -2498,6 +3189,15 @@ Period.prototype.generateDisplayProperties = function() {
                 items.push({
                     items: p.getItemsByTypeByYear('Monthly'),
                     text: 'Show <span class="name">months</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByYear('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
@@ -2642,6 +3342,15 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByFinancialOct('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
                 items.push({
@@ -2780,6 +3489,15 @@ Period.prototype.generateDisplayProperties = function() {
                 });
             })();
 
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByFinancialJuly('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
             // weekly
             (function() {
                 items.push({
@@ -2905,6 +3623,15 @@ Period.prototype.generateDisplayProperties = function() {
                 items.push({
                     items: p.getItemsByTypeByFinancialApril('Monthly'),
                     text: 'Show <span class="name">months</span> in <span class="name">' + p.name + '</span>',
+                    iconCls: 'ns-menu-item-float'
+                });
+            })();
+
+            // bi-weekly
+            (function() {
+                items.push({
+                    items: p.getItemsByTypeByFinancialApril('BiWeekly'),
+                    text: 'Show <span class="name">bi-weeks</span> in <span class="name">' + p.name + '</span>',
                     iconCls: 'ns-menu-item-float'
                 });
             })();
