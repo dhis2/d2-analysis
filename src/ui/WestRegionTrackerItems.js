@@ -1291,8 +1291,39 @@ WestRegionTrackerItems = function(refs) {
         ],
     });
 
-    var months = Ext.create('Ext.panel.Panel', {
+    var biWeeks = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: {
+            labelSeparator: '',
+            style: 'margin-bottom:0',
+            listeners: intervalListeners,
+        },
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.biweeks,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_BIWEEK',
+                boxLabel: i18n.this_biweek,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_BIWEEK',
+                boxLabel: i18n.last_biweek,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_4_BIWEEKS',
+                boxLabel: i18n.last_4_biweeks,
+            },
+        ],
+    });
+
+    var months = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
         defaults: {
             labelSeparator: '',
             style: 'margin-bottom:0',
@@ -1513,19 +1544,19 @@ WestRegionTrackerItems = function(refs) {
                 xtype: 'container',
                 columnWidth: 0.34,
                 bodyStyle: 'border-style:none',
-                items: [days, biMonths, financialYears],
+                items: [days, months, sixMonths],
             },
             {
                 xtype: 'container',
                 columnWidth: 0.33,
                 bodyStyle: 'border-style:none',
-                items: [weeks, quarters, years],
+                items: [weeks, biMonths, financialYears],
             },
             {
                 xtype: 'container',
                 columnWidth: 0.33,
                 bodyStyle: 'border-style:none',
-                items: [months, sixMonths],
+                items: [biWeeks, quarters, years],
             },
         ],
         getRecords: function() {

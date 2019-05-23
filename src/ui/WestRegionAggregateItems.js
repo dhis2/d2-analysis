@@ -2102,6 +2102,15 @@ WestRegionAggregateItems = function(c) {
         }
     });
 
+    var relativePeriod = {
+        xtype: 'panel',
+        layout: 'column',
+        hideCollapseTool: true,
+        autoScroll: true,
+        bodyStyle: 'border:0 none',
+        valueComponentMap: {},
+    };
+
     var relativePeriodDefaults = {
         labelSeparator: '',
         style: 'margin-bottom:0',
@@ -2119,337 +2128,325 @@ WestRegionAggregateItems = function(c) {
         }
     };
 
-    var relativePeriod = {
-        xtype: 'panel',
-        layout: 'column',
-        hideCollapseTool: true,
-        autoScroll: true,
-        bodyStyle: 'border:0 none',
-        valueComponentMap: {},
+    var days = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: relativePeriodDefaults,
         items: [
             {
-                xtype: 'container',
-                columnWidth: 0.34,
-                bodyStyle: 'border-style:none',
-                items: [
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:0 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['days'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'TODAY',
-                                boxLabel: i18n['today'],
-                                index: 0
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'YESTERDAY',
-                                boxLabel: i18n['yesterday'],
-                                index: 1
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_3_DAYS',
-                                boxLabel: i18n['last_3_days'],
-                                index: 2
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_7_DAYS',
-                                boxLabel: i18n['last_7_days'],
-                                index: 3
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_14_DAYS',
-                                boxLabel: i18n['last_14_days'],
-                                index: 4
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['bimonths'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_BIMONTH',
-                                boxLabel: i18n['this_bimonth'],
-                                index: 17
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_BIMONTH',
-                                boxLabel: i18n['last_bimonth'],
-                                index: 18
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_6_BIMONTHS',
-                                boxLabel: i18n['last_6_bimonths'],
-                                index: 19
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'BIMONTHS_THIS_YEAR',
-                                boxLabel: i18n['bimonths_this_year'],
-                                index: 20
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['financial_years'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_FINANCIAL_YEAR',
-                                boxLabel: i18n['this_financial_year'],
-                                index: 28
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_FINANCIAL_YEAR',
-                                boxLabel: i18n['last_financial_year'],
-                                index: 29
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
-                                boxLabel: i18n['last_5_financial_years'],
-                                index: 30
-                            }
-                        ]
-                    }
-                ]
+                xtype: 'label',
+                text: i18n['days'],
+                cls: 'ns-label-period-heading',
             },
             {
-                xtype: 'container',
-                columnWidth: 0.33,
-                bodyStyle: 'border-style:none',
-                items: [
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:0 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['weeks'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_WEEK',
-                                boxLabel: i18n['this_week'],
-                                index: 5
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_WEEK',
-                                boxLabel: i18n['last_week'],
-                                index: 6
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_4_WEEKS',
-                                boxLabel: i18n['last_4_weeks'],
-                                index: 7
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_12_WEEKS',
-                                boxLabel: i18n['last_12_weeks'],
-                                index: 8
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_52_WEEKS',
-                                boxLabel: i18n['last_52_weeks'],
-                                index: 9
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'WEEKS_THIS_YEAR',
-                                boxLabel: i18n['weeks_this_year'],
-                                index: 10
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['quarters'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_QUARTER',
-                                boxLabel: i18n['this_quarter'],
-                                index: 21
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_QUARTER',
-                                boxLabel: i18n['last_quarter'],
-                                index: 22
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_4_QUARTERS',
-                                boxLabel: i18n['last_4_quarters'],
-                                index: 23
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'QUARTERS_THIS_YEAR',
-                                boxLabel: i18n['quarters_this_year'],
-                                index: 24
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['years'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_YEAR',
-                                boxLabel: i18n['this_year'],
-                                index: 31
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_YEAR',
-                                boxLabel: i18n['last_year'],
-                                index: 32
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_5_YEARS',
-                                boxLabel: i18n['last_5_years'],
-                                index: 33
-                            }
-                        ]
-                    }
-                ]
+                xtype: 'checkbox',
+                relativePeriodId: 'TODAY',
+                boxLabel: i18n['today'],
+                index: 0,
             },
             {
-                xtype: 'container',
-                columnWidth: 0.33,
-                bodyStyle: 'border-style:none',
-                items: [
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:0 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['months'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_MONTH',
-                                boxLabel: i18n['this_month'],
-                                index: 11
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_MONTH',
-                                boxLabel: i18n['last_month'],
-                                index: 12
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_3_MONTHS',
-                                boxLabel: i18n['last_3_months'],
-                                index: 13
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_6_MONTHS',
-                                boxLabel: i18n['last_6_months'],
-                                index: 14
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_12_MONTHS',
-                                boxLabel: i18n['last_12_months'],
-                                index: 15
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'MONTHS_THIS_YEAR',
-                                boxLabel: i18n['months_this_year'],
-                                index: 16
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
-                        defaults: relativePeriodDefaults,
-                        items: [
-                            {
-                                xtype: 'label',
-                                text: i18n['sixmonths'],
-                                cls: 'ns-label-period-heading'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'THIS_SIX_MONTH',
-                                boxLabel: i18n['this_sixmonth'],
-                                index: 25
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_SIX_MONTH',
-                                boxLabel: i18n['last_sixmonth'],
-                                index: 26
-                            },
-                            {
-                                xtype: 'checkbox',
-                                relativePeriodId: 'LAST_2_SIXMONTHS',
-                                boxLabel: i18n['last_2_sixmonths'],
-                                index: 27
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    };
+                xtype: 'checkbox',
+                relativePeriodId: 'YESTERDAY',
+                boxLabel: i18n['yesterday'],
+                index: 1,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_3_DAYS',
+                boxLabel: i18n['last_3_days'],
+                index: 2,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_7_DAYS',
+                boxLabel: i18n['last_7_days'],
+                index: 3,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_14_DAYS',
+                boxLabel: i18n['last_14_days'],
+                index: 4,
+            },
+        ],
+    });
+
+    var weeks = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.weeks,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_WEEK',
+                boxLabel: i18n.this_week,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_WEEK',
+                boxLabel: i18n.last_week,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_4_WEEKS',
+                boxLabel: i18n.last_4_weeks,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_12_WEEKS',
+                boxLabel: i18n.last_12_weeks,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_52_WEEKS',
+                boxLabel: i18n.last_52_weeks,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'WEEKS_THIS_YEAR',
+                boxLabel: i18n.weeks_this_year,
+            },
+        ],
+    });
+
+    var biWeeks = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:0 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.biweeks,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_BIWEEK',
+                boxLabel: i18n.this_biweek,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_BIWEEK',
+                boxLabel: i18n.last_biweek,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_4_BIWEEKS',
+                boxLabel: i18n.last_4_biweeks,
+            },
+        ],
+    });
+
+    var months = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.months,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_MONTH',
+                boxLabel: i18n.this_month,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_MONTH',
+                boxLabel: i18n.last_month,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_3_MONTHS',
+                boxLabel: i18n.last_3_months,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_6_MONTHS',
+                boxLabel: i18n.last_6_months,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_12_MONTHS',
+                boxLabel: i18n.last_12_months,
+                checked: true,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'MONTHS_THIS_YEAR',
+                boxLabel: i18n.months_this_year,
+            },
+        ],
+    });
+
+    var biMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.bimonths,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_BIMONTH',
+                boxLabel: i18n.this_bimonth,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_BIMONTH',
+                boxLabel: i18n.last_bimonth,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_6_BIMONTHS',
+                boxLabel: i18n.last_6_bimonths,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'BIMONTHS_THIS_YEAR',
+                boxLabel: i18n.bimonths_this_year,
+            },
+        ],
+    });
+
+    var quarters = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.quarters,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_QUARTER',
+                boxLabel: i18n.this_quarter,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_QUARTER',
+                boxLabel: i18n.last_quarter,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_4_QUARTERS',
+                boxLabel: i18n.last_4_quarters,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'QUARTERS_THIS_YEAR',
+                boxLabel: i18n.quarters_this_year,
+            },
+        ],
+    });
+
+    var sixMonths = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.sixmonths,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_SIX_MONTH',
+                boxLabel: i18n.this_sixmonth,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_SIX_MONTH',
+                boxLabel: i18n.last_sixmonth,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_2_SIXMONTHS',
+                boxLabel: i18n.last_2_sixmonths,
+            },
+        ],
+    });
+
+    var financialYears = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.financial_years,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_FINANCIAL_YEAR',
+                boxLabel: i18n.this_financial_year,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_FINANCIAL_YEAR',
+                boxLabel: i18n.last_financial_year,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_5_FINANCIAL_YEARS',
+                boxLabel: i18n.last_5_financial_years,
+            },
+        ],
+    });
+
+    var years = Ext.create('Ext.panel.Panel', {
+        bodyStyle: 'border-style:none; padding:5px 0 0 8px',
+        defaults: relativePeriodDefaults,
+        items: [
+            {
+                xtype: 'label',
+                text: i18n.years,
+                cls: 'ns-label-period-heading',
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'THIS_YEAR',
+                boxLabel: i18n.this_year,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_YEAR',
+                boxLabel: i18n.last_year,
+            },
+            {
+                xtype: 'checkbox',
+                relativePeriodId: 'LAST_5_YEARS',
+                boxLabel: i18n.last_5_years,
+            },
+        ],
+    });
+
+    relativePeriod.items = [
+        {
+            xtype: 'container',
+            columnWidth: 0.34,
+            bodyStyle: 'border-style:none',
+            items: [days, months, sixMonths],
+        },
+        {
+            xtype: 'container',
+            columnWidth: 0.33,
+            bodyStyle: 'border-style:none',
+            items: [weeks, biMonths, financialYears],
+        },
+        {
+            xtype: 'container',
+            columnWidth: 0.33,
+            bodyStyle: 'border-style:none',
+            items: [biWeeks, quarters, years],
+        },
+    ];
 
     var fixedPeriodAvailable = Ext.create('Ext.ux.form.MultiSelect', {
         cls: 'ns-toolbar-multiselect-left',
