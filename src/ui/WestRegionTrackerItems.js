@@ -327,7 +327,7 @@ WestRegionTrackerItems = function(refs) {
                 params: [
                     'filter=id:eq:' + programId,
                     [
-                        'fields=programType,programStages[id,displayName~rename(name)]',
+                        'fields=programType,programStages[id,displayName~rename(name),executionDateLabel]',
                         'programIndicators[id,' + displayPropertyUrl + ']',
                         'programTrackedEntityAttributes[trackedEntityAttribute[id,' +
                             displayPropertyUrl +
@@ -400,6 +400,10 @@ WestRegionTrackerItems = function(refs) {
                 ? {
                       id: this.getValue(),
                       name: this.getRawValue(),
+                      executionDateLabel: this.getStore()
+                          .getById(this.getValue())
+                          .data
+                          .executionDateLabel
                   }
                 : null;
         },

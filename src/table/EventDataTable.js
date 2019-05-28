@@ -13,9 +13,20 @@ EventDataTable = function(refs, layout, response) {
 
     var i18n = i18nManager.get();
 
-    var FIXED_HEADERS = ['eventdate', 'enrollmentdate', 'incidentdate'];
+    var EVENT_DATE = 'eventdate';
+    var ENROLLMENT_DATE = 'enrollmentdate';
+    var INCIDENT_DATE = 'incidentdate';
+    var FIXED_HEADERS = [EVENT_DATE, ENROLLMENT_DATE, INCIDENT_DATE];
 
-    var filteredHeaders = response.getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()));
+    var programStage = layout.programStage;
+    var eventDateLabel = programStage.executionDateLabel;
+
+    var filteredHeaders = response
+        .getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()))
+        .map(header => header.name === EVENT_DATE
+            ? Object.assign({}, header, { column: eventDateLabel || header.column })
+            : header
+        );
 
     var rows = response.rows;
     var items = response.metaData.items;
