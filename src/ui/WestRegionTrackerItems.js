@@ -57,11 +57,11 @@ WestRegionTrackerItems = function(refs) {
     // stores
 
     var programStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
+        fields: ['id', 'name', 'enrollmentDateLabel', 'incidentDateLabel'],
         proxy: {
             type: 'ajax',
             url: encodeURI(
-                apiPath + '/programs.json?fields=id,' + displayPropertyUrl + '&paging=false'
+                apiPath + '/programs.json?fields=id,enrollmentDateLabel,incidentDateLabel,' + displayPropertyUrl + '&paging=false'
             ),
             reader: {
                 type: 'json',
@@ -219,11 +219,17 @@ WestRegionTrackerItems = function(refs) {
         storage: {},
         store: programStore,
         getRecord: function() {
+            const record = this.getStore()
+                .getById(this.getValue())
+                .data;
+
             return this.getValue
                 ? {
                       id: this.getValue(),
                       name: this.getRawValue(),
-                  }
+                      enrollmentDateLabel: record.enrollmentDateLabel,
+                      incidentDateLabel: record.incidentDateLabel,
+                }
                 : null;
         },
         listeners: {

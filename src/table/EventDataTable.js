@@ -18,15 +18,29 @@ EventDataTable = function(refs, layout, response) {
     var INCIDENT_DATE = 'incidentdate';
     var FIXED_HEADERS = [EVENT_DATE, ENROLLMENT_DATE, INCIDENT_DATE];
 
+    var program = layout.program;
     var programStage = layout.programStage;
     var eventDateLabel = programStage.executionDateLabel;
+    var enrollmentDateLabel = program.enrollmentDateLabel;
+    var incidentDateLabel = program.incidentDateLabel;
+
+    var getHeaderLabel = function(header) {
+        switch (header.name) {
+            case EVENT_DATE:
+                // fallback to header column if label is empty
+                return eventDateLabel || header.column;
+            case ENROLLMENT_DATE:
+                return enrollmentDateLabel || header.column;
+            case INCIDENT_DATE:
+                return incidentDateLabel || header.column;
+            default:
+                return header.column;
+        }
+    };
 
     var filteredHeaders = response
         .getFilteredHeaders([].concat(FIXED_HEADERS, layout.getDimensionNames()))
-        .map(header => header.name === EVENT_DATE
-            ? Object.assign({}, header, { column: eventDateLabel || header.column })
-            : header
-        );
+        .map(header => Object.assign({}, header, { column: getHeaderLabel(header) }));
 
     var rows = response.rows;
     var items = response.metaData.items;
