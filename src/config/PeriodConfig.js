@@ -16,6 +16,7 @@ PeriodConfig = function() {
         periodTypes = {
             'Daily': i18nManager.get('daily') || 'Daily',
             'Weekly': i18nManager.get('weekly') || 'Weekly',
+            'BiWeekly': i18nManager.get('biweekly') || 'BiWeekly',
             'WeeklyWednesday': i18nManager.get('weekly_wednesday') || 'Weekly (Start Wednesday)',
             'WeeklyThursday': i18nManager.get('weekly_thursday') || 'Weekly (Start Thursday)',
             'WeeklySaturday': i18nManager.get('weekly_saturday') || 'Weekly (Start Saturday)',
