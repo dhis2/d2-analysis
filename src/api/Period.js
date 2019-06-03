@@ -1536,7 +1536,7 @@ Period.prototype.getItemsByTypeByMonth = function(type, isAll) {
 
 Period.prototype.getItemsByTypeByBiweek = function(type, isAll) {
     var biweekStr = this.id.slice(7, 9),
-        biweekIndex = parseInt(biweekStr), // XXX index should be 0 based, so add -1 here when the backend is ready
+        biweekIndex = parseInt(biweekStr) - 1,
         allBiweeks = this.gen('BiWeekly', this.offset),
         biweekPeriod = allBiweeks[biweekIndex],
         startDateMonth = parseInt(biweekPeriod.startDate.substring(5, 7)),
@@ -1694,26 +1694,14 @@ Period.prototype.getItemsByTypeByBiweek = function(type, isAll) {
         var allWeeks = this.gen(type, this.offset),
             startSlice,
             endSlice,
-            biweekPeriod = this.gen('BiWeekly', this.offset)[biweekIndex],
-            weeks = [];
+            biweekPeriod = this.gen('BiWeekly', this.offset)[biweekIndex];
 
-        // last year
-        if (biweekPeriod.startDate.slice(0, 4) < this.year) {
-            weeks.push(this.gen(type, this.offset - 1).slice(-1));
-        }
-
-        // this year
         startSlice = allWeeks.findIndex(
             week => week.startDate === biweekPeriod.startDate
         );
         endSlice = startSlice + 2;
 
-        weeks = weeks.concat(allWeeks.slice(startSlice, endSlice));
-
-        // next year
-        if (biweekPeriod.endDate.slice(0, 4) > this.year) {
-            weeks.push(this.gen(type, this.offset + 1).slice(0, 1));
-        }
+        var weeks = allWeeks.slice(startSlice, endSlice);
 
         return this.getItemifiedPeriods(weeks);
     } else if (type === 'Daily') {
