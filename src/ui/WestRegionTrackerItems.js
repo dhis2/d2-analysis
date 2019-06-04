@@ -220,15 +220,14 @@ WestRegionTrackerItems = function(refs) {
         store: programStore,
         getRecord: function() {
             const record = this.getStore()
-                .getById(this.getValue())
-                .data;
+                .getById(this.getValue());
 
             return this.getValue
                 ? {
                       id: this.getValue(),
                       name: this.getRawValue(),
-                      enrollmentDateLabel: record.enrollmentDateLabel,
-                      incidentDateLabel: record.incidentDateLabel,
+                      enrollmentDateLabel: record ? record.data.enrollmentDateLabel : undefined,
+                      incidentDateLabel: record ? record.data.incidentDateLabel : undefined,
                 }
                 : null;
         },
