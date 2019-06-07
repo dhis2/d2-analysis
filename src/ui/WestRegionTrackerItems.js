@@ -187,7 +187,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     // components
-    var onTypeClick = function(type) {
+    var onDataTypeSelect = function(type) {
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
@@ -1024,7 +1024,7 @@ WestRegionTrackerItems = function(refs) {
     var programStagePanel = Ext.create('Ext.panel.Panel', {
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin-top:2px',
+        style: 'margin-top:3px',
         items: [program, stage],
     });
 
@@ -3376,7 +3376,7 @@ WestRegionTrackerItems = function(refs) {
 
         getUiState: getUiState,
         setUiState: setUiState,
-        onTypeClick: onTypeClick,
+        onDataTypeSelect: onDataTypeSelect,
     });
 
     return accordion;
