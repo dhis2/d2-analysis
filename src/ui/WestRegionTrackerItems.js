@@ -3284,6 +3284,9 @@ WestRegionTrackerItems = function(refs) {
             config.filters = filters;
         }
 
+        // output type
+        config.outputType = uiManager.get('outputType').getValue();
+
         // value, aggregation type
         Ext.apply(config, layoutWindow.getValueConfig());
 
