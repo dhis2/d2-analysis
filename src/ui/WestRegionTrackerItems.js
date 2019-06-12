@@ -421,11 +421,13 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var onStageSelect = function(stageId, layout) {
+        var dataType = uiManager.get('dataTypeToolbar').getValueType();
+
         if (!layout) {
             dataElementSelected.removeAllDataElements(true);
             uiManager.get('aggregateLayoutWindow').value.resetData();
         }
-
+console.log("_program", _program)
         var _program = programStorage[layout ? layout.program.id : program.getValue()];
 
         uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
