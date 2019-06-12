@@ -885,7 +885,11 @@ WestRegionTrackerItems = function(refs) {
                         : null || recordMap[dim.dimension].name;
 
                 return dim;
-            };
+            },
+            multipleFilterValueTypes = [
+                ...dimensionConfig.valueType['numeric_types'],
+                ...dimensionConfig.valueType['date_types']
+            ];
 
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
@@ -908,8 +912,8 @@ WestRegionTrackerItems = function(refs) {
             allElements.push(element);
 
             if (
-                arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) &&
-                element.filter
+                element.filter &&
+                multipleFilterValueTypes.includes(element.valueType)
             ) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
