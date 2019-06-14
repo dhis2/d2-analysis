@@ -421,14 +421,31 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var onStageSelect = function(stageId, layout) {
-        var dataType = uiManager.get('dataTypeToolbar').getValueType();
+        var dataType = uiManager.get('dataTypeToolbar').getDataType();
+        var outputType = uiManager.get('dataTypeToolbar').getOutputType();
+
+        // Pivot table
+        var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
+
+        // Line list
+        var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
+
+        var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
+
+        console.log("dataType", dataType, dataTypeEvents);
+        console.log("outputType", outputType, outputTypeEnrollment);
 
         if (!layout) {
-            dataElementSelected.removeAllDataElements(true);
-            uiManager.get('aggregateLayoutWindow').value.resetData();
+
+            // Allow multi-stage selection for enrollment line list
+            if (!(dataType === dataTypeEvents && outputType === outputTypeEnrollment)) {
+                dataElementSelected.removeAllDataElements(true);
+                uiManager.get('aggregateLayoutWindow').value.resetData();
+            }
         }
-console.log("_program", _program)
+
         var _program = programStorage[layout ? layout.program.id : program.getValue()];
+        console.log("_program", _program);
 
         uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
 
