@@ -186,13 +186,66 @@ WestRegionTrackerItems = function(refs) {
         data: [],
     });
 
-    // components
+    // handlers
+
+    var clearDataElements = function() {
+        dataElementSelected.removeAllDataElements(true);
+        uiManager.get('aggregateLayoutWindow').value.resetData();
+    };
+
+    var updateDataElementSelection = function(handlerName) {
+        var dataType = uiManager.get('dataTypeToolbar').getDataType();
+        var outputType = uiManager.get('dataTypeToolbar').getOutputType();
+
+        // Pivot table
+        var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
+
+        // Line list
+        var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
+
+        // Event
+        var outputTypeEvent = optionConfig.getOutputType('event').id;
+
+        // Enrollment
+        var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
+
+        // If data type changed
+        if (handlerName === 'dataType') {
+
+            // Only clear if moving away from list + enrollment
+            if (dataType === dataTypeAgg && outputType === outputTypeEnrollment) {
+                clearDataElements();
+            }
+        } else if (handlerName === 'outputType') {
+
+            // Only clear if moving away from list + enrollment
+            if (dataType === dataTypeEvents && outputType === outputTypeEvent) {
+                clearDataElements();
+            }
+        } else {
+
+            // Allow multi-stage selection for enrollment line list
+            if (!(dataType === dataTypeEvents && outputType === outputTypeEnrollment)) {
+                clearDataElements();
+            }
+        }
+    }
+
     var onDataTypeSelect = function(type) {
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
         // selected
         dataElementSelected.toggleProgramIndicators(type);
+
+        // event/enrollment
+        updateDataElementSelection('dataType');
+    };
+
+    var onOutputTypeSelect = function(type) {
+
+        // event/enrollment
+        updateDataElementSelection('outputType');
     };
 
     var setData = function(layout) {
@@ -202,42 +255,6 @@ WestRegionTrackerItems = function(refs) {
         // data items
         onProgramSelect(null, layout);
     };
-
-    var program = Ext.create('Ext.form.field.ComboBox', {
-        editable: false,
-        valueField: 'id',
-        displayField: 'name',
-        fieldLabel: 'Program',
-        labelAlign: 'top',
-        labelCls: 'ns-form-item-label-top',
-        labelSeparator: '',
-        emptyText: 'Select program',
-        forceSelection: true,
-        queryMode: 'local',
-        columnWidth: 0.5,
-        style: 'margin:1px 1px 1px 0',
-        storage: {},
-        store: programStore,
-        getRecord: function() {
-            const record = this.getStore()
-                .getById(this.getValue())
-                .data;
-
-            return this.getValue
-                ? {
-                      id: this.getValue(),
-                      name: this.getRawValue(),
-                      enrollmentDateLabel: record.enrollmentDateLabel,
-                      incidentDateLabel: record.incidentDateLabel,
-                }
-                : null;
-        },
-        listeners: {
-            select: function(cb) {
-                onProgramSelect(cb.getValue());
-            },
-        },
-    });
 
     var onProgramSelect = function(programId, layout) {
         var DEFAULT = 'default';
@@ -385,6 +402,60 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
+    var onStageSelect = function(stageId, layout) {
+        if (!layout) {
+            // event/enrollment
+            updateDataElementSelection();
+        }
+
+        var _program = programStorage[layout ? layout.program.id : program.getValue()];
+
+        uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
+
+        dataElementType.enable();
+        dataElementSearch.enable();
+        dataElementSearch.hideFilter();
+
+        loadDataElements(stageId, layout);
+    };
+
+    // components
+    var program = Ext.create('Ext.form.field.ComboBox', {
+        editable: false,
+        valueField: 'id',
+        displayField: 'name',
+        fieldLabel: 'Program',
+        labelAlign: 'top',
+        labelCls: 'ns-form-item-label-top',
+        labelSeparator: '',
+        emptyText: 'Select program',
+        forceSelection: true,
+        queryMode: 'local',
+        columnWidth: 0.5,
+        style: 'margin:1px 1px 1px 0',
+        storage: {},
+        store: programStore,
+        getRecord: function() {
+            const record = this.getStore()
+                .getById(this.getValue())
+                .data;
+
+            return this.getValue
+                ? {
+                      id: this.getValue(),
+                      name: this.getRawValue(),
+                      enrollmentDateLabel: record.enrollmentDateLabel,
+                      incidentDateLabel: record.incidentDateLabel,
+                }
+                : null;
+        },
+        listeners: {
+            select: function(cb) {
+                onProgramSelect(cb.getValue());
+            },
+        },
+    });
+
     var stage = Ext.create('Ext.form.field.ComboBox', {
         editable: false,
         valueField: 'id',
@@ -419,42 +490,6 @@ WestRegionTrackerItems = function(refs) {
             },
         },
     });
-
-    var onStageSelect = function(stageId, layout) {
-        var dataType = uiManager.get('dataTypeToolbar').getDataType();
-        var outputType = uiManager.get('dataTypeToolbar').getOutputType();
-
-        // Pivot table
-        var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
-
-        // Line list
-        var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
-
-        var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
-
-        console.log("dataType", dataType, dataTypeEvents);
-        console.log("outputType", outputType, outputTypeEnrollment);
-
-        if (!layout) {
-
-            // Allow multi-stage selection for enrollment line list
-            if (!(dataType === dataTypeEvents && outputType === outputTypeEnrollment)) {
-                dataElementSelected.removeAllDataElements(true);
-                uiManager.get('aggregateLayoutWindow').value.resetData();
-            }
-        }
-
-        var _program = programStorage[layout ? layout.program.id : program.getValue()];
-        console.log("_program", _program);
-
-        uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
-
-        dataElementType.enable();
-        dataElementSearch.enable();
-        dataElementSearch.hideFilter();
-
-        loadDataElements(stageId, layout);
-    };
 
     var loadDataElements = function(stageId, layout) {
         var programId = layout ? layout.program.id : program.getValue() || null;
@@ -3399,6 +3434,7 @@ WestRegionTrackerItems = function(refs) {
         getUiState: getUiState,
         setUiState: setUiState,
         onDataTypeSelect: onDataTypeSelect,
+        onOutputTypeSelect: onOutputTypeSelect,
     });
 
     return accordion;
