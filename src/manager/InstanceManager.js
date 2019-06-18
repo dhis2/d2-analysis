@@ -122,8 +122,8 @@ InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     layout = new Layout(refs, layoutConfig);
 
     if (layout) {
-        layout = favorite && fromFavorite ? 
-            favorite.apply(layout, Object.keys(layout)) : 
+        layout = favorite && fromFavorite ?
+            favorite.apply(layout, Object.keys(layout)) :
             layout.apply(favorite);
     }
 

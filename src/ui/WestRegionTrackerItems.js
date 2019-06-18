@@ -97,7 +97,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var dataElementsByStageStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'isAttribute', 'isProgramIndicator'],
+        fields: ['id', 'name', 'isAttribute', 'isProgramIndicator', 'stageId'],
         data: [],
         sorters: [
             {
@@ -538,7 +538,7 @@ WestRegionTrackerItems = function(refs) {
                 type: 'json',
                 params: [
                     'filter=id:eq:' + stageId,
-                    'fields=programStageDataElements[dataElement[id,' +
+                    'fields=id,programStageDataElements[dataElement[id,' +
                         displayPropertyUrl +
                         ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                     'paging=false',
@@ -568,7 +568,10 @@ WestRegionTrackerItems = function(refs) {
                         dataElement.isDataElement = true;
                         dataElement.name = '[DE] ' + dataElement.name;
                         return include(dataElement);
-                    });
+                    }).map(dataElement => ({
+                        ...dataElement,
+                        programStageId: stages[0].id
+                    }));
 
                     // data elements cache
                     dataElementStorage[stageId] = dataElements;
@@ -3247,7 +3250,7 @@ WestRegionTrackerItems = function(refs) {
 
             map[record.dimension].push(record);
         }
-
+console.log("MAP", map);
         // dynamic dimensions data
         accordionBody.items.each(function(panel) {
             if (panel.isDynamic && panel.getDimension) {
