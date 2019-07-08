@@ -1013,7 +1013,9 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     rowIndex = this.rowAxis.getPositionIndexOffsetHidden(rowIndex);
     columnIndex = this.colAxis.getPositionIndexOffsetHidden(columnIndex);
 
-    const valueObject = this.valueLookup[rowIndex][columnIndex];
+    const valueObject = this.valueLookup[rowIndex] && this.valueLookup[rowIndex][columnIndex]
+        ? this.valueLookup[rowIndex][columnIndex]
+        : null;
 
     const value = isObject(valueObject) ? valueObject.value : value;
     let displayValue = value;
@@ -1028,7 +1030,9 @@ PivotTable.prototype.buildValueCell = function(columnIndex, rowIndex) {
     }
 
     if (this.rowAxis.isTotalPosition(rowIndex) || this.colAxis.isTotalPosition(columnIndex)) {
-        const totalObj = this.totalMap[rowIndex][columnIndex];
+        const totalObj = this.totalMap[rowIndex] && this.totalMap[rowIndex][columnIndex]
+            ? this.totalMap[rowIndex][columnIndex]
+            : null;
 
         displayValue = getDefaultNumberDisplayValue(displayValue, this.layout.skipRounding);
         displayValue = this.getPrettyHtml(displayValue);

@@ -220,15 +220,14 @@ WestRegionTrackerItems = function(refs) {
         store: programStore,
         getRecord: function() {
             const record = this.getStore()
-                .getById(this.getValue())
-                .data;
+                .getById(this.getValue());
 
             return this.getValue
                 ? {
                       id: this.getValue(),
                       name: this.getRawValue(),
-                      enrollmentDateLabel: record.enrollmentDateLabel,
-                      incidentDateLabel: record.incidentDateLabel,
+                      enrollmentDateLabel: record ? record.data.enrollmentDateLabel : undefined,
+                      incidentDateLabel: record ? record.data.incidentDateLabel : undefined,
                 }
                 : null;
         },
@@ -322,6 +321,7 @@ WestRegionTrackerItems = function(refs) {
 
             // init timeField, depending on programType
             uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
+            uiManager.get('aggregateLayoutWindow').orgUnitField.resetProgramAttributes(_program.programTrackedEntityAttributes);
         };
 
         if (programStorage[programId]) {
@@ -473,6 +473,10 @@ WestRegionTrackerItems = function(refs) {
 
                 selectDataElements(records, layout);
             }
+
+            uiManager.get('aggregateLayoutWindow')
+                .orgUnitField
+                .resetDataElements(dataElements);
         };
 
         // data elements
@@ -1015,6 +1019,10 @@ WestRegionTrackerItems = function(refs) {
             // time field
             if (layout.timeField) {
                 aggWindow.setTimeField(layout.timeField);
+            }
+
+            if (layout.orgUnitField) {
+                aggWindow.setOrgUnitField(layout.orgUnitField);
             }
 
             // collapse data dimensions

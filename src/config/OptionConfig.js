@@ -24,6 +24,7 @@ OptionConfig = function() {
     var programStatus;
     var eventStatus;
     var timeField;
+    var orgUnitField;
 
     // setter
     var setDisplayDensity = function() {
@@ -363,6 +364,16 @@ OptionConfig = function() {
         };
     };
 
+    var setOrgUnitField = function() {
+        orgUnitField = {
+            event_org_unit: {
+                index: 0,
+                id: 'EVENT_ORG_UNIT',
+                name: i18nManager.get('event_org_unit') || 'Event org unit'
+            }
+        }
+    };
+
     // logic
     var getRecords = function(optionType) {
         var records = [];
@@ -393,6 +404,7 @@ OptionConfig = function() {
         setProgramStatus();
         setEventStatus();
         setTimeField();
+        setOrgUnitField();
     };
 
     // prototype
@@ -448,6 +460,10 @@ OptionConfig = function() {
         return key ? timeField[key] : timeField;
     };
 
+    t.getOrgUnitField = function(key) {
+        return key ? orgUnitField[key] : orgUnitField;
+    };
+
     t.getDisplayDensityRecords = function() {
         return getRecords(displayDensity);
     };
@@ -494,6 +510,10 @@ OptionConfig = function() {
 
     t.getTimeFieldRecords = function() {
         return getRecords(timeField);
+    };
+
+    t.getOrgUnitFieldRecords = function() {
+        return getRecords(orgUnitField);
     };
 
     t.getDigitGroupSeparatorIdMap = function() {
