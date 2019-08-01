@@ -197,16 +197,16 @@ WestRegionTrackerItems = function(refs) {
         var dataType = uiManager.get('dataTypeToolbar').getDataType();
         var outputType = uiManager.get('dataTypeToolbar').getOutputType();
 
-        // Pivot table
+        // Table style: Pivot table
         var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
 
-        // Line list
+        // Table style: Line list
         var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
 
-        // Event
+        // Output type: Event
         var outputTypeEvent = optionConfig.getOutputType('event').id;
 
-        // Enrollment
+        // Output type: Enrollment
         var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
 
         // If data type changed
@@ -328,6 +328,7 @@ WestRegionTrackerItems = function(refs) {
             stagesByProgramStore.removeAll();
             stagesByProgramStore.loadData(stages);
 
+            // TODO, don't do this if multi-stage
             var stageId =
                 (layout ? layout.programStage.id : null) ||
                 (stages.length === 1 ? stages[0].id : null);
@@ -570,7 +571,9 @@ WestRegionTrackerItems = function(refs) {
                         return include(dataElement);
                     }).map(dataElement => ({
                         ...dataElement,
-                        programStageId: stages[0].id
+                        programStage: {
+                            id: stages[0].id
+                        },
                     }));
 
                     // data elements cache
@@ -949,7 +952,12 @@ WestRegionTrackerItems = function(refs) {
             item = items[i];
 
             if (isString(item)) {
-                dataElements.push(dataElementsByStageStore.getById(item).data);
+                dataElements.push({
+                    ...dataElementsByStageStore.getById(item).data,
+                    programStage: {
+                        id: stage.getValue(),
+                    },
+                });
             } else if (isObject(item)) {
                 if (item.data) {
                     dataElements.push(item.data);
@@ -959,6 +967,7 @@ WestRegionTrackerItems = function(refs) {
             }
         }
 
+console.log("dataElements", dataElements)
         // expand if multiple filter
         for (var i = 0, element, a, numberOfElements; i < dataElements.length; i++) {
             element = dataElements[i];
@@ -3241,16 +3250,17 @@ WestRegionTrackerItems = function(refs) {
 
         // ou
         map['ou'] = [treePanel.getDimension()];
+        console.log("dataElementSelected", dataElementSelected)
 
         // data items
         for (var i = 0, record; i < dataElementSelected.items.items.length; i++) {
             record = dataElementSelected.items.items[i].getRecord();
-
+console.log("RECORD", record);
             map[record.dimension] = map[record.dimension] || [];
 
             map[record.dimension].push(record);
         }
-console.log("MAP", map);
+
         // dynamic dimensions data
         accordionBody.items.each(function(panel) {
             if (panel.isDynamic && panel.getDimension) {

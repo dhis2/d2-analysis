@@ -13,10 +13,13 @@ DataElementDateContainer = function(refs) {
         bodyStyle: 'border:0 none',
         style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
-            var record = {};
-
-            record.dimension = this.dataElement.id;
-            record.name = this.dataElement.name;
+            var record = {
+                dimension: this.dataElement.id,
+                name: this.dataElement.name,
+                programStage: {
+                    id: (this.dataElement.programStage || {}).id,
+                },
+            };
 
             if (this.valueCmp.getValue()) {
                 record.filter = this.operatorCmp.getValue() + ':' + this.valueCmp.getSubmitValue();

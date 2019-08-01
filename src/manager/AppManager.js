@@ -33,9 +33,9 @@ AppManager = function(refs) {
         '*',
         'interpretations[*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],' +
             'comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]]',
-        'columns[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
-        'rows[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
-        'filters[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'columns[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'rows[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'filters[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'program[id,displayName~rename(name),enrollmentDateLabel,incidentDateLabel]',
         'programStage[id,displayName~rename(name),executionDateLabel]',
         'access',
