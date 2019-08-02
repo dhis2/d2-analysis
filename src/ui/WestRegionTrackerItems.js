@@ -97,7 +97,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var dataElementsByStageStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'isAttribute', 'isProgramIndicator', 'stageId'],
+        fields: ['id', 'name', 'isDataElement', 'isAttribute', 'isProgramIndicator', 'programStage'],
         data: [],
         sorters: [
             {
@@ -516,7 +516,7 @@ WestRegionTrackerItems = function(refs) {
                               .filter(dim => !arrayContains(['pe', 'ou'], dim.dimension))
                         : [],
                     records = [];
-
+console.log("dataDimensions", dataDimensions);
                 for (var i = 0, dim, row; i < dataDimensions.length; i++) {
                     dim = dataDimensions[i];
                     row = dataElementsByStageStore.getById(dim.dimension);
@@ -946,7 +946,7 @@ WestRegionTrackerItems = function(refs) {
 
                 return dim;
             };
-
+console.log("layout", layout);
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
             item = items[i];
@@ -995,7 +995,7 @@ console.log("dataElements", dataElements)
                 }
             }
         }
-
+console.log("allElements", allElements);
         // panel, store
         for (var i = 0, element, ux, store; i < allElements.length; i++) {
             element = allElements[i];
