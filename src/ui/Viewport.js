@@ -25,35 +25,10 @@ Viewport = function(refs, cmp, config) {
         i18nManager = refs.i18nManager,
         sessionStorageManager = refs.sessionStorageManager,
         instanceManager = refs.instanceManager,
-        calendarManager = refs.calendarManager,
-        dimensionConfig = refs.dimensionConfig,
-        periodConfig = refs.periodConfig,
         uiConfig = refs.uiConfig,
-        optionConfig = refs.optionConfig,
         api = refs.api,
 
-        apiPath = appManager.getApiPath(),
         i18n = i18nManager.get(),
-
-        dataObjectName = dimensionConfig.get('data').objectName,
-        indicatorObjectName = dimensionConfig.get('indicator').objectName,
-        dataElementObjectName = dimensionConfig.get('dataElement').objectName,
-        operandObjectName = dimensionConfig.get('operand').objectName,
-        dataSetObjectName = dimensionConfig.get('dataSet').objectName,
-        eventDataItemObjectName = dimensionConfig.get('eventDataItem').objectName,
-        programIndicatorObjectName = dimensionConfig.get('programIndicator').objectName,
-        periodObjectName = dimensionConfig.get('period').objectName,
-        organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
-
-        treePanel = uiManager.get('treePanel'),
-        layoutWindow = uiManager.get('layoutWindow'),
-        optionsWindow = uiManager.get('optionsWindow'),
-        favoriteWindow = uiManager.get('favoriteWindow'),
-
-        displayProperty = appManager.getDisplayProperty(),
-        displayPropertyUrl = appManager.getDisplayPropertyUrl(),
-
-        dimensionPanelMap = {};
 
     cmp = cmp || {};
 
@@ -105,51 +80,6 @@ Viewport = function(refs, cmp, config) {
     });
 
     // viewport
-
-    //var accordionBody = Ext.create('Ext.panel.Panel', {
-        //layout: 'accordion',
-        //activeOnTop: true,
-        //cls: 'ns-accordion',
-        //bodyStyle: 'border:0 none; margin-bottom:2px',
-        //height: 700,
-        //dimensionPanels: null,
-        //items: westRegionItems
-    //});
-    //uiManager.reg(accordionBody, 'accordionBody');
-
-    //var accordion = Ext.create('Ext.panel.Panel', {
-        //bodyStyle: 'border-style:none; border-top:1px solid #d6d6d6; padding:1px; padding-bottom:0; overflow-y:scroll;',
-        //items: accordionBody,
-        //setThisHeight: function(mx) {
-            //var panelHeight = westRegionItems.length * 28,
-                //height;
-
-            //if (westRegion.hasScrollbar) {
-                //height = panelHeight + mx;
-                //this.setHeight(westRegion.getHeight() - 2);
-                //accordionBody.setHeight(height - 2);
-            //}
-            //else {
-                //height = westRegion.getHeight() - uiConfig.west_fill;
-                //mx += panelHeight;
-                //accordion.setHeight((height > mx ? mx : height) - 2);
-                //accordionBody.setHeight((height > mx ? mx : height) - 4);
-            //}
-        //},
-        //getExpandedPanel: function() {
-            //for (var i = 0, panel; i < westRegionItems.length; i++) {
-                //if (!westRegionItems[i].collapsed) {
-                    //return westRegionItems[i];
-                //}
-            //}
-
-            //return null;
-        //},
-        //getFirstPanel: function() {
-            //return accordionBody.items.items[0];
-        //}
-    //});
-    //uiManager.reg(accordion, 'accordion');
 
     var westRegion = Ext.create('Ext.panel.Panel', {
         region: 'west',

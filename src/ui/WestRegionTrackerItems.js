@@ -1180,22 +1180,6 @@ console.log("allElements", allElements);
         }
     };
 
-    var getDateLink = function(text, fn, style) {
-        return Ext.create('Ext.form.Label', {
-            text: text,
-            style: 'padding-left: 5px; width: 100%; ' + style || '',
-            cls: 'ns-label-date',
-            updateValue: fn,
-            listeners: {
-                render: function(cmp) {
-                    cmp.getEl().on('click', function() {
-                        cmp.updateValue();
-                    });
-                },
-            },
-        });
-    };
-
     var onDateFieldRender = function(c) {
         $('#' + c.inputEl.id).calendarsPicker({
             calendar: calendarManager.calendar,
@@ -3106,8 +3090,6 @@ console.log("allElements", allElements);
     // functions
 
     var setUiState = function(layout, response) {
-        var viewport = uiManager.get('viewport');
-
         var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             chartTypeToolbar = uiManager.get('chartTypeToolbar'),
             aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
