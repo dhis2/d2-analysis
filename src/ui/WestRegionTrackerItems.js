@@ -2302,19 +2302,6 @@ console.log("allElements", allElements);
         store: organisationUnitGroupStore,
     });
 
-    var organisationUnitPanel = Ext.create('Ext.panel.Panel', {
-        width: accBaseWidth - toolWidth - 1,
-        layout: 'column',
-        bodyStyle: 'border:0 none',
-        items: [
-            userOrganisationUnit,
-            userOrganisationUnitChildren,
-            userOrganisationUnitGrandChildren,
-            organisationUnitLevel,
-            organisationUnitGroup,
-        ],
-    });
-
     var toolMenu = Ext.create('Ext.menu.Menu', {
         shadow: false,
         showSeparator: false,
