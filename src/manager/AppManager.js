@@ -104,7 +104,6 @@ AppManager = function(refs) {
 
     t.rootNodes = [];
     t.organisationUnitLevels = [];
-    t.dimensions = [];
     t.categoryOptionGroupSets = [];
     t.dimensions = [];
     t.legendSets = [];
@@ -265,6 +264,10 @@ AppManager.prototype.getManifestFullVersionNumber = function() {
 
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
 };
+
+AppManager.prototype.getDimensionIds = function() {
+    return this.dimensions.map(dimension => dimension.id);
+}
 
 AppManager.prototype.getApiVersion = function() {
     return this.apiVersion;
@@ -454,7 +457,9 @@ AppManager.prototype.isUiLocaleDefault = function() {
 };
 
 AppManager.prototype.getAnalysisFields = function() {
-    return this.analysisFields ? this.analysisFields : (this.analysisFields = stringReplaceAll(this.defaultAnalysisFields.join(','), '$', this.getDisplayPropertyUrl()));
+    return this.analysisFields ?
+        this.analysisFields :
+        (this.analysisFields = stringReplaceAll(this.defaultAnalysisFields.join(','), '$', this.getDisplayPropertyUrl()));
 };
 
 AppManager.prototype.getRootNode = function() {

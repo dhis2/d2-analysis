@@ -166,6 +166,7 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
         },
         success: function(r) {
             var layout = new Layout(refs, r);
+
             fn(layout, true);
         },
         error: function(r) {

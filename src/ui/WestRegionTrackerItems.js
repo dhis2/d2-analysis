@@ -477,7 +477,7 @@ WestRegionTrackerItems = function(refs) {
 
     var loadDataElements = function(stageId, layout) {
         var programId = layout ? layout.program.id : program.getValue() || null;
-
+console.log("LOAD DATA ELEMENTS: ", layout);
         var _program = programStorage[programId];
 
         var dataItems = arrayClean(
@@ -496,17 +496,22 @@ WestRegionTrackerItems = function(refs) {
                 var dataDimensions = layout
                         ? layout
                               .getDimensions(true)
-                              .filter(dim => !arrayContains(['pe', 'ou'], dim.dimension))
+                              .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
                         : [],
                     records = [];
 console.log("dataDimensions", dataDimensions);
                 for (var i = 0, dim, row; i < dataDimensions.length; i++) {
                     dim = dataDimensions[i];
-                    row = dataElementsByStageStore.getById(dim.dimension);
+                    // row = dataElementsByStageStore.getById(dim.dimension);
 
-                    if (row) {
-                        records.push(Ext.applyIf(dim, row.data));
-                    }
+                    records.push({
+                        ...dim,
+                        name: layout.getDataElementName(dim.dimension)
+                    });
+
+                    // if (row) {
+                    //     records.push(Ext.applyIf(dim, row.data));
+                    // }
                 }
 
                 selectDataElements(records, layout);
@@ -918,7 +923,6 @@ console.log("dataDimensions", dataDimensions);
             aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow'),
             includeKeys = dimensionConfig.valueType['tracker_aggregatable_types'],
-            ignoreKeys = ['pe', 'ou'],
             recordMap = dimensionConfig.getObjectNameMap(),
             extendDim = function(dim) {
                 dim.id = dim.id || dim.dimension;
@@ -929,7 +933,7 @@ console.log("dataDimensions", dataDimensions);
 
                 return dim;
             };
-console.log("layout", layout);
+console.log("items/layout", items, layout);
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
             item = items[i];

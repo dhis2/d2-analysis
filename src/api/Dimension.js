@@ -89,6 +89,10 @@ Dimension.prototype.isRequired = function() {
     return arrayContains(REQUIRED_DIMENSIONS, this.dimension);
 };
 
+Dimension.prototype.hasProgramStage = function() {
+    return isObject(this.programStage) && isString(this.programStage.id);
+}
+
 // dep 1
 
 Dimension.prototype.getRecordIds = function(isSorted, response, isPure) {
@@ -100,6 +104,10 @@ Dimension.prototype.getRecordIds = function(isSorted, response, isPure) {
 Dimension.prototype.getRecordNames = function(isSorted, response, isPure) {
     return arrayPluck(this.getRecords((isSorted ? 'name' : null), response, isPure), 'name');
 };
+
+Dimension.prototype.getProgramStageId = function() {
+    return this.hasProgramStage() ? this.programStage.id : null;
+}
 
 Dimension.prototype.extendRecords = function(response) {
     var t = this;

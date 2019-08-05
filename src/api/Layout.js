@@ -395,6 +395,12 @@ Layout.prototype.removeDimensionItems = function(includeFilter) {
     });
 };
 
+Layout.prototype.getProgramStageIds = function() {
+    return this.getDimensions()
+        .map(dimension => dimension.getProgramStageId())
+        .filter(isString);
+}
+
 Layout.prototype.val = function(noError) {
     var refs = this.getRefs();
     var i18nManager = refs.i18nManager;
