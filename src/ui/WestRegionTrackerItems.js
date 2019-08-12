@@ -1,7 +1,5 @@
-import clone from 'd2-utilizr/lib/clone';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import isArray from 'd2-utilizr/lib/isArray';
@@ -475,16 +473,28 @@ WestRegionTrackerItems = function(refs) {
         },
     });
 
+    const getStageIds = (stageId, layout) => {
+        const idsFromDimensions = layout ? layout.getProgramStageIds() : [];
+        const idFromLayout = layout && layout.programStage ? layout.programStage.id : null;
+
+        const ids = [
+            stageId,
+            idFromLayout,
+            ...idsFromDimensions,
+        ];
+
+        return [...new Set(ids.filter(id => !!id))];
+    };
+
     var loadDataElements = function(stageId, layout) {
         var programId = layout ? layout.program.id : program.getValue() || null;
-console.log("LOAD DATA ELEMENTS: ", layout);
         var _program = programStorage[programId];
 
         var dataItems = arrayClean(
             [].concat(_program.attributes || [], _program.programIndicators || [])
         );
 
-        stageId = stageId || layout.programStage.id;
+        var stageIds = getStageIds(stageId, layout);
 
         var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
@@ -519,14 +529,15 @@ console.log("dataDimensions", dataDimensions);
         };
 
         // data elements
-        if (dataElementStorage.hasOwnProperty(stageId)) {
-            load(dataElementStorage[stageId]);
-        } else {
+        // if (dataElementStorage.hasOwnProperty(stageId)) {
+        //     load(dataElementStorage[stageId]);
+        // } else {
             new api.Request(refs, {
                 baseUrl: appManager.getApiPath() + '/programStages.json',
                 type: 'json',
                 params: [
-                    'filter=id:eq:' + stageId,
+                    // 'filter=id:eq:' + stageId,
+                    'filter=id:in:[' + stageIds.join(',') + ']',
                     'fields=id,programStageDataElements[dataElement[id,' +
                         displayPropertyUrl +
                         ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
@@ -549,9 +560,8 @@ console.log("dataDimensions", dataDimensions);
                         );
                     };
 
-                    // filter by type
-                    var dataElements = arrayPluck(
-                        stages[0].programStageDataElements,
+                    var getFilteredDataElements = stage => arrayPluck(
+                        stage.programStageDataElements,
                         'dataElement'
                     ).filter(dataElement => {
                         dataElement.isDataElement = true;
@@ -560,17 +570,21 @@ console.log("dataDimensions", dataDimensions);
                     }).map(dataElement => ({
                         ...dataElement,
                         programStage: {
-                            id: stages[0].id
+                            id: stage.id
                         },
                     }));
 
-                    // data elements cache
-                    dataElementStorage[stageId] = dataElements;
+                    // cache data elements
+                    stages.forEach(stage => {
+                        dataElementStorage[stage.id] = getFilteredDataElements(stage)
+                    });
+console.log("dataElementStorage", dataElementStorage);
+                    var stageIdToLoad = stageId || (layout ? layout.programStage.id : null);
 
-                    load(dataElements);
+                    load(dataElementStorage[stageIdToLoad]);
                 },
             }).run();
-        }
+        // }
     };
 
     // DHIS2-1496: filter by data element, program attribute or program indicator
@@ -851,7 +865,7 @@ console.log("dataDimensions", dataDimensions);
 
         var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
-
+console.log("GETUXTYPE", element.optionSet, element.valueType);
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
                 return 'Ext.ux.container.GroupSetContainer';
             }
@@ -927,9 +941,9 @@ console.log("dataDimensions", dataDimensions);
             extendDim = function(dim) {
                 dim.id = dim.id || dim.dimension;
                 dim.name =
-                    dim.name || layout
+                    dim.name || (layout
                         ? layout.getResponse().getNameById(dim.dimension)
-                        : null || recordMap[dim.dimension].name;
+                        : null || recordMap[dim.dimension].name);
 
                 return dim;
             };
