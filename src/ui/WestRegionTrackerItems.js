@@ -507,84 +507,68 @@ WestRegionTrackerItems = function(refs) {
                         ? layout
                               .getDimensions(true)
                               .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
-                        : [],
-                    records = [];
-console.log("dataDimensions", dataDimensions);
-                for (var i = 0, dim, row; i < dataDimensions.length; i++) {
-                    dim = dataDimensions[i];
-                    // row = dataElementsByStageStore.getById(dim.dimension);
+                        : [];
 
-                    records.push({
-                        ...dim,
-                        name: layout.getDataElementName(dim.dimension)
-                    });
-
-                    // if (row) {
-                    //     records.push(Ext.applyIf(dim, row.data));
-                    // }
-                }
+                var records = dataDimensions.map(dim => {
+                    var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
+                    return dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
+                });
 
                 selectDataElements(records, layout);
             }
         };
 
-        // data elements
-        // if (dataElementStorage.hasOwnProperty(stageId)) {
-        //     load(dataElementStorage[stageId]);
-        // } else {
-            new api.Request(refs, {
-                baseUrl: appManager.getApiPath() + '/programStages.json',
-                type: 'json',
-                params: [
-                    // 'filter=id:eq:' + stageId,
-                    'filter=id:in:[' + stageIds.join(',') + ']',
-                    'fields=id,programStageDataElements[dataElement[id,' +
-                        displayPropertyUrl +
-                        ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
-                    'paging=false',
-                ],
-                success: function(r) {
-                    var stages = r.programStages,
-                        types = dimensionConfig.valueType['tracker_aggregatable_types'];
+        new api.Request(refs, {
+            baseUrl: appManager.getApiPath() + '/programStages.json',
+            type: 'json',
+            params: [
+                'filter=id:in:[' + stageIds.join(',') + ']',
+                'fields=id,programStageDataElements[dataElement[id,' +
+                    displayPropertyUrl +
+                    ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+                'paging=false',
+            ],
+            success: function(r) {
+                var stages = r.programStages,
+                    types = dimensionConfig.valueType['tracker_aggregatable_types'];
 
-                    if (!stages.length) {
-                        load();
-                        return;
-                    }
+                if (!stages.length) {
+                    load();
+                    return;
+                }
 
-                    var include = function(element) {
-                        return (
-                            arrayContains(types, element.valueType) ||
-                            isObject(element.optionSet) ||
-                            isArray(element.legendSets || element.storageLegendSets)
-                        );
-                    };
+                var include = function(element) {
+                    return (
+                        arrayContains(types, element.valueType) ||
+                        isObject(element.optionSet) ||
+                        isArray(element.legendSets || element.storageLegendSets)
+                    );
+                };
 
-                    var getFilteredDataElements = stage => arrayPluck(
-                        stage.programStageDataElements,
-                        'dataElement'
-                    ).filter(dataElement => {
-                        dataElement.isDataElement = true;
-                        dataElement.name = '[DE] ' + dataElement.name;
-                        return include(dataElement);
-                    }).map(dataElement => ({
-                        ...dataElement,
-                        programStage: {
-                            id: stage.id
-                        },
-                    }));
+                var getFilteredDataElements = stage => arrayPluck(
+                    stage.programStageDataElements,
+                    'dataElement'
+                ).filter(dataElement => {
+                    dataElement.isDataElement = true;
+                    dataElement.name = '[DE] ' + dataElement.name;
+                    return include(dataElement);
+                }).map(dataElement => ({
+                    ...dataElement,
+                    programStage: {
+                        id: stage.id
+                    },
+                }));
 
-                    // cache data elements
-                    stages.forEach(stage => {
-                        dataElementStorage[stage.id] = getFilteredDataElements(stage)
-                    });
-console.log("dataElementStorage", dataElementStorage);
-                    var stageIdToLoad = stageId || (layout ? layout.programStage.id : null);
+                // cache data elements
+                stages.forEach(stage => {
+                    dataElementStorage[stage.id] = getFilteredDataElements(stage)
+                });
 
-                    load(dataElementStorage[stageIdToLoad]);
-                },
-            }).run();
-        // }
+                var stageIdToLoad = stageId || (layout ? layout.programStage.id : null);
+
+                load(dataElementStorage[stageIdToLoad]);
+            },
+        }).run();
     };
 
     // DHIS2-1496: filter by data element, program attribute or program indicator
@@ -3117,6 +3101,7 @@ console.log("allElements", allElements);
 
         if (dataTypeToolbar) {
             dataTypeToolbar.setDataType(layout ? layout.dataType : null);
+            dataTypeToolbar.setOutputType(layout ? layout.outputType : null);
         }
 
         if (chartTypeToolbar) {
