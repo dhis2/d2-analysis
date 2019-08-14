@@ -2590,17 +2590,17 @@ console.log("allElements", allElements);
             available,
             selected,
             onSelectAll,
-            panel,
-            createPanel,
-            getPanels;
+            panel;
 
         onSelect = function() {
             var win = uiManager.get('viewport').getLayoutWindow();
 
-            if (selectedStore.getRange().length || selectedAll.getValue()) {
-                win.addDimension({ id: dimension.id, name: dimension.name });
-            } else if (win.hasDimension(dimension.id)) {
-                win.removeDimension(dimension.id);
+            if (win) {
+                if (selectedStore.getRange().length || selectedAll.getValue()) {
+                    win.addDimension({ id: dimension.id, name: dimension.name });
+                } else if (win.hasDimension(dimension.id)) {
+                    win.removeDimension(dimension.id);
+                }
             }
         };
 

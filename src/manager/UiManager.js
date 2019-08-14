@@ -186,7 +186,7 @@ UiManager = function(refs) {
     };
 
     // state
-    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState, skipStateCenter) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState) {
         var north = t.get('northRegion'),
             west = t.get('westRegion'),
             east = t.get('eastRegion');
