@@ -889,7 +889,7 @@ WestRegionTrackerItems = function(refs) {
 
         var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
-console.log("GETUXTYPE", element.optionSet, element.valueType);
+
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
                 return 'Ext.ux.container.GroupSetContainer';
             }
@@ -996,7 +996,6 @@ console.log("GETUXTYPE", element.optionSet, element.valueType);
             }
         }
 
-console.log("dataElements", dataElements)
         // expand if multiple filter
         for (var i = 0, element, a, numberOfElements; i < dataElements.length; i++) {
             element = dataElements[i];
@@ -1024,7 +1023,7 @@ console.log("dataElements", dataElements)
                 }
             }
         }
-console.log("allElements", allElements);
+
         // panel, store
         for (var i = 0, element, ux, store; i < allElements.length; i++) {
             element = allElements[i];
@@ -3253,12 +3252,11 @@ console.log("allElements", allElements);
 
         // ou
         map['ou'] = [treePanel.getDimension()];
-        console.log("dataElementSelected", dataElementSelected)
 
         // data items
         for (var i = 0, record; i < dataElementSelected.items.items.length; i++) {
             record = dataElementSelected.items.items[i].getRecord();
-console.log("RECORD", record);
+
             map[record.dimension] = map[record.dimension] || [];
 
             map[record.dimension].push(record);

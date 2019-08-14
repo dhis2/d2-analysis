@@ -118,7 +118,7 @@ InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     var { Layout } = refs.api;
 
     layoutConfig = layoutConfig || t.uiManager.getUiState();
-console.log("NEW LAYOUT", layoutConfig)
+
     layout = new Layout(refs, layoutConfig);
 
     if (layout) {
