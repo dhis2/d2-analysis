@@ -237,6 +237,41 @@ WestRegionTrackerItems = function(refs) {
         onProgramSelect(null, layout);
     };
 
+    var program = Ext.create('Ext.form.field.ComboBox', {
+        editable: false,
+        valueField: 'id',
+        displayField: 'name',
+        fieldLabel: 'Program',
+        labelAlign: 'top',
+        labelCls: 'ns-form-item-label-top',
+        labelSeparator: '',
+        emptyText: 'Select program',
+        forceSelection: true,
+        queryMode: 'local',
+        columnWidth: 0.5,
+        style: 'margin:1px 1px 1px 0',
+        storage: {},
+        store: programStore,
+        getRecord: function() {
+            const record = this.getStore()
+                .getById(this.getValue());
+
+            return this.getValue
+                ? {
+                      id: this.getValue(),
+                      name: this.getRawValue(),
+                      enrollmentDateLabel: record ? record.data.enrollmentDateLabel : undefined,
+                      incidentDateLabel: record ? record.data.incidentDateLabel : undefined,
+                }
+                : null;
+        },
+        listeners: {
+            select: function(cb) {
+                onProgramSelect(cb.getValue());
+            },
+        },
+    });
+
     var onProgramSelect = function(programId, layout) {
         var DEFAULT = 'default';
         var ATTRIBUTE = 'ATTRIBUTE';
@@ -321,6 +356,7 @@ WestRegionTrackerItems = function(refs) {
 
             // init timeField, depending on programType
             uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
+            uiManager.get('aggregateLayoutWindow').orgUnitField.resetProgramAttributes(_program.programTrackedEntityAttributes);
         };
 
         if (programStorage[programId]) {
@@ -516,6 +552,10 @@ WestRegionTrackerItems = function(refs) {
 
                 selectDataElements(records, layout);
             }
+
+            uiManager.get('aggregateLayoutWindow')
+                .orgUnitField
+                .resetDataElements(dataElements);
         };
 
         new api.Request(refs, {
@@ -930,8 +970,12 @@ console.log("GETUXTYPE", element.optionSet, element.valueType);
                         : null || recordMap[dim.dimension].name);
 
                 return dim;
-            };
-console.log("items/layout", items, layout);
+            },
+            multipleFilterValueTypes = [
+                ...dimensionConfig.valueType['numeric_types'],
+                ...dimensionConfig.valueType['date_types']
+            ];
+
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
             item = items[i];
@@ -959,8 +1003,8 @@ console.log("dataElements", dataElements)
             allElements.push(element);
 
             if (
-                arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) &&
-                element.filter
+                element.filter &&
+                multipleFilterValueTypes.includes(element.valueType)
             ) {
                 a = element.filter.split(':');
                 numberOfElements = a.length / 2;
@@ -1062,6 +1106,10 @@ console.log("allElements", allElements);
             // time field
             if (layout.timeField) {
                 aggWindow.setTimeField(layout.timeField);
+            }
+
+            if (layout.orgUnitField) {
+                aggWindow.setOrgUnitField(layout.orgUnitField);
             }
 
             // collapse data dimensions
