@@ -22,7 +22,10 @@ DataElementBooleanContainer = function(refs) {
             var items = this.valueCmp.getValue(),
                 record = {
                     dimension: this.dataElement.id,
-                    name: this.dataElement.name
+                    name: this.dataElement.name,
+                    programStage: {
+                        id: (this.dataElement.programStage || {}).id,
+                    },
                 };
 
             // array or object

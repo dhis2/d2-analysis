@@ -33,9 +33,9 @@ AppManager = function(refs) {
         '*',
         'interpretations[*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],' +
             'comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]]',
-        'columns[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
-        'rows[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
-        'filters[dimension,filter,legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'columns[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'rows[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
+        'filters[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'program[id,displayName~rename(name),enrollmentDateLabel,incidentDateLabel]',
         'programStage[id,displayName~rename(name),executionDateLabel]',
         'access',
@@ -104,7 +104,6 @@ AppManager = function(refs) {
 
     t.rootNodes = [];
     t.organisationUnitLevels = [];
-    t.dimensions = [];
     t.categoryOptionGroupSets = [];
     t.dimensions = [];
     t.legendSets = [];
@@ -265,6 +264,10 @@ AppManager.prototype.getManifestFullVersionNumber = function() {
 
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
 };
+
+AppManager.prototype.getDimensionIds = function() {
+    return this.dimensions.map(dimension => dimension.id);
+}
 
 AppManager.prototype.getApiVersion = function() {
     return this.apiVersion;
@@ -454,7 +457,9 @@ AppManager.prototype.isUiLocaleDefault = function() {
 };
 
 AppManager.prototype.getAnalysisFields = function() {
-    return this.analysisFields ? this.analysisFields : (this.analysisFields = stringReplaceAll(this.defaultAnalysisFields.join(','), '$', this.getDisplayPropertyUrl()));
+    return this.analysisFields ?
+        this.analysisFields :
+        (this.analysisFields = stringReplaceAll(this.defaultAnalysisFields.join(','), '$', this.getDisplayPropertyUrl()));
 };
 
 AppManager.prototype.getRootNode = function() {

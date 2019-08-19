@@ -122,8 +122,8 @@ InstanceManager.prototype.getLayout = function(layoutConfig, fromFavorite) {
     layout = new Layout(refs, layoutConfig);
 
     if (layout) {
-        layout = favorite && fromFavorite ? 
-            favorite.apply(layout, Object.keys(layout)) : 
+        layout = favorite && fromFavorite ?
+            favorite.apply(layout, Object.keys(layout)) :
             layout.apply(favorite);
     }
 
@@ -166,6 +166,7 @@ InstanceManager.prototype.getById = function(id, fn, doMask, doUnmask) {
         },
         success: function(r) {
             var layout = new Layout(refs, r);
+
             fn(layout, true);
         },
         error: function(r) {

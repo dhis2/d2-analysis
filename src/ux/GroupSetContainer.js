@@ -26,6 +26,9 @@ GroupSetContainer = function(refs) {
                 record = {
                     dimension: this.dataElement.id,
                     name: this.dataElement.name,
+                    programStage: {
+                        id: (this.dataElement.programStage || {}).id,
+                    },
                 };
 
             // array or object

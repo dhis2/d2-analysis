@@ -1,7 +1,5 @@
-import clone from 'd2-utilizr/lib/clone';
 import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
-import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 import isArray from 'd2-utilizr/lib/isArray';
@@ -13,12 +11,9 @@ import isString from 'd2-utilizr/lib/isString';
 export var WestRegionTrackerItems;
 
 WestRegionTrackerItems = function(refs) {
-    var t = this,
-        uiManager = refs.uiManager,
-        instanceManager = refs.instanceManager,
+    var uiManager = refs.uiManager,
         appManager = refs.appManager,
         i18nManager = refs.i18nManager,
-        sessionStorageManager = refs.sessionStorageManager,
         calendarManager = refs.calendarManager,
         dimensionConfig = refs.dimensionConfig,
         periodConfig = refs.periodConfig,
@@ -26,28 +21,14 @@ WestRegionTrackerItems = function(refs) {
         optionConfig = refs.optionConfig,
         api = refs.api;
 
-    var dataObjectName = dimensionConfig.get('data').objectName,
-        indicatorObjectName = dimensionConfig.get('indicator').objectName,
-        dataElementObjectName = dimensionConfig.get('dataElement').objectName,
-        operandObjectName = dimensionConfig.get('operand').objectName,
-        dataSetObjectName = dimensionConfig.get('dataSet').objectName,
-        eventDataItemObjectName = dimensionConfig.get('eventDataItem').objectName,
-        programIndicatorObjectName = dimensionConfig.get('programIndicator').objectName,
-        periodObjectName = dimensionConfig.get('period').objectName,
+    var periodObjectName = dimensionConfig.get('period').objectName,
         organisationUnitObjectName = dimensionConfig.get('organisationUnit').objectName,
         i18n = i18nManager.get(),
-        path = appManager.getPath(),
         apiPath = appManager.getApiPath(),
         displayProperty = appManager.getDisplayProperty(),
         displayPropertyUrl = appManager.getDisplayPropertyUrl(),
-        dimensionPanelMap = {},
-        dimensionIdAvailableStoreMap = {},
-        dimensionIdSelectedStoreMap = {},
         accordionPanels = [],
         programStorage = {},
-        stageStorage = {},
-        attributeStorage = {},
-        programIndicatorStorage = {},
         dataElementStorage = {},
         baseWidth = 448,
         accBaseWidth = baseWidth - 2,
@@ -97,7 +78,7 @@ WestRegionTrackerItems = function(refs) {
     });
 
     var dataElementsByStageStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'isAttribute', 'isProgramIndicator'],
+        fields: ['id', 'name', 'isDataElement', 'isAttribute', 'isProgramIndicator', 'programStage'],
         data: [],
         sorters: [
             {
@@ -186,13 +167,66 @@ WestRegionTrackerItems = function(refs) {
         data: [],
     });
 
-    // components
-    var onTypeClick = function(type) {
+    // handlers
+
+    var clearDataElements = function() {
+        dataElementSelected.removeAllDataElements(true);
+        uiManager.get('aggregateLayoutWindow').value.resetData();
+    };
+
+    var updateDataElementSelection = function(handlerName) {
+        var dataType = uiManager.get('dataTypeToolbar').getDataType();
+        var outputType = uiManager.get('dataTypeToolbar').getOutputType();
+
+        // Table style: Pivot table
+        var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
+
+        // Table style: Line list
+        var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
+
+        // Output type: Event
+        var outputTypeEvent = optionConfig.getOutputType('event').id;
+
+        // Output type: Enrollment
+        var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
+
+        // If data type changed
+        if (handlerName === 'dataType') {
+
+            // Only clear if moving away from list + enrollment
+            if (dataType === dataTypeAgg && outputType === outputTypeEnrollment) {
+                clearDataElements();
+            }
+        } else if (handlerName === 'outputType') {
+
+            // Only clear if moving away from list + enrollment
+            if (dataType === dataTypeEvents && outputType === outputTypeEvent) {
+                clearDataElements();
+            }
+        } else {
+
+            // Allow multi-stage selection for enrollment line list
+            if (!(dataType === dataTypeEvents && outputType === outputTypeEnrollment)) {
+                clearDataElements();
+            }
+        }
+    }
+
+    var onDataTypeSelect = function(type) {
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
         // selected
         dataElementSelected.toggleProgramIndicators(type);
+
+        // event/enrollment
+        updateDataElementSelection('dataType');
+    };
+
+    var onOutputTypeSelect = function(type) {
+
+        // event/enrollment
+        updateDataElementSelection('outputType');
     };
 
     var setData = function(layout) {
@@ -385,6 +419,60 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
+    var onStageSelect = function(stageId, layout) {
+        if (!layout) {
+            // event/enrollment
+            updateDataElementSelection();
+        }
+
+        var _program = programStorage[layout ? layout.program.id : program.getValue()];
+
+        uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
+
+        dataElementType.enable();
+        dataElementSearch.enable();
+        dataElementSearch.hideFilter();
+
+        loadDataElements(stageId, layout);
+    };
+
+    // components
+    var program = Ext.create('Ext.form.field.ComboBox', {
+        editable: false,
+        valueField: 'id',
+        displayField: 'name',
+        fieldLabel: 'Program',
+        labelAlign: 'top',
+        labelCls: 'ns-form-item-label-top',
+        labelSeparator: '',
+        emptyText: 'Select program',
+        forceSelection: true,
+        queryMode: 'local',
+        columnWidth: 0.5,
+        style: 'margin:1px 1px 1px 0',
+        storage: {},
+        store: programStore,
+        getRecord: function() {
+            const record = this.getStore()
+                .getById(this.getValue())
+                .data;
+
+            return this.getValue
+                ? {
+                      id: this.getValue(),
+                      name: this.getRawValue(),
+                      enrollmentDateLabel: record.enrollmentDateLabel,
+                      incidentDateLabel: record.incidentDateLabel,
+                }
+                : null;
+        },
+        listeners: {
+            select: function(cb) {
+                onProgramSelect(cb.getValue());
+            },
+        },
+    });
+
     var stage = Ext.create('Ext.form.field.ComboBox', {
         editable: false,
         valueField: 'id',
@@ -420,33 +508,28 @@ WestRegionTrackerItems = function(refs) {
         },
     });
 
-    var onStageSelect = function(stageId, layout) {
-        if (!layout) {
-            dataElementSelected.removeAllDataElements(true);
-            uiManager.get('aggregateLayoutWindow').value.resetData();
-        }
+    const getStageIds = (stageId, layout) => {
+        const idsFromDimensions = layout ? layout.getProgramStageIds() : [];
+        const idFromLayout = layout && layout.programStage ? layout.programStage.id : null;
 
-        var _program = programStorage[layout ? layout.program.id : program.getValue()];
+        const ids = [
+            stageId,
+            idFromLayout,
+            ...idsFromDimensions,
+        ];
 
-        uiManager.get('aggregateLayoutWindow').timeField.resetData(_program.programType);
-
-        dataElementType.enable();
-        dataElementSearch.enable();
-        dataElementSearch.hideFilter();
-
-        loadDataElements(stageId, layout);
+        return [...new Set(ids.filter(id => !!id))];
     };
 
     var loadDataElements = function(stageId, layout) {
         var programId = layout ? layout.program.id : program.getValue() || null;
-
         var _program = programStorage[programId];
 
         var dataItems = arrayClean(
             [].concat(_program.attributes || [], _program.programIndicators || [])
         );
 
-        stageId = stageId || layout.programStage.id;
+        var stageIds = getStageIds(stageId, layout);
 
         var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
@@ -458,18 +541,13 @@ WestRegionTrackerItems = function(refs) {
                 var dataDimensions = layout
                         ? layout
                               .getDimensions(true)
-                              .filter(dim => !arrayContains(['pe', 'ou'], dim.dimension))
-                        : [],
-                    records = [];
+                              .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
+                        : [];
 
-                for (var i = 0, dim, row; i < dataDimensions.length; i++) {
-                    dim = dataDimensions[i];
-                    row = dataElementsByStageStore.getById(dim.dimension);
-
-                    if (row) {
-                        records.push(Ext.applyIf(dim, row.data));
-                    }
-                }
+                var records = dataDimensions.map(dim => {
+                    var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
+                    return dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
+                });
 
                 selectDataElements(records, layout);
             }
@@ -479,54 +557,57 @@ WestRegionTrackerItems = function(refs) {
                 .resetDataElements(dataElements);
         };
 
-        // data elements
-        if (dataElementStorage.hasOwnProperty(stageId)) {
-            load(dataElementStorage[stageId]);
-        } else {
-            new api.Request(refs, {
-                baseUrl: appManager.getApiPath() + '/programStages.json',
-                type: 'json',
-                params: [
-                    'filter=id:eq:' + stageId,
-                    'fields=programStageDataElements[dataElement[id,' +
-                        displayPropertyUrl +
-                        ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
-                    'paging=false',
-                ],
-                success: function(r) {
-                    var stages = r.programStages,
-                        types = dimensionConfig.valueType['tracker_aggregatable_types'];
+        new api.Request(refs, {
+            baseUrl: appManager.getApiPath() + '/programStages.json',
+            type: 'json',
+            params: [
+                'filter=id:in:[' + stageIds.join(',') + ']',
+                'fields=id,programStageDataElements[dataElement[id,' +
+                    displayPropertyUrl +
+                    ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+                'paging=false',
+            ],
+            success: function(r) {
+                var stages = r.programStages,
+                    types = dimensionConfig.valueType['tracker_aggregatable_types'];
 
-                    if (!stages.length) {
-                        load();
-                        return;
-                    }
+                if (!stages.length) {
+                    load();
+                    return;
+                }
 
-                    var include = function(element) {
-                        return (
-                            arrayContains(types, element.valueType) ||
-                            isObject(element.optionSet) ||
-                            isArray(element.legendSets || element.storageLegendSets)
-                        );
-                    };
+                var include = function(element) {
+                    return (
+                        arrayContains(types, element.valueType) ||
+                        isObject(element.optionSet) ||
+                        isArray(element.legendSets || element.storageLegendSets)
+                    );
+                };
 
-                    // filter by type
-                    var dataElements = arrayPluck(
-                        stages[0].programStageDataElements,
-                        'dataElement'
-                    ).filter(dataElement => {
-                        dataElement.isDataElement = true;
-                        dataElement.name = '[DE] ' + dataElement.name;
-                        return include(dataElement);
-                    });
+                var getFilteredDataElements = stage => arrayPluck(
+                    stage.programStageDataElements,
+                    'dataElement'
+                ).filter(dataElement => {
+                    dataElement.isDataElement = true;
+                    dataElement.name = '[DE] ' + dataElement.name;
+                    return include(dataElement);
+                }).map(dataElement => ({
+                    ...dataElement,
+                    programStage: {
+                        id: stage.id
+                    },
+                }));
 
-                    // data elements cache
-                    dataElementStorage[stageId] = dataElements;
+                // cache data elements
+                stages.forEach(stage => {
+                    dataElementStorage[stage.id] = getFilteredDataElements(stage)
+                });
 
-                    load(dataElements);
-                },
-            }).run();
-        }
+                var stageIdToLoad = stageId || (layout ? layout.programStage.id : null);
+
+                load(dataElementStorage[stageIdToLoad]);
+            },
+        }).run();
     };
 
     // DHIS2-1496: filter by data element, program attribute or program indicator
@@ -879,14 +960,13 @@ WestRegionTrackerItems = function(refs) {
             aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow'),
             includeKeys = dimensionConfig.valueType['tracker_aggregatable_types'],
-            ignoreKeys = ['pe', 'ou'],
             recordMap = dimensionConfig.getObjectNameMap(),
             extendDim = function(dim) {
                 dim.id = dim.id || dim.dimension;
                 dim.name =
-                    dim.name || layout
+                    dim.name || (layout
                         ? layout.getResponse().getNameById(dim.dimension)
-                        : null || recordMap[dim.dimension].name;
+                        : null || recordMap[dim.dimension].name);
 
                 return dim;
             },
@@ -900,7 +980,12 @@ WestRegionTrackerItems = function(refs) {
             item = items[i];
 
             if (isString(item)) {
-                dataElements.push(dataElementsByStageStore.getById(item).data);
+                dataElements.push({
+                    ...dataElementsByStageStore.getById(item).data,
+                    programStage: {
+                        id: stage.getValue(),
+                    },
+                });
             } else if (isObject(item)) {
                 if (item.data) {
                     dataElements.push(item.data);
@@ -1036,7 +1121,7 @@ WestRegionTrackerItems = function(refs) {
     var programStagePanel = Ext.create('Ext.panel.Panel', {
         layout: 'column',
         bodyStyle: 'border:0 none',
-        style: 'margin-top:2px',
+        style: 'margin-top:3px',
         items: [program, stage],
     });
 
@@ -1141,22 +1226,6 @@ WestRegionTrackerItems = function(refs) {
 
             aggregateLayoutWindow.removeDimension(dimensionConfig.get('startEndDate').value);
         }
-    };
-
-    var getDateLink = function(text, fn, style) {
-        return Ext.create('Ext.form.Label', {
-            text: text,
-            style: 'padding-left: 5px; width: 100%; ' + style || '',
-            cls: 'ns-label-date',
-            updateValue: fn,
-            listeners: {
-                render: function(cmp) {
-                    cmp.getEl().on('click', function() {
-                        cmp.updateValue();
-                    });
-                },
-            },
-        });
     };
 
     var onDateFieldRender = function(c) {
@@ -2265,19 +2334,6 @@ WestRegionTrackerItems = function(refs) {
         store: organisationUnitGroupStore,
     });
 
-    var organisationUnitPanel = Ext.create('Ext.panel.Panel', {
-        width: accBaseWidth - toolWidth - 1,
-        layout: 'column',
-        bodyStyle: 'border:0 none',
-        items: [
-            userOrganisationUnit,
-            userOrganisationUnitChildren,
-            userOrganisationUnitGrandChildren,
-            organisationUnitLevel,
-            organisationUnitGroup,
-        ],
-    });
-
     var toolMenu = Ext.create('Ext.menu.Menu', {
         shadow: false,
         showSeparator: false,
@@ -2580,17 +2636,17 @@ WestRegionTrackerItems = function(refs) {
             available,
             selected,
             onSelectAll,
-            panel,
-            createPanel,
-            getPanels;
+            panel;
 
         onSelect = function() {
             var win = uiManager.get('viewport').getLayoutWindow();
 
-            if (selectedStore.getRange().length || selectedAll.getValue()) {
-                win.addDimension({ id: dimension.id, name: dimension.name });
-            } else if (win.hasDimension(dimension.id)) {
-                win.removeDimension(dimension.id);
+            if (win) {
+                if (selectedStore.getRange().length || selectedAll.getValue()) {
+                    win.addDimension({ id: dimension.id, name: dimension.name });
+                } else if (win.hasDimension(dimension.id)) {
+                    win.removeDimension(dimension.id);
+                }
             }
         };
 
@@ -3082,8 +3138,6 @@ WestRegionTrackerItems = function(refs) {
     // functions
 
     var setUiState = function(layout, response) {
-        var viewport = uiManager.get('viewport');
-
         var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             chartTypeToolbar = uiManager.get('chartTypeToolbar'),
             aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
@@ -3093,6 +3147,7 @@ WestRegionTrackerItems = function(refs) {
 
         if (dataTypeToolbar) {
             dataTypeToolbar.setDataType(layout ? layout.dataType : null);
+            dataTypeToolbar.setOutputType(layout ? layout.outputType : null);
         }
 
         if (chartTypeToolbar) {
@@ -3296,6 +3351,9 @@ WestRegionTrackerItems = function(refs) {
             config.filters = filters;
         }
 
+        // output type
+        config.outputType = uiManager.get('outputType').getValue();
+
         // value, aggregation type
         Ext.apply(config, layoutWindow.getValueConfig());
 
@@ -3388,7 +3446,8 @@ WestRegionTrackerItems = function(refs) {
 
         getUiState: getUiState,
         setUiState: setUiState,
-        onTypeClick: onTypeClick,
+        onDataTypeSelect: onDataTypeSelect,
+        onOutputTypeSelect: onOutputTypeSelect,
     });
 
     return accordion;

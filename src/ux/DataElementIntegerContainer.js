@@ -22,13 +22,16 @@ DataElementIntegerContainer = function(refs) {
         bodyStyle: 'border:0 none',
         style: 'margin: ' + containerConfig.margin,
         getRecord: function() {
-            var record = {},
-                rangeSet = this.rangeSetCmp.getValue();
+            var rangeSet = this.rangeSetCmp.getValue(),
+                record = {
+                    dimension: this.dataElement.id,
+                    name: this.dataElement.name,
+                    programStage: {
+                        id: (this.dataElement.programStage || {}).id,
+                    },
+                };
 
             var isRange = rangeSet !== containerConfig.defaultRangeSetId;
-
-            record.dimension = this.dataElement.id;
-            record.name = this.dataElement.name;
 
             if (isRange) {
                 record.legendSet = {
