@@ -344,7 +344,6 @@ WestRegionTrackerItems = function(refs) {
             stagesByProgramStore.removeAll();
             stagesByProgramStore.loadData(stages);
 
-            // TODO, don't do this if multi-stage
             var stageId =
                 (layout ? layout.programStage.id : null) ||
                 (stages.length === 1 ? stages[0].id : null);
