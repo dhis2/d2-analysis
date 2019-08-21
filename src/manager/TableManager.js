@@ -122,7 +122,7 @@ TableManager = function(c) {
         for (var i = 0, obj, axis, dimension; i < objects.length; i++) {
             obj = objects[i];
 
-            axis = obj.axis === 'column' ? 
+            axis = obj.axis === 'column' ?
                 layout.columns || [] : layout.rows || [];
 
             if (axis.length) {
@@ -161,7 +161,7 @@ TableManager = function(c) {
                             sessionStorageManager.set(layout, 'analytical', path + '/dhis-web-visualizer/index.html?s=analytical');
                         },
                         listeners: {
-                            render: function() { //TODO
+                            render: function() {
                                 this.getEl().on('mouseover', function() {
                                     onValueMenuMouseHover(table, uuid, 'mouseover', 'chart');
                                 });

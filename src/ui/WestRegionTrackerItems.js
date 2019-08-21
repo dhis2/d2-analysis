@@ -38,11 +38,11 @@ WestRegionTrackerItems = function(refs) {
     // stores
 
     var programStore = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'enrollmentDateLabel', 'incidentDateLabel'],
+        fields: ['id', 'name', 'enrollmentDateLabel', 'incidentDateLabel', 'programType'],
         proxy: {
             type: 'ajax',
             url: encodeURI(
-                apiPath + '/programs.json?fields=id,enrollmentDateLabel,incidentDateLabel,' + displayPropertyUrl + '&paging=false'
+                apiPath + '/programs.json?fields=id,' + displayPropertyUrl + ',enrollmentDateLabel,incidentDateLabel,programType&paging=false'
             ),
             reader: {
                 type: 'json',
@@ -54,6 +54,16 @@ WestRegionTrackerItems = function(refs) {
         },
         sortInfo: { field: 'name', direction: 'ASC' },
         isLoaded: false,
+        filterByProgramType: function() {
+            this.clearFilter();
+
+            const outputType = uiManager.get('dataTypeToolbar').getOutputType();
+            const enrollment = optionConfig.getOutputType('enrollment').id;
+
+            if (outputType === enrollment) {
+                this.filter('programType', 'WITH_REGISTRATION');
+            }
+        },
         listeners: {
             load: function() {
                 if (!this.isLoaded) {
@@ -169,44 +179,58 @@ WestRegionTrackerItems = function(refs) {
 
     // handlers
 
+    var clearProgram = function() {
+        program.reset();
+    };
+
+    var clearStage = function() {
+        stage.clearValue();
+        dataElementsByStageStore.removeAll();
+    };
+
     var clearDataElements = function() {
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
     };
 
     var updateDataElementSelection = function(handlerName) {
-        var dataType = uiManager.get('dataTypeToolbar').getDataType();
-        var outputType = uiManager.get('dataTypeToolbar').getOutputType();
+        var toolbar = uiManager.get('dataTypeToolbar');
 
-        // Table style: Pivot table
-        var dataTypeAgg = dimensionConfig.dataType['aggregated_values'];
+        var dataType = toolbar.getDataType();
+        var outputType = toolbar.getOutputType();
 
-        // Table style: Line list
-        var dataTypeEvents = dimensionConfig.dataType['individual_cases'];
+        var dataTypeChanged = () => handlerName === toolbar.cmp.dataType.propName;
+        var outputTypeChanged = () => handlerName === toolbar.cmp.outputType.propName;
 
-        // Output type: Event
-        var outputTypeEvent = optionConfig.getOutputType('event').id;
+        var isPivotTable = () => dataType === dimensionConfig.dataType['aggregated_values'];
+        var isLineList = () => dataType === dimensionConfig.dataType['individual_cases'];
 
-        // Output type: Enrollment
-        var outputTypeEnrollment = optionConfig.getOutputType('enrollment').id;
+        var isEvent = () => outputType === optionConfig.getOutputType('event').id;
+        var isEnrollment = () => outputType === optionConfig.getOutputType('enrollment').id;
 
-        // If data type changed
-        if (handlerName === 'dataType') {
+        if (dataTypeChanged()) {
 
-            // Only clear if moving away from list + enrollment
-            if (dataType === dataTypeAgg && outputType === outputTypeEnrollment) {
+            // Clear if moving away from list + enrollment
+            if (isPivotTable() && isEnrollment()) {
                 clearDataElements();
             }
-        } else if (handlerName === 'outputType') {
+        } else if (outputTypeChanged()) {
 
-            // Only clear if moving away from list + enrollment
-            if (dataType === dataTypeEvents && outputType === outputTypeEvent) {
+            // Clear if moving away from list + enrollment
+            if (isPivotTable() && isEvent()) {
                 clearDataElements();
+            }
+
+            // Clear all because we want to filter away single event programs
+            if (isEnrollment()) {
+                clearDataElements();
+                clearStage();
+                clearProgram();
             }
         } else {
 
-            // Allow multi-stage selection for enrollment line list
-            if (!(dataType === dataTypeEvents && outputType === outputTypeEnrollment)) {
+            // Allow multi-stage selection for line list + enrollment
+            if (!(isLineList() && isEnrollment())) {
                 clearDataElements();
             }
         }
@@ -269,6 +293,9 @@ WestRegionTrackerItems = function(refs) {
             select: function(cb) {
                 onProgramSelect(cb.getValue());
             },
+            expand: function(cb) {
+                cb.store.filterByProgramType();
+            }
         },
     });
 
@@ -435,43 +462,6 @@ WestRegionTrackerItems = function(refs) {
 
         loadDataElements(stageId, layout);
     };
-
-    // components
-    var program = Ext.create('Ext.form.field.ComboBox', {
-        editable: false,
-        valueField: 'id',
-        displayField: 'name',
-        fieldLabel: 'Program',
-        labelAlign: 'top',
-        labelCls: 'ns-form-item-label-top',
-        labelSeparator: '',
-        emptyText: 'Select program',
-        forceSelection: true,
-        queryMode: 'local',
-        columnWidth: 0.5,
-        style: 'margin:1px 1px 1px 0',
-        storage: {},
-        store: programStore,
-        getRecord: function() {
-            const record = this.getStore()
-                .getById(this.getValue())
-                .data;
-
-            return this.getValue
-                ? {
-                      id: this.getValue(),
-                      name: this.getRawValue(),
-                      enrollmentDateLabel: record.enrollmentDateLabel,
-                      incidentDateLabel: record.incidentDateLabel,
-                }
-                : null;
-        },
-        listeners: {
-            select: function(cb) {
-                onProgramSelect(cb.getValue());
-            },
-        },
-    });
 
     var stage = Ext.create('Ext.form.field.ComboBox', {
         editable: false,
