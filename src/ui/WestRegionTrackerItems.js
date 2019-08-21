@@ -54,19 +54,25 @@ WestRegionTrackerItems = function(refs) {
         },
         sortInfo: { field: 'name', direction: 'ASC' },
         isLoaded: false,
-        filterByProgramType: function() {
-            this.clearFilter();
-
+        isEnrollment: function() {
             const outputType = uiManager.get('dataTypeToolbar').getOutputType();
             const enrollment = optionConfig.getOutputType('enrollment').id;
 
-            if (outputType === enrollment) {
-                this.filter('programType', 'WITH_REGISTRATION');
-            }
+            return outputType === enrollment;
+        },
+        filterByProgramType: function() {
+
+            // filtering does not work as expected - reload data instead
+            this.loadData(
+                this.isEnrollment() ?
+                    this.cachedData.filter(rec => rec.data.programType === 'WITH_REGISTRATION') :
+                    this.cachedData
+            );
         },
         listeners: {
             load: function() {
                 if (!this.isLoaded) {
+                    this.cachedData = this.getRange();
                     this.isLoaded = true;
                 }
             },
