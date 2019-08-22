@@ -54,17 +54,19 @@ WestRegionTrackerItems = function(refs) {
         },
         sortInfo: { field: 'name', direction: 'ASC' },
         isLoaded: false,
-        isEnrollment: function() {
-            const outputType = uiManager.get('dataTypeToolbar').getOutputType();
-            const enrollment = optionConfig.getOutputType('enrollment').id;
+        shouldFilterSingleEvent: function() {
+            var toolbar = uiManager.get('dataTypeToolbar');
 
-            return outputType === enrollment;
+            var isLineList = () => toolbar.getDataType() === dimensionConfig.dataType['individual_cases'];
+            var isEnrollment = () => toolbar.getOutputType() === optionConfig.getOutputType('enrollment').id;
+
+            return isLineList() && isEnrollment();
         },
         filterByProgramType: function() {
 
             // filtering does not work as expected - reload data instead
             this.loadData(
-                this.isEnrollment() ?
+                this.shouldFilterSingleEvent() ?
                     this.cachedData.filter(rec => rec.data.programType === 'WITH_REGISTRATION') :
                     this.cachedData
             );
@@ -214,24 +216,28 @@ WestRegionTrackerItems = function(refs) {
         var isEvent = () => outputType === optionConfig.getOutputType('event').id;
         var isEnrollment = () => outputType === optionConfig.getOutputType('enrollment').id;
 
-        if (dataTypeChanged()) {
+        // If style or type changed
+        if (handlerName) {
 
-            // Clear if moving away from list + enrollment
-            if (isPivotTable() && isEnrollment()) {
-                clearDataElements();
-            }
-        } else if (outputTypeChanged()) {
-
-            // Clear if moving away from list + enrollment
-            if (isPivotTable() && isEvent()) {
-                clearDataElements();
-            }
-
-            // Clear all because we want to filter away single event programs
-            if (isEnrollment()) {
+            // Clear everything as we want to filter away single event programs
+            if (isLineList() && isEnrollment()) {
                 clearDataElements();
                 clearStage();
                 clearProgram();
+            } else {
+                if (dataTypeChanged()) {
+
+                    // Clear data elements if moving away from list + enrollment
+                    if (isPivotTable() && isEnrollment()) {
+                        clearDataElements();
+                    }
+                } else if (outputTypeChanged()) {
+
+                    // Clear data elements if moving away from list + enrollment
+                    if (isLineList() && isEvent()) {
+                        clearDataElements();
+                    }
+                }
             }
         } else {
 
