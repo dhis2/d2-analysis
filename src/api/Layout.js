@@ -925,16 +925,16 @@ Layout.prototype.req = function(source, format, isSorted, isTableLayout, isFilte
         request.add('completedOnly=true');
     }
 
+    // aggregation type
+    if (isString(this.aggregationType) && this.aggregationType !== defAggTypeId) {
+        request.add('aggregationType=' + this.aggregationType);
+    }
+
     // normal request only
     if (!isTableLayout) {
         // hierarchy
         if (this.showHierarchy) {
             request.add('hierarchyMeta=true');
-        }
-
-        // aggregation type
-        if (isString(this.aggregationType) && this.aggregationType !== defAggTypeId) {
-            request.add('aggregationType=' + this.aggregationType);
         }
 
         // user org unit
