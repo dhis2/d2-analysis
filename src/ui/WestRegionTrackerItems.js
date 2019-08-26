@@ -548,7 +548,13 @@ WestRegionTrackerItems = function(refs) {
 
                 var records = dataDimensions.map(dim => {
                     var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
-                    return dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
+                    var record = dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
+
+                    if (dim.filter) {
+                        record.filter = dim.filter;
+                    }
+
+                    return record;
                 });
 
                 selectDataElements(records, layout);
