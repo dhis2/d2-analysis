@@ -48,7 +48,13 @@ export const Response = function(refs, config) {
         'ouname',
         'oucode',
         'eventdate',
-        'eventdate'
+        'eventdate',
+        'value',
+        'numerator',
+        'denominator',
+        'factor',
+        'multiplier',
+        'divisor',
     ];
 
     const DEFAULT_PREFIX_IGNORE_HEADERS = [
@@ -90,9 +96,15 @@ export const Response = function(refs, config) {
 
     t.getSortedUniqueRowIdStringsByHeader = (header) => {
         var parseByType = getParseMiddleware(header.valueType);
-        var parseString = getParseMiddleware('STRING');
+        const ids = arrayClean(arrayUnique(t.rows.map(responseRow => responseRow.getAt(header.index))));
+        let pa, pb;
 
-        return arraySort(arrayClean(arrayUnique(t.rows.map(responseRow => parseByType(responseRow.getAt(header.index)))))).map(id => parseString(id));
+        return ids.sort((a, b) => {
+            pa = parseByType(a);
+            pb = parseByType(b);
+
+            return pa > pb ? 1 : pa < pb ? -1 : 0;
+        });
     };
 
     t.getNameByIdsByValueType = (id, valueType) => {

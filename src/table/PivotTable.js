@@ -1547,6 +1547,7 @@ PivotTable.prototype.initializeLookups = function() {
     }
 
     const totalMap = {};
+
     for (let rowIndex = 0; rowIndex < tableRowSize; rowIndex += this.rowAxis.isSubTotalPosition(rowIndex + 1) ? 2 : 1) {
         for (let columnIndex = 0; columnIndex < tableColumnSize; columnIndex += this.colAxis.isSubTotalPosition(columnIndex + 1) ? 2 : 1) {
 
