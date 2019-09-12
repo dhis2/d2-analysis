@@ -1,14 +1,14 @@
 import isNumeric from 'd2-utilizr/lib/isNumeric';
 
-export default function(type) {
-    switch (type) {
+export default function(type) {
+    switch (type) {
         case 'STRING':
         case 'TEXT':
-            return (item) => '' + item;
+            return item => '' + item;
         case 'INTEGER':
         case 'NUMBER':
-            return (item) => isNumeric(item) ? parseFloat(item) : item;
+            return item => isNumeric(item) ? parseFloat(item) : item;
         default:
-            return (item) => item;
+            return item => item;
     }
-};
+}
