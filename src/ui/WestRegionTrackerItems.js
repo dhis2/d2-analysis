@@ -978,10 +978,31 @@ WestRegionTrackerItems = function(refs) {
 
                 return dim;
             },
+            dataElementDimensions = layout && layout.dataElementDimensions
+                ? layout.dataElementDimensions
+                : null,
             multipleFilterValueTypes = [
                 ...dimensionConfig.valueType['numeric_types'],
                 ...dimensionConfig.valueType['date_types']
             ];
+
+        const getLegendSetForDimension = (dimensionId, dataElementDimensions) => {
+            if (!dataElementDimensions) {
+                return null;
+            }
+
+            const dimension = dataElementDimensions.find(
+                dimension =>
+                    dimension.dataElement &&
+                    dimension.dataElement.id === dimensionId
+            );
+
+            if (dimension) {
+                return dimension.legendSet;
+            }
+
+            return null;
+        };
 
         // data element objects
         for (var i = 0, item; i < items.length; i++) {
@@ -990,16 +1011,20 @@ WestRegionTrackerItems = function(refs) {
             if (isString(item)) {
                 dataElements.push({
                     ...dataElementsByStageStore.getById(item).data,
+                    legendSet: getLegendSetForDimension(item, dataElementDimensions),
                     programStage: {
                         id: stage.getValue(),
                     },
                 });
             } else if (isObject(item)) {
-                if (item.data) {
-                    dataElements.push(item.data);
-                } else {
-                    dataElements.push(item);
-                }
+                const result = item.data
+                    ? item.data
+                    : item;
+
+                dataElements.push({
+                    ...result,
+                    legendSet: getLegendSetForDimension(result.id, dataElementDimensions)
+                });
             }
         }
 
