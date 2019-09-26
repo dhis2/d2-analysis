@@ -866,6 +866,10 @@ WestRegionTrackerItems = function(refs) {
             includeKeys = dimensionConfig.valueType['tracker_aggregatable_types'],
             ignoreKeys = ['pe', 'ou'],
             recordMap = dimensionConfig.getObjectNameMap(),
+            multipleFilterValueTypes = [
+                ...dimensionConfig.valueType['numeric_types'],
+                ...dimensionConfig.valueType['date_types']
+            ],
             extendDim = function(dim) {
                 dim.id = dim.id || dim.dimension;
                 dim.name =
@@ -897,7 +901,7 @@ WestRegionTrackerItems = function(refs) {
             allElements.push(element);
 
             if (
-                arrayContains(dimensionConfig.valueType['numeric_types'], element.valueType) &&
+                multipleFilterValueTypes.includes(element.valueType) &&
                 element.filter
             ) {
                 a = element.filter.split(':');
