@@ -95,10 +95,6 @@ Viewport = function(refs, cmp, config) {
         items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
         onScrollbar: function() {
             this.hasScrollbar = true;
-
-            if (dataTypeToolbar) {
-                dataTypeToolbar.setButtonWidth(uiManager.getScrollbarSize().width, true);
-            }
         },
         setState: function(layout) {
             westRegionItems.setUiState(layout);
