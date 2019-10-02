@@ -1,12 +1,11 @@
 export var IntegrationButton;
 
-IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, btnIconCls, btnText, menuItem1Text, menuItem2Text, menuItem3Text }) {
+IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, btnIconCls, btnText, menuItem1Text, menuItem2Text }) {
     var appManager = refs.appManager,
         uiManager = refs.uiManager,
         instanceManager = refs.instanceManager,
         sessionStorageManager = refs.sessionStorageManager,
 
-        i18n = refs.i18nManager.get(),
         path = appManager.getPath(),
         config;
 
@@ -48,42 +47,6 @@ IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, b
                                 }
                             }
                         },
-                        '-',
-                        {
-                            text: menuItem2Text + '&nbsp;&nbsp;',
-                            cls: 'ns-menu-item-noicon',
-                            disabled: !(instanceManager.isStateCurrent()),
-                            listeners: {
-                                render: function(b) {
-                                    this.getEl().dom.addEventListener('click', function(e) {
-                                        if (!b.disabled) {
-                                            var layout = instanceManager.getStateCurrent().toSession();
-                                            layout.parentGraphMap = uiManager.get('treePanel').getParentGraphMap();
-
-                                            sessionStorageManager.set(layout, 'analytical');
-
-                                            if (sessionStorageManager.supported) {
-                                                uiManager.redirectCtrl(path + '/' + moduleName + '/index.html?s=analytical', e);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        },
-                        {
-                            text: menuItem3Text + '&nbsp;&nbsp;',
-                            cls: 'ns-menu-item-noicon',
-                            disabled: !sessionStorageManager.get(objectName),
-                            listeners: {
-                                render: function(b) {
-                                    this.getEl().dom.addEventListener('click', function(e) {
-                                        if (!b.disabled) {
-                                            uiManager.redirectCtrl(path + '/' + moduleName + '/index.html?s=' + objectName, e);
-                                        }
-                                    });
-                                }
-                            }
-                        }
                     ],
                     listeners: {
                         show: function() {
