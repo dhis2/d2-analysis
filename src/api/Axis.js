@@ -5,7 +5,7 @@ export var Axis;
 Axis = function(refs, config) {
     var t = [];
 
-    var { Axis, Dimension } = refs.api;
+    var { Axis, Dimension } = refs.api;
 
     config = arrayFrom(config);
 
