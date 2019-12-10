@@ -22,7 +22,9 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     var { Axis, Sorting } = refs.api;
 
     c = isObject(c) ? c : {};
-    $.extend(c, applyConfig);
+    Object.assign(c, applyConfig);
+
+    Object.assign(t, applyConfig);
 
     // private
     var _path = refs.appManager.getApiPath();
@@ -161,7 +163,7 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
         t.translations = c.translations;
     }
 
-    $.extend(t, forceApplyConfig);
+    Object.assign(t, forceApplyConfig);
 
     // setter/getter
     t.getResponse = function() {
