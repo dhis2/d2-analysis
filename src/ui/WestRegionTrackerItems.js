@@ -540,24 +540,27 @@ WestRegionTrackerItems = function(refs) {
             dataElementsByStageStore.onLoadData();
 
             if (layout) {
-                var dataDimensions = layout
-                        ? layout
-                              .getDimensions(true)
-                              .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
-                        : [];
+                // var dataDimensions = layout
+                //         ? layout
+                //               .getDimensions(true)
+                //               .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
+                //         : [];
 
-                var records = dataDimensions.map(dim => {
-                    var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
-                    var record = dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
+                // var records = dataDimensions.map(dim => {
+                //     var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
+                //     var record = dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
 
-                    if (dim.filter) {
-                        record.filter = dim.filter;
-                    }
+                //     if (dim.filter) {
+                //         record.filter = dim.filter;
+                //     }
 
-                    return record;
-                });
+                //     return record;
+                // });
 
-                selectDataElements(records, layout);
+                var dataDimensionIds = layout.getDimensions(true)
+                    .filter(dataDim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dataDim.dimension));
+
+                selectDataElements(dataDimensionIds, layout);
             }
 
             uiManager.get('aggregateLayoutWindow')
@@ -1019,7 +1022,13 @@ WestRegionTrackerItems = function(refs) {
             } else if (isObject(item)) {
                 const result = item.data
                     ? item.data
-                    : item;
+                    : {
+                        ...item,
+                        ...dataElementsByStageStore.getById(item.id || item.dimension).data,
+                        programStage: {
+                            id: stage.getValue(),
+                        },
+                    };
 
                 dataElements.push({
                     ...result,
