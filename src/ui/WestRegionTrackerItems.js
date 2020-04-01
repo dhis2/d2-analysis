@@ -540,23 +540,7 @@ WestRegionTrackerItems = function(refs) {
             dataElementsByStageStore.onLoadData();
 
             if (layout) {
-                // var dataDimensions = layout
-                //         ? layout
-                //               .getDimensions(true)
-                //               .filter(dim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dim.dimension))
-                //         : [];
-
-                // var records = dataDimensions.map(dim => {
-                //     var stageLookupId = dim.programStage ? dim.programStage.id : layout.programStage.id;
-                //     var record = dataElementStorage[stageLookupId].find(el => el.id === dim.dimension);
-
-                //     if (dim.filter) {
-                //         record.filter = dim.filter;
-                //     }
-
-                //     return record;
-                // });
-
+                // restore ui items
                 var dataDimensionIds = layout.getDimensions(true)
                     .filter(dataDim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dataDim.dimension));
 
