@@ -57,6 +57,10 @@ WestRegionTrackerItems = function(refs) {
         shouldFilterSingleEvent: function() {
             var toolbar = uiManager.get('dataTypeToolbar');
 
+            if (!toolbar) {
+                return;
+            }
+
             var isLineList = () => toolbar.getDataType() === dimensionConfig.dataType['individual_cases'];
             var isEnrollment = () => toolbar.getOutputType() === optionConfig.getOutputType('enrollment').id;
 
@@ -992,32 +996,40 @@ WestRegionTrackerItems = function(refs) {
         };
 
         // data element objects
-        for (var i = 0, item; i < items.length; i++) {
+        for (var i = 0, item, storeItem; i < items.length; i++) {
             item = items[i];
 
             if (isString(item)) {
-                dataElements.push({
-                    ...dataElementsByStageStore.getById(item).data,
-                    legendSet: getLegendSetForDimension(item, dataElementDimensions),
-                    programStage: {
-                        id: stage.getValue(),
-                    },
-                });
-            } else if (isObject(item)) {
-                const result = item.data
-                    ? item.data
-                    : {
-                        ...item,
-                        ...dataElementsByStageStore.getById(item.id || item.dimension).data,
+                storeItem = dataElementsByStageStore.getById(item);
+
+                if (storeItem) {
+                    dataElements.push({
+                        ...storeItem.data,
+                        legendSet: getLegendSetForDimension(item, dataElementDimensions),
                         programStage: {
                             id: stage.getValue(),
                         },
-                    };
+                    });
+                }
+            } else if (isObject(item)) {
+                storeItem = dataElementsByStageStore.getById(item.dimension || item.id);
 
-                dataElements.push({
-                    ...result,
-                    legendSet: getLegendSetForDimension(result.id, dataElementDimensions)
-                });
+                if (storeItem) {
+                    const result = item.data
+                        ? item.data
+                        : {
+                            ...item,
+                            ...storeItem.data,
+                            programStage: {
+                                id: stage.getValue(),
+                            },
+                        };
+
+                    dataElements.push({
+                        ...result,
+                        legendSet: getLegendSetForDimension(result.id, dataElementDimensions)
+                    });
+                }
             }
         }
 
@@ -3106,24 +3118,20 @@ WestRegionTrackerItems = function(refs) {
     };
 
     // accordion
+    var getItems = function(dimensions = []) {
+        return dimensions.map(dimension => {
+            const panel = getDimensionPanel(dimension, 'ns-panel-title-dimension');
+            accordionPanels.push(uiManager.reg(panel, panel.dimension));
+            return panel;
+        });
+    };
+
     var defaultItems = [
         data,
         period,
         organisationUnit,
-        ...appManager.dimensions.map(dimension => {
-            var panel = getDimensionPanel(dimension, 'ns-panel-title-dimension');
-
-            accordionPanels.push(uiManager.reg(panel, panel.dimension));
-
-            return panel;
-        }),
+        ...getItems(appManager.dimensions),
     ];
-
-    var getItems = function(dimensions = []) {
-        return dimensions.map(dimension =>
-            getDimensionPanel(dimension, 'ns-panel-title-dimension')
-        );
-    };
 
     var accordionBody = Ext.create('Ext.panel.Panel', {
         layout: 'accordion',
@@ -3467,7 +3475,6 @@ WestRegionTrackerItems = function(refs) {
         },
 
         accordionBody: accordionBody,
-        panels: accordionPanels,
         treePanel: treePanel,
 
         getUiState: getUiState,
