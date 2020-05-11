@@ -3441,7 +3441,7 @@ WestRegionTrackerItems = function(refs) {
             });
         },
         setThisHeight: function(mx) {
-            mx = mx || this.getExpandedPanel().getHeightValue();
+            mx = mx || (this.getExpandedPanel() ? this.getExpandedPanel().getHeightValue() : 0);
 
             var settingsHeight = 41;
 
