@@ -69,6 +69,8 @@ UiManager = function(refs) {
         }
     };
 
+    var onRender = Function.prototype;
+
     var resizeHandlers = t.appManager.getEventHandlerArray();
 
 	var withErrorStyle = function(content) {
@@ -90,6 +92,10 @@ UiManager = function(refs) {
 
     t.setUpdateInterpretationFn = function(fn) {
         updateInterpretationFn = fn;
+    };
+
+    t.setOnRender = function(fn) {
+        onRender = fn;
     };
 
     // components
@@ -171,6 +177,7 @@ UiManager = function(refs) {
 
     t.update = function(content, elementId) {
         updateFn(content, elementId);
+        onRender(elementId);
     };
 
     t.updateErrorMessage = function(content, elementId) {

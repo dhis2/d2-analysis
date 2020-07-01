@@ -11,6 +11,7 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
     t.password = null;
     t.auth = null;
     t.loadingIndicator = false;
+    t.onRender = Function.prototype;
 
     // private properties
     let _layouts = [];
