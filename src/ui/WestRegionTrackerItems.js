@@ -1195,7 +1195,7 @@ WestRegionTrackerItems = function(refs) {
             var msHeight = this.getHeight() - 28 - programStagePanel.getHeight() - 6;
 
             dataElementAvailable.setHeight(msHeight * 0.4);
-            dataElementSelected.setHeight(msHeight * 0.6 - 1);
+            dataElementSelected.setHeight(msHeight * 0.6 - 2);
         },
         listeners: {
             expand: function(cmp) {
@@ -1371,6 +1371,30 @@ WestRegionTrackerItems = function(refs) {
                 relativePeriodId: 'LAST_14_DAYS',
                 boxLabel: i18n['last_14_days'],
                 index: 4,
+            },
+            {
+              xtype: "checkbox",
+              relativePeriodId: "LAST_30_DAYS",
+              boxLabel: i18n["last_30_days"],
+              index: 5,
+            },
+            {
+              xtype: "checkbox",
+              relativePeriodId: "LAST_60_DAYS",
+              boxLabel: i18n["last_60_days"],
+              index: 6,
+            },
+            {
+              xtype: "checkbox",
+              relativePeriodId: "LAST_90_DAYS",
+              boxLabel: i18n["last_90_days"],
+              index: 7,
+            },
+            {
+              xtype: "checkbox",
+              relativePeriodId: "LAST_180_DAYS",
+              boxLabel: i18n["last_180_days"],
+              index: 8,
             },
         ],
     });
