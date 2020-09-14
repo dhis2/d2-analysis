@@ -1,3 +1,4 @@
+import sanitize from '../util/sanitize'
 import isArray from 'd2-utilizr/lib/isArray';
 import isBoolean from 'd2-utilizr/lib/isBoolean';
 import isDefined from 'd2-utilizr/lib/isDefined';
@@ -63,15 +64,15 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
     // to avoid name being replaced by a translation in the translate dialog
     // name
     if (isString(c.name)) {
-        t.name = c.name;
+        t.name = sanitize(c.name);
     }
 
-    t.displayName = arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(
-        item => isString(item)
+    t.displayName = sanitize(arrayClean([c.displayName, c.displayShortName, c.name, c.shortName]).find(
+        item => isString(item))
     );
 
     // title
-    t.title = arrayClean([c.displayShortName, c.title]).find(item => isString(item));
+    t.title = sanitize(arrayClean([c.displayShortName, c.title]).find(item => isString(item)))
 
     // favorite
     t.favorite = isBoolean(c.favorite) ? c.favorite : false;
@@ -81,7 +82,8 @@ Layout = function(refs, c, applyConfig, forceApplyConfig) {
 
     // description
     if (isString(c.description)) {
-        t.description = c.description;
+        t.description = sanitize(c.description);
+
     }
 
     // sorting
