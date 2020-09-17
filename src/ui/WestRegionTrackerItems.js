@@ -3274,6 +3274,7 @@ WestRegionTrackerItems = function(refs) {
             columns = [],
             rows = [],
             filters = [],
+            dynamicDimsWithItems = [],
             values = [],
             addAxisDimension,
             store,
@@ -3326,6 +3327,10 @@ WestRegionTrackerItems = function(refs) {
 
                 if (dim && dim.dimension) {
                     map[dim.dimension] = [dim];
+
+                    if (dim.items && dim.items.length) {
+                        dynamicDimsWithItems.push(dim);
+                    }
                 }
             }
         });
@@ -3405,9 +3410,10 @@ WestRegionTrackerItems = function(refs) {
         if (rows.length) {
             config.rows = rows;
         }
-        if (filters.length) {
-            config.filters = filters;
-        }
+
+        config.filters = filters.length ? filters : dynamicDimsWithItems;
+
+        console.log("config.filters", config.filters)
 
         // output type
         config.outputType = uiManager.get('outputType').getValue();
