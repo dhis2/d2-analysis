@@ -35,6 +35,16 @@ WestRegionTrackerItems = function(refs) {
         toolWidth = 36,
         nextButtonWidth = 62;
 
+    // helper fns
+
+    var getDataElementFromStorage = (stageId, id) => {
+        if (!(stageId && id)) {
+            return null;
+        }
+
+        return dataElementStorage[stageId].find(de => de.id === id)
+    };
+
     // stores
 
     var programStore = Ext.create('Ext.data.Store', {
@@ -1012,24 +1022,19 @@ WestRegionTrackerItems = function(refs) {
                     });
                 }
             } else if (isObject(item)) {
-                storeItem = dataElementsByStageStore.getById(item.dimension || item.id);
+                const itemConfig = {
+                    ...item.data,
+                    ...(item.programStage &&
+                        getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
+                };
 
-                if (storeItem) {
-                    const result = item.data
-                        ? item.data
-                        : {
-                            ...item,
-                            ...storeItem.data,
-                            programStage: {
-                                id: stage.getValue(),
-                            },
-                        };
-
-                    dataElements.push({
-                        ...result,
-                        legendSet: getLegendSetForDimension(result.id, dataElementDimensions)
-                    });
-                }
+                dataElements.push({
+                    ...itemConfig,
+                    programStage: itemConfig.programStage ? itemConfig.programStage : {
+                        id: stage.getValue(),
+                    },
+                    legendSet: getLegendSetForDimension(itemConfig.id, dataElementDimensions)
+                });
             }
         }
 
