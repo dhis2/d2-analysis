@@ -119,6 +119,7 @@ WestRegionTrackerItems = function(refs) {
             },
         ],
         onLoadData: function() {
+            var t = this;
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
             var numericValueTypes = dimensionConfig.valueType['numeric_types'];
             var dateValueTypes = dimensionConfig.valueType['date_types'];
@@ -135,6 +136,11 @@ WestRegionTrackerItems = function(refs) {
             });
 
             this.toggleProgramIndicators();
+
+            // filter already selected items
+            dataElementSelected.getSelectedIds().forEach(id =>
+                t.removeAt(t.findExact('id', id)));
+
         },
         toggleProgramIndicators: function(type) {
             var dataTypeToolbar = uiManager.get('dataTypeToolbar');
@@ -887,6 +893,13 @@ WestRegionTrackerItems = function(refs) {
                 }
             });
         },
+        getSelectedIds: function() {
+            var ids = [];
+            this.items.each(function(item) {
+                ids.push(item.dataElement.id)
+            })
+            return ids;
+        }
     });
 
     var addUxFromDataElement = function(element, index) {
