@@ -35,6 +35,16 @@ WestRegionTrackerItems = function(refs) {
         toolWidth = 36,
         nextButtonWidth = 62;
 
+    // helper fns
+
+    var getDataElementFromStorage = (stageId, id) => {
+        if (!(stageId && id)) {
+            return null;
+        }
+
+        return dataElementStorage[stageId].find(de => de.id === id)
+    };
+
     // stores
 
     var programStore = Ext.create('Ext.data.Store', {
@@ -109,6 +119,7 @@ WestRegionTrackerItems = function(refs) {
             },
         ],
         onLoadData: function() {
+            var t = this;
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
             var numericValueTypes = dimensionConfig.valueType['numeric_types'];
             var dateValueTypes = dimensionConfig.valueType['date_types'];
@@ -125,6 +136,13 @@ WestRegionTrackerItems = function(refs) {
             });
 
             this.toggleProgramIndicators();
+
+            // filter already selected items
+            dataElementSelected.getSelectedIds().forEach(id =>
+                t.removeAt(t.findExact('id', id)));
+
+            // respect dataelementtype filter when switching stage
+            onDataElementTypeSelect();
         },
         toggleProgramIndicators: function(type) {
             var dataTypeToolbar = uiManager.get('dataTypeToolbar');
@@ -640,7 +658,9 @@ WestRegionTrackerItems = function(refs) {
         },
     });
 
-    const onDataElementTypeSelect = type => {
+    const onDataElementTypeSelect = deType => {
+        var type = deType || dataElementType.getValue();
+
         dataElementType.setValue(type);
 
         const store = dataElementsByStageStore;
@@ -877,6 +897,13 @@ WestRegionTrackerItems = function(refs) {
                 }
             });
         },
+        getSelectedIds: function() {
+            var ids = [];
+            this.items.each(function(item) {
+                ids.push(item.dataElement.id)
+            })
+            return ids;
+        }
     });
 
     var addUxFromDataElement = function(element, index) {
@@ -1012,24 +1039,19 @@ WestRegionTrackerItems = function(refs) {
                     });
                 }
             } else if (isObject(item)) {
-                storeItem = dataElementsByStageStore.getById(item.dimension || item.id);
+                const itemConfig = {
+                    ...item.data,
+                    ...(item.programStage &&
+                        getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
+                };
 
-                if (storeItem) {
-                    const result = item.data
-                        ? item.data
-                        : {
-                            ...item,
-                            ...storeItem.data,
-                            programStage: {
-                                id: stage.getValue(),
-                            },
-                        };
-
-                    dataElements.push({
-                        ...result,
-                        legendSet: getLegendSetForDimension(result.id, dataElementDimensions)
-                    });
-                }
+                dataElements.push({
+                    ...itemConfig,
+                    programStage: itemConfig.programStage ? itemConfig.programStage : {
+                        id: stage.getValue(),
+                    },
+                    legendSet: getLegendSetForDimension(itemConfig.id, dataElementDimensions)
+                });
             }
         }
 
