@@ -141,6 +141,8 @@ WestRegionTrackerItems = function(refs) {
             dataElementSelected.getSelectedIds().forEach(id =>
                 t.removeAt(t.findExact('id', id)));
 
+            // respect dataelementtype filter when switching stage
+            onDataElementTypeSelect();
         },
         toggleProgramIndicators: function(type) {
             var dataTypeToolbar = uiManager.get('dataTypeToolbar');
@@ -656,7 +658,9 @@ WestRegionTrackerItems = function(refs) {
         },
     });
 
-    const onDataElementTypeSelect = type => {
+    const onDataElementTypeSelect = deType => {
+        var type = deType || dataElementType.getValue();
+
         dataElementType.setValue(type);
 
         const store = dataElementsByStageStore;
