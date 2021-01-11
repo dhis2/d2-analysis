@@ -33,23 +33,39 @@ TableManager = function(c) {
         'ou': 'ouname'
     };
 
-    var getSortId = function(id, type) {
-        if (type === dimensionConfig.dataType['aggregated_values']) {
+    var getSortId = function(id, layout) {
+        if (sortIdMap[id]) {
+            return sortIdMap[id]
+        }
+
+        if (!layout) {
             return id;
         }
 
-        return sortIdMap[id] || id;
+        if (layout.type === dimensionConfig.dataType['aggregated_values']) {
+            return id;
+        }
+
+        if (layout.columns && layout.columns.length) {
+            var dim = layout.columns.find(d => d.dimension === id)
+
+            if (dim && dim.programStage && dim.programStage.id) {
+                return dim.programStage.id + '.' + id;
+            }
+        }
+
+        return id;
     };
 
     var onColumnHeaderMouseClick = function(layout, id) {
-        var sortId = getSortId(id);
+        var sortId = getSortId(id, layout);
 
         if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
             layout.sorting = {
-                id: getSortId(id, layout.dataType),
+                id: sortId,
                 direction: 'DESC'
             };
         }
