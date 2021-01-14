@@ -47,6 +47,10 @@ WestRegionTrackerItems = function(refs) {
 
     // stores
 
+    const htmlEscapeProgramName = (program) => {
+        program.name = Ext.htmlEncode(program.name)
+    }
+
     var programStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'enrollmentDateLabel', 'incidentDateLabel', 'programType'],
         proxy: {
@@ -57,6 +61,11 @@ WestRegionTrackerItems = function(refs) {
             reader: {
                 type: 'json',
                 root: 'programs',
+                getResponseData(response) {
+                    const data = JSON.parse(response.responseText)
+                    data.programs.forEach(htmlEscapeProgramName)
+                    return data
+                }
             },
             pageParam: false,
             startParam: false,
@@ -375,6 +384,7 @@ WestRegionTrackerItems = function(refs) {
 
         var load = function(_program) {
             var stages = _program.programStages;
+            stages.forEach(htmlEscapeProgramName)
             var dimensions = [];
 
             // categories
