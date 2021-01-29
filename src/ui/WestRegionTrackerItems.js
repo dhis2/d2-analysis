@@ -411,7 +411,7 @@ WestRegionTrackerItems = function(refs) {
 
             if (stageId) {
                 stage.setValue(stageId);
-                onStageSelect(stageId, layout);
+                onStageSelect(stageId, layout, _program);
             }
 
             // init timeField, depending on programType
@@ -480,7 +480,7 @@ WestRegionTrackerItems = function(refs) {
         }
     };
 
-    var onStageSelect = function(stageId, layout) {
+    var onStageSelect = function(stageId, layout, _program) {
         if (!layout) {
             // event/enrollment
             updateDataElementSelection();
@@ -494,7 +494,7 @@ WestRegionTrackerItems = function(refs) {
         dataElementSearch.enable();
         dataElementSearch.hideFilter();
 
-        loadDataElements(stageId, layout);
+        loadDataElements(stageId, layout, _program);
     };
 
     var stage = Ext.create('Ext.form.field.ComboBox', {
@@ -545,10 +545,7 @@ WestRegionTrackerItems = function(refs) {
         return [...new Set(ids.filter(id => !!id))];
     };
 
-    var loadDataElements = function(stageId, layout) {
-        var programId = layout ? layout.program.id : program.getValue() || null;
-        var _program = programStorage[programId];
-
+    var loadDataElements = function(stageId, layout, _program) {
         var dataItems = arrayClean(
             [].concat(_program.attributes || [], _program.programIndicators || [])
         );
@@ -566,7 +563,7 @@ WestRegionTrackerItems = function(refs) {
                 var dataDimensionIds = layout.getDimensions(true)
                     .filter(dataDim => !arrayContains(['pe', 'ou', ...appManager.getDimensionIds()], dataDim.dimension));
 
-                selectDataElements(dataDimensionIds, layout);
+                selectDataElements(dataDimensionIds, layout, _program);
             }
 
             uiManager.get('aggregateLayoutWindow')
@@ -980,7 +977,7 @@ WestRegionTrackerItems = function(refs) {
         return ux;
     };
 
-    var selectDataElements = function(items, layout) {
+    var selectDataElements = function(items, layout, _program) {
         var dataElements = [],
             allElements = [],
             aggWindow = uiManager.get('aggregateLayoutWindow'),
@@ -1004,7 +1001,7 @@ WestRegionTrackerItems = function(refs) {
                 ...dimensionConfig.valueType['date_types']
             ];
 
-        const getLegendSetForDimension = (dimensionId, dataElementDimensions) => {
+            const getLegendSetForDimension = (dimensionId, dataElementDimensions) => {
             if (!dataElementDimensions) {
                 return null;
             }
@@ -1043,6 +1040,8 @@ WestRegionTrackerItems = function(refs) {
                     ...item.data,
                     ...(item.programStage &&
                         getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
+                    ...(_program.attributes || []).find(attr => attr.id === item.dimension || attr.id === item.id),
+                    ...(_program.programIndicators || []).find(pi => pi.id === item.dimension || pi.id === item.id)
                 };
 
                 dataElements.push({
