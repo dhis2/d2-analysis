@@ -2057,9 +2057,6 @@ WestRegionTrackerItems = function(refs) {
             expand: function(cmp) {
                 cmp.onExpand();
             },
-            added: function() {
-                uiManager.get(appManager.getRelativePeriod()).setValue(true);
-            }
         },
     });
     accordionPanels.push(uiManager.reg(period, 'period'));
