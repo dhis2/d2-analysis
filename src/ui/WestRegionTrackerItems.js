@@ -1534,7 +1534,6 @@ WestRegionTrackerItems = function(refs) {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_12_MONTHS',
                 boxLabel: i18n.last_12_months,
-                checked: true,
             },
             {
                 xtype: 'checkbox',
@@ -2054,6 +2053,9 @@ WestRegionTrackerItems = function(refs) {
             expand: function(cmp) {
                 cmp.onExpand();
             },
+            added: function() {
+                uiManager.get(appManager.getRelativePeriod()).setValue(true);
+            }
         },
     });
     accordionPanels.push(uiManager.reg(period, 'period'));
