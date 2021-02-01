@@ -2286,7 +2286,6 @@ WestRegionAggregateItems = function(c) {
                 relativePeriodId: 'LAST_12_MONTHS',
                 boxLabel: i18n.last_12_months,
                 index: 18,
-                checked: true,
             },
             {
                 xtype: 'checkbox',
@@ -2738,7 +2737,7 @@ WestRegionAggregateItems = function(c) {
         listeners: {
             expand: function(p) {
                 p.onExpand();
-            }
+            },
         }
     });
     accordionPanels.push(uiManager.reg(period, 'period'));
