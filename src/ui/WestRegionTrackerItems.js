@@ -1341,6 +1341,10 @@ WestRegionTrackerItems = function(refs) {
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
+
+            if (cmp.relativePeriodId === appManager.getRelativePeriod()) {
+                cmp.setValue(true);
+            }
         }
     };
 
@@ -2053,9 +2057,6 @@ WestRegionTrackerItems = function(refs) {
             expand: function(cmp) {
                 cmp.onExpand();
             },
-            added: function() {
-                uiManager.get(appManager.getRelativePeriod()).setValue(true);
-            }
         },
     });
     accordionPanels.push(uiManager.reg(period, 'period'));
@@ -3172,7 +3173,7 @@ WestRegionTrackerItems = function(refs) {
             return panel;
         });
     };
-
+    
     var defaultItems = [
         data,
         period,
