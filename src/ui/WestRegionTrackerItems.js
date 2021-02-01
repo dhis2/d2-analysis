@@ -1341,6 +1341,10 @@ WestRegionTrackerItems = function(refs) {
     var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
+
+            if (cmp.relativePeriodId === appManager.getRelativePeriod()) {
+                cmp.setValue(true);
+            }
         }
     };
 
@@ -1534,7 +1538,6 @@ WestRegionTrackerItems = function(refs) {
                 xtype: 'checkbox',
                 relativePeriodId: 'LAST_12_MONTHS',
                 boxLabel: i18n.last_12_months,
-                checked: true,
             },
             {
                 xtype: 'checkbox',
@@ -3170,7 +3173,7 @@ WestRegionTrackerItems = function(refs) {
             return panel;
         });
     };
-
+    
     var defaultItems = [
         data,
         period,
