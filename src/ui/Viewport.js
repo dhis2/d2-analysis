@@ -600,7 +600,7 @@ Viewport = function(refs, cmp, config) {
                 var viewportHeight = uiManager.getHeight(),
                     numberOfTabs = appManager.dimensions.length + 3,
                     tabHeight = 28,
-                    minPeriodHeight = 380;
+                    minPeriodHeight = 600;
 
                 if (viewportHeight > numberOfTabs * tabHeight + minPeriodHeight) {
                     if (!isIE) {
