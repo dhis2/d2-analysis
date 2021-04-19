@@ -14,6 +14,7 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
 
     // private properties
     let _layouts = [];
+    let _lastLayouts = [];
     let _isPending = false;
     let _isReady = false;
 
@@ -32,6 +33,10 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
         _runFn();
     };
 
+    t.reload = function () {
+        t.load(_lastLayouts)
+    }
+
     t.getType = function() {
         return type;
     };
@@ -47,7 +52,9 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
     };
 
     const _runFn = function (initializeFn = initializeFn || _initializeFn) {
-        if (_isReady) {
+        if (_isReady && _layouts.length) {
+            _lastLayouts = [..._layouts]
+
             while (_layouts.length) {
                 renderFn(t, _layouts.shift());
             }
