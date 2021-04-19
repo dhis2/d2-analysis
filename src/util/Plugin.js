@@ -52,7 +52,7 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
     };
 
     const _runFn = function (initializeFn = initializeFn || _initializeFn) {
-        if (_isReady && _layouts.length) {
+        if (_isReady) {
             _lastLayouts = [..._layouts]
 
             while (_layouts.length) {
