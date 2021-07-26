@@ -228,12 +228,7 @@ AppManager.prototype.init = function(callbackFn) {
 
                 calendarManager.setBaseUrl(t.getPath());
                 calendarManager.setDateFormat(t.getDateFormat());
-                calendarManager.init(t.systemSettings.keyCalendar);
-
-                // allow for other code to be executed after all the init stuff is done
-                if (callbackFn) {
-                    callbackFn();
-                }
+                calendarManager.init(t.systemSettings.keyCalendar, callbackFn);
             }
         }).run();
     };
