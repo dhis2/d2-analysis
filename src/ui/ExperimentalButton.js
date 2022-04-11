@@ -1,4 +1,4 @@
-export const ExperimentalButton = function(refs) {
+export const ExperimentalButton = function(refs) {
     var uiManager = refs.uiManager;
 
     var i18n = refs.i18nManager.get();

@@ -2,7 +2,7 @@ import sanitize from '../util/sanitize'
 import fs from './FavoriteStyle';
 import {onMarkdownEditorKeyDown} from '../util/dom';
 
-export default function({ layout, i18n }) {
+export default function({ layout, i18n }) {
     const getValue = function() {
         var t = this,
             value = sanitize(t.rawToValue(t.processRawValue(t.getRawValue())));
@@ -29,7 +29,7 @@ export default function({ layout, i18n }) {
         setEventChangeHandler: function (handler) {
             this.eventChangeHandler = handler;
         },
-        setEventKeyUpHandler: function(handler) {
+        setEventKeyUpHandler: function(handler) {
             this.eventKeyUpHandler = handler;
         },
         listeners: {
@@ -39,7 +39,7 @@ export default function({ layout, i18n }) {
                 }
             },
             keyup: function(cmp, e) {
-                if (e.keyCode === 13 && this.eventKeyUpHandler) {
+                if (e.keyCode === 13 && this.eventKeyUpHandler) {
                     this.eventKeyUpHandler(cmp, e);
                 }
             }

@@ -8,8 +8,8 @@ SessionStorageManager = function(refs) {
     t.supported = ('sessionStorage' in window && window['sessionStorage'] !== null);
 
     // fn
-    t.supportHandler = function() {
-        if (!this.supported) {
+    t.supportHandler = function() {
+        if (!this.supported) {
             alert("Your browser is outdated and does not support local storage. Please upgrade your browser.");
             return;
         }
@@ -18,8 +18,8 @@ SessionStorageManager = function(refs) {
     };
 };
 
-SessionStorageManager.prototype.get = function(session) {
-    if (!this.supportHandler()) {
+SessionStorageManager.prototype.get = function(session) {
+    if (!this.supportHandler()) {
         return;
     }
 
@@ -29,7 +29,7 @@ SessionStorageManager.prototype.get = function(session) {
 };
 
 SessionStorageManager.prototype.set = function(layout, session, redirectUrl) {
-    if (!this.supportHandler()) {
+    if (!this.supportHandler()) {
         return;
     }
 

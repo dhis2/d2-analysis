@@ -5,7 +5,7 @@
 
 export var SimpleRegression;
 
-SimpleRegression = function() {
+SimpleRegression = function() {
     var sumX = 0; // Sum of x values
     var sumY = 0; // Sum of y values
     var sumXX = 0; // Total variation in x

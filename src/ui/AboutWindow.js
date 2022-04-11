@@ -16,7 +16,7 @@ AboutWindow = function(c) {
         modal: true,
         resizable: false,
         destroyOnBlur: true,
-        getData: function() {
+        getData: function() {
             var t = this;
 
             Ext.Ajax.request({

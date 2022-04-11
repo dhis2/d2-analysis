@@ -1,6 +1,6 @@
 export var dataApprovalLevelsInit;
 
-dataApprovalLevelsInit = function(c) {
+dataApprovalLevelsInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

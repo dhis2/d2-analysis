@@ -1,6 +1,6 @@
 export var LayoutButton;
 
-LayoutButton = function(refs) {
+LayoutButton = function(refs) {
     var uiManager = refs.uiManager;
 
     var i18n = refs.i18nManager.get();

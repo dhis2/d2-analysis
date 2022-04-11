@@ -1,6 +1,6 @@
 export var extOverrides;
 
-extOverrides = function() {
+extOverrides = function() {
 
     Ext.QuickTips.init();
 };

@@ -19,21 +19,21 @@ IndexedDbManager = function() {
     t.cachedOptionSets = {};
 };
 
-IndexedDbManager.prototype.getCachedOptionSet = function(id) {
+IndexedDbManager.prototype.getCachedOptionSet = function(id) {
     return this.cachedOptionSets[id];
 };
 
-IndexedDbManager.prototype.setCachedOptionSet = function(optionSet) {
+IndexedDbManager.prototype.setCachedOptionSet = function(optionSet) {
     this.cachedOptionSets[optionSet.id] = optionSet;
 };
 
-IndexedDbManager.prototype.hasCachedOptionSet = function(id) {
+IndexedDbManager.prototype.hasCachedOptionSet = function(id) {
     return (id in this.cachedOptionSets);
 };
 
 // dep 1
 
-IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
+IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
     ids = arrayFrom(ids);
 
     var t = this;
@@ -41,8 +41,8 @@ IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
     var requestIds = [];
     var optionSets = [];
 
-    var fn = function() {
-        if (!requestIds.length || requestIds.length === ++callbacks) {
+    var fn = function() {
+        if (!requestIds.length || requestIds.length === ++callbacks) {
             callbackFn(optionSets);
         }
     };
@@ -51,7 +51,7 @@ IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
     ids.forEach(id => {
         var cachedOptionSet = t.getCachedOptionSet(id);
 
-        if (cachedOptionSet) {
+        if (cachedOptionSet) {
             optionSets.push(cachedOptionSet);
         }
         else {
@@ -60,9 +60,9 @@ IndexedDbManager.prototype.getOptionSets = function(ids, callbackFn) {
     });
 
     // requested option sets
-    if (requestIds.length) {
-        requestIds.forEach(id => {
-            t.get('optionSets', id).done(function(requestedOptionSet) {
+    if (requestIds.length) {
+        requestIds.forEach(id => {
+            t.get('optionSets', id).done(function(requestedOptionSet) {
                 t.setCachedOptionSet(requestedOptionSet);
                 optionSets.push(requestedOptionSet);
 

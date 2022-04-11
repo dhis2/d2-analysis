@@ -1,4 +1,4 @@
-import { SharingWindow } from './SharingWindow';
+import { SharingWindow } from './SharingWindow';
 import { MentionToolbar } from './MentionToolbar.js';
 import { validateSharing } from '../util/permissions';
 import {onMarkdownEditorKeyDown} from '../util/dom';

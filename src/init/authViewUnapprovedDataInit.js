@@ -1,6 +1,6 @@
 export var authViewUnapprovedDataInit;
 
-authViewUnapprovedDataInit = function(c) {
+authViewUnapprovedDataInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager;

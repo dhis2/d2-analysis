@@ -1,6 +1,6 @@
 export var isAdminInit;
 
-isAdminInit = function(c) {
+isAdminInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

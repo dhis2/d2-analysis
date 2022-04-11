@@ -61,10 +61,10 @@ ConfirmWindow = function(refs, title, msg, btnText, fn, applyConfig, cancelFn=Fu
             }
         ],
         listeners: {
-            afterrender: function() {
+            afterrender: function() {
                 this.setPosition(this.getPosition()[0], this.getPosition()[1] / 2);
             },
-            show: function() {
+            show: function() {
                 confirmButton.focus(false, 50);
             }
         }

@@ -27,7 +27,7 @@ UiManager = function(refs) {
 
     var componentTags = {
         onCurrent: [],
-        onFavorite: []
+        onFavorite: []
     };
 
     var componentGroups = {};
@@ -59,10 +59,10 @@ UiManager = function(refs) {
         });
     };
 
-    var updateInterpretationFn = function(interpretation, layout) {
+    var updateInterpretationFn = function(interpretation, layout) {
         var layout = layout || t.instanceManager.getStateCurrent();
 
-        if (layout) {
+        if (layout) {
             layout.applyInterpretation(interpretation);
 
             t.instanceManager.getReport(layout, true);
@@ -76,25 +76,25 @@ UiManager = function(refs) {
 	};
 
     // setters
-    t.setInstanceManager = function(instanceManager) {
+    t.setInstanceManager = function(instanceManager) {
         t.instanceManager = instanceManager;
     };
 
-    t.setI18nManager = function(i18nManager) {
+    t.setI18nManager = function(i18nManager) {
         t.i18nManager = i18nManager;
     };
 
-    t.setUpdateFn = function(fn) {
+    t.setUpdateFn = function(fn) {
         updateFn = fn;
     };
 
-    t.setUpdateInterpretationFn = function(fn) {
+    t.setUpdateInterpretationFn = function(fn) {
         updateInterpretationFn = fn;
     };
 
     // components
-    t.reg = function(cmp, name, tags, groups, doNotOverwrite) {
-        if (components.hasOwnProperty(name) && doNotOverwrite) {
+    t.reg = function(cmp, name, tags, groups, doNotOverwrite) {
+        if (components.hasOwnProperty(name) && doNotOverwrite) {
             return;
         }
 
@@ -102,17 +102,17 @@ UiManager = function(refs) {
         components[name] = cmp;
 
         // tags
-        if (isString(tags)) {
-            tags.split(',').forEach(function(tag) {
-                if (isArray(componentTags[tag])) {
+        if (isString(tags)) {
+            tags.split(',').forEach(function(tag) {
+                if (isArray(componentTags[tag])) {
                     componentTags[tag].push(cmp);
                 }
             });
         }
 
         // groups
-        if (isString(groups)) {
-            groups.split(',').forEach(function(group) {
+        if (isString(groups)) {
+            groups.split(',').forEach(function(group) {
                 componentGroups[group] = isArray(componentGroups[group]) ? componentGroups[group] : [];
                 componentGroups[group].push(cmp);
             });
@@ -121,11 +121,11 @@ UiManager = function(refs) {
         return cmp;
     };
 
-    t.unreg = function(name) {
+    t.unreg = function(name) {
         delete components[name];
     };
 
-    t.get = function(name) {
+    t.get = function(name) {
         return components[name] || document.getElementById(name) || null;
     };
 
@@ -153,19 +153,19 @@ UiManager = function(refs) {
         t.get(component) && t.get(component).scrollTo(x, y);
     }
 
-    t.getByGroup = function(groupName) {
+    t.getByGroup = function(groupName) {
         return componentGroups[groupName];
     };
 
-    t.getUpdateComponent = function() {
+    t.getUpdateComponent = function() {
         return t.get(defaultUpdateComponentName);
     };
 
-    t.setUpdateComponent = function(name) {
+    t.setUpdateComponent = function(name) {
         defaultUpdateComponentName = name;
     };
 
-    t.componentFrom = function(param) {
+    t.componentFrom = function(param) {
         return isString(param) ? t.get(param) : param;
     };
 
@@ -181,21 +181,21 @@ UiManager = function(refs) {
         t.get(region).toggleCollapse();
     }
 
-    t.updateInterpretation = function(interpretation, layout) {
+    t.updateInterpretation = function(interpretation, layout) {
         updateInterpretationFn(interpretation, layout);
     };
 
     // state
-    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState) {
+    t.setState = function(currentState, favoriteState, isFavorite, skipStateWest, forceUiState) {
         var north = t.get('northRegion'),
             west = t.get('westRegion'),
             east = t.get('eastRegion');
 
         // app, not plugin
-        if (!t.instanceManager.plugin) {
+        if (!t.instanceManager.plugin) {
 
             // set url state
-            if (favoriteState) {
+            if (favoriteState) {
                 t.setUrlState(('?id=' + favoriteState.id) + (favoriteState.interpretationId ? '&interpretationid=' + favoriteState.interpretationId : ''));
             }
             else {
@@ -203,22 +203,22 @@ UiManager = function(refs) {
             }
 
             // toolbar
-            if (north) {
+            if (north) {
                 north.setState(currentState, isFavorite);
             }
 
                 // current
-            componentTags.onCurrent.forEach(function(item) {
+            componentTags.onCurrent.forEach(function(item) {
                 item.setDisabled(!(currentState && item.enable));
             });
 
                 // favorite
-            componentTags.onFavorite.forEach(function(item) {
+            componentTags.onFavorite.forEach(function(item) {
                 item.setDisabled(!(currentState && item.enable && isFavorite));
             });
 
             // west
-            if (forceUiState || (west && !skipStateWest && (!currentState || isFavorite))) {
+            if (forceUiState || (west && !skipStateWest && (!currentState || isFavorite))) {
                 west.setState(currentState);
             }
 
@@ -229,26 +229,26 @@ UiManager = function(refs) {
         }
 
         // set init text
-        if (!currentState) {
+        if (!currentState) {
             t.update();
         }
     };
 
-    t.setUrlState = function(text) {
+    t.setUrlState = function(text) {
         global.history.pushState(null, null, text);
     };
 
     // theme
-    t.getTheme = function() {
+    t.getTheme = function() {
         return theme;
     };
 
-    t.setTheme = function(newTheme) {
+    t.setTheme = function(newTheme) {
         theme = newTheme;
     };
 
     // intro
-    t.getIntroHtml = function() {
+    t.getIntroHtml = function() {
         if (t.introHtmlIsAsync) {
             return updateIntroHtml();
         }
@@ -259,7 +259,7 @@ UiManager = function(refs) {
         updateIntroHtml = fn;
     }
 
-    t.setIntroHtml = function(html) {
+    t.setIntroHtml = function(html) {
         return introHtml = html;
     };
 
@@ -305,7 +305,7 @@ UiManager = function(refs) {
         var toolbarHeight = 25,
             height;
 
-        ms.forEach(function(item) {
+        ms.forEach(function(item) {
             height = panel.getHeight() - fill - (item.hasToolbar ? toolbarHeight : 0);
             item.setHeight(height);
         });
@@ -315,7 +315,7 @@ UiManager = function(refs) {
         var selected = a.getValue();
         if (selected.length) {
             var array = [];
-            selected.forEach(function(item) {
+            selected.forEach(function(item) {
                 array.push(a.store.getAt(a.store.findExact('id', item)));
             });
             s.store.add(array);
@@ -433,7 +433,7 @@ UiManager = function(refs) {
         }
     };
 
-    t.getBodyMask = function() {
+    t.getBodyMask = function() {
         return Ext.getBody().child('.x-mask');
     };
 
@@ -516,36 +516,36 @@ UiManager = function(refs) {
     };
 
     // context menu
-    t.enableRightClick = function() {
+    t.enableRightClick = function() {
         document.body.oncontextmenu = true;
     };
 
-    t.disableRightClick = function() {
+    t.disableRightClick = function() {
         document.body.oncontextmenu = function() {
             return false;
         };
     };
 
     // dialogue
-    t.confirmUnsaved = function(title, fn) {
+    t.confirmUnsaved = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.all_unsaved_changes_will_be_discarded_continue, null, fn).show();
     };
 
-    t.confirmReplace = function(title, fn) {
+    t.confirmReplace = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.existing_favorite_will_be_replaced_continue, null, fn).show();
     };
 
-    t.confirmDelete = function(title, fn) {
+    t.confirmDelete = function(title, fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.this_favorite_will_be_deleted_continue, null, fn).show();
     };
 
-    t.confirmRender = function(title, fn, cancelFn) {
+    t.confirmRender = function(title, fn, cancelFn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
 
         ConfirmWindow(refs, title, i18n.render_table_warning,
@@ -556,20 +556,20 @@ UiManager = function(refs) {
         ConfirmWindow(refs, title, msg, btnText, fn, applyConfig).show();
     };
 
-    t.confirmInterpretationDelete = function(fn) {
+    t.confirmInterpretationDelete = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
         ConfirmWindow(refs, i18n.are_you_sure,
             i18n.this_interpretation_will_be_deleted_continue, null, fn).show();
     };
 
-    t.confirmCommentDelete = function(fn) {
+    t.confirmCommentDelete = function(fn) {
         var i18n = t.i18nManager ? t.i18nManager.get() : {};
         ConfirmWindow(refs, i18n.are_you_sure,
             i18n.this_comment_will_be_deleted_continue, null, fn).show();
     };
 
     // redirect
-    t.redirectCtrl = function(url, e) {
+    t.redirectCtrl = function(url, e) {
         if (e.button === 0 && !e.ctrlKey) {
             window.location.href = url;
         }
@@ -579,7 +579,7 @@ UiManager = function(refs) {
     };
 
     // plugin
-    t.getTitleHtml = function(text) {
+    t.getTitleHtml = function(text) {
         return text ? '<div style="' +
             'height:19px;' +
             'line-height:14px;' +
@@ -592,7 +592,7 @@ UiManager = function(refs) {
             '</div>' : '';
     };
 
-    t.getEmbedHtml = function() {
+    t.getEmbedHtml = function() {
         var text = '',
             version = 'v' + parseFloat(t.appManager.systemInfo.version.split('.').join('')),
             resource = t.instanceManager.apiResource,
@@ -617,16 +617,16 @@ UiManager = function(refs) {
         return text;
     };
 
-    t.renderLoadingIndicator = function(el) {
+    t.renderLoadingIndicator = function(el) {
         $('#' + el).append('<div class="spinner"></div>');
     };
 
     // resize
-    t.onResize = function(fn) {
+    t.onResize = function(fn) {
         resizeHandlers.push(fn);
     };
 
-    t.resize = function(params) {
+    t.resize = function(params) {
         resizeHandlers.run(params);
     };
 
@@ -660,7 +660,7 @@ UiManager = function(refs) {
 
             format = format || 'csv';
 
-            if (layout.showHierarchy) {
+            if (layout.showHierarchy) {
                 extraParams.push('showHierarchy=true');
             }
 
@@ -725,15 +725,15 @@ UiManager = function(refs) {
     }
 };
 
-UiManager.prototype.applyTo = function(modules) {
+UiManager.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.uiManager = t;
     });
 };
 
-UiManager.prototype.getWidth = function(cmpName) {
+UiManager.prototype.getWidth = function(cmpName) {
     var t = this;
 
     var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
@@ -741,7 +741,7 @@ UiManager.prototype.getWidth = function(cmpName) {
     return cmp ? cmp.getWidth() : t.minWidth;
 };
 
-UiManager.prototype.getHeight = function(cmpName) {
+UiManager.prototype.getHeight = function(cmpName) {
     var t = this;
 
     var cmp = cmpName ? t.componentFrom(cmpName) : t.getUpdateComponent();
@@ -749,20 +749,20 @@ UiManager.prototype.getHeight = function(cmpName) {
     return cmp ? cmp.getHeight() : t.minHeight;
 };
 
-UiManager.prototype.getUiState = function() {
+UiManager.prototype.getUiState = function() {
     return this.get('viewport').getUiState();
 };
 
-UiManager.prototype.enableConfirmUnload = function() {
+UiManager.prototype.enableConfirmUnload = function() {
     var t = this;
 
-    window.onbeforeunload = function(event) {
+    window.onbeforeunload = function(event) {
         return t.instanceManager && t.instanceManager.isStateUnsaved() ? ((typeof event ? event : window.event).returnValue = 'You have unsaved changes.') : null;
     };
 };
 
-UiManager.prototype.disableConfirmUnload = function() {
-    window.onbeforeunload = function(event) {
+UiManager.prototype.disableConfirmUnload = function() {
+    window.onbeforeunload = function(event) {
         return null;
     };
 };

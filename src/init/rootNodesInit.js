@@ -1,6 +1,6 @@
 export var rootNodesInit;
 
-rootNodesInit = function(c) {
+rootNodesInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

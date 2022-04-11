@@ -46,7 +46,7 @@ CalendarManager.prototype.getCalendarIdMap = function() {
         return this.calendarIdMap;
     }
 
-    this.calendarIdMap = {};
+    this.calendarIdMap = {};
     this.calendarIdMap[this.defaultCalendarIsoId] = this.defaultCalendarId;
 
     return this.calendarIdMap;
@@ -60,10 +60,10 @@ CalendarManager.prototype.createPeriodGenerator = function(calendarId) {
     this.periodGenerator = new dhis2.period.PeriodGenerator(this.calendar, this.dateFormat);
 };
 
-CalendarManager.prototype.applyTo = function(modules) {
+CalendarManager.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.calendarManager = t;
     });
 };
@@ -88,7 +88,7 @@ CalendarManager.prototype.init = function(calendarId, callbackFn) {
             }
         };
 
-    if (arrayContains(t.calendarIds, calendarId)) {
+    if (arrayContains(t.calendarIds, calendarId)) {
         var calendarUrl = t.getCalendarScriptUrl(calendarId);
 
         $.getScript(calendarUrl, function() {

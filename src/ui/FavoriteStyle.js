@@ -7,7 +7,7 @@ const textfieldStyle = [
     'line-height: 13px'
 ];
 
-const textFieldLabelStyle = [
+const textFieldLabelStyle = [
     'font-size: 11px',
     'font-weight: bold',
     'color: #111',

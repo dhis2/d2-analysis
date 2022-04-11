@@ -66,7 +66,7 @@ WestRegionAggregateItems = function(c) {
         loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
 
-                if (!append) {
+                if (!append) {
                     this.removeAll();
                 }
 
@@ -134,12 +134,12 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(indicatorAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.indicators || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function() {
                 store.isPending = false;
                 uiManager.unmask(indicatorAvailable.boundList);
             });
@@ -220,7 +220,7 @@ WestRegionAggregateItems = function(c) {
         loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
 
-                if (!append) {
+                if (!append) {
                     this.removeAll();
                 }
 
@@ -298,12 +298,12 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.dataElements || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function() {
                 store.isPending = false;
                 uiManager.unmask(dataElementAvailable.boundList);
             });
@@ -336,12 +336,12 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.objects || response.dataElementOperands || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function() {
                 store.isPending = false;
                 uiManager.unmask(dataElementAvailable.boundList);
             });
@@ -473,22 +473,22 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataSetAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function(response) {
                 var data = response.dataSets || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function() {
                 store.isPending = false;
                 uiManager.unmask(dataSetAvailable.boundList);
             });
         },
-        getProcessedData: function(data) {
+        getProcessedData: function(data) {
             var metricRecords = optionConfig.getDataSetMetricRecords(),
                 processedData = [];
 
-            data.forEach(function(item) {
-                metricRecords.forEach(function(record) {
+            data.forEach(function(item) {
+                metricRecords.forEach(function(record) {
                     processedData.push({
                         id: item.id + '.' + record.id,
                         name: item.name + ' (' + record.name + ')'
@@ -538,7 +538,7 @@ WestRegionAggregateItems = function(c) {
         loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
 
-                if (!append) {
+                if (!append) {
                     this.removeAll();
                 }
 
@@ -581,7 +581,7 @@ WestRegionAggregateItems = function(c) {
         loadDataAndUpdate: function(data, append) {
                 this.clearFilter(); // work around
 
-                if (!append) {
+                if (!append) {
                     this.removeAll();
                 }
 
@@ -850,11 +850,11 @@ WestRegionAggregateItems = function(c) {
         store: {
             fields: ['id', 'name'],
             data: [
-                 {id: 'in', name: i18n['indicators']},
-                 {id: 'de', name: i18n['data_elements']},
-                 {id: 'ds', name: i18n['data_sets']},
-                 {id: 'di', name: i18n['event_data_items']},
-                 {id: 'pi', name: i18n['program_indicators']}
+                 {id: 'in', name: i18n['indicators']},
+                 {id: 'de', name: i18n['data_elements']},
+                 {id: 'ds', name: i18n['data_sets']},
+                 {id: 'di', name: i18n['event_data_items']},
+                 {id: 'pi', name: i18n['program_indicators']}
             ]
         },
         listeners: {
@@ -1508,7 +1508,7 @@ WestRegionAggregateItems = function(c) {
             data: [{id: 0, name: '[ ' + i18n.all_metrics + ' ]'}].concat(optionConfig.getDataSetMetricRecords())
         },
         listeners: {
-            select: function(cmp) {
+            select: function(cmp) {
                 dataSetAvailableStore.updateFilter();
             }
         }
@@ -1549,7 +1549,7 @@ WestRegionAggregateItems = function(c) {
             disableCaching: false,
             success: function(r) {
                 var types = dimensionConfig.valueType['aggregate_aggregatable_types'],
-                    elements = Ext.decode(r.responseText).programDataElements.filter(function(item) {
+                    elements = Ext.decode(r.responseText).programDataElements.filter(function(item) {
                         return arrayContains(types, (item || {}).valueType);
                     });
 
@@ -1557,7 +1557,7 @@ WestRegionAggregateItems = function(c) {
                     url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem~rename(id),' + displayPropertyUrl + '~rename(name),valueType]&paging=false'),
                     disableCaching: false,
                     success: function(r) {
-                        var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
+                        var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
                                 return arrayContains(types, (item || {}).valueType);
                             }),
                             data = arraySort(arrayClean([].concat(elements, attributes))) || [];
@@ -1787,7 +1787,7 @@ WestRegionAggregateItems = function(c) {
             url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem~rename(id),' + displayPropertyUrl + ']&paging=false'),
             disableCaching: false,
             success: function(r) {
-                var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
+                var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
                     data = arraySort(indicators);
 
                 programIndicatorAvailableStore.loadDataAndUpdate(data);
@@ -2035,7 +2035,7 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        clearDimension: function() {
+        clearDimension: function() {
             dataSelectedStore.removeAll();
 
             indicatorAvailableStore.removeAll();
@@ -2050,17 +2050,17 @@ WestRegionAggregateItems = function(c) {
             eventDataItemAvailableStore.removeAll();
             programIndicatorAvailableStore.removeAll();
         },
-        setDimension: function(layout) {
+        setDimension: function(layout) {
             if (isObject(layout.program) && isString(layout.program.id)) {
                 eventDataItemProgram.setValue(layout.program.id);
                 onEventDataItemProgramSelect(layout.program.id)
             }
 
-            if (layout.hasDimension(this.dimension, true)) {
+            if (layout.hasDimension(this.dimension, true)) {
                 dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
             }
         },
-        getHeightValue: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
@@ -2599,25 +2599,25 @@ WestRegionAggregateItems = function(c) {
         hideCollapseTool: true,
         dimension: periodObjectName,
         checkboxes: periodCheckboxes,
-        clearDimension: function(all) {
+        clearDimension: function(all) {
             fixedPeriodSelectedStore.removeAll();
             period.resetRelativePeriods();
 
-            if (!all) {
+            if (!all) {
                 relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
             }
         },
-        setDimension: function(layout) {
-            if (layout.hasDimension(this.dimension, true)) {
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
                 //var records = layout.getDimension(this.dimension).getRecords(null, layout.getResponse()),
                 var records = layout.getDimension(this.dimension).extendRecords(layout.getResponse()),
                     fixedRecords = [],
                     checkbox;
 
-                records.forEach(function(record) {
+                records.forEach(function(record) {
                     checkbox = relativePeriod.valueComponentMap[record.id];
 
-                    if (checkbox) {
+                    if (checkbox) {
                         checkbox.setValue(true);
                     }
                     else {
@@ -2656,7 +2656,7 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
@@ -3114,7 +3114,7 @@ WestRegionAggregateItems = function(c) {
         dimension: organisationUnitObjectName,
         collapsed: false,
         clearDimension: function(doClear) {
-            if (doClear) {
+            if (doClear) {
                 treePanel.reset();
 
                 userOrganisationUnit.setValue(false);
@@ -3122,33 +3122,33 @@ WestRegionAggregateItems = function(c) {
                 userOrganisationUnitGrandChildren.setValue(false);
             }
         },
-        setDimension: function(layout) {
-            if (layout.hasDimension(this.dimension, true)) {
+        setDimension: function(layout) {
+            if (layout.hasDimension(this.dimension, true)) {
                 var dimension = layout.getDimension(this.dimension, true),
                     parentGraphMap = layout.parentGraphMap;
 
                 var records = dimension.getRecords(),
                     ids = [],
                     levels = [],
-                    groups = [],
+                    groups = [],
                     isOu,
                     isOuc,
                     isOugc;
 
-                records.forEach(function(record) {
-                    if (record.id === 'USER_ORGUNIT') {
+                records.forEach(function(record) {
+                    if (record.id === 'USER_ORGUNIT') {
                         isOu = true;
                     }
-                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
+                    else if (record.id === 'USER_ORGUNIT_CHILDREN') {
                         isOuc = true;
                     }
-                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
+                    else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
                         isOugc = true;
                     }
-                    else if (record.id.substr(0,5) === 'LEVEL') {
+                    else if (record.id.substr(0,5) === 'LEVEL') {
                         levels.push(parseInt(record.id.split('-')[1]));
                     }
-                    else if (record.id.substr(0,8) === 'OU_GROUP') {
+                    else if (record.id.substr(0,8) === 'OU_GROUP') {
                         groups.push(record.id.split('-')[1]);
                     }
                     else {
@@ -3156,7 +3156,7 @@ WestRegionAggregateItems = function(c) {
                     }
                 });
 
-                if (levels.length) {
+                if (levels.length) {
                     toolMenu.clickHandler('level');
                     organisationUnitLevel.setValue(levels);
                 }
@@ -3172,7 +3172,7 @@ WestRegionAggregateItems = function(c) {
                 }
 
                 if (!(isOu || isOuc || isOugc)) {
-                    if (isObject(parentGraphMap)) {
+                    if (isObject(parentGraphMap)) {
                         treePanel.selectGraphMap(parentGraphMap);
                     }
                 }
@@ -3252,7 +3252,7 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function() {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
@@ -3629,7 +3629,7 @@ WestRegionAggregateItems = function(c) {
             }
         });
 
-        onSelectAll = function(value) {
+        onSelectAll = function(value) {
             if (available.boundList && selected.boundList) {
                 if (value) {
                     available.boundList.disable();
@@ -3652,16 +3652,16 @@ WestRegionAggregateItems = function(c) {
             selectedStore: selectedStore,
             selectedAll: selectedAll,
             isDynamic: true,
-            clearDimension: function() {
+            clearDimension: function() {
                 availableStore.reset();
                 selectedStore.removeAll();
                 selectedAll.setValue(false);
             },
-            setDimension: function(layout) {
-                if (layout.hasDimension(this.dimension, true)) {
+            setDimension: function(layout) {
+                if (layout.hasDimension(this.dimension, true)) {
                     var records = layout.getDimension(this.dimension).getRecords();
 
-                    if (records.length) {
+                    if (records.length) {
                         selectedStore.add(records);
                         uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
                     }
@@ -3749,7 +3749,7 @@ WestRegionAggregateItems = function(c) {
         })
     ];
 
-    var getItems = function(dimensions = []) {
+    var getItems = function(dimensions = []) {
         return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
     };
 
@@ -3760,12 +3760,12 @@ WestRegionAggregateItems = function(c) {
         bodyStyle: 'border:0 none',
         height: 700,
         toBeRemoved: [],
-        addItems: function(dimensions) {
+        addItems: function(dimensions) {
             this.toBeRemoved = this.add(getItems(dimensions));
 
             accordion.setThisHeight();
         },
-        removeItems: function() {
+        removeItems: function() {
             this.toBeRemoved.map(item => isString(item) ? item : item.id).forEach(id => {
                 accordionBody.remove(id);
             });
@@ -3790,23 +3790,23 @@ WestRegionAggregateItems = function(c) {
     });
 
     // state
-    var setUiState = function(layout) {
+    var setUiState = function(layout) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow'),
             chartTypeToolbar = uiManager.get('chartTypeToolbar');
 
-        if (chartTypeToolbar) {
+        if (chartTypeToolbar) {
             chartTypeToolbar.reset();
         }
 
         // clear panels
         accordion.clearDimensions(layout);
 
-        if (layout) {
+        if (layout) {
             var co = dimensionConfig.get('category');
 
             // type
-            if (chartTypeToolbar) {
+            if (chartTypeToolbar) {
                 chartTypeToolbar.setChartType(layout.type);
             }
 
@@ -3814,13 +3814,13 @@ WestRegionAggregateItems = function(c) {
             accordion.setDimensions(layout);
 
             // layout window
-            if (layoutWindow) {
+            if (layoutWindow) {
                 layoutWindow.reset(true);
                 layoutWindow.setDimensions(layout);
             }
 
                 // add assigned categories as dimension
-            if (!layoutWindow.hasDimension(co.dimensionName)) {
+            if (!layoutWindow.hasDimension(co.dimensionName)) {
                 layoutWindow.addDimension({
                     id: co.dimensionName,
                     name: co.name
@@ -3921,13 +3921,13 @@ WestRegionAggregateItems = function(c) {
         expandInitPanels: function() {
             organisationUnit.expand();
         },
-        clearDimensions: function(layout) {
-            accordionPanels.forEach(function(panel) {
+        clearDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
                 panel.clearDimension(!!layout);
             });
         },
-        setDimensions: function(layout) {
-            accordionPanels.forEach(function(panel) {
+        setDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
                 panel.setDimension(layout);
             });
         },

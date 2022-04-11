@@ -5,7 +5,7 @@ ChartDownloadButtonItems = function(refs) {
         instanceManager = refs.instanceManager,
         i18n = refs.i18nManager.get();
 
-    var getFilename = function() {
+    var getFilename = function() {
         return instanceManager.getStateFavoriteName() || instanceManager.getStateCurrent().title || i18n.untitled;
     };
 

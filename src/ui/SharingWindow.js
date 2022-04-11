@@ -119,7 +119,7 @@ SharingWindow = function(c, sharing, configOnly) {
                                 if (validateAccessField(field, currentAccesses, newAccesses)) {
                                     cmp.up('panel').destroy();
 
-                                    if (window) {
+                                    if (window) {
                                         window.doLayout();
                                     }
                                 }
@@ -381,7 +381,7 @@ SharingWindow = function(c, sharing, configOnly) {
         userRowContainer
     ];
 
-    if (configOnly) {
+    if (configOnly) {
         return {
             SharingAccessRow,
             getBody,
@@ -418,9 +418,9 @@ SharingWindow = function(c, sharing, configOnly) {
                                 'Content-Type': 'application/json'
                             },
                             params: Ext.encode(getBody()),
-                            success: function() {
-                                instanceManager.getById(null, function(layout, isFavorite) {
-                                    instanceManager.getReport(layout, isFavorite, false, false, function() {
+                            success: function() {
+                                instanceManager.getById(null, function(layout, isFavorite) {
+                                    instanceManager.getReport(layout, isFavorite, false, false, function() {
                                         uiManager.unmask();
                                     });
                                 });
@@ -435,7 +435,7 @@ SharingWindow = function(c, sharing, configOnly) {
                 show: function(w) {
                     var favoriteWindow = uiManager.get('favoriteWindow');
 
-                    if (favoriteWindow && favoriteWindow.rendered) {
+                    if (favoriteWindow && favoriteWindow.rendered) {
 
                         // position
                         var x = ((favoriteWindow.getWidth() - w.getWidth()) / 2) + favoriteWindow.getPosition()[0],
@@ -457,7 +457,7 @@ SharingWindow = function(c, sharing, configOnly) {
                 destroy: function() {
                     var favoriteWindow = uiManager.get('favoriteWindow');
 
-                    if (favoriteWindow) {
+                    if (favoriteWindow) {
                         favoriteWindow.destroyOnBlur = true;
                     }
                 }

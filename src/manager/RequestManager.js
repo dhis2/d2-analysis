@@ -18,7 +18,7 @@ RequestManager = function(refs, config) {
 
     t.fn = isFunction(config.fn) ? config.fn : function() { console.log('Request manager done'); };
 
-    t.fnParams = [];
+    t.fnParams = [];
 };
 
 RequestManager.prototype.add = function(param) {
@@ -35,7 +35,7 @@ RequestManager.prototype.add = function(param) {
 RequestManager.prototype.set = function(fn, params) {
     this.fn = fn;
 
-    if (params) {
+    if (params) {
         this.fnParams = params;
     }
 };
@@ -60,10 +60,10 @@ RequestManager.prototype.resolve = function() {
     }
 };
 
-RequestManager.prototype.applyTo = function(modules) {
+RequestManager.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.requestManager = t;
     });
 };

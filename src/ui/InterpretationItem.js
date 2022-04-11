@@ -15,7 +15,7 @@ InterpretationItem = function(c) {
         xable: function() {
             this.setDisabled(!instanceManager.isStateSaved());
         },
-        handler: function() {
+        handler: function() {
             InterpretationWindow(c).show();
         }
     });

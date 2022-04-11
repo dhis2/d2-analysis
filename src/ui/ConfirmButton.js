@@ -32,7 +32,7 @@ ConfirmButton = function(refs, { type = 'confirm', text = 'OK', fn = Function.pr
         minWidth: 72,
         text: '<span style="color:' + style.color + '; font-weight:' + style.fontWeight + '; padding:' + style.padding + '">' + text + '</span>',
         style: 'border-color:' + style.borderColor + '; background:' + style.background + '; border-radius:' + style.borderRadius,
-        handler: function() {
+        handler: function() {
             fn();
             closeFn();
         }

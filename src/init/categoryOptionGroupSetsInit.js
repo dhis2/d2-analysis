@@ -1,6 +1,6 @@
 export var categoryOptionGroupSetsInit;
 
-categoryOptionGroupSetsInit = function(c, extraParams = []) {
+categoryOptionGroupSetsInit = function(c, extraParams = []) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

@@ -24,7 +24,7 @@ AppManager = function(refs) {
     t.defaultIndexedDb = 'dhis2';
     t.rootNodeId = 'root';
 
-    t.defaultRequestHeaders = {
+    t.defaultRequestHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     };
@@ -65,7 +65,7 @@ AppManager = function(refs) {
         '!organisationUnits'
     ];
 
-    t.displayPropertyMap = {
+    t.displayPropertyMap = {
         'name': 'displayName',
         'displayName': 'displayName',
         'shortName': 'displayShortName',
@@ -78,7 +78,7 @@ AppManager = function(refs) {
         'USER_ORGUNIT_GRANDCHILDREN'
     ];
 
-    t.ignoreResponseHeaders = [
+    t.ignoreResponseHeaders = [
         'dy',
         'value',
         'psi',
@@ -146,11 +146,11 @@ AppManager = function(refs) {
     };
 
     // event handler array
-    t.getEventHandlerArray = function() {
-        var a = [];
+    t.getEventHandlerArray = function() {
+        var a = [];
 
-        a.run = function(params) {
-            a.forEach(function(fn) {
+        a.run = function(params) {
+            a.forEach(function(fn) {
                 fn(params.cmp, params.width, params.height, params.eOpts);
             });
         };
@@ -254,7 +254,7 @@ AppManager.prototype.getPath = function() {
     return this.path ? this.path : (this.env === 'production' ? dhis.href : dhis.devHref || dhis.href);
 };
 
-AppManager.prototype.getManifestFullVersionNumber = function() {
+AppManager.prototype.getManifestFullVersionNumber = function() {
     var t = this;
 
     return t.manifest && isNumeric(parseInt(t.manifest.version)) ? parseInt(t.manifest.version) : t.manifestVersion || undefined;
@@ -331,13 +331,13 @@ AppManager.prototype.addLegendSets = function(param) {
 AppManager.prototype.getLegendSetById = function(id) {
     var t = this;
 
-    if (t.legendSetMap) {
+    if (t.legendSetMap) {
         return t.legendSetMap[id];
     }
 
-    t.legendSetMap = {};
+    t.legendSetMap = {};
 
-    t.legendSets.forEach(function(set) {
+    t.legendSets.forEach(function(set) {
         t.legendSetMap[set.id] = set;
     });
 
@@ -362,7 +362,7 @@ AppManager.prototype.addDataApprovalLevels = function(param) {
     arraySort(this.dataApprovalLevels, 'ASC', 'level');
 };
 
-AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
+AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
     var t = this;
 
     t.ignoreResponseHeaders = arrayUnique([
@@ -371,40 +371,40 @@ AppManager.prototype.addIgnoreResponseHeaders = function(headers, append) {
     ]);
 };
 
-AppManager.prototype.setAuth = function(binary, ascii) {
+AppManager.prototype.setAuth = function(binary, ascii) {
     var J = 'jQuery' in window ? window['jQuery'] : undefined;
     var E = 'Ext' in window ? window['Ext'] : undefined;
     var headers;
     var auth;
 
-    if (binary || ascii) {
+    if (binary || ascii) {
         headers = {
             Authorization: ascii ? ascii : 'Basic ' + btoa(binary)
         };
     }
-    else if (this.env !== 'production' && (this.manifest && isString(this.manifest.activities.dhis.auth))) {
+    else if (this.env !== 'production' && (this.manifest && isString(this.manifest.activities.dhis.auth))) {
         headers = {
             Authorization: 'Basic ' + btoa(this.manifest.activities.dhis.auth)
         };
     }
 
-    if (headers) {
-        if (J) {
+    if (headers) {
+        if (J) {
             J.ajaxSetup({
                 headers: headers
             });
         }
 
-        if (E && isObject(E.Ajax)) {
+        if (E && isObject(E.Ajax)) {
             E.Ajax.defaultHeaders = headers;
         }
     }
 };
 
-AppManager.prototype.applyTo = function(modules) {
+AppManager.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.appManager = t;
     });
 };
@@ -419,13 +419,13 @@ AppManager.prototype.getApiPath = function() {
     return t.getPath() + '/api' + (version ? '/' + version : '');
 };
 
-AppManager.prototype.getLegendColorByValue = function(id, value) {
+AppManager.prototype.getLegendColorByValue = function(id, value) {
     var t = this,
         color;
 
     var legendSet = t.getLegendSetById(id);
 
-    for (var i = 0, legend; i < legendSet.legends.length; i++) {
+    for (var i = 0, legend; i < legendSet.legends.length; i++) {
         legend = legendSet.legends[i];
 
         if (value >= parseFloat(legend.startValue) && value < parseFloat(legend.endValue)) {
@@ -437,7 +437,7 @@ AppManager.prototype.getLegendColorByValue = function(id, value) {
     return color;
 };
 
-AppManager.prototype.getDisplayPropertyUrl = function() {
+AppManager.prototype.getDisplayPropertyUrl = function() {
     if (this.displayPropertyUrl) {
         return this.displayPropertyUrl;
     }
@@ -463,8 +463,8 @@ AppManager.prototype.getRootNode = function() {
 
 // dep 2
 
-AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
-    if (!(isString(id) && isFunction(fn))) {
+AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
+    if (!(isString(id) && isFunction(fn))) {
         return;
     }
 
@@ -480,18 +480,18 @@ AppManager.prototype.getLegendSetIdByDxId = function(id, fn) {
             'fields=legendSet[id]',
             'paging=false'
         ],
-        success: function(json) {
-            if (isArray(json.indicators) && json.indicators.length) {
-                if (isObject(json.indicators[0].legendSet)) {
+        success: function(json) {
+            if (isArray(json.indicators) && json.indicators.length) {
+                if (isObject(json.indicators[0].legendSet)) {
                     var legendSet = json.indicators[0].legendSet;
 
-                    if (isObject(legendSet)) {
+                    if (isObject(legendSet)) {
                         legendSetId = legendSet.id;
                     }
                 }
             }
         },
-        complete: function() {
+        complete: function() {
             fn(legendSetId);
         }
     }).run();
@@ -519,7 +519,7 @@ AppManager.prototype.getOptionSets = function(response, callbackFn) {
 
             var map = {};
 
-            array.forEach(obj => {
+            array.forEach(obj => {
                 map[namePrefix + obj[idProperty]] = obj[nameProperty];
             });
 
@@ -534,11 +534,11 @@ AppManager.prototype.getOptionSets = function(response, callbackFn) {
         };
 
         // execute
-        optionSetHeaders.forEach(header => {
+        optionSetHeaders.forEach(header => {
             var optionSetIds = arrayFrom(header.optionSet);
             var dataElementId = header.name;
 
-            optionSetIds.forEach(id => {
+            optionSetIds.forEach(id => {
                 getOptions(id, dataElementId);
             });
         });

@@ -1,6 +1,6 @@
 export var OptionsButton;
 
-OptionsButton = function(refs) {
+OptionsButton = function(refs) {
     var uiManager = refs.uiManager;
 
     var i18n = refs.i18nManager.get();

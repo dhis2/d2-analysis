@@ -30,34 +30,34 @@ Axis = function(refs, config) {
         return this;
     };
 
-    t.add = function(dimensionConfig, skipValidation) {
+    t.add = function(dimensionConfig, skipValidation) {
         var dimension = skipValidation ? dimensionConfig : (new Dimension(refs, dimensionConfig)).val();
 
-        if (dimension) {
+        if (dimension) {
             t.push(dimension);
         }
     };
 
-    t.clone = function() {
+    t.clone = function() {
         return Axis(refs, this);
     };
 
-    t.empty = function() {
+    t.empty = function() {
         var cache = t.slice(0);
 
-        for (var i = 0, len = t.length; i < len; i++) {
+        for (var i = 0, len = t.length; i < len; i++) {
             t.pop();
         }
 
         return cache;
     };
 
-    t.getRecordIds = function(isSorted, asString) {
+    t.getRecordIds = function(isSorted, asString) {
         var ids = asString ? '' : [];
 
-        t.forEach(function(dimension, dIndex, dArray) {
-            dimension.getRecordIds(isSorted, null, true).forEach(function(id, nIndex, nArray) {
-                if (asString) {
+        t.forEach(function(dimension, dIndex, dArray) {
+            dimension.getRecordIds(isSorted, null, true).forEach(function(id, nIndex, nArray) {
+                if (asString) {
                     ids += id + (nIndex !== nArray.length - 1 ? ', ' : '');
                 }
                 else {
@@ -65,7 +65,7 @@ Axis = function(refs, config) {
                 }
             });
 
-            if (asString) {
+            if (asString) {
                 ids += (dIndex !== dArray.length - 1 ? ' - ' : '');
             }
         });
@@ -73,12 +73,12 @@ Axis = function(refs, config) {
         return ids;
     };
 
-    t.getRecordNames = function(isSorted, response, asString) {
+    t.getRecordNames = function(isSorted, response, asString) {
         var names = asString ? '' : [];
 
-        t.forEach(function(dimension, dIndex, dArray) {
-            dimension.getRecordNames(isSorted, response, true).forEach(function(name, nIndex, nArray) {
-                if (asString) {
+        t.forEach(function(dimension, dIndex, dArray) {
+            dimension.getRecordNames(isSorted, response, true).forEach(function(name, nIndex, nArray) {
+                if (asString) {
                     names += name + (nIndex !== nArray.length - 1 ? ', ' : '');
                 }
                 else {
@@ -86,7 +86,7 @@ Axis = function(refs, config) {
                 }
             });
 
-            if (asString) {
+            if (asString) {
                 names += (dIndex !== dArray.length - 1 ? ' - ' : '');
             }
         });
@@ -94,8 +94,8 @@ Axis = function(refs, config) {
         return names;
     };
 
-    t.getDimension = function(dimensionName) {
-        return this.find(function(dimension) {
+    t.getDimension = function(dimensionName) {
+        return this.find(function(dimension) {
             return dimension.dimension === dimensionName;
         });
     };
@@ -118,26 +118,26 @@ Axis = function(refs, config) {
         return t.clone().sort(function(a, b) {return a.dimension > b.dimension;});
     };
 
-    t.extendRecords = function(response) {
-        t.forEach(function(dimension) {
+    t.extendRecords = function(response) {
+        t.forEach(function(dimension) {
             dimension.extendRecords(response);
         });
     };
 
-    t.strip = function() {
+    t.strip = function() {
         var rest = [];
 
-        while (t.length > 1) {
+        while (t.length > 1) {
             rest.push(t.pop());
         }
 
         return rest.reverse();
     };
 
-    t.toPlugin = function() {
+    t.toPlugin = function() {
         delete t.klass;
 
-        t.forEach(function(item) {
+        t.forEach(function(item) {
             item.toPlugin();
         });
     };

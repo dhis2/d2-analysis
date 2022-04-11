@@ -2,7 +2,7 @@ import arrayMin from 'd2-utilizr/lib/arrayMin';
 
 export var StatusBar;
 
-StatusBar = function(refs) {
+StatusBar = function(refs) {
     var { instanceManager, dimensionConfig } = refs;
 
     var aggregated_values = dimensionConfig.dataType['aggregated_values'];
