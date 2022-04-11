@@ -115,6 +115,29 @@ export const Response = function(refs, config) {
         return id;
     };
 
+    t.getSplitElementId = id => id.split('.').reverse()[0]
+
+    // 2.38: use element ids instead of stage.element ids
+    (function() {
+        var splitElementIds = [];
+
+        config.headers
+            .filter(h => h.name.includes('.'))
+            .forEach(h => (splitElementIds.push(h.name = t.getSplitElementId(h.name))));
+
+        if (splitElementIds.length) {
+            var items = config.metaData.items;
+
+            Object.keys(items).forEach(key => {
+                var elementId = key.includes('.') && t.getSplitElementId(key);
+
+                if (elementId) {
+                    items[elementId] = items[key];
+                }
+            })
+        }
+    })();
+
     t.optionCodeIdMap = function() {
         var dimensions = config.metaData.dimensions;
         var items = config.metaData.items;
