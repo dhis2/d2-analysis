@@ -115,27 +115,19 @@ export const Response = function(refs, config) {
         return id;
     };
 
-    t.getSplitElementId = id => id.split('.').reverse()[0];
+    var getSplitElementId = id => id.split('.').reverse()[0];
 
     // 2.38: use element ids instead of stage.element ids
     (function() {
-        var splitElementIds = [];
-
         config.headers
             .filter(h => h.name.includes('.'))
-            .forEach(h => (splitElementIds.push(h.name = t.getSplitElementId(h.name))));
+            .forEach(h => (h.name = getSplitElementId(h.name)));
 
-        if (splitElementIds.length) {
-            var dimensions = config.metaData.dimensions;
+        var dimensions = config.metaData.dimensions;
 
-            Object.keys(dimensions).forEach(key => {
-                var elementId = key.includes('.') && t.getSplitElementId(key);
-
-                if (elementId) {
-                    dimensions[elementId] = dimensions[key];
-                }
-            })
-        }
+        Object.keys(dimensions)
+            .filter(key => key.includes('.'))
+            .forEach(key => (dimensions[getSplitElementId(key)] = dimensions[key]));
     })();
 
     t.optionCodeIdMap = function() {
