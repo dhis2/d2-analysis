@@ -1011,7 +1011,7 @@ WestRegionTrackerItems = function(refs) {
                 ...dimensionConfig.valueType['date_types']
             ];
 
-            const getLegendSetForDimension = (dimensionId, dataElementDimensions) => {
+        const getLegendSetForDimension = (dimensionId, dataElementDimensions) => {
             if (!dataElementDimensions) {
                 return null;
             }
@@ -1046,6 +1046,9 @@ WestRegionTrackerItems = function(refs) {
                     });
                 }
             } else if (isObject(item)) {
+                // 2.38
+                item.programStage = item.programStage || layout.programStage;
+
                 const itemConfig = {
                     ...item.data,
                     ...(item.programStage &&
