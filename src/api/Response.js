@@ -115,7 +115,7 @@ export const Response = function(refs, config) {
         return id;
     };
 
-    t.getSplitElementId = id => id.split('.').reverse()[0]
+    t.getSplitElementId = id => id.split('.').reverse()[0];
 
     // 2.38: use element ids instead of stage.element ids
     (function() {
