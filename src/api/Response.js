@@ -126,13 +126,13 @@ export const Response = function(refs, config) {
             .forEach(h => (splitElementIds.push(h.name = t.getSplitElementId(h.name))));
 
         if (splitElementIds.length) {
-            var items = config.metaData.items;
+            var dimensions = config.metaData.dimensions;
 
-            Object.keys(items).forEach(key => {
+            Object.keys(dimensions).forEach(key => {
                 var elementId = key.includes('.') && t.getSplitElementId(key);
 
                 if (elementId) {
-                    items[elementId] = items[key];
+                    dimensions[elementId] = dimensions[key];
                 }
             })
         }
