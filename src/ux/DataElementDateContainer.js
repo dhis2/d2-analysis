@@ -4,7 +4,7 @@ import containerConfig from './containerConfig';
 
 export var DataElementDateContainer;
 
-DataElementDateContainer = function(refs) {
+DataElementDateContainer = function(refs) {
     Ext.define('Ext.ux.container.DataElementDateContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementdatecontainer',

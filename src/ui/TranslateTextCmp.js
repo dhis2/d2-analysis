@@ -1,6 +1,6 @@
 import getFavoriteTextCmp from './FavoriteTextCmp';
 
-export default function({ layout, i18n }) {
+export default function({ layout, i18n }) {
 
     // Load Favorite textfield
     const { nameTextField, descriptionTextField, titleTextField } = getFavoriteTextCmp({ layout, i18n });

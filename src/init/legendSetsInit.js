@@ -1,6 +1,6 @@
 export var legendSetsInit;
 
-legendSetsInit = function(c) {
+legendSetsInit = function(c) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

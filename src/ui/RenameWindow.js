@@ -27,7 +27,7 @@ RenameWindow = function(refs, layout, fn, listeners) {
         handler: function() {
             var name = nameTextField.getValue(),
                 description = descriptionTextField.getValue(),
-                patch = function() {
+                patch = function() {
                     var properties = {
                         name: name,
                         description: description
@@ -35,12 +35,12 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
                     layout.apply(properties);
 
-                    layout.patch(properties, function() {
-                        if (fn) {
+                    layout.patch(properties, function() {
+                        if (fn) {
                             fn();
                         }
-                        instanceManager.getById(null, function(layout, isFavorite) {
-                            instanceManager.getReport(layout, isFavorite, false, false, function() {
+                        instanceManager.getById(null, function(layout, isFavorite) {
+                            instanceManager.getReport(layout, isFavorite, false, false, function() {
                                 uiManager.unmask();
                             });
                         });
@@ -48,14 +48,14 @@ RenameWindow = function(refs, layout, fn, listeners) {
                     }, true, true);
                 };
 
-            if (layout.patch) {
+            if (layout.patch) {
                 patch();
             }
             else {
                 var fields = appManager.getAnalysisFields(),
                     url = apiPath + '/' + apiEndpoint + '/' + layout.id + '.json?fields=' + fields;
 
-                $.getJSON(encodeURI(url), function(r) {
+                $.getJSON(encodeURI(url), function(r) {
                     layout = new api.Layout(refs, r).val();
                     patch();
                 });
@@ -99,12 +99,12 @@ RenameWindow = function(refs, layout, fn, listeners) {
 
                 nameTextField.focus(false, 500);
 
-                if (listeners.show) {
+                if (listeners.show) {
                     listeners.show();
                 }
             },
             destroy: function() {
-                if (listeners.destroy) {
+                if (listeners.destroy) {
                     listeners.destroy();
                 }
             }

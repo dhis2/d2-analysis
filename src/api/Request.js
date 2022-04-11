@@ -19,9 +19,9 @@ Request = function(refs, config) {
     t.headers = isObject(config.headers) ? config.headers : refs.appManager.defaultRequestHeaders;
     t.dataType = isString(config.dataType) ? config.dataType : 'json';
     t.contentType = isString(config.contentType) ? config.contentType : null;
-    t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
-    t.error = isFunction(config.error) ? config.error : function() { t.defaultError(); };
-    t.complete = isFunction(config.complete) ? config.complete : function() { t.defaultComplete(); };
+    t.success = isFunction(config.success) ? config.success : function() { t.defaultSuccess(); };
+    t.error = isFunction(config.error) ? config.error : function() { t.defaultError(); };
+    t.complete = isFunction(config.complete) ? config.complete : function() { t.defaultComplete(); };
 
     t.type = isString(config.type) ? config.type : 'ajax';
     t.baseUrl = isString(config.baseUrl) ? config.baseUrl : '';
@@ -168,7 +168,7 @@ Request.prototype.run = function(config) {
         complete();
     };
 
-    if (t.beforeRun && t.beforeRun() === false) {
+    if (t.beforeRun && t.beforeRun() === false) {
         return;
     }
 

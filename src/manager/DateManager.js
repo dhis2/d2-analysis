@@ -2,11 +2,11 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var DateManager;
 
-DateManager = function() {
+DateManager = function() {
     this.klass = DateManager;
 };
 
-DateManager.toDate = function(dateString) {
+DateManager.toDate = function(dateString) {
     return isString(dateString) ? (new Date(dateString)) : dateString;
 };
 

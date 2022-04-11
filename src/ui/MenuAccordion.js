@@ -50,8 +50,8 @@ MenuAccordion.prototype.setThisHeight = function(mx) {
 };
 
 MenuAccordion.prototype.getExpandedTab = function() {
-    this.tabs.forEach(function(tab) {
-        if (!tab.collapsed) {
+    this.tabs.forEach(function(tab) {
+        if (!tab.collapsed) {
             return tab;
         }
     });
@@ -63,10 +63,10 @@ MenuAccordion.prototype.getFirstPanel = function() {
     return this.tabs[0];
 };
 
-MenuAccordion.prototype.applyTo = function(modules) {
+MenuAccordion.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.menuAccordion = t;
     });
 };

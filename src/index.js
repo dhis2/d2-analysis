@@ -63,7 +63,7 @@ import { dataApprovalLevelsInit } from './init/dataApprovalLevelsInit.js';
 import { userFavoritesInit } from './init/userFavoritesInit.js';
 import { categoryOptionGroupSetsInit } from './init/categoryOptionGroupSetsInit.js';
 
-import { SimpleRegression } from './util/SimpleRegression.js';
+import { SimpleRegression } from './util/SimpleRegression.js';
 import { Plugin } from './util/Plugin.js';
 import * as dom from './util/dom.js';
 
@@ -169,7 +169,7 @@ export const api = {
     Sorting,
 };
 
-export const table = {
+export const table = {
     PivotTableAxis,
     PivotTable,
     EventDataTable,

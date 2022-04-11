@@ -13,7 +13,7 @@ DimensionConfig = function() {
     var dimensions = {};
 
     // dimension name map
-    var dimensionNameDimensionMap = {
+    var dimensionNameDimensionMap = {
         'dx': 'data',
         'co': 'category',
         'pe': 'period',
@@ -44,7 +44,7 @@ DimensionConfig = function() {
     };
 
     // setter
-    var setDimensions = function() {
+    var setDimensions = function() {
         dimensions = Object.assign(dimensions, {
             data: {
                 value: 'data',
@@ -130,7 +130,7 @@ DimensionConfig = function() {
     };
 
     // init
-    t.init = function() {
+    t.init = function() {
         setDimensions();
     };
 
@@ -174,19 +174,19 @@ DimensionConfig = function() {
         return map;
     };
 
-    t.getDefaultDataType = function() {
+    t.getDefaultDataType = function() {
         return t.dataType[defaultDataType];
     };
 
-    t.setI18nManager = function(manager) {
+    t.setI18nManager = function(manager) {
         i18nManager = manager;
     };
 };
 
-DimensionConfig.prototype.applyTo = function(modules) {
+DimensionConfig.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.dimensionConfig = t;
     });
 };

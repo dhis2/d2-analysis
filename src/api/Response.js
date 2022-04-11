@@ -23,7 +23,7 @@ export const Response = function(refs, config) {
 
     var { appManager, indexedDbManager, i18nManager } = refs;
 
-    var { ResponseHeader, ResponseRow } = refs.api;
+    var { ResponseHeader, ResponseRow } = refs.api;
 
     var i18n = i18nManager.get();
 
@@ -74,7 +74,7 @@ export const Response = function(refs, config) {
 
     // functions
     var isPrefixHeader = (header, dimensions) => {
-        if (arrayContains(DEFAULT_PREFIX_IGNORE_HEADERS, header.name)) {
+        if (arrayContains(DEFAULT_PREFIX_IGNORE_HEADERS, header.name)) {
             return false;
         }
 
@@ -82,19 +82,19 @@ export const Response = function(refs, config) {
     };
 
     var isCollectHeader = (header, dimensions) => {
-        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
+        if (arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)) {
             return false;
         }
 
         return isEmpty(dimensions);
     };
 
-    var getHeader = name => t.headers.find(header => header.name === name);
+    var getHeader = name => t.headers.find(header => header.name === name);
     var hasHeader = name => getHeader(name) !== undefined;
 
-    t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
+    t.getPrefixedId = (id, prefix) => (prefix || '') + '_' + id;
 
-    t.getSortedUniqueRowIdStringsByHeader = (header) => {
+    t.getSortedUniqueRowIdStringsByHeader = (header) => {
         var parseByType = getParseMiddleware(header.valueType);
         const ids = arrayClean(arrayUnique(t.rows.map(responseRow => responseRow.getAt(header.index))));
         let pa, pb;
@@ -108,7 +108,7 @@ export const Response = function(refs, config) {
     };
 
     t.getNameByIdsByValueType = (id, valueType) => {
-        if (valueType === 'BOOLEAN') {
+        if (valueType === 'BOOLEAN') {
             return booleanMap[id];
         }
 
@@ -155,8 +155,8 @@ export const Response = function(refs, config) {
     t.headers = (config.headers || []).map((header, index) => {
         var dimensions = config.metaData.dimensions;
 
-        var prefixConfig = isPrefixHeader(header, dimensions[header.name]) ? { isPrefix: true } : {};
-        var collectConfig = isCollectHeader(header, dimensions[header.name]) ? { isCollect: true } : {};
+        var prefixConfig = isPrefixHeader(header, dimensions[header.name]) ? { isPrefix: true } : {};
+        var collectConfig = isCollectHeader(header, dimensions[header.name]) ? { isCollect: true } : {};
 
         return new ResponseHeader(refs, header, Object.assign({}, prefixConfig, collectConfig, { index }));
     });
@@ -216,14 +216,14 @@ export const Response = function(refs, config) {
     }();
 
     // metadata
-    t.metaData = function() {
+    t.metaData = function() {
         var metaData = Object.assign({}, config.metaData);
 
         var dimensions = metaData.dimensions,
             items = metaData.items;
 
         // populate metaData dimensions and items
-        t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
+        t.headers.filter(header => !arrayContains(DEFAULT_COLLECT_IGNORE_HEADERS, header.name)).forEach(header => {
             var ids;
 
             // if header has empty values, add to "dimensions" and "items"
@@ -239,19 +239,19 @@ export const Response = function(refs, config) {
             }
 
             // collect row values
-            if (header.isCollect) {
+            if (header.isCollect) {
                 dimensions[header.name] = t.getSortedUniqueRowIdStringsByHeader(header);
             }
 
             ids = dimensions[header.name];
 
-            if (header.isPrefix) {
+            if (header.isPrefix) {
 
                 // create prefixed dimensions array
                 dimensions[header.name] = ids.map(id => t.getPrefixedId(id, header.name));
 
                 // create items
-                if (header.optionSet) {
+                if (header.optionSet) {
                     dimensions[header.name].forEach((prefixedId, index) => {
                         var id = ids[index];
                         var optionSet = header.optionSet;
@@ -275,15 +275,15 @@ export const Response = function(refs, config) {
         });
 
         // for events, add items from 'ouname'
-        if (hasHeader(OUNAME) && hasHeader(OU)) {
+        if (hasHeader(OUNAME) && hasHeader(OU)) {
             var ounameHeaderIndex = getHeader(OUNAME).getIndex();
             var ouHeaderIndex = getHeader(OU).getIndex();
 
-            for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
+            for (let i = 0, row, ouId, ouName, item; i < t.rows.length; i++) {
                 row = t.rows[i];
                 ouId = row.getAt(ouHeaderIndex);
 
-                if (items[ouId] !== undefined) {
+                if (items[ouId] !== undefined) {
                     continue;
                 }
 
@@ -313,7 +313,7 @@ export const Response = function(refs, config) {
     t.idValueMap;
     t.sortedRows;
 
-    t.getRefs = function() {
+    t.getRefs = function() {
         return refs;
     };
 };
@@ -372,7 +372,7 @@ Response.prototype.getHeaderIndexByName = function(name) {
     return header.index;
 };
 
-Response.prototype.getOptionSetHeaders = function() {
+Response.prototype.getOptionSetHeaders = function() {
     return t.headers.filter(header => isString(header.optionSet) || isArray(header.optionSet));
 };
 
@@ -389,7 +389,7 @@ Response.prototype.getHierarchyNameById = function(id, isHierarchy, isHtml) {
     if (isHierarchy && metaData.ouHierarchy.hasOwnProperty(id)) {
         var a = arrayClean(metaData.ouHierarchy[id].split('/'));
 
-        a.forEach(function(id) {
+        a.forEach(function(id) {
             name += (isHtml ? '<span class="text-weak">' : '') + items[id].name + (isHtml ? '</span>' : '') + ' / ';
         });
     }
@@ -423,8 +423,8 @@ Response.prototype.addOuHierarchyDimensions = function() {
     }
 
     // get ou index
-    for (var i = 0, header; i < headers.length; i++) {
-        if (headers[i].name === ou) {
+    for (var i = 0, header; i < headers.length; i++) {
+        if (headers[i].name === ou) {
             ouIndex = i;
             break;
         }
@@ -526,7 +526,7 @@ Response.prototype.getSize = function(layout) {
     return size;
 }
 
-Response.prototype.getFilteredHeaders = function(names) {
+Response.prototype.getFilteredHeaders = function(names) {
     return this.headers.filter(header => arrayContains(names, header.name));
 };
 
@@ -547,8 +547,8 @@ Response.prototype.getHeaderIndexOrder = function(dimensionNames) {
     return dimensionNames.map(name => this.getHeaderIndexByName(name));
 };
 
-Response.prototype.getIdsByDimensionNames = function(dimensionName) {
-    return arrayClean(dimensionName.reduce((ids, name) => 
+Response.prototype.getIdsByDimensionNames = function(dimensionName) {
+    return arrayClean(dimensionName.reduce((ids, name) => 
         ids.concat(this.getIdsByDimensionName(name) || []), []));
 };
 
@@ -731,7 +731,7 @@ Response.prototype.getValue = function(param, layout) {
     return this.getIdValueMap(layout)[id];
 };
 
-Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
+Response.prototype.getExtremalRows = function(limit, isTop, isBottom) {
     limit = isNumeric(limit) ? parseInt(limit) : 10;
     isTop = isBoolean(isTop) ? isTop : true;
     isBottom = isBoolean(isBottom) ? isBottom : true;

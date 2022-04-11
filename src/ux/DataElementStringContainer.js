@@ -2,7 +2,7 @@ import containerConfig from './containerConfig';
 
 export var DataElementStringContainer;
 
-DataElementStringContainer = function(refs) {
+DataElementStringContainer = function(refs) {
     Ext.define('Ext.ux.container.DataElementStringContainer', {
         extend: 'Ext.container.Container',
         alias: 'widget.dataelementstringcontainer',

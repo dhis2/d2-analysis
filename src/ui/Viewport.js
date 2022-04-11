@@ -67,7 +67,7 @@ Viewport = function(refs, cmp, config) {
         padding: '3',
         iconCls: 'ns-button-icon-arrowlefttriple',
         iconState: 1,
-        setIconState: function() {
+        setIconState: function() {
             switch (this.iconState++ % 2) {
                 case 1: this.el.dom.style.visibility = "hidden"; break;
                 case 0: this.el.dom.style.visibility = "visible"; break;
@@ -88,15 +88,15 @@ Viewport = function(refs, cmp, config) {
         collapseMode: 'mini',
         border: false,
         hasScrollbar: false,
-        hasChartTypeToolbar: function() {
+        hasChartTypeToolbar: function() {
             return !!chartTypeToolbar;
         },
         width: uiConfig.west_width + uiManager.getScrollbarSize().width,
         items: arrayClean([chartTypeToolbar, dataTypeToolbar, westRegionItems]),
-        onScrollbar: function() {
+        onScrollbar: function() {
             this.hasScrollbar = true;
         },
-        setState: function(layout) {
+        setState: function(layout) {
             westRegionItems.setUiState(layout);
         }
     });
@@ -414,8 +414,8 @@ Viewport = function(refs, cmp, config) {
         fullSize: true,
         cmp: [defaultButton],
         toggleCmp: function(show) {
-            integrationButtons.forEach(function(cmp) {
-                if (cmp && cmp.show && cmp.hide) {
+            integrationButtons.forEach(function(cmp) {
+                if (cmp && cmp.show && cmp.hide) {
                     if (show) {
                         cmp.show();
                     }
@@ -479,7 +479,7 @@ Viewport = function(refs, cmp, config) {
                     iconClsLeft: 'ns-button-icon-arrowlefttriple',
                     iconClsRight: 'ns-button-icon-arrowrighttriple',
                     iconState: 0,
-                    setIconState: function() {
+                    setIconState: function() {
                         this.setIconCls(this.iconState++ % 2 ? this.iconClsLeft : this.iconClsRight);
                     },
                     handler: function(b) {
@@ -540,11 +540,11 @@ Viewport = function(refs, cmp, config) {
 
         var config = Object.assign({}, accordion.getUiState(layoutWindow, optionsWindow), optionsWindow.getOptions());
 
-        if (chartType) {
+        if (chartType) {
             config.type = chartType;
         }
 
-        if (dataType) {
+        if (dataType) {
             config.dataType = dataType;
         }
 
@@ -576,7 +576,7 @@ Viewport = function(refs, cmp, config) {
                 });
 
                 // update cmp resize
-                uiManager.getUpdateComponent().on('resize', function(cmp, width, height, eOpts) {
+                uiManager.getUpdateComponent().on('resize', function(cmp, width, height, eOpts) {
                     uiManager.resize({
                         cmp: cmp,
                         width: width,
@@ -585,12 +585,12 @@ Viewport = function(refs, cmp, config) {
                     });
                 });
 
-                uiManager.onResize(function(cmp, width) {
-                    if (width < 700 && cmp.fullSize) {
+                uiManager.onResize(function(cmp, width) {
+                    if (width < 700 && cmp.fullSize) {
                         cmp.toggleCmp();
                         cmp.fullSize = false;
                     }
-                    else if (width >= 700 && !cmp.fullSize) {
+                    else if (width >= 700 && !cmp.fullSize) {
                         cmp.toggleCmp(true);
                         cmp.fullSize = true;
                     }
@@ -614,7 +614,7 @@ Viewport = function(refs, cmp, config) {
                 }
 
                 // north
-                if (northRegion) {
+                if (northRegion) {
                     northRegion.setLogoWidth(centerRegion.getPosition()[0]);
                 }
 
@@ -630,8 +630,8 @@ Viewport = function(refs, cmp, config) {
 
                 if (id) {
                     if (interpretationId && interpretationId != "new") {
-                        instanceManager.getById(id, function(layout) {
-                            instanceManager.getInterpretationById(interpretationId, function(interpretation) {
+                        instanceManager.getById(id, function(layout) {
+                            instanceManager.getInterpretationById(interpretationId, function(interpretation) {
                                 uiManager.updateInterpretation(interpretation, layout);
                             });
                         });

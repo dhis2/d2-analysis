@@ -2,7 +2,7 @@ import arrayTo from 'd2-utilizr/lib/arrayTo';
 
 export var UiConfig;
 
-UiConfig = function(branch = 'aggregate') {
+UiConfig = function(branch = 'aggregate') {
     var t = this;
 
     var layout = {
@@ -89,19 +89,19 @@ UiConfig = function(branch = 'aggregate') {
         }
     };
 
-    t.checkout = function(branch = branch) {
+    t.checkout = function(branch = branch) {
         $.extend(t, layout[branch]);
     };
 
-    (function() {
+    (function() {
         t.checkout();
     })();
 };
 
-UiConfig.prototype.applyTo = function(modules) {
+UiConfig.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.uiConfig = t;
     });
 };

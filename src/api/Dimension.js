@@ -24,11 +24,11 @@ Dimension = function(refs, config) {
         return (new Record(refs, record)).val();
     });
 
-    if (config.sorted) {
+    if (config.sorted) {
         t.sorted = config.sorted;
     }
 
-    t.getRefs = function() {
+    t.getRefs = function() {
         return refs;
     };
 };
@@ -56,7 +56,7 @@ Dimension.prototype.val = function(noError) {
     return this;
 };
 
-Dimension.prototype.add = function(recordConfig) {
+Dimension.prototype.add = function(recordConfig) {
     var t = this,
         refs = t.getRefs();
 
@@ -64,7 +64,7 @@ Dimension.prototype.add = function(recordConfig) {
 
     var record = (new Record(refs, recordConfig)).val();
 
-    if (record) {
+    if (record) {
         this.items.push(record);
     }
 };
@@ -72,7 +72,7 @@ Dimension.prototype.add = function(recordConfig) {
 Dimension.prototype.getRecords = function(sortProperty, response, isPure) {
     var records = response ? response.getRecordsByDimensionName(this.dimension) : this.items;
 
-    if (isPure) {
+    if (isPure) {
         records = records.slice(0);
     }
 
@@ -81,11 +81,11 @@ Dimension.prototype.getRecords = function(sortProperty, response, isPure) {
     return sortProperty ? records.sort(function(a, b) { return a[sortProperty] > b[sortProperty];}) : records;
 };
 
-Dimension.prototype.removeItems = function() {
+Dimension.prototype.removeItems = function() {
     this.items = [];
 };
 
-Dimension.prototype.isRequired = function() {
+Dimension.prototype.isRequired = function() {
     return arrayContains(REQUIRED_DIMENSIONS, this.dimension);
 };
 
@@ -109,30 +109,30 @@ Dimension.prototype.getProgramStageId = function() {
     return this.hasProgramStage() ? this.programStage.id : null;
 }
 
-Dimension.prototype.extendRecords = function(response) {
+Dimension.prototype.extendRecords = function(response) {
     var t = this;
 
     var records = t.getRecords();
 
-    records.forEach(function(record) {
+    records.forEach(function(record) {
         record.setName(null, response);
     });
 
     return records;
 };
 
-Dimension.prototype.toPlugin = function() {
+Dimension.prototype.toPlugin = function() {
     delete this.klass;
 
-    this.items.forEach(function(record) {
+    this.items.forEach(function(record) {
         record.toPlugin();
     });
 };
 
-Dimension.prototype.toPost = function() {
+Dimension.prototype.toPost = function() {
     delete this.klass;
 
-    this.items.forEach(function(record) {
+    this.items.forEach(function(record) {
         record.toPost();
     });
 };

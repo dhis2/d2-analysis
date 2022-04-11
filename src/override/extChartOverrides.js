@@ -1,4 +1,4 @@
-export var extChartOverrides = function() {
+export var extChartOverrides = function() {
 
     Ext.override(Ext.chart.Chart, {
         insetPaddingObject: {},

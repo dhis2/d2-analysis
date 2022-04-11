@@ -2,7 +2,7 @@ import isNumber from 'd2-utilizr/lib/isNumber';
 
 export var LimitContainer;
 
-LimitContainer = function(refs) {
+LimitContainer = function(refs) {
     var i18n = refs.i18nManager.get();
 
     Ext.define('Ext.ux.container.LimitContainer', {
@@ -23,7 +23,7 @@ LimitContainer = function(refs) {
         getTopLimit: function() {
             return this.activateCmp.getValue() ? this.topLimitCmp.getValue() : 0;
         },
-        setValues: function(sortOrder, topLimit) {
+        setValues: function(sortOrder, topLimit) {
             sortOrder = parseInt(sortOrder);
             topLimit = parseInt(topLimit);
 

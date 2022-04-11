@@ -24,7 +24,7 @@ TableManager = function(c) {
         'INDICATOR'
     ];
 
-    var toggleDirection = function(direction) {
+    var toggleDirection = function(direction) {
         return direction.toUpperCase() === 'ASC' ? 'DESC' : 'ASC';
     };
 
@@ -33,7 +33,7 @@ TableManager = function(c) {
         'ou': 'ouname'
     };
 
-    var getSortId = function(id, layout) {
+    var getSortId = function(id, layout) {
         if (sortIdMap[id]) {
             return sortIdMap[id]
         }
@@ -42,7 +42,7 @@ TableManager = function(c) {
             return id;
         }
 
-        if (layout.type === dimensionConfig.dataType['aggregated_values']) {
+        if (layout.type === dimensionConfig.dataType['aggregated_values']) {
             return id;
         }
 
@@ -57,10 +57,10 @@ TableManager = function(c) {
         return id;
     };
 
-    var onColumnHeaderMouseClick = function(layout, id) {
+    var onColumnHeaderMouseClick = function(layout, id) {
         var sortId = getSortId(id, layout);
 
-        if (layout.sorting && layout.sorting.id === sortId) {
+        if (layout.sorting && layout.sorting.id === sortId) {
             layout.sorting.direction = toggleDirection(layout.sorting.direction);
         }
         else {
@@ -73,30 +73,30 @@ TableManager = function(c) {
         instanceManager.getReport(layout);
     };
 
-    var onColumnHeaderMouseOver = function(el) {
+    var onColumnHeaderMouseOver = function(el) {
         var elObject = $(el);
 
-        if (elObject) {
+        if (elObject) {
             elObject.addClass('pointer highlighted');
         }
     };
 
-    var onColumnHeaderMouseOut = function(el) {
+    var onColumnHeaderMouseOut = function(el) {
         var elObject = $(el);
 
-        if (elObject) {
+        if (elObject) {
             elObject.removeClass('pointer highlighted');
         }
     };
 
-    t.setColumnHeaderMouseHandlers = function(layout, table) {
+    t.setColumnHeaderMouseHandlers = function(layout, table) {
         var elObjects = table.sortableIdObjects,
             dom;
 
-        elObjects.forEach(function(item) {
+        elObjects.forEach(function(item) {
             dom = document.getElementById(item.uuid);
 
-            if (dom) {
+            if (dom) {
                 dom.layout = layout;
                 dom.metaDataId = item.id;
                 dom.onColumnHeaderMouseClick = onColumnHeaderMouseClick;
@@ -113,7 +113,7 @@ TableManager = function(c) {
     var onValueMouseClick = function(layout, table, uuid) {
         var uuidObjectMap = table.getUuidObjectMap(),
             response = layout.getResponse(),
-            parentGraphMap = {},
+            parentGraphMap = {},
             objects = [],
             path = appManager.getPath(),
             dom = document.getElementById(uuid),

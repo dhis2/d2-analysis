@@ -15,7 +15,7 @@ Record = function(refs, config) {
     // tmp 2.22
     t.objectName = config.objectName;
 
-    if (isString(config.dimensionItemType)) {
+    if (isString(config.dimensionItemType)) {
         t.dimensionItemType = config.dimensionItemType;
     }
 };
@@ -35,15 +35,15 @@ Record.prototype.val = function(noError) {
     return this;
 };
 
-Record.prototype.setName = function(name, response) {
+Record.prototype.setName = function(name, response) {
     this.name = name || this.name || (this.id && response ? response.getNameById(this.id) : null);
 };
 
-Record.prototype.toPlugin = function() {
+Record.prototype.toPlugin = function() {
     delete this.klass;
 };
 
-Record.prototype.toPost = function() {
+Record.prototype.toPost = function() {
     delete this.klass;
     delete this.name;
     delete this.dimensionItemType;

@@ -676,7 +676,7 @@ PivotTable.prototype.getDivisorValue = function(id) {
  *
  * @returns {object}
  */
-PivotTable.prototype.getUuidObjectMap = function() {
+PivotTable.prototype.getUuidObjectMap = function() {
     return objectApplyIf(
         (this.colAxis ? this.colAxis.uuidObjectMap : {}),
         (this.rowAxis ? this.rowAxis.uuidObjectMap : {})
@@ -792,7 +792,7 @@ PivotTable.prototype.getCrossAxisLabel = function() {
 PivotTable.prototype.getTopBarSpan = function(span) {
     let rowDims = this.rowAxis.dims || 0;
 
-    if (!this.colAxis.type && this.rowAxis.type) {
+    if (!this.colAxis.type && this.rowAxis.type) {
         return rowDims;
     }
 
@@ -1721,9 +1721,9 @@ PivotTable.prototype.constrainWidth = function(columnIndex) {
  * @param {number} span
  * @returns {array}
  */
-PivotTable.prototype.buildTableFilter = function(span) {
+PivotTable.prototype.buildTableFilter = function(span) {
 
-    if (!this.filters) {
+    if (!this.filters) {
         return [];
     }
 
@@ -1740,7 +1740,7 @@ PivotTable.prototype.buildTableFilter = function(span) {
  * @param {number} span
  * @returns
  */
-PivotTable.prototype.buildTableTitle = function(span) {
+PivotTable.prototype.buildTableTitle = function(span) {
 
     if (!this.title) {
         return [];

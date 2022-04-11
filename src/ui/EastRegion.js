@@ -56,7 +56,7 @@ EastRegion = function(c) {
         return comment.user.id == appManager.userAccount.id || appManager.isAdmin;
     };
 
-    var getLink = function(text, isBold, isBrackets) {
+    var getLink = function(text, isBold, isBrackets) {
         return (isBrackets ? '<span class="bold">[</span> ' : '') +
             '<span class="eastPanelLink' + (isBold ? ' bold' : '') + '">' + text + '</span>' +
             (isBrackets ? ' <span class="bold">]</span>' : '');
@@ -543,8 +543,8 @@ EastRegion = function(c) {
                                 cls: 'link bold',
                                 style: 'margin-right: 7px;',
                                 listeners: {
-                                    render: function() {
-                                        this.getEl().on('click', function() {
+                                    render: function() {
+                                        this.getEl().on('click', function() {
                                             window.location.href = path + '/dhis-web-messaging/profile.action?id=' + comment.user.id;
                                         });
                                     }
@@ -807,10 +807,10 @@ EastRegion = function(c) {
                     html: getLink(interpretation.user.displayName, true),
                     style: 'margin-right:7px;',
                     listeners: {
-                        render: function() {
+                        render: function() {
                             var element = this.getEl();
 
-                            element.on('click', function() {
+                            element.on('click', function() {
                                 window.location.href = path + '/dhis-web-messaging/profile.action?id=' + interpretation.user.id;
                             });
                         }
@@ -1163,7 +1163,7 @@ EastRegion = function(c) {
             this.getComponent('interpretationsPanel').addAndUpdateInterpretationsPanel(layout);
         },
         listeners: {
-            expand: function() {
+            expand: function() {
                 this.doLayout();
             }
         }

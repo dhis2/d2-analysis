@@ -127,7 +127,7 @@ ChartTypeToolbar = function(refs) {
     var chartType = Ext.create('Ext.toolbar.Toolbar', {
         height: 45,
         style: 'padding-top:1px; border:0 none; border-top:1px solid #dadada',
-        reset: function() {
+        reset: function() {
             this.setChartType();
         },
         getChartType: function() {
@@ -138,7 +138,7 @@ ChartTypeToolbar = function(refs) {
             }
         },
         setChartType: function(type) {
-            if (!type) {
+            if (!type) {
                 buttons[0].toggle(true);
                 return;
             }

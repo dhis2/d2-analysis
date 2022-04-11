@@ -9,7 +9,7 @@ EventDataTable = function(refs, layout, response) {
 
     var { appManager, uiManager, i18nManager, dimensionConfig, optionConfig } = refs;
 
-    var { ResponseRowIdCombination } = refs.api;
+    var { ResponseRowIdCombination } = refs.api;
 
     var i18n = i18nManager.get();
 

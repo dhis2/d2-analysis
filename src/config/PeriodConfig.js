@@ -12,7 +12,7 @@ PeriodConfig = function() {
     var periodTypes;
 
     // setter
-    var setPeriodTypes = function() {
+    var setPeriodTypes = function() {
         periodTypes = {
             'Daily': i18nManager.get('daily') || 'Daily',
             'Weekly': i18nManager.get('weekly') || 'Weekly',
@@ -34,7 +34,7 @@ PeriodConfig = function() {
     };
 
     // init
-    t.init = function() {
+    t.init = function() {
         setPeriodTypes();
     };
 
@@ -54,15 +54,15 @@ PeriodConfig = function() {
         return records;
     };
 
-    t.setI18nManager = function(manager) {
+    t.setI18nManager = function(manager) {
         i18nManager = manager;
     };
 };
 
-PeriodConfig.prototype.applyTo = function(modules) {
+PeriodConfig.prototype.applyTo = function(modules) {
     var t = this;
 
-    arrayTo(modules).forEach(function(module) {
+    arrayTo(modules).forEach(function(module) {
         module.periodConfig = t;
     });
 };

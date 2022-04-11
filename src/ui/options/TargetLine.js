@@ -12,7 +12,7 @@ const TargetLineContainer = function (refs) {
     container.targetLineValueInput = Ext.create('Ext.form.field.Number', {
         width: style.numberWidth,
         height: style.numberHeight,
-        listeners: {
+        listeners: {
             change: function (nf) {
                 container.targetLineTitleInput.xable();
             }

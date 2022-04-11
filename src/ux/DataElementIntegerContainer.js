@@ -9,7 +9,7 @@ import containerConfig from './containerConfig';
 
 export var DataElementIntegerContainer;
 
-DataElementIntegerContainer = function(refs) {
+DataElementIntegerContainer = function(refs) {
     var appManager = refs.appManager;
 
     var i18n = refs.i18nManager.get();
@@ -272,7 +272,7 @@ DataElementIntegerContainer = function(refs) {
                     // legend display name
                     var legends = appManager.getLegendSetById(id).legends.slice();
 
-                    legends.forEach(legend => {
+                    legends.forEach(legend => {
                         legend.displayName = legend.name + ' (' + legend.startValue + ' - ' + legend.endValue + ')';
                     });
 

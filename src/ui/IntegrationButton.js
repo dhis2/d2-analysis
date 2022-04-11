@@ -1,6 +1,6 @@
 export var IntegrationButton;
 
-IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, btnIconCls, btnText, menuItem1Text, menuItem2Text }) {
+IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, btnIconCls, btnText, menuItem1Text, menuItem2Text }) {
     var appManager = refs.appManager,
         uiManager = refs.uiManager,
         instanceManager = refs.instanceManager,
@@ -9,7 +9,7 @@ IntegrationButton = function(refs, { isDefaultButton, objectName, moduleName, b
         path = appManager.getPath(),
         config;
 
-    if (isDefaultButton) {
+    if (isDefaultButton) {
         config = {
             text: btnText,
             iconCls: btnIconCls,

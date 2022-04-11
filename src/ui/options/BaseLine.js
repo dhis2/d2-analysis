@@ -12,7 +12,7 @@ const BaseLineContainer = function (refs) {
     container.baseLineValueInput = Ext.create('Ext.form.field.Number', {
         width: style.numberWidth,
         height: style.numberHeight,
-        listeners: {
+        listeners: {
             change: function (nf) {
                 container.baseLineTitleInput.xable();
             }

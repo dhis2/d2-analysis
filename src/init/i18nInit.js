@@ -1,6 +1,6 @@
 export var i18nInit;
 
-i18nInit = function(refs) {
+i18nInit = function(refs) {
     var t = this,
         appManager = refs.appManager,
         requestManager = refs.requestManager,
@@ -22,7 +22,7 @@ i18nInit = function(refs) {
 
             i18nManager.add(dhis2.util.parseJavaProperties(r));
 
-            if (isUiLocaleDefault) {
+            if (isUiLocaleDefault) {
                 requestManager.ok(t);
             }
             else {
@@ -31,7 +31,7 @@ i18nInit = function(refs) {
                     success: function(r) {
                         i18nManager.add(dhis2.util.parseJavaProperties(r));
                     },
-                    error: function() {
+                    error: function() {
                         console.log('(i18n) No translations found for system locale (' + uiLocale + ')');
                     },
                     complete: function() {

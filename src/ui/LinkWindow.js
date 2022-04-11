@@ -18,7 +18,7 @@ LinkWindow = function(c) {
         resizable: false,
         destroyOnBlur: true,
         bodyStyle: 'padding:12px 12px 15px; background-color:#fff; font-size:11px',
-        html: function() {
+        html: function() {
             var layout = instanceManager.getStateFavorite(),
                 appUrl = path + '/' + apiModule + '/index.html?id=' + layout.id,
                 apiUrl = apiPath + '/' + apiEndpoint + '/' + layout.id + '/data.html+css',

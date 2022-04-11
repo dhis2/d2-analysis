@@ -2,7 +2,7 @@ import isObject from 'd2-utilizr/lib/isObject';
 
 export var optionSetsInit;
 
-optionSetsInit = function(refs) {
+optionSetsInit = function(refs) {
     var t = this;
 
     var { appManager, requestManager, indexedDbManager } = refs;
@@ -33,7 +33,7 @@ optionSetsInit = function(refs) {
                                 var optionSets = r.optionSets;
 
                                 if (optionSets.length) {
-                                    indexedDbManager.setAll('optionSets', optionSets).done(function() {
+                                    indexedDbManager.setAll('optionSets', optionSets).done(function() {
                                         requestManager.ok(t);
                                     });
                                 }
@@ -49,7 +49,7 @@ optionSetsInit = function(refs) {
                                 //var sets = Ext.decode(r.responseText).optionSets;
 
                                 //if (sets.length) {
-                                    //indexedDbManager.setAll('optionSets', sets).done(function() {
+                                    //indexedDbManager.setAll('optionSets', sets).done(function() {
                                         //requestManager.ok(t);
                                     //});
                                 //}
@@ -97,7 +97,7 @@ optionSetsInit = function(refs) {
                                             success: function(r) {
                                                 var optionSets = r.optionSets;
 
-                                                indexedDbManager.setAll('optionSets', optionSets).done(function() {
+                                                indexedDbManager.setAll('optionSets', optionSets).done(function() {
                                                     requestManager.ok(t);
                                                 });
                                             }
@@ -108,7 +108,7 @@ optionSetsInit = function(refs) {
                                             //success: function(r) {
                                                 //var sets = Ext.decode(r.responseText).optionSets;
 
-                                                //indexedDbManager.setAll('optionSets', sets).done(function() {
+                                                //indexedDbManager.setAll('optionSets', sets).done(function() {
                                                     //requestManager.ok(t);
                                                 //});
                                             //}

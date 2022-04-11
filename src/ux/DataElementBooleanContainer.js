@@ -8,7 +8,7 @@ import containerConfig from './containerConfig';
 
 export var DataElementBooleanContainer;
 
-DataElementBooleanContainer = function(refs) {
+DataElementBooleanContainer = function(refs) {
     var i18n = refs.i18nManager.get();
 
     Ext.define('Ext.ux.container.DataElementBooleanContainer', {

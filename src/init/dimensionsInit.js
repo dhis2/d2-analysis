@@ -1,6 +1,6 @@
 export var dimensionsInit;
 
-dimensionsInit = function(c, extraParams = []) {
+dimensionsInit = function(c, extraParams = []) {
     var t = this,
         appManager = c.appManager,
         requestManager = c.requestManager,

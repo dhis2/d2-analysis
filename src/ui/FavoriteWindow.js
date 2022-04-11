@@ -59,15 +59,15 @@ FavoriteWindow = function(c, action) {
         sortDirection = 'asc',
 
         cmpToToggle = [],
-        layout = instanceManager.getStateCurrent() || {};
+        layout = instanceManager.getStateCurrent() || {};
 
     var { nameTextField, descriptionTextField } = getFavoriteTextCmp({ layout, i18n });
 
-    getDirection = function(keepDir) {
+    getDirection = function(keepDir) {
         return sortDirection = keepDir ? sortDirection : (sortDirection === 'asc' ? 'desc' : 'asc');
     };
 
-    getStoreUrl = function(field, keepDir) {
+    getStoreUrl = function(field, keepDir) {
         sortField = field || sortField;
 
         var value = action === 'open' ? searchTextfield.getValue() : null;
@@ -119,7 +119,7 @@ FavoriteWindow = function(c, action) {
                 this.load(fn);
             }
         },
-        get: function(field, value) {
+        get: function(field, value) {
             var index = this.findExact(field, value);
             return index === -1 ? null : this.getAt(index);
         },
@@ -171,11 +171,11 @@ FavoriteWindow = function(c, action) {
     };
 
     textfieldKeyUpHandlers = {
-        search: function(cmp, e) {
+        search: function(cmp, e) {
             var t = cmp,
                 value = Ext.isString(value) ? value : t.getValue();
 
-            if (action === 'open' && e.keyCode === 13 && favoriteStore.getRange().length) {
+            if (action === 'open' && e.keyCode === 13 && favoriteStore.getRange().length) {
                 favoriteWindow.destroy();
                 instanceManager.getById(favoriteStore.getAt(0).data.id);
             }
@@ -197,10 +197,10 @@ FavoriteWindow = function(c, action) {
             hide: i18n.hide_favorites,
             show: i18n.show_favorites
         },
-        toggle: function() {
+        toggle: function() {
             var t = this;
 
-            cmpToToggle.forEach(function(cmp) {
+            cmpToToggle.forEach(function(cmp) {
                 cmp[t.nextAction]();
             });
 
@@ -209,13 +209,13 @@ FavoriteWindow = function(c, action) {
             this.setText(this.textMap[this.nextAction]);
         },
         listeners: {
-            render: function(cmp) {
+            render: function(cmp) {
                 var t = this,
                     el = this.getEl();
 
                 el.setStyle('cursor', 'pointer');
 
-                el.on('click', function() {
+                el.on('click', function() {
                     t.toggle();
                 });
             }
@@ -279,12 +279,12 @@ FavoriteWindow = function(c, action) {
         xable: function () {
             this.setDisabled(! nameTextField.getValue());
         },
-        handler: function() {
+        handler: function() {
             saveButtonHandler();
         }
     });
 
-    saveButtonHandler = function() {
+    saveButtonHandler = function() {
         var name = nameTextField.getValue();
 
         // DHIS2-1147: avoid submitting when no name is available
@@ -295,14 +295,14 @@ FavoriteWindow = function(c, action) {
             description = descriptionTextField.getValue();
 
 
-        var preXhr = function() {
+        var preXhr = function() {
             favoriteWindow.destroy();
         };
 
-        var fn = function(id, success, r) {
+        var fn = function(id, success, r) {
             currentLayout.id = id || currentLayout.id;
-            instanceManager.getById(currentLayout.id, function(layout, isFavorite) {
-                instanceManager.getReport(layout, isFavorite, false, false, function() {
+            instanceManager.getById(currentLayout.id, function(layout, isFavorite) {
+                instanceManager.getReport(layout, isFavorite, false, false, function() {
                     uiManager.unmask();
                 });
             });
@@ -322,7 +322,7 @@ FavoriteWindow = function(c, action) {
             method: 'GET',
             success: function (obj, success, r) {
                 if (obj && obj.pager.total > 0 && obj[apiEndpoint].length) {
-                    uiManager.confirmReplace(i18n.save_favorite, function() {
+                    uiManager.confirmReplace(i18n.save_favorite, function() {
                         preXhr();
                         currentLayout.clone().put(obj[apiEndpoint][0].id, fn, true, true);
                     });
@@ -372,7 +372,7 @@ FavoriteWindow = function(c, action) {
         width: fs.windowCmpWidth,
         height: 21,
         direction: 'asc',
-        getDirection: function() {
+        getDirection: function() {
         },
         items: [
             {
@@ -380,7 +380,7 @@ FavoriteWindow = function(c, action) {
                 textAlign: 'left',
                 width: nameColWidth,
                 height: 20,
-                handler: function() {
+                handler: function() {
                     var url = getStoreUrl('name'),
                         store = favoriteStore;
 
@@ -394,7 +394,7 @@ FavoriteWindow = function(c, action) {
                 width: fs.createdColWidth,
                 height: 20,
                 direction: 'asc',
-                handler: function() {
+                handler: function() {
                     var url = getStoreUrl('created'),
                         store = favoriteStore;
 
@@ -408,7 +408,7 @@ FavoriteWindow = function(c, action) {
                 width: fs.lastUpdatedColWidth,
                 height: 20,
                 direction: 'asc',
-                handler: function() {
+                handler: function() {
                     var url = getStoreUrl('lastUpdated'),
                         store = favoriteStore;
 
@@ -428,13 +428,13 @@ FavoriteWindow = function(c, action) {
                 if (element) {
                     element = element.parent('td');
                     element.addClsOnOver('link');
-                    element.load = function() {
+                    element.load = function() {
                         favoriteWindow.destroy();
                         instanceManager.getById(record.data.id);
                     };
                     element.handler = function() {
-                        if (instanceManager.isStateUnsaved()) {
-                            uiManager.confirmUnsaved(i18n.open, function() {
+                        if (instanceManager.isStateUnsaved()) {
+                            uiManager.confirmUnsaved(i18n.open, function() {
                                 element.load();
                             });
                         }
@@ -476,12 +476,12 @@ FavoriteWindow = function(c, action) {
     });
     cmpToToggle.push(windowBbarSeparator);
 
-    windowBbar = function() {
+    windowBbar = function() {
         var items = [];
 
         items.push(info, '->', prevButton, nextButton);
 
-        if (action === 'saveas') {
+        if (action === 'saveas') {
             items.push(' ', windowBbarSeparator, ' ', saveButton);
         }
 
@@ -503,7 +503,7 @@ FavoriteWindow = function(c, action) {
                 dataIndex: 'created',
                 sortable: true,
                 width: fs.createdColWidth,
-                renderer: function(value) {
+                renderer: function(value) {
                     return (value || '').substring(0, 16).split('T').join(', ');
                 }
             },
@@ -511,7 +511,7 @@ FavoriteWindow = function(c, action) {
                 dataIndex: 'lastUpdated',
                 sortable: true,
                 width: fs.lastUpdatedColWidth,
-                renderer: function(value) {
+                renderer: function(value) {
                     return (value || '').substring(0, 16).split('T').join(', ');
                 }
             },
@@ -538,15 +538,15 @@ FavoriteWindow = function(c, action) {
                                 fn;
 
                             if (record.data.access.update) {
-                                fn = function() {
+                                fn = function() {
                                     favoriteStore.loadStore(getStoreUrl(null, true));
                                 };
 
-                                listeners.show = function() {
+                                listeners.show = function() {
                                     favoriteWindow.destroyOnBlur = false;
                                 };
 
-                                listeners.destroy = function() {
+                                listeners.destroy = function() {
                                     favoriteWindow.destroyOnBlur = true;
                                 };
 
@@ -564,7 +564,7 @@ FavoriteWindow = function(c, action) {
                             var record = this.up('grid').store.getAt(rowIndex);
 
                             if (record.data.access.manage) {
-                                instanceManager.getSharingById(record.data.id, function(r) {
+                                instanceManager.getSharingById(record.data.id, function(r) {
                                     SharingWindow(c, r).show();
                                 });
                             }
@@ -581,12 +581,12 @@ FavoriteWindow = function(c, action) {
                                 message;
 
                             if (record.data.access['delete']) {
-                                uiManager.confirmDelete(i18n.delete_favorite, function() {
-                                    instanceManager.delById(id, function() {
+                                uiManager.confirmDelete(i18n.delete_favorite, function() {
+                                    instanceManager.delById(id, function() {
                                         // DHIS2-1475: preserve the filter when reloading the favorite list
                                         favoriteStore.loadStore(getStoreUrl(null, true));
 
-                                        if (id === instanceManager.getStateFavoriteId()) {
+                                        if (id === instanceManager.getStateFavoriteId()) {
                                             instanceManager.setState();
                                         }
                                     }, true, true);
@@ -663,15 +663,15 @@ FavoriteWindow = function(c, action) {
                 this.currentItem.removeCls('x-grid-row-over');
             },
             select: function() {
-                if (action === 'open') {
+                if (action === 'open') {
                     this.currentItem.removeCls('x-grid-row-selected');
                 }
             },
             selectionchange: function() {
                 this.currentItem.removeCls('x-grid-row-focused');
             },
-            itemdblclick: function() {
-                if (action === 'saveas') {
+            itemdblclick: function() {
+                if (action === 'saveas') {
                     saveButtonHandler();
                 }
             }
@@ -684,10 +684,10 @@ FavoriteWindow = function(c, action) {
         saveas: i18n.save_favorite_as
     };
 
-    windowItems = function() {
+    windowItems = function() {
         var items = [];
 
-        if (action === 'saveas') {
+        if (action === 'saveas') {
             items.push(nameTextField, descriptionTextField, showFavoritesLinkCt);
         }
 
@@ -719,11 +719,11 @@ FavoriteWindow = function(c, action) {
 
                 (action === 'open' ? searchTextfield : nameTextField).focus(false, 500);
 
-                if (action === 'saveas') {
+                if (action === 'saveas') {
                     showFavoritesLink.toggle();
                 }
             },
-            destroy: function(w) {
+            destroy: function(w) {
                 uiManager.unreg('favoriteWindow');
             }
         }

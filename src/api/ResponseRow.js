@@ -14,7 +14,7 @@ ResponseRow = function(refs, config) {
     };
 
     t.getNames = function(response, ignoreIndexes) {
-        if (!t.idCombination) {
+        if (!t.idCombination) {
             t.setIdCombination(new refs.api.ResponseRowIdCombination(refs, t));
         }
 

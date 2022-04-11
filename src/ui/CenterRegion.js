@@ -2,7 +2,7 @@ import {isObject} from 'd2-utilizr';
 
 export var CenterRegion;
 
-CenterRegion = function(config) {
+CenterRegion = function(config) {
     var t = this,
         i18nManager = CenterRegion.i18nManager;
 
