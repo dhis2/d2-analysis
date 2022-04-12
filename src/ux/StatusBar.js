@@ -32,12 +32,12 @@ StatusBar = function(refs) {
             }
 
             if (layout.dataType === individual_cases) {
-                var maxVal = this.pager.page * this.pager.pageSize,
-                    from = maxVal - this.pager.pageSize + 1,
-                    to = arrayMin([maxVal, this.pager.total]);
+                // var maxVal = this.pager.page * this.pager.pageSize,
+                //     from = maxVal - this.pager.pageSize + 1,
+                //     to = arrayMin([maxVal, this.pager.total]);
 
                 this.pageCmp.setValue(this.pager.page);
-                this.pageCmp.setMaxValue(this.pager.pageCount);
+                // this.pageCmp.setMaxValue(this.pager.pageCount);
                 // this.totalPageCmp.setText(' of ' + this.pager.pageCount);
                 // this.statusCmp.setText(from + '-' + to + ' of ' + this.pager.total + ' cases');
                 return;
@@ -65,16 +65,23 @@ StatusBar = function(refs) {
         getPageCount: function() {
             return this.pageCount;
         },
+        setLayoutPaging: function(layout, page) {
+            var paging = layout.paging || { pageSize: 100 };
+            paging.page = page;
+            layout.paging = paging;
+        },
         onPageChange: function(page, currentPage) {
             currentPage = currentPage || this.getCurrentPage();
 
-            if (page && page >= 1 && page <= this.pager.pageCount && page != currentPage) {
+            if (page && page >= 1 && !(this.pager.isLastPage && page > currentPage) && page != currentPage) {
                 var layout = instanceManager.getStateCurrent();
 
-                layout.paging.page = page;
+                this.pageCmp.setValue(page);
+
+                this.setLayoutPaging(layout, page);
+                // layout.paging.page = page;
                 layout.setResponse(null);
 
-                this.pageCmp.setValue(page);
                 instanceManager.getReport(layout);
             }
         },
@@ -116,6 +123,7 @@ StatusBar = function(refs) {
                 listeners: {
                     render: function() {
                         Ext.get(this.getInputId()).setStyle('padding-top', '1px');
+                        Ext.get(this.getInputId()).setStyle('cursor', 'auto');
                     }
                     // },
                     // keyup: {

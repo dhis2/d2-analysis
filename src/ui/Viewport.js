@@ -548,6 +548,11 @@ Viewport = function(refs, cmp, config) {
             config.dataType = dataType;
         }
 
+        config.paging = {
+            page: 1,
+            pageSize: 100
+        };
+
         return config;
     };
 
