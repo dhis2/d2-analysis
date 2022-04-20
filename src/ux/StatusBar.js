@@ -112,7 +112,7 @@ StatusBar = function(refs) {
             this.queryCmps.push(this.pageTextCmp);
 
             this.pageCmp = Ext.create('Ext.form.field.Number', {
-                width: 34,
+                width: 24,
                 height: 21,
                 minValue: 1,
                 value: 1,
@@ -122,8 +122,12 @@ StatusBar = function(refs) {
                 editable: false,
                 listeners: {
                     render: function() {
-                        Ext.get(this.getInputId()).setStyle('padding-top', '1px');
-                        Ext.get(this.getInputId()).setStyle('cursor', 'auto');
+                        var cmp = Ext.get(this.getInputId());
+
+                        cmp.setStyle('padding-top', '1px');
+                        cmp.setStyle('cursor', 'auto');
+                        cmp.setStyle('border', '1px solid transparent');
+                        cmp.setStyle('background', 'transparent');
                     }
                     // },
                     // keyup: {
@@ -139,6 +143,9 @@ StatusBar = function(refs) {
                 }
             });
             this.queryCmps.push(this.pageCmp);
+
+            this.separatorCmp = Ext.create('Ext.toolbar.Separator');
+            this.queryCmps.push(this.separatorCmp);
 
             // this.totalPageCmp = Ext.create('Ext.toolbar.TextItem', {
             //     text: '',
@@ -173,6 +180,7 @@ StatusBar = function(refs) {
                 this.pageTextCmp,
                 this.pageCmp,
                 // this.totalPageCmp,
+                this.separatorCmp,
                 this.prevCmp,
                 this.nextCmp,
                 // this.lastCmp,
