@@ -311,16 +311,16 @@ OptionConfig = function() {
                 id: 'SCHEDULE',
                 name: i18nManager.get('scheduled') || 'Scheduled',
             },
-            overdue: {
-                index: 5,
-                id: 'OVERDUE',
-                name: i18nManager.get('overdue') || 'Overdue',
-            },
-            skipped: {
-                index: 6,
-                id: 'SKIPPED',
-                name: i18nManager.get('skipped') || 'Skipped',
-            },
+            // overdue: {
+            //     index: 5,
+            //     id: 'OVERDUE',
+            //     name: i18nManager.get('overdue') || 'Overdue',
+            // },
+            // skipped: {
+            //     index: 6,
+            //     id: 'SKIPPED',
+            //     name: i18nManager.get('skipped') || 'Skipped',
+            // },
         };
     };
 
@@ -351,10 +351,10 @@ OptionConfig = function() {
                 id: 'INCIDENT_DATE',
                 name: i18nManager.get('incident_date') || 'Incident date',
             },
-            duedate: {
+            scheduleddate: {
                 index: 6,
-                id: 'DUE_DATE',
-                name: i18nManager.get('due_date') || 'Due date',
+                id: 'SCHEDULED_DATE',
+                name: i18nManager.get('scheduled_date') || 'Scheduled date',
             },
             completeddate: {
                 index: 7,
