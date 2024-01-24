@@ -15,6 +15,7 @@ FavoriteButton = function(c) {
 
     return Ext.create('Ext.button.Button', {
         text: i18n.favorites,
+        cls: 'favorites-dropdownmenu-button',
         menu: {},
         handler: function(b) {
             b.menu = Ext.create('Ext.menu.Menu', {
@@ -28,6 +29,7 @@ FavoriteButton = function(c) {
 
                     var newItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.new_),
+                        cls: 'neweventsreport-menuitem',
                         iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {

@@ -146,6 +146,7 @@ Viewport = function(refs, cmp, config) {
 
     var downloadButton = Ext.create('Ext.button.Button', {
         text: i18n.download,
+        cls: 'download-dropdownmenu-button',
         disabled: true,
         menu: {},
         handler: function(b) {

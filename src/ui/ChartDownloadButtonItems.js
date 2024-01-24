@@ -17,6 +17,7 @@ ChartDownloadButtonItems = function(refs) {
         },
         {
             text: i18n.image_png + ' (.png)',
+            cls: 'downloadaspng-menuitem',
             iconCls: 'ns-menu-item-image',
             handler: function() {
                 uiManager.submitSvgForm('png', getFilename());
