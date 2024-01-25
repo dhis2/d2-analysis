@@ -17,6 +17,7 @@ ChartDownloadButtonItems = function(refs) {
         },
         {
             text: i18n.image_png + ' (.png)',
+            cls: 'push-analytics-download-as-png-menu-item',
             iconCls: 'ns-menu-item-image',
             handler: function() {
                 uiManager.submitSvgForm('png', getFilename());
