@@ -29,7 +29,7 @@ FavoriteButton = function(c) {
 
                     var newItem = Ext.create('Ext.menu.Item', {
                         text: getTitle(i18n.new_),
-                        cls: 'push-analytics-new-events-report-menu-item',
+                        cls: 'push-analytics-new-events-chart-menu-item',
                         iconCls: 'ns-menu-item-favorite-new',
                         disabled: !instanceManager.isStateCurrent(),
                         handler: function() {
