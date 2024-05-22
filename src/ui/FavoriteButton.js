@@ -15,6 +15,7 @@ FavoriteButton = function(c) {
 
     return Ext.create('Ext.button.Button', {
         text: i18n.favorites,
+        cls: 'push-analytics-favorites-dropdown-menu-button',
         menu: {},
         handler: function(b) {
             b.menu = Ext.create('Ext.menu.Menu', {
