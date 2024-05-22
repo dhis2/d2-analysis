@@ -11,6 +11,7 @@ import arrayPluck from 'd2-utilizr/lib/arrayPluck';
 import arraySort from 'd2-utilizr/lib/arraySort';
 
 import { DateManager } from '../manager/DateManager.js';
+import { toPatchData } from '../util/toPatchData.js';
 
 export var Layout;
 
@@ -862,9 +863,12 @@ Layout.prototype.patch = function(properties, fn, doMask, doUnmask) {
         baseUrl: url,
         type: 'ajax',
         method: 'PATCH',
-        data: JSON.stringify(properties),
+        data: JSON.stringify(toPatchData(properties)),
         dataType: 'text',
-        headers: appManager.defaultRequestHeaders,
+        headers: {
+            ...appManager.defaultRequestHeaders,
+            'Content-Type': 'application/json-patch+json',
+        },
         success: function(obj, success, r) {
             if (doUnmask) {
                 uiManager.unmask();
