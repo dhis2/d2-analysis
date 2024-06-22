@@ -26,8 +26,23 @@ DataElementStringContainer = function(refs) {
             return record;
         },
         setRecord: function(record) {
-            this.operatorCmp.setValue(record.operator);
-            this.valueCmp.setValue(record.filter);
+            var filter = record.filter
+            var operator
+            var value
+
+            if (typeof filter === 'string') {
+                if (filter.substring(0,3) === 'EQ:') {
+                    operator = 'EQ'
+                    value = filter.substring(3)
+                }
+                else if (filter.substring(0,5) === 'LIKE:') {
+                    operator = 'LIKE'
+                    value = filter.substring(5)
+                }
+            }
+
+            this.operatorCmp.setValue(operator);
+            this.valueCmp.setValue(value);
         },
         initComponent: function() {
             var container = this;
