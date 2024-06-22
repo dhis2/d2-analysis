@@ -1054,7 +1054,8 @@ WestRegionTrackerItems = function(refs) {
                     ...(item.programStage &&
                         getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
                     ...(_program.attributes || []).find(attr => attr.id === item.dimension || attr.id === item.id),
-                    ...(_program.programIndicators || []).find(pi => pi.id === item.dimension || pi.id === item.id)
+                    ...(_program.programIndicators || []).find(pi => pi.id === item.dimension || pi.id === item.id),
+                    filter: item.filter,
                 };
 
                 dataElements.push({
