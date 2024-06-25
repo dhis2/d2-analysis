@@ -31,8 +31,8 @@ AppManager = function(refs) {
 
     t.defaultAnalysisFields = [
         '*',
-        'interpretations[*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],' +
-            'comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]]',
+        'interpretations[*,user[id,displayName,username],likedBy[id,displayName],' +
+            'comments[id,lastUpdated,text,user[id,displayName,username]]]',
         'columns[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'rows[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
         'filters[dimension,filter,programStage[id],legendSet[id],items[dimensionItem~rename(id),dimensionItemType,$]]',
@@ -42,7 +42,7 @@ AppManager = function(refs) {
         'userGroupAccesses',
         'publicAccess',
         'displayDescription',
-        'user[displayName,userCredentials[username]]',
+        'user[displayName,username]',
         '!href',
         '!rewindRelativePeriods',
         '!userOrganisationUnit',
@@ -219,7 +219,7 @@ AppManager.prototype.init = function(callbackFn) {
             baseUrl: t.getApiPath() + '/me.json',
             type: 'json',
             params: [
-                'fields=id,firstName,surname,userCredentials[username],settings',
+                'fields=id,firstName,surname,username,settings',
             ],
             success: function (response) {
                 t.userAccount = response;
