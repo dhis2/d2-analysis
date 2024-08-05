@@ -12,7 +12,7 @@ export var GroupSetContainer;
 GroupSetContainer = function(refs) {
     var { api, appManager } = refs;
 
-    const defaultPageSize = 100;
+    const defaultPageSize = 500;
 
     Ext.define('Ext.ux.container.GroupSetContainer', {
         extend: 'Ext.container.Container',
