@@ -7,6 +7,8 @@ import arrayClean from 'd2-utilizr/lib/arrayClean';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayFrom from 'd2-utilizr/lib/arrayFrom';
 
+import { unescape } from '../util/sanitize';
+
 export var Request;
 
 Request = function(refs, config) {
@@ -152,7 +154,7 @@ Request.prototype.url = function(extraParams) {
 
 Request.prototype.run = function(config) {
     var t = this,
-        url = encodeURI(this.url());
+        url = unescape(encodeURI(this.url()));
 
     config = isObject(config) ? config : {};
 
