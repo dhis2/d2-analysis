@@ -135,6 +135,12 @@ WestRegionTrackerItems = function(refs) {
 
             // add to layout value and timeField stores
             this.each(function(record) {
+
+                // program stage does not make sense for attributes and program indicators
+                if (record.data.isAttribute || record.data.isProgramIndicator) {
+                    delete record.data.programStage
+                }
+
                 if (arrayContains(numericValueTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
@@ -916,7 +922,7 @@ WestRegionTrackerItems = function(refs) {
     var addUxFromDataElement = function(element, index) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow');
-
+console.log("add ux element", element)
         index = index || dataElementSelected.items.items.length;
 
         var getUxType = function(element) {
@@ -952,7 +958,7 @@ WestRegionTrackerItems = function(refs) {
                 dataElement: element,
             })
         );
-
+console.log("isAttribute", element)
         ux.isAttribute = element.isAttribute;
         ux.isProgramIndicator = element.isProgramIndicator;
         ux.isDataElement = element.isDataElement;
@@ -1035,7 +1041,7 @@ WestRegionTrackerItems = function(refs) {
 
             if (isString(item)) {
                 storeItem = dataElementsByStageStore.getById(item);
-
+console.log("storeItem", storeItem)
                 if (storeItem) {
                     dataElements.push({
                         ...storeItem.data,
@@ -3476,7 +3482,7 @@ WestRegionTrackerItems = function(refs) {
                 };
             }
         }
-
+console.log("config", config)
         return config;
     };
 
