@@ -923,7 +923,7 @@ WestRegionTrackerItems = function(refs) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow');
 
-            index = index || dataElementSelected.items.items.length;
+        index = index || dataElementSelected.items.items.length;
 
         var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
