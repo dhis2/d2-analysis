@@ -922,8 +922,8 @@ WestRegionTrackerItems = function(refs) {
     var addUxFromDataElement = function(element, index) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow');
-console.log("add ux element", element)
-        index = index || dataElementSelected.items.items.length;
+
+            index = index || dataElementSelected.items.items.length;
 
         var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
@@ -958,7 +958,7 @@ console.log("add ux element", element)
                 dataElement: element,
             })
         );
-console.log("isAttribute", element)
+
         ux.isAttribute = element.isAttribute;
         ux.isProgramIndicator = element.isProgramIndicator;
         ux.isDataElement = element.isDataElement;
@@ -1041,36 +1041,47 @@ console.log("isAttribute", element)
 
             if (isString(item)) {
                 storeItem = dataElementsByStageStore.getById(item);
-console.log("storeItem", storeItem)
+
                 if (storeItem) {
                     dataElements.push({
                         ...storeItem.data,
                         legendSet: getLegendSetForDimension(item, dataElementDimensions),
-                        programStage: {
-                            id: stage.getValue(),
-                        },
                     });
                 }
             } else if (isObject(item)) {
                 // 2.38
-                item.programStage = item.programStage || layout.programStage;
+                if (item.isDataElement) {
+                    item.programStage = item.programStage || layout.programStage;
+                }
 
-                const itemConfig = {
+                var itemConfig = {
                     ...item.data,
-                    ...(item.programStage &&
+                    ...(item.isDataElement && item.programStage &&
                         getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
                     ...(_program.attributes || []).find(attr => attr.id === item.dimension || attr.id === item.id),
                     ...(_program.programIndicators || []).find(pi => pi.id === item.dimension || pi.id === item.id),
                     filter: item.filter,
                 };
 
-                dataElements.push({
+                itemConfig = {
                     ...itemConfig,
-                    programStage: itemConfig.programStage ? itemConfig.programStage : {
-                        id: stage.getValue(),
-                    },
                     legendSet: getLegendSetForDimension(itemConfig.id, dataElementDimensions)
-                });
+                }
+
+                if (!itemConfig.programStage && item.isDataElement) {
+                    itemConfig = {
+                        ...itemConfig,
+                        programStage: {
+                            id: stage.getValue(),
+                        }
+                    }
+                }
+
+                if (!itemConfig.programStage) {
+                    delete itemConfig.programStage
+                }
+
+                dataElements.push(itemConfig)
             }
         }
 
@@ -3482,7 +3493,7 @@ console.log("storeItem", storeItem)
                 };
             }
         }
-console.log("config", config)
+
         return config;
     };
 
