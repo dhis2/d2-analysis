@@ -135,6 +135,12 @@ WestRegionTrackerItems = function(refs) {
 
             // add to layout value and timeField stores
             this.each(function(record) {
+
+                // program stage does not make sense for attributes and program indicators
+                if (record.data.isAttribute || record.data.isProgramIndicator) {
+                    delete record.data.programStage
+                }
+
                 if (arrayContains(numericValueTypes, record.data.valueType)) {
                     layoutWindow.valueStore.add(record.data);
                 }
@@ -1040,31 +1046,42 @@ WestRegionTrackerItems = function(refs) {
                     dataElements.push({
                         ...storeItem.data,
                         legendSet: getLegendSetForDimension(item, dataElementDimensions),
-                        programStage: {
-                            id: stage.getValue(),
-                        },
                     });
                 }
             } else if (isObject(item)) {
                 // 2.38
-                item.programStage = item.programStage || layout.programStage;
+                if (item.isDataElement) {
+                    item.programStage = item.programStage || layout.programStage;
+                }
 
-                const itemConfig = {
+                var itemConfig = {
                     ...item.data,
-                    ...(item.programStage &&
+                    ...(item.isDataElement && item.programStage &&
                         getDataElementFromStorage(item.programStage.id, item.dimension || item.id)),
                     ...(_program.attributes || []).find(attr => attr.id === item.dimension || attr.id === item.id),
                     ...(_program.programIndicators || []).find(pi => pi.id === item.dimension || pi.id === item.id),
                     filter: item.filter,
                 };
 
-                dataElements.push({
+                itemConfig = {
                     ...itemConfig,
-                    programStage: itemConfig.programStage ? itemConfig.programStage : {
-                        id: stage.getValue(),
-                    },
                     legendSet: getLegendSetForDimension(itemConfig.id, dataElementDimensions)
-                });
+                }
+
+                if (!itemConfig.programStage && item.isDataElement) {
+                    itemConfig = {
+                        ...itemConfig,
+                        programStage: {
+                            id: stage.getValue(),
+                        }
+                    }
+                }
+
+                if (!itemConfig.programStage) {
+                    delete itemConfig.programStage
+                }
+
+                dataElements.push(itemConfig)
             }
         }
 
