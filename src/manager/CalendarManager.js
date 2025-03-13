@@ -1,4 +1,5 @@
 import isObject from 'd2-utilizr/lib/isObject';
+import isFunction from 'd2-utilizr/lib/isFunction';
 import arrayContains from 'd2-utilizr/lib/arrayContains';
 import arrayTo from 'd2-utilizr/lib/arrayTo';
 
@@ -69,7 +70,7 @@ CalendarManager.prototype.applyTo = function(modules) {
 
 // dep 1
 
-CalendarManager.prototype.init = function(calendarId, dateFormat) {
+CalendarManager.prototype.init = function(calendarId, callbackFn) {
     calendarId = this.getCalendarIdMap()[calendarId] || calendarId || this.defaultCalendarId;
 
     if (this.calendar && this.periodGenerator) {
@@ -81,6 +82,10 @@ CalendarManager.prototype.init = function(calendarId, dateFormat) {
         success = function() {
             t.createCalendar(calendarId);
             t.createPeriodGenerator(calendarId);
+
+            if (isFunction(callbackFn)) {
+                callbackFn()
+            }
         };
 
     if (arrayContains(t.calendarIds, calendarId)) {
