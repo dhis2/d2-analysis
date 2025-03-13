@@ -74,7 +74,7 @@ Plugin = function({ refs, inits = [], renderFn, initializeFn, type }) {
             baseUrl: appManager.getApiPath() + '/me.json',
             type: 'json',
             param: [
-                'fields=id,firstName,surname,userCredentials[username],settings'
+                'fields=id,firstName,surname,username,settings'
             ],
             success: function (response) {
                 appManager.userAccount = response;

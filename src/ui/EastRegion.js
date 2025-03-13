@@ -670,7 +670,7 @@ EastRegion = function(c) {
         var refreshInterpretationDataModel = function(interpretationPanel) {
             Ext.Ajax.request({
                 url: encodeURI(apiPath + '/interpretations/' + interpretation.id + 
-                    '.json?fields=*,user[id,displayName,userCredentials[username]],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName,userCredentials[username]]]'),
+                    '.json?fields=*,user[id,displayName,username],likedBy[id,displayName],comments[id,lastUpdated,text,user[id,displayName,username]]'),
                 method: 'GET',
                 scope: this,
                 success: function(r) {

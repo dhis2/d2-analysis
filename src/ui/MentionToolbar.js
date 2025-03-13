@@ -14,7 +14,7 @@ MentionToolbar = function (refs) {
             type: 'json',
             params: [
                 'query=' + search,
-                'fields=displayName,userCredentials[username]',
+                'fields=displayName,username',
                 'order=displayName:asc',
                 'pageSize=5',
             ],
@@ -40,12 +40,12 @@ MentionToolbar = function (refs) {
                     .map((user) => {
                         return {
                             xtype: 'label',
-                            html:  user.displayName + " (" + user.userCredentials.username + ")",
+                            html:  user.displayName + " (" + user.username + ")",
                             listeners: {
                                 'render': function(label) {
                                     label.getEl().parent().on('click', function() {
                                         splitText.splice(-1,1);
-                                        var newText = splitText.join("@") + "@" + user.userCredentials.username;
+                                        var newText = splitText.join("@") + "@" + user.username;
                                         component.setValue(newText);
                                         this.hide();
                                     }, label);
