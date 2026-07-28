@@ -128,6 +128,12 @@ export const Response = function(refs, config) {
         Object.keys(dimensions)
             .filter(key => key.includes('.'))
             .forEach(key => (dimensions[getSplitElementId(key)] = dimensions[key]));
+
+        var items = config.metaData.items;
+
+        Object.keys(items)
+            .filter(key => key.includes('.'))
+            .forEach(key => (items[getSplitElementId(key)] = items[key]));
     })();
 
     t.optionCodeIdMap = function() {

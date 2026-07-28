@@ -454,7 +454,7 @@ WestRegionTrackerItems = function(refs) {
                             ',categoryOptions[id,' +
                             displayPropertyUrl +
                             ']]]',
-                    ].join(''),
+                    ].join(','),
                     'paging=false',
                 ],
                 success: function(r) {
