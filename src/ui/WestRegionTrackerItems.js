@@ -10,7 +10,7 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var WestRegionTrackerItems;
 
-WestRegionTrackerItems = function (refs) {
+WestRegionTrackerItems = function(refs) {
     var uiManager = refs.uiManager,
         appManager = refs.appManager,
         i18nManager = refs.i18nManager,
@@ -73,7 +73,7 @@ WestRegionTrackerItems = function (refs) {
         },
         sortInfo: { field: 'name', direction: 'ASC' },
         isLoaded: false,
-        shouldFilterSingleEvent: function () {
+        shouldFilterSingleEvent: function() {
             var toolbar = uiManager.get('dataTypeToolbar');
 
             if (!toolbar) {
@@ -85,7 +85,7 @@ WestRegionTrackerItems = function (refs) {
 
             return isLineList() && isEnrollment();
         },
-        filterByProgramType: function () {
+        filterByProgramType: function() {
 
             // filtering does not work as expected - reload data instead
             this.loadData(
@@ -95,7 +95,7 @@ WestRegionTrackerItems = function (refs) {
             );
         },
         listeners: {
-            load: function () {
+            load: function() {
                 if (!this.isLoaded) {
                     this.cachedData = this.getRange();
                     this.isLoaded = true;
@@ -109,7 +109,7 @@ WestRegionTrackerItems = function (refs) {
         fields: ['id', 'name'],
         isLoaded: false,
         listeners: {
-            load: function () {
+            load: function() {
                 if (!this.isLoaded) {
                     this.isLoaded = true;
                 }
@@ -127,14 +127,14 @@ WestRegionTrackerItems = function (refs) {
                 direction: 'ASC',
             },
         ],
-        onLoadData: function () {
+        onLoadData: function() {
             var t = this;
             var layoutWindow = uiManager.get('aggregateLayoutWindow');
             var numericValueTypes = dimensionConfig.valueType['numeric_types'];
             var dateValueTypes = dimensionConfig.valueType['date_types'];
 
             // add to layout value and timeField stores
-            this.each(function (record) {
+            this.each(function(record) {
 
                 // program stage does not make sense for attributes and program indicators
                 if (record.data.isAttribute || record.data.isProgramIndicator) {
@@ -159,7 +159,7 @@ WestRegionTrackerItems = function (refs) {
             // respect dataelementtype filter when switching stage
             onDataElementTypeSelect();
         },
-        toggleProgramIndicators: function (type) {
+        toggleProgramIndicators: function(type) {
             var dataTypeToolbar = uiManager.get('dataTypeToolbar');
 
             type = type || (dataTypeToolbar ? dataTypeToolbar.getDataType() : null);
@@ -188,9 +188,9 @@ WestRegionTrackerItems = function (refs) {
             type: 'ajax',
             url: encodeURI(
                 apiPath +
-                '/organisationUnitGroups.json?fields=id,' +
-                displayPropertyUrl +
-                '&paging=false'
+                    '/organisationUnitGroups.json?fields=id,' +
+                    displayPropertyUrl +
+                    '&paging=false'
             ),
             reader: {
                 type: 'json',
@@ -207,12 +207,12 @@ WestRegionTrackerItems = function (refs) {
     var fixedPeriodAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'index'],
         data: [],
-        setIndex: function (periods) {
+        setIndex: function(periods) {
             for (var i = 0; i < periods.length; i++) {
                 periods[i].index = i;
             }
         },
-        sortStore: function () {
+        sortStore: function() {
             this.sort('index', 'ASC');
         },
     });
@@ -224,21 +224,21 @@ WestRegionTrackerItems = function (refs) {
 
     // handlers
 
-    var clearProgram = function () {
+    var clearProgram = function() {
         program.reset();
     };
 
-    var clearStage = function () {
+    var clearStage = function() {
         stage.clearValue();
         dataElementsByStageStore.removeAll();
     };
 
-    var clearDataElements = function () {
+    var clearDataElements = function() {
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
     };
 
-    var updateDataElementSelection = function (handlerName) {
+    var updateDataElementSelection = function(handlerName) {
         var toolbar = uiManager.get('dataTypeToolbar');
 
         var dataType = toolbar.getDataType();
@@ -285,7 +285,7 @@ WestRegionTrackerItems = function (refs) {
         }
     }
 
-    var onDataTypeSelect = function (type) {
+    var onDataTypeSelect = function(type) {
         // available
         dataElementsByStageStore.toggleProgramIndicators(type);
 
@@ -296,13 +296,13 @@ WestRegionTrackerItems = function (refs) {
         updateDataElementSelection('dataType');
     };
 
-    var onOutputTypeSelect = function (type) {
+    var onOutputTypeSelect = function(type) {
 
         // event/enrollment
         updateDataElementSelection('outputType');
     };
 
-    var setData = function (layout) {
+    var setData = function(layout) {
         // wait, more dynamic dimensions could be added by program
         //accordion.setDimensions(layout, true);
 
@@ -325,30 +325,30 @@ WestRegionTrackerItems = function (refs) {
         style: 'margin:1px 1px 1px 0',
         storage: {},
         store: programStore,
-        getRecord: function () {
+        getRecord: function() {
             const record = this.getStore()
                 .getById(this.getValue());
 
             return this.getValue
                 ? {
-                    id: this.getValue(),
-                    name: this.getRawValue(),
-                    enrollmentDateLabel: record ? record.data.enrollmentDateLabel : undefined,
-                    incidentDateLabel: record ? record.data.incidentDateLabel : undefined,
+                      id: this.getValue(),
+                      name: this.getRawValue(),
+                      enrollmentDateLabel: record ? record.data.enrollmentDateLabel : undefined,
+                      incidentDateLabel: record ? record.data.incidentDateLabel : undefined,
                 }
                 : null;
         },
         listeners: {
-            select: function (cb) {
+            select: function(cb) {
                 onProgramSelect(cb.getValue());
             },
-            expand: function (cb) {
+            expand: function(cb) {
                 cb.store.filterByProgramType();
             }
         },
     });
 
-    var onProgramSelect = function (programId, layout) {
+    var onProgramSelect = function(programId, layout) {
         var DEFAULT = 'default';
         var ATTRIBUTE = 'ATTRIBUTE';
 
@@ -364,7 +364,7 @@ WestRegionTrackerItems = function (refs) {
         dataElementSelected.removeAllDataElements(true);
         uiManager.get('aggregateLayoutWindow').value.resetData();
 
-        var getCategories = function (categoryCombo) {
+        var getCategories = function(categoryCombo) {
             if (
                 !(
                     isObject(categoryCombo) &&
@@ -388,7 +388,7 @@ WestRegionTrackerItems = function (refs) {
             return categories;
         };
 
-        var load = function (_program) {
+        var load = function(_program) {
             var stages = _program.programStages;
             stages.forEach(htmlEscapeProgramName)
             var dimensions = [];
@@ -447,17 +447,17 @@ WestRegionTrackerItems = function (refs) {
                         'fields=programType,programStages[id,displayName~rename(name),executionDateLabel]',
                         'programIndicators[id,' + displayPropertyUrl + ']',
                         'programTrackedEntityAttributes[trackedEntityAttribute[id,' +
-                        displayPropertyUrl +
-                        ',valueType,confidential,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+                            displayPropertyUrl +
+                            ',valueType,confidential,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                         'categoryCombo[id,name,categories[id,' +
-                        displayPropertyUrl +
-                        ',categoryOptions[id,' +
-                        displayPropertyUrl +
-                        ']]]',
+                            displayPropertyUrl +
+                            ',categoryOptions[id,' +
+                            displayPropertyUrl +
+                            ']]]',
                     ].join(','),
                     'paging=false',
                 ],
-                success: function (r) {
+                success: function(r) {
                     var _program = r.programs[0];
 
                     if (!_program) {
@@ -480,7 +480,7 @@ WestRegionTrackerItems = function (refs) {
                     });
 
                     // mark as program indicator
-                    _program.programIndicators.forEach(function (item) {
+                    _program.programIndicators.forEach(function(item) {
                         item.name = '[PI] ' + item.name;
                         item.isProgramIndicator = true;
                     });
@@ -496,7 +496,7 @@ WestRegionTrackerItems = function (refs) {
         }
     };
 
-    var onStageSelect = function (stageId, layout, _program) {
+    var onStageSelect = function(stageId, layout, _program) {
         if (!layout) {
             // event/enrollment
             updateDataElementSelection();
@@ -529,20 +529,20 @@ WestRegionTrackerItems = function (refs) {
         disabled: true,
         listConfig: { loadMask: false },
         store: stagesByProgramStore,
-        getRecord: function () {
+        getRecord: function() {
             return this.getValue()
                 ? {
-                    id: this.getValue(),
-                    name: this.getRawValue(),
-                    executionDateLabel: this.getStore()
-                        .getById(this.getValue())
-                        .data
-                        .executionDateLabel
-                }
+                      id: this.getValue(),
+                      name: this.getRawValue(),
+                      executionDateLabel: this.getStore()
+                          .getById(this.getValue())
+                          .data
+                          .executionDateLabel
+                  }
                 : null;
         },
         listeners: {
-            select: function (cb) {
+            select: function(cb) {
                 onStageSelect(cb.getValue());
             },
         },
@@ -561,14 +561,14 @@ WestRegionTrackerItems = function (refs) {
         return [...new Set(ids.filter(id => !!id))];
     };
 
-    var loadDataElements = function (stageId, layout, _program) {
+    var loadDataElements = function(stageId, layout, _program) {
         var dataItems = arrayClean(
             [].concat(_program.attributes || [], _program.programIndicators || [])
         );
 
         var stageIds = getStageIds(stageId, layout);
 
-        var load = function (dataElements) {
+        var load = function(dataElements) {
             var data = arrayClean(dataItems.concat(dataElements || []));
 
             dataElementsByStageStore.loadData(data);
@@ -593,11 +593,11 @@ WestRegionTrackerItems = function (refs) {
             params: [
                 'filter=id:in:[' + stageIds.join(',') + ']',
                 'fields=id,programStageDataElements[dataElement[id,' +
-                displayPropertyUrl +
-                ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
+                    displayPropertyUrl +
+                    ',valueType,optionSet[id,displayName~rename(name)],legendSets~rename(storageLegendSets)[id,displayName~rename(name)]]]',
                 'paging=false',
             ],
-            success: function (r) {
+            success: function(r) {
                 var stages = r.programStages,
                     types = dimensionConfig.valueType['tracker_aggregatable_types'];
 
@@ -606,7 +606,7 @@ WestRegionTrackerItems = function (refs) {
                     return;
                 }
 
-                var include = function (element) {
+                var include = function(element) {
                     return (
                         arrayContains(types, element.valueType) ||
                         isObject(element.optionSet) ||
@@ -686,7 +686,7 @@ WestRegionTrackerItems = function (refs) {
                 if (
                     uiManager.disallowProgramIndicators ||
                     uiManager.get('dataTypeToolbar').getDataType() ===
-                    dimensionConfig.dataType['aggregated_values']
+                        dimensionConfig.dataType['aggregated_values']
                 ) {
                     store.filterBy(record => !record.data.isProgramIndicator);
                 }
@@ -718,19 +718,19 @@ WestRegionTrackerItems = function (refs) {
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
         disabled: true,
-        showFilter: function () {
+        showFilter: function() {
             dataElementLabel.hide();
             this.hide();
             dataElementFilter.show();
             dataElementFilter.reset();
         },
-        hideFilter: function () {
+        hideFilter: function() {
             dataElementLabel.show();
             this.show();
             dataElementFilter.hide();
             dataElementFilter.reset();
         },
-        handler: function () {
+        handler: function() {
             this.showFilter();
         },
     });
@@ -744,7 +744,7 @@ WestRegionTrackerItems = function (refs) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function () {
+        onTriggerClick: function() {
             if (this.getValue()) {
                 this.reset();
                 this.onKeyUpHandler();
@@ -752,7 +752,7 @@ WestRegionTrackerItems = function (refs) {
 
             dataElementSearch.hideFilter();
         },
-        onKeyUpHandler: function () {
+        onKeyUpHandler: function() {
             var store = dataElementsByStageStore,
                 value = this.getValue(),
                 name;
@@ -762,25 +762,25 @@ WestRegionTrackerItems = function (refs) {
                 return;
             }
 
-            store.filterBy(function (r) {
+            store.filterBy(function(r) {
                 name = r.data.name || '';
                 return name.toLowerCase().indexOf(value.toLowerCase()) !== -1;
             });
         },
         listeners: {
             keyup: {
-                fn: function (cmp) {
+                fn: function(cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100,
             },
-            show: function (cmp) {
+            show: function(cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function (cmp) {
+            focus: function(cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function (cmp) {
+            blur: function(cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             },
         },
@@ -805,7 +805,7 @@ WestRegionTrackerItems = function (refs) {
                 iconCls: 'ns-button-icon-arrowdown',
                 width: 22,
                 height: 22,
-                handler: function () {
+                handler: function() {
                     if (dataElementAvailable.getValue().length) {
                         selectDataElements(dataElementAvailable.getValue());
                     }
@@ -824,8 +824,8 @@ WestRegionTrackerItems = function (refs) {
             //}
         ],
         listeners: {
-            afterrender: function (ms) {
-                this.boundList.on('itemdblclick', function () {
+            afterrender: function(ms) {
+                this.boundList.on('itemdblclick', function() {
                     if (ms.getValue().length) {
                         selectDataElements(ms.getValue());
                     }
@@ -852,12 +852,12 @@ WestRegionTrackerItems = function (refs) {
                 iconCls: 'ns-button-icon-arrowupdouble',
                 width: 22,
                 height: 22,
-                handler: function () {
+                handler: function() {
                     dataElementSelected.removeAllDataElements();
                 },
             },
         ],
-        getChildIndex: function (child) {
+        getChildIndex: function(child) {
             var items = this.items.items;
 
             for (var i = 0; i < items.length; i++) {
@@ -868,10 +868,10 @@ WestRegionTrackerItems = function (refs) {
 
             return items.length;
         },
-        hasDataElement: function (dataElementId) {
+        hasDataElement: function(dataElementId) {
             var hasDataElement = false;
 
-            this.items.each(function (item) {
+            this.items.each(function(item) {
                 if (item.dataElement.id === dataElementId) {
                     hasDataElement = true;
                 }
@@ -879,10 +879,10 @@ WestRegionTrackerItems = function (refs) {
 
             return hasDataElement;
         },
-        getUxArrayById: function (dataElementId) {
+        getUxArrayById: function(dataElementId) {
             var uxArray = [];
 
-            this.items.each(function (item) {
+            this.items.each(function(item) {
                 if (item.dataElement.id === dataElementId) {
                     uxArray.push(item);
                 }
@@ -890,7 +890,7 @@ WestRegionTrackerItems = function (refs) {
 
             return uxArray;
         },
-        removeAllDataElements: function (reset) {
+        removeAllDataElements: function(reset) {
             var items = this.items.items,
                 len = items.length;
 
@@ -898,8 +898,8 @@ WestRegionTrackerItems = function (refs) {
                 items[0].removeDataElement(reset);
             }
         },
-        toggleProgramIndicators: function (type) {
-            this.items.each(function (item) {
+        toggleProgramIndicators: function(type) {
+            this.items.each(function(item) {
                 if (
                     type === dimensionConfig.dataType['aggregated_values'] &&
                     item.isProgramIndicator
@@ -910,22 +910,22 @@ WestRegionTrackerItems = function (refs) {
                 }
             });
         },
-        getSelectedIds: function () {
+        getSelectedIds: function() {
             var ids = [];
-            this.items.each(function (item) {
+            this.items.each(function(item) {
                 ids.push(item.dataElement.id)
             })
             return ids;
         }
     });
 
-    var addUxFromDataElement = function (element, index) {
+    var addUxFromDataElement = function(element, index) {
         var aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow');
 
         index = index || dataElementSelected.items.items.length;
 
-        var getUxType = function (element) {
+        var getUxType = function(element) {
             var valueTypes = dimensionConfig.valueType;
 
             if (isObject(element.optionSet) && isString(element.optionSet.id)) {
@@ -963,7 +963,7 @@ WestRegionTrackerItems = function (refs) {
         ux.isProgramIndicator = element.isProgramIndicator;
         ux.isDataElement = element.isDataElement;
 
-        ux.removeDataElement = function (reset) {
+        ux.removeDataElement = function(reset) {
             dataElementSelected.remove(ux);
 
             if (!dataElementSelected.hasDataElement(element.id)) {
@@ -983,7 +983,7 @@ WestRegionTrackerItems = function (refs) {
             }
         };
 
-        ux.duplicateDataElement = function () {
+        ux.duplicateDataElement = function() {
             var index = dataElementSelected.getChildIndex(ux) + 1;
             addUxFromDataElement(element, index);
         };
@@ -993,14 +993,14 @@ WestRegionTrackerItems = function (refs) {
         return ux;
     };
 
-    var selectDataElements = function (items, layout, _program) {
+    var selectDataElements = function(items, layout, _program) {
         var dataElements = [],
             allElements = [],
             aggWindow = uiManager.get('aggregateLayoutWindow'),
             queryWindow = uiManager.get('queryLayoutWindow'),
             includeKeys = dimensionConfig.valueType['tracker_aggregatable_types'],
             recordMap = dimensionConfig.getObjectNameMap(),
-            extendDim = function (dim) {
+            extendDim = function(dim) {
                 dim.id = dim.id || dim.dimension;
                 dim.name =
                     dim.name || (layout
@@ -1222,10 +1222,10 @@ WestRegionTrackerItems = function (refs) {
         hideCollapseTool: true,
         dimension: dimensionConfig.get('data').objectName,
         items: [programStagePanel, dataElementAvailable, dataElementSelected],
-        setDimension: function (layout) {
+        setDimension: function(layout) {
             setData(layout);
         },
-        clearDimension: function () {
+        clearDimension: function() {
             program.clearValue();
             stage.clearValue();
 
@@ -1234,14 +1234,14 @@ WestRegionTrackerItems = function (refs) {
 
             dataElementSearch.hideFilter();
         },
-        getHeightValue: function () {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar
                 ? uiConfig.west_scrollbarheight_accordion_indicator
                 : uiConfig.west_maxheight_accordion_indicator;
         },
-        onExpand: function () {
+        onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
 
             var msHeight = this.getHeight() - 28 - programStagePanel.getHeight() - 6;
@@ -1250,7 +1250,7 @@ WestRegionTrackerItems = function (refs) {
             dataElementSelected.setHeight(msHeight * 0.6 - 2);
         },
         listeners: {
-            expand: function (cmp) {
+            expand: function(cmp) {
                 cmp.onExpand();
             },
         },
@@ -1274,17 +1274,17 @@ WestRegionTrackerItems = function (refs) {
                 { id: 'dates', name: 'Start/end dates' },
             ],
         },
-        reset: function () {
+        reset: function() {
             onPeriodModeSelect('periods');
         },
         listeners: {
-            select: function (cmp) {
+            select: function(cmp) {
                 onPeriodModeSelect(cmp.getValue());
             },
         },
     });
 
-    var onPeriodModeSelect = function (mode) {
+    var onPeriodModeSelect = function(mode) {
         var aggregateLayoutWindow = uiManager.get('aggregateLayoutWindow');
 
         periodMode.setValue(mode);
@@ -1318,7 +1318,7 @@ WestRegionTrackerItems = function (refs) {
         }
     };
 
-    var onDateFieldRender = function (c) {
+    var onDateFieldRender = function(c) {
         $('#' + c.inputEl.id).calendarsPicker({
             calendar: calendarManager.calendar,
             dateFormat: appManager.systemInfo.dateFormat,
@@ -1337,7 +1337,7 @@ WestRegionTrackerItems = function (refs) {
             calendarManager.calendar.today().add(-3, 'm')
         ),
         listeners: {
-            render: function (c) {
+            render: function(c) {
                 onDateFieldRender(c);
             },
         },
@@ -1356,7 +1356,7 @@ WestRegionTrackerItems = function (refs) {
             calendarManager.calendar.today()
         ),
         listeners: {
-            render: function (c) {
+            render: function(c) {
                 onDateFieldRender(c);
             },
         },
@@ -1369,7 +1369,7 @@ WestRegionTrackerItems = function (refs) {
         items: [startDate, endDate],
     });
 
-    var onCheckboxAdd = function (cmp) {
+    var onCheckboxAdd = function(cmp) {
         if (cmp.xtype === 'checkbox') {
             uiManager.reg(cmp, cmp.relativePeriodId, null, 'relativePeriod');
 
@@ -1380,7 +1380,7 @@ WestRegionTrackerItems = function (refs) {
     };
 
     var intervalListeners = {
-        added: function (cmp) {
+        added: function(cmp) {
             onCheckboxAdd(cmp);
         },
     };
@@ -1429,28 +1429,28 @@ WestRegionTrackerItems = function (refs) {
                 index: 4,
             },
             {
-                xtype: "checkbox",
-                relativePeriodId: "LAST_30_DAYS",
-                boxLabel: i18n["last_30_days"],
-                index: 5,
+              xtype: "checkbox",
+              relativePeriodId: "LAST_30_DAYS",
+              boxLabel: i18n["last_30_days"],
+              index: 5,
             },
             {
-                xtype: "checkbox",
-                relativePeriodId: "LAST_60_DAYS",
-                boxLabel: i18n["last_60_days"],
-                index: 6,
+              xtype: "checkbox",
+              relativePeriodId: "LAST_60_DAYS",
+              boxLabel: i18n["last_60_days"],
+              index: 6,
             },
             {
-                xtype: "checkbox",
-                relativePeriodId: "LAST_90_DAYS",
-                boxLabel: i18n["last_90_days"],
-                index: 7,
+              xtype: "checkbox",
+              relativePeriodId: "LAST_90_DAYS",
+              boxLabel: i18n["last_90_days"],
+              index: 7,
             },
             {
-                xtype: "checkbox",
-                relativePeriodId: "LAST_180_DAYS",
-                boxLabel: i18n["last_180_days"],
-                index: 8,
+              xtype: "checkbox",
+              relativePeriodId: "LAST_180_DAYS",
+              boxLabel: i18n["last_180_days"],
+              index: 8,
             },
         ],
     });
@@ -1768,7 +1768,7 @@ WestRegionTrackerItems = function (refs) {
                 items: [biWeeks, quarters, years],
             },
         ],
-        getRecords: function () {
+        getRecords: function() {
             return uiManager
                 .getByGroup('relativePeriod')
                 .filter(cmp => cmp.getValue())
@@ -1795,7 +1795,7 @@ WestRegionTrackerItems = function (refs) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function () {
+                handler: function() {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                 },
             },
@@ -1803,17 +1803,17 @@ WestRegionTrackerItems = function (refs) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function () {
+                handler: function() {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
                 },
             },
             ' ',
         ],
         listeners: {
-            afterrender: function () {
+            afterrender: function() {
                 this.boundList.on(
                     'itemdblclick',
-                    function () {
+                    function() {
                         uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                     },
                     this
@@ -1836,7 +1836,7 @@ WestRegionTrackerItems = function (refs) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function () {
+                handler: function() {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
                 },
             },
@@ -1844,7 +1844,7 @@ WestRegionTrackerItems = function (refs) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function () {
+                handler: function() {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                 },
             },
@@ -1856,10 +1856,10 @@ WestRegionTrackerItems = function (refs) {
             },
         ],
         listeners: {
-            afterrender: function () {
+            afterrender: function() {
                 this.boundList.on(
                     'itemdblclick',
-                    function () {
+                    function() {
                         uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                     },
                     this
@@ -1868,7 +1868,7 @@ WestRegionTrackerItems = function (refs) {
         },
     });
 
-    var onPeriodTypeSelect = function () {
+    var onPeriodTypeSelect = function() {
         var type = periodType.getValue(),
             periodOffset = periodType.periodOffset,
             generator = calendarManager.periodGenerator,
@@ -1896,7 +1896,7 @@ WestRegionTrackerItems = function (refs) {
         store: periodTypeStore,
         periodOffset: 0,
         listeners: {
-            select: function (cmp) {
+            select: function(cmp) {
                 periodType.periodOffset = 0;
                 onPeriodTypeSelect();
             },
@@ -1908,7 +1908,7 @@ WestRegionTrackerItems = function (refs) {
         style: 'border-radius:1px; margin-right:1px',
         height: 24,
         width: nextButtonWidth,
-        handler: function () {
+        handler: function() {
             if (periodType.getValue()) {
                 periodType.periodOffset--;
                 onPeriodTypeSelect();
@@ -1921,7 +1921,7 @@ WestRegionTrackerItems = function (refs) {
         style: 'border-radius:1px',
         height: 24,
         width: nextButtonWidth,
-        handler: function () {
+        handler: function() {
             if (periodType.getValue()) {
                 periodType.periodOffset++;
                 onPeriodTypeSelect();
@@ -1944,11 +1944,11 @@ WestRegionTrackerItems = function (refs) {
 
     var periods = Ext.create('Ext.panel.Panel', {
         bodyStyle: 'border-style:none',
-        getRecords: function () {
+        getRecords: function() {
             var selectedRecords = [],
                 records;
 
-            fixedPeriodSelectedStore.each(function (r) {
+            fixedPeriodSelectedStore.each(function(r) {
                 selectedRecords.push({ id: r.data.id });
             });
 
@@ -1962,7 +1962,7 @@ WestRegionTrackerItems = function (refs) {
 
             return records.length ? records : null;
         },
-        getDimension: function () {
+        getDimension: function() {
             return {
                 dimension: 'pe',
                 items: this.getRecords(),
@@ -1985,7 +1985,7 @@ WestRegionTrackerItems = function (refs) {
         hideCollapseTool: true,
         dimension: dimensionConfig.get('period').objectName,
         width: accBaseWidth,
-        clearDimension: function (all) {
+        clearDimension: function(all) {
             this.resetFixedPeriods();
             this.resetRelativePeriods();
             this.resetStartEndDates();
@@ -1996,7 +1996,7 @@ WestRegionTrackerItems = function (refs) {
                 uiManager.get(appManager.getRelativePeriod()).setValue(true);
             }
         },
-        setDimension: function (layout) {
+        setDimension: function(layout) {
             if (!layout) {
                 return;
             }
@@ -2011,12 +2011,12 @@ WestRegionTrackerItems = function (refs) {
 
             if (layout.hasDimension(this.dimension, true)) {
                 var records = layout
-                    .getDimension(this.dimension)
-                    .extendRecords(layout.getResponse()),
+                        .getDimension(this.dimension)
+                        .extendRecords(layout.getResponse()),
                     fixedRecords = [],
                     checkbox;
 
-                records.forEach(function (record) {
+                records.forEach(function(record) {
                     checkbox = uiManager.get(record.id);
 
                     if (checkbox) {
@@ -2034,7 +2034,7 @@ WestRegionTrackerItems = function (refs) {
                 );
             }
         },
-        getDimension: function () {
+        getDimension: function() {
             var config = {
                 dimension: periodObjectName,
                 items: periods.getRecords(),
@@ -2042,14 +2042,14 @@ WestRegionTrackerItems = function (refs) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function () {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar
                 ? uiConfig.west_scrollbarheight_accordion_period
                 : uiConfig.west_maxheight_accordion_period;
         },
-        onExpand: function () {
+        onExpand: function() {
             accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight(
@@ -2058,34 +2058,34 @@ WestRegionTrackerItems = function (refs) {
                 uiConfig.west_fill_accordion_period
             );
         },
-        reset: function () {
+        reset: function() {
             this.resetRelativePeriods();
             this.resetFixedPeriods();
             this.resetStartEndDates();
 
             periodMode.reset();
         },
-        isRelativePeriods: function () {
+        isRelativePeriods: function() {
             return uiManager.getByGroup('relativePeriod').some(chb => chb.getValue());
         },
-        resetRelativePeriods: function () {
+        resetRelativePeriods: function() {
             uiManager.getByGroup('relativePeriod').forEach(cmp => cmp.setValue(false));
         },
-        isNoRelativePeriods: function () {
+        isNoRelativePeriods: function() {
             return !uiManager.getByGroup('relativePeriod').some(cmp => cmp.getValue());
         },
-        resetFixedPeriods: function () {
+        resetFixedPeriods: function() {
             fixedPeriodAvailableStore.removeAll();
             fixedPeriodSelectedStore.removeAll();
             periodType.clearValue();
         },
-        resetStartEndDates: function () {
+        resetStartEndDates: function() {
             startDate.reset();
             endDate.reset();
         },
         items: [periodMode, startEndDate, periods],
         listeners: {
-            expand: function (cmp) {
+            expand: function(cmp) {
                 cmp.onExpand();
             },
         },
@@ -2104,13 +2104,13 @@ WestRegionTrackerItems = function (refs) {
         autoScroll: true,
         multiSelect: true,
         rendered: false,
-        reset: function () {
+        reset: function() {
             var rootNode = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
             this.collapseAll();
             this.expandPath(rootNode.getPath());
             this.getSelectionModel().select(rootNode);
         },
-        selectRootIf: function () {
+        selectRootIf: function() {
             if (this.getSelectionModel().getSelection().length < 1) {
                 var node = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
                 if (this.rendered) {
@@ -2122,7 +2122,7 @@ WestRegionTrackerItems = function (refs) {
         isPending: false,
         recordsToSelect: [],
         recordsToRestore: [],
-        multipleSelectIf: function (map, doUpdate) {
+        multipleSelectIf: function(map, doUpdate) {
             this.recordsToSelect = arrayClean(this.recordsToSelect);
 
             if (this.recordsToSelect.length === Object.keys(map).length) {
@@ -2135,7 +2135,7 @@ WestRegionTrackerItems = function (refs) {
                 }
             }
         },
-        multipleExpand: function (id, map, doUpdate) {
+        multipleExpand: function(id, map, doUpdate) {
             var t = this,
                 rootId = appManager.rootNodeId,
                 path = map[id];
@@ -2144,13 +2144,13 @@ WestRegionTrackerItems = function (refs) {
                 path = '/' + rootId + '/' + path;
             }
 
-            t.expandPath(path, 'id', '/', function () {
+            t.expandPath(path, 'id', '/', function() {
                 var record = t.getRootNode().findChild('id', id, true);
                 t.recordsToSelect.push(record);
                 t.multipleSelectIf(map, doUpdate);
             });
         },
-        select: function (url, params) {
+        select: function(url, params) {
             if (!params) {
                 params = {};
             }
@@ -2159,7 +2159,7 @@ WestRegionTrackerItems = function (refs) {
                 method: 'GET',
                 params: params,
                 scope: this,
-                success: function (r) {
+                success: function(r) {
                     var a = Ext.decode(r.responseText).organisationUnits;
                     this.numberOfRecords = a.length;
                     for (var i = 0; i < a.length; i++) {
@@ -2168,7 +2168,7 @@ WestRegionTrackerItems = function (refs) {
                 },
             });
         },
-        getParentGraphMap: function () {
+        getParentGraphMap: function() {
             var selection = this.getSelectionModel().getSelection(),
                 map = {};
 
@@ -2181,7 +2181,7 @@ WestRegionTrackerItems = function (refs) {
 
             return map;
         },
-        selectGraphMap: function (map, update) {
+        selectGraphMap: function(map, update) {
             if (!Object.keys(map).length) {
                 return;
             }
@@ -2226,15 +2226,15 @@ WestRegionTrackerItems = function (refs) {
                 children: appManager.getRootNodes(),
             },
             listeners: {
-                beforeload: function (store, operation) {
+                beforeload: function(store, operation) {
                     if (!store.proxy._url) {
                         store.proxy._url = store.proxy.url;
                     }
 
                     store.proxy.url = store.proxy._url + '/' + operation.node.data.id;
                 },
-                load: function (store, node, records) {
-                    records.forEach(function (record) {
+                load: function(store, node, records) {
+                    records.forEach(function(record) {
                         if (isBoolean(record.data.hasChildren)) {
                             record.set('leaf', !record.data.hasChildren);
                         }
@@ -2242,7 +2242,7 @@ WestRegionTrackerItems = function (refs) {
                 },
             },
         }),
-        xable: function (values) {
+        xable: function(values) {
             for (var i = 0; i < values.length; i++) {
                 if (!!values[i]) {
                     this.disable();
@@ -2252,7 +2252,7 @@ WestRegionTrackerItems = function (refs) {
 
             this.enable();
         },
-        getDimension: function () {
+        getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
                     dimension: organisationUnitObjectName,
@@ -2325,30 +2325,30 @@ WestRegionTrackerItems = function (refs) {
             return config.items.length ? config : null;
         },
         listeners: {
-            beforeitemexpand: function () {
+            beforeitemexpand: function() {
                 var rts = treePanel.recordsToSelect;
 
                 if (!treePanel.isPending) {
                     treePanel.recordsToRestore = treePanel.getSelectionModel().getSelection();
                 }
             },
-            itemexpand: function () {
+            itemexpand: function() {
                 if (!treePanel.isPending && treePanel.recordsToRestore.length) {
                     treePanel.getSelectionModel().select(treePanel.recordsToRestore);
                     treePanel.recordsToRestore = [];
                 }
             },
-            render: function () {
+            render: function() {
                 this.rendered = true;
             },
-            afterrender: function () {
+            afterrender: function() {
                 this.getSelectionModel().select(0);
 
-                Ext.defer(function () {
+                Ext.defer(function() {
                     data.expand();
                 }, 20);
             },
-            itemcontextmenu: function (v, r, h, i, e) {
+            itemcontextmenu: function(v, r, h, i, e) {
                 v.getSelectionModel().select(r, false);
 
                 if (v.menu) {
@@ -2364,8 +2364,8 @@ WestRegionTrackerItems = function (refs) {
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
                         iconCls: 'ns-button-icon-nodeselectchild',
-                        handler: function () {
-                            r.expand(false, function () {
+                        handler: function() {
+                            r.expand(false, function() {
                                 v.getSelectionModel().select(r.childNodes, true);
                                 v.getSelectionModel().deselect(r);
                             });
@@ -2386,7 +2386,7 @@ WestRegionTrackerItems = function (refs) {
         style: 'padding-top: 3px; padding-left: 5px; margin-bottom: 0',
         boxLabel: 'User org unit',
         labelWidth: uiConfig.form_label_width,
-        handler: function (chb, checked) {
+        handler: function(chb, checked) {
             treePanel.xable([
                 checked,
                 userOrganisationUnitChildren.getValue(),
@@ -2400,7 +2400,7 @@ WestRegionTrackerItems = function (refs) {
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_units,
         labelWidth: uiConfig.form_label_width,
-        handler: function (chb, checked) {
+        handler: function(chb, checked) {
             treePanel.xable([
                 checked,
                 userOrganisationUnit.getValue(),
@@ -2414,7 +2414,7 @@ WestRegionTrackerItems = function (refs) {
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_x2_units,
         labelWidth: uiConfig.form_label_width,
-        handler: function (chb, checked) {
+        handler: function(chb, checked) {
             treePanel.xable([
                 checked,
                 userOrganisationUnit.getValue(),
@@ -2456,7 +2456,7 @@ WestRegionTrackerItems = function (refs) {
         shadow: false,
         showSeparator: false,
         menuValue: 'orgunit',
-        clickHandler: function (param) {
+        clickHandler: function(param) {
             if (!param) {
                 return;
             }
@@ -2529,10 +2529,10 @@ WestRegionTrackerItems = function (refs) {
             },
         ],
         listeners: {
-            afterrender: function () {
+            afterrender: function() {
                 this.getEl().addCls('ns-btn-menu');
             },
-            click: function (menu, item) {
+            click: function(menu, item) {
                 this.clickHandler(item.param);
             },
         },
@@ -2559,7 +2559,7 @@ WestRegionTrackerItems = function (refs) {
         hideCollapseTool: true,
         dimension: dimensionConfig.get('organisationUnit').objectName,
         collapsed: false,
-        clearDimension: function (doClear, skipTree) {
+        clearDimension: function(doClear, skipTree) {
             if (doClear) {
                 toolMenu.clickHandler(toolMenu.menuValue);
 
@@ -2575,7 +2575,7 @@ WestRegionTrackerItems = function (refs) {
                 organisationUnitGroup.clearValue();
             }
         },
-        setDimension: function (layout) {
+        setDimension: function(layout) {
             if (layout.hasDimension(this.dimension, true)) {
                 var dimension = layout.getDimension(this.dimension, true),
                     parentGraphMap = layout.parentGraphMap;
@@ -2588,7 +2588,7 @@ WestRegionTrackerItems = function (refs) {
                     isOuc,
                     isOugc;
 
-                records.forEach(function (record) {
+                records.forEach(function(record) {
                     if (record.id === 'USER_ORGUNIT') {
                         isOu = true;
                     } else if (record.id === 'USER_ORGUNIT_CHILDREN') {
@@ -2626,7 +2626,7 @@ WestRegionTrackerItems = function (refs) {
                 this.clearDimension(true);
             }
         },
-        getDimension: function () {
+        getDimension: function() {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
                     dimension: organisationUnitObjectName,
@@ -2698,14 +2698,14 @@ WestRegionTrackerItems = function (refs) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function () {
+        getHeightValue: function() {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar
                 ? uiConfig.west_scrollbarheight_accordion_organisationunit
                 : uiConfig.west_maxheight_accordion_organisationunit;
         },
-        onExpand: function () {
+        onExpand: function() {
             accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
@@ -2734,7 +2734,7 @@ WestRegionTrackerItems = function (refs) {
             treePanel,
         ],
         listeners: {
-            expand: function (p) {
+            expand: function(p) {
                 p.onExpand();
             },
         },
@@ -2743,7 +2743,7 @@ WestRegionTrackerItems = function (refs) {
 
     // dimensions
 
-    var getDimensionPanel = function (dimension, iconCls) {
+    var getDimensionPanel = function(dimension, iconCls) {
         var onSelect,
             availableStore,
             selectedStore,
@@ -2756,7 +2756,7 @@ WestRegionTrackerItems = function (refs) {
             onSelectAll,
             panel;
 
-        onSelect = function () {
+        onSelect = function() {
             var win = uiManager.get('viewport').getLayoutWindow();
 
             if (win) {
@@ -2774,7 +2774,7 @@ WestRegionTrackerItems = function (refs) {
             nextPage: 1,
             isPending: false,
             isLoaded: false,
-            reset: function () {
+            reset: function() {
                 this.removeAll();
                 this.lastPage = null;
                 this.nextPage = 1;
@@ -2782,7 +2782,7 @@ WestRegionTrackerItems = function (refs) {
                 dataSearch.hideFilter();
             },
             storage: {},
-            addToStorage: function (dimensionId, filter, data) {
+            addToStorage: function(dimensionId, filter, data) {
                 filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
                 if (!dimensionId) {
@@ -2797,7 +2797,7 @@ WestRegionTrackerItems = function (refs) {
                     this.storage[dimensionId][filter] = data;
                 }
             },
-            getFromStorage: function (dimensionId, filter) {
+            getFromStorage: function(dimensionId, filter) {
                 filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
                 if (this.storage.hasOwnProperty(dimensionId)) {
@@ -2808,7 +2808,7 @@ WestRegionTrackerItems = function (refs) {
 
                 return;
             },
-            loadPage: function (filter, append, noPaging, fn) {
+            loadPage: function(filter, append, noPaging, fn) {
                 var store = this,
                     params = {},
                     url,
@@ -2852,7 +2852,7 @@ WestRegionTrackerItems = function (refs) {
                         url: encodeURI(apiPath + url),
                         method: 'GET',
                         params: params,
-                        success: function (r) {
+                        success: function(r) {
                             var response = Ext.decode(r.responseText),
                                 data = response.items || [],
                                 pager = response.pager;
@@ -2862,14 +2862,14 @@ WestRegionTrackerItems = function (refs) {
 
                             store.loadStore(data, pager, append, fn);
                         },
-                        callback: function () {
+                        callback: function() {
                             store.isPending = false;
                             uiManager.unmask(available.boundList);
                         },
                     });
                 }
             },
-            loadStore: function (data, pager, append, fn) {
+            loadStore: function(data, pager, append, fn) {
                 pager = pager || {};
 
                 this.loadData(data, append);
@@ -2887,7 +2887,7 @@ WestRegionTrackerItems = function (refs) {
                     fn();
                 }
             },
-            sortStore: function () {
+            sortStore: function() {
                 this.sort('name', 'ASC');
             },
         });
@@ -2896,13 +2896,13 @@ WestRegionTrackerItems = function (refs) {
             fields: ['id', 'name'],
             data: [],
             listeners: {
-                add: function () {
+                add: function() {
                     onSelect();
                 },
-                remove: function () {
+                remove: function() {
                     onSelect();
                 },
-                clear: function () {
+                clear: function() {
                     onSelect();
                 },
             },
@@ -2919,19 +2919,19 @@ WestRegionTrackerItems = function (refs) {
             height: 22,
             cls: 'ns-button-icon',
             iconCls: 'ns-button-icon-search',
-            showFilter: function () {
+            showFilter: function() {
                 dataLabel.hide();
                 this.hide();
                 dataFilter.show();
                 dataFilter.reset();
             },
-            hideFilter: function () {
+            hideFilter: function() {
                 dataLabel.show();
                 this.show();
                 dataFilter.hide();
                 dataFilter.reset();
             },
-            handler: function () {
+            handler: function() {
                 this.showFilter();
             },
         });
@@ -2945,13 +2945,13 @@ WestRegionTrackerItems = function (refs) {
             enableKeyEvents: true,
             fieldStyle: 'height:22px; border-right:0 none',
             style: 'height:22px',
-            onTriggerClick: function () {
+            onTriggerClick: function() {
                 this.reset();
                 this.onKeyUpHandler();
 
                 dataSearch.hideFilter();
             },
-            onKeyUpHandler: function () {
+            onKeyUpHandler: function() {
                 var value = this.getValue(),
                     store = availableStore;
 
@@ -2961,18 +2961,18 @@ WestRegionTrackerItems = function (refs) {
             },
             listeners: {
                 keyup: {
-                    fn: function (cmp) {
+                    fn: function(cmp) {
                         cmp.onKeyUpHandler();
                     },
                     buffer: 100,
                 },
-                show: function (cmp) {
+                show: function(cmp) {
                     cmp.focus(false, 50);
                 },
-                focus: function (cmp) {
+                focus: function(cmp) {
                     cmp.addCls('ns-trigger-filter-focused');
                 },
-                blur: function (cmp) {
+                blur: function(cmp) {
                     cmp.removeCls('ns-trigger-filter-focused');
                 },
             },
@@ -2983,7 +2983,7 @@ WestRegionTrackerItems = function (refs) {
             style: 'margin-left: 2px; margin-right: 5px',
             boxLabel: 'All',
             listeners: {
-                change: function (chb, newVal) {
+                change: function(chb, newVal) {
                     onSelectAll(newVal);
                 },
             },
@@ -3004,7 +3004,7 @@ WestRegionTrackerItems = function (refs) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowright',
                     width: 22,
-                    handler: function () {
+                    handler: function() {
                         uiManager.msSelect(available, selected);
                     },
                 },
@@ -3012,18 +3012,18 @@ WestRegionTrackerItems = function (refs) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowrightdouble',
                     width: 22,
-                    handler: function () {
-                        availableStore.loadPage(null, null, true, function () {
+                    handler: function() {
+                        availableStore.loadPage(null, null, true, function() {
                             uiManager.msSelectAll(available, selected);
                         });
                     },
                 },
             ],
             listeners: {
-                render: function (ms) {
+                render: function(ms) {
                     var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
-                    el.addEventListener('scroll', function (e) {
+                    el.addEventListener('scroll', function(e) {
                         if (uiManager.isScrolled(e) && !availableStore.isPending) {
                             availableStore.loadPage(null, true);
                         }
@@ -3031,7 +3031,7 @@ WestRegionTrackerItems = function (refs) {
 
                     ms.boundList.on(
                         'itemdblclick',
-                        function () {
+                        function() {
                             uiManager.msSelect(available, selected);
                         },
                         ms
@@ -3052,7 +3052,7 @@ WestRegionTrackerItems = function (refs) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowleftdouble',
                     width: 22,
-                    handler: function () {
+                    handler: function() {
                         uiManager.msUnselectAll(available, selected);
                     },
                 },
@@ -3060,7 +3060,7 @@ WestRegionTrackerItems = function (refs) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowleft',
                     width: 22,
-                    handler: function () {
+                    handler: function() {
                         uiManager.msUnselect(available, selected);
                     },
                 },
@@ -3073,10 +3073,10 @@ WestRegionTrackerItems = function (refs) {
                 selectedAll,
             ],
             listeners: {
-                afterrender: function () {
+                afterrender: function() {
                     this.boundList.on(
                         'itemdblclick',
-                        function () {
+                        function() {
                             uiManager.msUnselect(available, selected);
                         },
                         this
@@ -3085,7 +3085,7 @@ WestRegionTrackerItems = function (refs) {
             },
         });
 
-        onSelectAll = function (value) {
+        onSelectAll = function(value) {
             if (available.boundList && selected.boundList) {
                 if (value) {
                     available.boundList.disable();
@@ -3107,12 +3107,12 @@ WestRegionTrackerItems = function (refs) {
             selectedStore: selectedStore,
             selectedAll: selectedAll,
             isDynamic: true,
-            clearDimension: function () {
+            clearDimension: function() {
                 availableStore.reset();
                 selectedStore.removeAll();
                 selectedAll.setValue(false);
             },
-            setDimension: function (layout) {
+            setDimension: function(layout) {
                 if (layout.hasDimension(this.dimension, true)) {
                     var records = layout.getDimension(this.dimension).getRecords();
 
@@ -3127,7 +3127,7 @@ WestRegionTrackerItems = function (refs) {
                     }
                 }
             },
-            getDimension: function () {
+            getDimension: function() {
                 var config = {};
 
                 if (dimension.id) {
@@ -3137,21 +3137,21 @@ WestRegionTrackerItems = function (refs) {
                 if (!selectedAll.getValue() && selectedStore.getRange().length) {
                     config.items = [];
 
-                    selectedStore.each(function (r) {
+                    selectedStore.each(function(r) {
                         config.items.push({ id: r.data.id });
                     });
                 }
 
                 return config.dimension ? config : null;
             },
-            getHeightValue: function () {
+            getHeightValue: function() {
                 var westRegion = uiManager.get('westRegion');
 
                 return westRegion.hasScrollbar
                     ? uiConfig.west_scrollbarheight_accordion_group
                     : uiConfig.west_maxheight_accordion_group;
             },
-            onExpand: function () {
+            onExpand: function() {
                 // load items
                 if (!availableStore.isLoaded) {
                     availableStore.loadPage();
@@ -3188,7 +3188,7 @@ WestRegionTrackerItems = function (refs) {
                 },
             ],
             listeners: {
-                expand: function (p) {
+                expand: function(p) {
                     p.onExpand();
                 },
             },
@@ -3198,14 +3198,14 @@ WestRegionTrackerItems = function (refs) {
     };
 
     // accordion
-    var getItems = function (dimensions = []) {
+    var getItems = function(dimensions = []) {
         return dimensions.map(dimension => {
             const panel = getDimensionPanel(dimension, 'ns-panel-title-dimension');
             accordionPanels.push(uiManager.reg(panel, panel.dimension));
             return panel;
         });
     };
-
+    
     var defaultItems = [
         data,
         period,
@@ -3220,12 +3220,12 @@ WestRegionTrackerItems = function (refs) {
         bodyStyle: 'border:0 none',
         height: 700,
         toBeRemoved: [],
-        addItems: function (dimensions) {
+        addItems: function(dimensions) {
             this.toBeRemoved = this.add(getItems(dimensions));
 
             accordion.setThisHeight();
         },
-        removeItems: function () {
+        removeItems: function() {
             this.toBeRemoved.map(item => (isString(item) ? item : item.id)).forEach(id => {
                 accordionBody.remove(id);
             });
@@ -3234,10 +3234,10 @@ WestRegionTrackerItems = function (refs) {
 
             this.toBeRemoved = [];
         },
-        getExpandedPanel: function () {
+        getExpandedPanel: function() {
             var expandedPanel;
 
-            this.items.each(function (panel) {
+            this.items.each(function(panel) {
                 if (!panel.collapsed) {
                     expandedPanel = panel;
                     return false;
@@ -3251,7 +3251,7 @@ WestRegionTrackerItems = function (refs) {
 
     // functions
 
-    var setUiState = function (layout, response) {
+    var setUiState = function(layout, response) {
         var dataTypeToolbar = uiManager.get('dataTypeToolbar'),
             chartTypeToolbar = uiManager.get('chartTypeToolbar'),
             aggLayoutWindow = uiManager.get('aggregateLayoutWindow'),
@@ -3317,7 +3317,7 @@ WestRegionTrackerItems = function (refs) {
         //statusBar.setStatus(layout, response);
     };
 
-    var getUiState = function (layoutWindow, optionsWindow, chartType, dataType) {
+    var getUiState = function(layoutWindow, optionsWindow, chartType, dataType) {
         var viewport = uiManager.get('viewport'),
             panels = uiManager.get('accordion').panels,
             dataTypeToolbar = uiManager.get('dataTypeToolbar'),
@@ -3376,7 +3376,7 @@ WestRegionTrackerItems = function (refs) {
         }
 
         // dynamic dimensions data
-        accordionBody.items.each(function (panel) {
+        accordionBody.items.each(function(panel) {
             if (panel.isDynamic && panel.getDimension) {
                 var dim = panel.getDimension();
 
@@ -3390,7 +3390,7 @@ WestRegionTrackerItems = function (refs) {
         map['longitude'] = [{ dimension: 'longitude' }];
         map['latitude'] = [{ dimension: 'latitude' }];
 
-        addAxisDimension = function (a, axis) {
+        addAxisDimension = function(a, axis) {
             if (a.length) {
                 if (a.length === 1) {
                     axis.push(a[0]);
@@ -3417,7 +3417,7 @@ WestRegionTrackerItems = function (refs) {
         if (store) {
             data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
-            data.each(function (item) {
+            data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], columns);
             });
         }
@@ -3428,7 +3428,7 @@ WestRegionTrackerItems = function (refs) {
         if (store) {
             data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
-            data.each(function (item) {
+            data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], rows);
             });
         }
@@ -3439,7 +3439,7 @@ WestRegionTrackerItems = function (refs) {
         if (store) {
             data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
-            data.each(function (item) {
+            data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
             });
         }
@@ -3450,7 +3450,7 @@ WestRegionTrackerItems = function (refs) {
         if (store) {
             data = store.findExact('id', 'dy') === -1 ? store.data : store.snapshot;
 
-            data.each(function (item) {
+            data.each(function(item) {
                 addAxisDimension(map[item.data.id || item.data.dimensionName] || [], filters);
             });
         }
@@ -3503,16 +3503,16 @@ WestRegionTrackerItems = function (refs) {
         accordionBody: accordionBody,
         items: accordionBody,
         panels: accordionPanels,
-        expandInitPanels: function () {
+        expandInitPanels: function() {
             organisationUnit.expand();
         },
-        clearDimensions: function (layout) {
-            accordionPanels.forEach(function (panel) {
+        clearDimensions: function(layout) {
+            accordionPanels.forEach(function(panel) {
                 panel.clearDimension(!!layout);
             });
         },
-        setDimensions: function (layout, dynamicOnly) {
-            accordionPanels.forEach(function (panel) {
+        setDimensions: function(layout, dynamicOnly) {
+            accordionPanels.forEach(function(panel) {
                 if (dynamicOnly && !panel.isDynamic) {
                     return;
                 }
@@ -3520,7 +3520,7 @@ WestRegionTrackerItems = function (refs) {
                 panel.setDimension(layout);
             });
         },
-        setThisHeight: function (mx) {
+        setThisHeight: function(mx) {
             mx = mx || (this.getExpandedPanel() ? this.getExpandedPanel().getHeightValue() : 0);
 
             var settingsHeight = 41;
@@ -3541,16 +3541,16 @@ WestRegionTrackerItems = function (refs) {
             this.setHeight(accordionHeight);
             accordionBody.setHeight(accordionBodyHeight);
         },
-        getExpandedPanel: function () {
+        getExpandedPanel: function() {
             return accordionBody.getExpandedPanel();
         },
-        getFirstPanel: function () {
+        getFirstPanel: function() {
             return this.panels[0];
         },
-        getParentGraphMap: function () {
+        getParentGraphMap: function() {
             return treePanel.getParentGraphMap();
         },
-        getUxArray: function (id) {
+        getUxArray: function(id) {
             return dataElementSelected.getUxArrayById(id);
         },
 
