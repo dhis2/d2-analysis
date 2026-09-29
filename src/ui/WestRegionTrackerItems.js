@@ -2006,7 +2006,8 @@ WestRegionTrackerItems = function(refs) {
                     fields:
                         'children[id,' +
                         displayPropertyUrl +
-                        ',children::isNotEmpty~rename(hasChildren)&paging=false',
+                        ',children::isNotEmpty~rename(hasChildren)]' +
+                        '&paging=false',
                 },
                 url: appManager.getApiPath() + '/organisationUnits',
                 reader: {
