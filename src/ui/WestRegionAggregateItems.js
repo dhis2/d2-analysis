@@ -11,7 +11,7 @@ import isString from 'd2-utilizr/lib/isString';
 
 export var WestRegionAggregateItems;
 
-WestRegionAggregateItems = function(c) {
+WestRegionAggregateItems = function (c) {
     var t = this,
         uiManager = c.uiManager,
         instanceManager = c.instanceManager,
@@ -56,25 +56,25 @@ WestRegionAggregateItems = function(c) {
         lastPage: null,
         nextPage: 1,
         isPending: false,
-        reset: function() {
+        reset: function () {
             this.removeAll();
             this.lastPage = null;
             this.nextPage = 1;
             this.isPending = false;
             indicatorSearch.hideFilter();
         },
-        loadDataAndUpdate: function(data, append) {
-                this.clearFilter(); // work around
+        loadDataAndUpdate: function (data, append) {
+            this.clearFilter(); // work around
 
-                if (!append) {
-                    this.removeAll();
-                }
+            if (!append) {
+                this.removeAll();
+            }
 
-                this.loadData(data, append);
+            this.loadData(data, append);
 
-                this.updateFilter();
-            },
-        getRecordsByIds: function(ids) {
+            this.updateFilter();
+        },
+        getRecordsByIds: function (ids) {
             var records = [];
 
             ids = arrayFrom(ids);
@@ -89,16 +89,16 @@ WestRegionAggregateItems = function(c) {
 
             return records;
         },
-        updateFilter: function() {
+        updateFilter: function () {
             var selectedStoreIds = dataSelectedStore.getIds();
 
             this.clearFilter();
 
-            this.filterBy(function(record) {
+            this.filterBy(function (record) {
                 return !arrayContains(selectedStoreIds, record.data.id);
             });
         },
-        loadPage: function(uid, filter, append, noPaging, fn) {
+        loadPage: function (uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/indicators.json?',
@@ -134,17 +134,17 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(indicatorAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function (response) {
                 var data = response.indicators || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function () {
                 store.isPending = false;
                 uiManager.unmask(indicatorAvailable.boundList);
             });
         },
-        loadStore: function(data, pager, append, fn) {
+        loadStore: function (data, pager, append, fn) {
             pager = pager || {};
 
             this.loadDataAndUpdate(data, append);
@@ -166,7 +166,7 @@ WestRegionAggregateItems = function(c) {
         },
         storage: {},
         parent: null,
-        sortStore: function() {
+        sortStore: function () {
             this.sort('name', 'ASC');
         }
     });
@@ -185,7 +185,7 @@ WestRegionAggregateItems = function(c) {
             limitParam: false
         },
         listeners: {
-            load: function(s) {
+            load: function (s) {
                 s.add({
                     id: 0,
                     name: '[ ' + i18n['all_indicators'] + ' ]',
@@ -210,25 +210,25 @@ WestRegionAggregateItems = function(c) {
         lastPage: null,
         nextPage: 1,
         isPending: false,
-        reset: function() {
+        reset: function () {
             this.removeAll();
             this.lastPage = null;
             this.nextPage = 1;
             this.isPending = false;
             dataElementSearch.hideFilter();
         },
-        loadDataAndUpdate: function(data, append) {
-                this.clearFilter(); // work around
+        loadDataAndUpdate: function (data, append) {
+            this.clearFilter(); // work around
 
-                if (!append) {
-                    this.removeAll();
-                }
+            if (!append) {
+                this.removeAll();
+            }
 
-                this.loadData(data, append);
+            this.loadData(data, append);
 
-                this.updateFilter();
-            },
-        getRecordsByIds: function(ids) {
+            this.updateFilter();
+        },
+        getRecordsByIds: function (ids) {
             var records = [];
 
             ids = arrayFrom(ids);
@@ -243,18 +243,18 @@ WestRegionAggregateItems = function(c) {
 
             return records;
         },
-        updateFilter: function() {
+        updateFilter: function () {
             var selectedStoreIds = dataSelectedStore.getIds();
 
             this.clearFilter();
 
             if (selectedStoreIds.length) {
-                this.filterBy(function(record) {
+                this.filterBy(function (record) {
                     return !arrayContains(selectedStoreIds, record.data.id);
                 });
             }
         },
-        loadPage: function(uid, filter, append, noPaging, fn) {
+        loadPage: function (uid, filter, append, noPaging, fn) {
             uid = (isString(uid) || isNumber(uid)) ? uid : dataElementGroup.getValue();
             filter = filter || dataElementFilter.getValue() || null;
 
@@ -270,7 +270,7 @@ WestRegionAggregateItems = function(c) {
                 this.loadDetailsPage(uid, filter, append, noPaging, fn);
             }
         },
-        loadTotalsPage: function(uid, filter, append, noPaging, fn) {
+        loadTotalsPage: function (uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElements.json?',
@@ -298,17 +298,17 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function (response) {
                 var data = response.dataElements || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function () {
                 store.isPending = false;
                 uiManager.unmask(dataElementAvailable.boundList);
             });
         },
-        loadDetailsPage: function(uid, filter, append, noPaging, fn) {
+        loadDetailsPage: function (uid, filter, append, noPaging, fn) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataElementOperands.json?',
@@ -336,17 +336,17 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataElementAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function (response) {
                 var data = response.objects || response.dataElementOperands || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function () {
                 store.isPending = false;
                 uiManager.unmask(dataElementAvailable.boundList);
             });
         },
-        loadStore: function(data, pager, append, fn) {
+        loadStore: function (data, pager, append, fn) {
             pager = pager || {};
 
             this.loadDataAndUpdate(data, append);
@@ -366,7 +366,7 @@ WestRegionAggregateItems = function(c) {
                 fn();
             }
         },
-        sortStore: function() {
+        sortStore: function () {
             this.sort('name', 'ASC');
         }
     });
@@ -385,7 +385,7 @@ WestRegionAggregateItems = function(c) {
             limitParam: false
         },
         listeners: {
-            load: function(s) {
+            load: function (s) {
                 s.add({
                     id: 0,
                     name: '[ ' + i18n['all_data_elements'] + ' ]',
@@ -393,8 +393,8 @@ WestRegionAggregateItems = function(c) {
                 });
 
                 s.sort([
-                    {property: 'index', direction: 'ASC'},
-                    {property: 'name', direction: 'ASC'}
+                    { property: 'index', direction: 'ASC' },
+                    { property: 'name', direction: 'ASC' }
                 ]);
             }
         }
@@ -405,19 +405,19 @@ WestRegionAggregateItems = function(c) {
         lastPage: null,
         nextPage: 1,
         isPending: false,
-        reset: function() {
+        reset: function () {
             this.removeAll();
             this.lastPage = null;
             this.nextPage = 1;
             this.isPending = false;
             dataSetSearch.hideFilter();
         },
-        loadDataAndUpdate: function(data, append) {
+        loadDataAndUpdate: function (data, append) {
             this.clearFilter(); // work around
             this.loadData(data, append);
             this.updateFilter();
         },
-        getRecordsByIds: function(ids) {
+        getRecordsByIds: function (ids) {
             var records = [];
 
             ids = arrayFrom(ids);
@@ -432,17 +432,17 @@ WestRegionAggregateItems = function(c) {
 
             return records;
         },
-        updateFilter: function() {
+        updateFilter: function () {
             var selectedStoreIds = dataSelectedStore.getIds();
             this.clearFilter();
 
             var metric = dataSetMetric.getValue();
 
-            this.filterBy(function(record) {
+            this.filterBy(function (record) {
                 return !arrayContains(selectedStoreIds, record.data.id) && (metric ? record.data.id.split('.')[1] === metric : true);
             });
         },
-        loadPage: function(filter, append, noPaging, fn) {
+        loadPage: function (filter, append, noPaging, fn) {
             var store = this,
                 params = {},
                 baseUrl = apiPath + '/dataSets.json?',
@@ -473,22 +473,22 @@ WestRegionAggregateItems = function(c) {
             store.isPending = true;
             uiManager.mask(dataSetAvailable.boundList);
 
-            $.getJSON(encodeURI(url), params, function(response) {
+            $.getJSON(encodeURI(url), params, function (response) {
                 var data = response.dataSets || [],
                     pager = response.pager;
 
                 store.loadStore(data, pager, append, fn);
-            }).complete(function() {
+            }).complete(function () {
                 store.isPending = false;
                 uiManager.unmask(dataSetAvailable.boundList);
             });
         },
-        getProcessedData: function(data) {
+        getProcessedData: function (data) {
             var metricRecords = optionConfig.getDataSetMetricRecords(),
                 processedData = [];
 
-            data.forEach(function(item) {
-                metricRecords.forEach(function(record) {
+            data.forEach(function (item) {
+                metricRecords.forEach(function (record) {
                     processedData.push({
                         id: item.id + '.' + record.id,
                         name: item.name + ' (' + record.name + ')'
@@ -498,7 +498,7 @@ WestRegionAggregateItems = function(c) {
 
             return processedData;
         },
-        loadStore: function(data, pager, append, fn) {
+        loadStore: function (data, pager, append, fn) {
             pager = pager || {};
 
             data = this.getProcessedData(data);
@@ -524,7 +524,7 @@ WestRegionAggregateItems = function(c) {
         storage: {},
         parent: null,
         isLoaded: false,
-        sortStore: function() {
+        sortStore: function () {
             this.sort('name', 'ASC');
         }
     });
@@ -532,21 +532,21 @@ WestRegionAggregateItems = function(c) {
     var eventDataItemAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: [],
-        sortStore: function() {
+        sortStore: function () {
             this.sort('name', 'ASC');
         },
-        loadDataAndUpdate: function(data, append) {
-                this.clearFilter(); // work around
+        loadDataAndUpdate: function (data, append) {
+            this.clearFilter(); // work around
 
-                if (!append) {
-                    this.removeAll();
-                }
+            if (!append) {
+                this.removeAll();
+            }
 
-                this.loadData(data, append);
+            this.loadData(data, append);
 
-                this.updateFilter();
-            },
-        getRecordsByIds: function(ids) {
+            this.updateFilter();
+        },
+        getRecordsByIds: function (ids) {
             var records = [];
 
             ids = arrayFrom(ids);
@@ -561,12 +561,12 @@ WestRegionAggregateItems = function(c) {
 
             return records;
         },
-        updateFilter: function() {
+        updateFilter: function () {
             var selectedStoreIds = dataSelectedStore.getIds();
 
             this.clearFilter();
 
-            this.filterBy(function(record) {
+            this.filterBy(function (record) {
                 return !arrayContains(selectedStoreIds, record.data.id);
             });
         }
@@ -575,21 +575,21 @@ WestRegionAggregateItems = function(c) {
     var programIndicatorAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: [],
-        sortStore: function() {
+        sortStore: function () {
             this.sort('name', 'ASC');
         },
-        loadDataAndUpdate: function(data, append) {
-                this.clearFilter(); // work around
+        loadDataAndUpdate: function (data, append) {
+            this.clearFilter(); // work around
 
-                if (!append) {
-                    this.removeAll();
-                }
+            if (!append) {
+                this.removeAll();
+            }
 
-                this.loadData(data, append);
+            this.loadData(data, append);
 
-                this.updateFilter();
-            },
-        getRecordsByIds: function(ids) {
+            this.updateFilter();
+        },
+        getRecordsByIds: function (ids) {
             var records = [];
 
             ids = arrayFrom(ids);
@@ -604,12 +604,12 @@ WestRegionAggregateItems = function(c) {
 
             return records;
         },
-        updateFilter: function() {
+        updateFilter: function () {
             var selectedStoreIds = dataSelectedStore.getIds();
 
             this.clearFilter();
 
-            this.filterBy(function(record) {
+            this.filterBy(function (record) {
                 return !arrayContains(selectedStoreIds, record.data.id);
             });
         }
@@ -633,7 +633,7 @@ WestRegionAggregateItems = function(c) {
     var dataSelectedStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name'],
         data: [],
-        getIds: function() {
+        getIds: function () {
             var records = this.getRange(),
                 ids = [];
 
@@ -643,7 +643,7 @@ WestRegionAggregateItems = function(c) {
 
             return ids;
         },
-        addRecords: function(records, objectName) {
+        addRecords: function (records, objectName) {
             var prop = 'objectName',
                 recordsToAdd = [],
                 objectsToAdd = [];
@@ -679,7 +679,7 @@ WestRegionAggregateItems = function(c) {
                 }
             }
         },
-        removeByIds: function(ids) {
+        removeByIds: function (ids) {
             ids = arrayFrom(ids);
 
             for (var i = 0, index; i < ids.length; i++) {
@@ -690,7 +690,7 @@ WestRegionAggregateItems = function(c) {
                 }
             }
         },
-        removeByProperty: function(property, values) {
+        removeByProperty: function (property, values) {
             if (!(property && values)) {
                 return;
             }
@@ -699,7 +699,7 @@ WestRegionAggregateItems = function(c) {
 
             values = arrayFrom(values);
 
-            this.each(function(record) {
+            this.each(function (record) {
                 if (arrayContains(values, record.data[property])) {
                     recordsToRemove.push(record);
                 }
@@ -708,13 +708,13 @@ WestRegionAggregateItems = function(c) {
             this.remove(recordsToRemove);
         },
         listeners: {
-            add: function() {
+            add: function () {
                 data.updateStoreFilters();
             },
-            remove: function() {
+            remove: function () {
                 data.updateStoreFilters();
             },
-            clear: function() {
+            clear: function () {
                 data.updateStoreFilters();
             }
         }
@@ -728,12 +728,12 @@ WestRegionAggregateItems = function(c) {
     var fixedPeriodAvailableStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'index'],
         data: [],
-        setIndex: function(periods) {
+        setIndex: function (periods) {
             for (var i = 0; i < periods.length; i++) {
                 periods[i].index = i;
             }
         },
-        sortStore: function() {
+        sortStore: function () {
             this.sort('index', 'ASC');
         }
     });
@@ -769,20 +769,20 @@ WestRegionAggregateItems = function(c) {
 
     var legendSetStore = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'index'],
-        data: function() {
+        data: function () {
             var data = appManager.legendSets;
-            data.unshift({id: 0, name: i18n['none'], index: -1});
+            data.unshift({ id: 0, name: i18n['none'], index: -1 });
             return data;
         }(),
         sorters: [
-            {property: 'index', direction: 'ASC'},
-            {property: 'name', direction: 'ASC'}
+            { property: 'index', direction: 'ASC' },
+            { property: 'name', direction: 'ASC' }
         ]
     });
 
     // data
 
-    var onDataTypeSelect = function(type) {
+    var onDataTypeSelect = function (type) {
         type = type || 'in';
 
         if (type === 'in') {
@@ -850,15 +850,15 @@ WestRegionAggregateItems = function(c) {
         store: {
             fields: ['id', 'name'],
             data: [
-                 {id: 'in', name: i18n['indicators']},
-                 {id: 'de', name: i18n['data_elements']},
-                 {id: 'ds', name: i18n['data_sets']},
-                 {id: 'di', name: i18n['event_data_items']},
-                 {id: 'pi', name: i18n['program_indicators']}
+                { id: 'in', name: i18n['indicators'] },
+                { id: 'de', name: i18n['data_elements'] },
+                { id: 'ds', name: i18n['data_sets'] },
+                { id: 'di', name: i18n['event_data_items'] },
+                { id: 'pi', name: i18n['program_indicators'] }
             ]
         },
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 onDataTypeSelect(cb.getValue());
             }
         }
@@ -877,19 +877,19 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
         disabled: true,
-        showFilter: function() {
+        showFilter: function () {
             indicatorLabel.hide();
             this.hide();
             indicatorFilter.show();
             indicatorFilter.reset();
         },
-        hideFilter: function() {
+        hideFilter: function () {
             indicatorLabel.show();
             this.show();
             indicatorFilter.hide();
             indicatorFilter.reset();
         },
-        handler: function() {
+        handler: function () {
             this.showFilter();
         }
     });
@@ -902,13 +902,13 @@ WestRegionAggregateItems = function(c) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function() {
+        onTriggerClick: function () {
             this.reset();
             this.onKeyUpHandler();
 
             indicatorSearch.hideFilter();
         },
-        onKeyUpHandler: function() {
+        onKeyUpHandler: function () {
             var value = indicatorGroup.getValue(),
                 store = indicatorAvailableStore;
 
@@ -918,18 +918,18 @@ WestRegionAggregateItems = function(c) {
         },
         listeners: {
             keyup: {
-                fn: function(cmp) {
+                fn: function (cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100
             },
-            show: function(cmp) {
+            show: function (cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function(cmp) {
+            focus: function (cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function(cmp) {
+            blur: function (cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             }
         }
@@ -944,7 +944,7 @@ WestRegionAggregateItems = function(c) {
         emptyText: i18n['select_indicator_group'],
         editable: false,
         store: indicatorGroupStore,
-        loadAvailable: function(reset) {
+        loadAvailable: function (reset) {
             var store = indicatorAvailableStore,
                 id = this.getValue();
 
@@ -957,7 +957,7 @@ WestRegionAggregateItems = function(c) {
             }
         },
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 cb.loadAvailable(true);
 
                 indicatorSearch.enable();
@@ -980,7 +980,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (indicatorAvailable.getValue().length) {
                         var records = indicatorAvailableStore.getRecordsByIds(indicatorAvailable.getValue());
                         dataSelectedStore.addRecords(records, 'in');
@@ -991,24 +991,24 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
-                    indicatorAvailableStore.loadPage(null, null, null, true, function() {
+                handler: function () {
+                    indicatorAvailableStore.loadPage(null, null, null, true, function () {
                         dataSelectedStore.addRecords(indicatorAvailableStore.getRange(), 'in');
                     });
                 }
             }
         ],
         listeners: {
-            render: function(ms) {
+            render: function (ms) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
-                el.addEventListener('scroll', function(e) {
+                el.addEventListener('scroll', function (e) {
                     if (uiManager.isScrolled(e) && !indicatorAvailableStore.isPending) {
                         indicatorAvailableStore.loadPage(null, null, true);
                     }
                 });
 
-                ms.boundList.on('itemdblclick', function(bl, record) {
+                ms.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.addRecords(record, 'in');
                 }, ms);
             }
@@ -1027,7 +1027,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSelectedStore.getRange().length) {
                         dataSelectedStore.removeAll();
                     }
@@ -1037,7 +1037,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (indicatorSelected.getValue().length) {
                         dataSelectedStore.removeByIds(indicatorSelected.getValue());
                     }
@@ -1051,8 +1051,8 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function(bl, record) {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.removeByIds(record.data.id);
                 }, this);
             }
@@ -1079,7 +1079,7 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            expand: function(p) {
+            expand: function (p) {
                 //p.onExpand();
             }
         }
@@ -1098,19 +1098,19 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
         disabled: true,
-        showFilter: function() {
+        showFilter: function () {
             dataElementLabel.hide();
             this.hide();
             dataElementFilter.show();
             dataElementFilter.reset();
         },
-        hideFilter: function() {
+        hideFilter: function () {
             dataElementLabel.show();
             this.show();
             dataElementFilter.hide();
             dataElementFilter.reset();
         },
-        handler: function() {
+        handler: function () {
             this.showFilter();
         }
     });
@@ -1123,13 +1123,13 @@ WestRegionAggregateItems = function(c) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function() {
+        onTriggerClick: function () {
             this.reset();
             this.onKeyUpHandler();
 
             dataElementSearch.hideFilter();
         },
-        onKeyUpHandler: function() {
+        onKeyUpHandler: function () {
             var value = dataElementGroup.getValue(),
                 store = dataElementAvailableStore;
 
@@ -1139,18 +1139,18 @@ WestRegionAggregateItems = function(c) {
         },
         listeners: {
             keyup: {
-                fn: function(cmp) {
+                fn: function (cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100
             },
-            show: function(cmp) {
+            show: function (cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function(cmp) {
+            focus: function (cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function(cmp) {
+            blur: function (cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             }
         }
@@ -1173,7 +1173,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataElementAvailable.getValue().length) {
                         var records = dataElementAvailableStore.getRecordsByIds(dataElementAvailable.getValue());
                         dataSelectedStore.addRecords(records, 'de');
@@ -1184,24 +1184,24 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
-                    dataElementAvailableStore.loadPage(null, null, null, true, function() {
+                handler: function () {
+                    dataElementAvailableStore.loadPage(null, null, null, true, function () {
                         dataSelectedStore.addRecords(dataElementAvailableStore.getRange(), 'de');
                     });
                 }
             }
         ],
         listeners: {
-            render: function(ms) {
+            render: function (ms) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
-                el.addEventListener('scroll', function(e) {
+                el.addEventListener('scroll', function (e) {
                     if (uiManager.isScrolled(e) && !dataElementAvailableStore.isPending) {
                         dataElementAvailableStore.loadPage(null, null, true);
                     }
                 });
 
-                ms.boundList.on('itemdblclick', function(bl, record) {
+                ms.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.addRecords(record, 'de');
                 }, ms);
             }
@@ -1220,7 +1220,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSelectedStore.getRange().length) {
                         dataSelectedStore.removeAll();
                     }
@@ -1230,7 +1230,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataElementSelected.getValue().length) {
                         dataSelectedStore.removeByIds(dataElementSelected.getValue());
                     }
@@ -1244,8 +1244,8 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function(bl, record) {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.removeByIds(record.data.id);
                 }, this);
             }
@@ -1261,7 +1261,7 @@ WestRegionAggregateItems = function(c) {
         emptyText: i18n['select_data_element_group'],
         editable: false,
         store: dataElementGroupStore,
-        loadAvailable: function(reset) {
+        loadAvailable: function (reset) {
             var store = dataElementAvailableStore,
                 id = this.getValue();
 
@@ -1274,7 +1274,7 @@ WestRegionAggregateItems = function(c) {
             }
         },
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 cb.loadAvailable(true);
 
                 dataElementSearch.enable();
@@ -1295,12 +1295,12 @@ WestRegionAggregateItems = function(c) {
         store: {
             fields: ['id', 'text'],
             data: [
-                {id: dataElementObjectName, text: i18n['totals']},
-                {id: operandObjectName, text: i18n['details']}
+                { id: dataElementObjectName, text: i18n['totals'] },
+                { id: operandObjectName, text: i18n['details'] }
             ]
         },
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 dataElementGroup.loadAvailable(true);
             }
         }
@@ -1346,19 +1346,19 @@ WestRegionAggregateItems = function(c) {
         height: 22,
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
-        showFilter: function() {
+        showFilter: function () {
             dataSetLabel.hide();
             this.hide();
             dataSetFilter.show();
             dataSetFilter.reset();
         },
-        hideFilter: function() {
+        hideFilter: function () {
             dataSetLabel.show();
             this.show();
             dataSetFilter.hide();
             dataSetFilter.reset();
         },
-        handler: function() {
+        handler: function () {
             this.showFilter();
         }
     });
@@ -1371,30 +1371,30 @@ WestRegionAggregateItems = function(c) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function() {
+        onTriggerClick: function () {
             this.reset();
             this.onKeyUpHandler();
 
             dataSetSearch.hideFilter();
         },
-        onKeyUpHandler: function() {
+        onKeyUpHandler: function () {
             var store = dataSetAvailableStore;
             store.loadPage(this.getValue(), false);
         },
         listeners: {
             keyup: {
-                fn: function(cmp) {
+                fn: function (cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100
             },
-            show: function(cmp) {
+            show: function (cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function(cmp) {
+            focus: function (cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function(cmp) {
+            blur: function (cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             }
         }
@@ -1415,7 +1415,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSetAvailable.getValue().length) {
                         var records = dataSetAvailableStore.getRecordsByIds(dataSetAvailable.getValue());
                         dataSelectedStore.addRecords(records, 'ds');
@@ -1426,24 +1426,24 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
-                    dataSetAvailableStore.loadPage(null, null, true, function() {
+                handler: function () {
+                    dataSetAvailableStore.loadPage(null, null, true, function () {
                         dataSelectedStore.addRecords(dataSetAvailableStore.getRange(), 'ds');
                     });
                 }
             }
         ],
         listeners: {
-            render: function(ms) {
+            render: function (ms) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
-                el.addEventListener('scroll', function(e) {
+                el.addEventListener('scroll', function (e) {
                     if (uiManager.isScrolled(e) && !dataSetAvailableStore.isPending) {
                         dataSetAvailableStore.loadPage(null, true);
                     }
                 });
 
-                ms.boundList.on('itemdblclick', function(bl, record) {
+                ms.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.addRecords(record, 'ds');
                 }, ms);
             }
@@ -1462,7 +1462,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSelectedStore.getRange().length) {
                         dataSelectedStore.removeAll();
                     }
@@ -1472,7 +1472,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSetSelected.getValue().length) {
                         dataSelectedStore.removeByIds(dataSetSelected.getValue());
                     }
@@ -1486,8 +1486,8 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function(bl, record) {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.removeByIds(record.data.id);
                 }, this);
             }
@@ -1505,10 +1505,10 @@ WestRegionAggregateItems = function(c) {
         value: optionConfig.getDataSetMetric('reportingRates').id,
         store: {
             fields: ['id', 'name'],
-            data: [{id: 0, name: '[ ' + i18n.all_metrics + ' ]'}].concat(optionConfig.getDataSetMetricRecords())
+            data: [{ id: 0, name: '[ ' + i18n.all_metrics + ' ]' }].concat(optionConfig.getDataSetMetricRecords())
         },
         listeners: {
-            select: function(cmp) {
+            select: function (cmp) {
                 dataSetAvailableStore.updateFilter();
             }
         }
@@ -1537,7 +1537,7 @@ WestRegionAggregateItems = function(c) {
     });
 
     // event data item
-    var onEventDataItemProgramSelect = function(programId, skipSync) {
+    var onEventDataItemProgramSelect = function (programId, skipSync) {
         if (!skipSync) {
             //dataSelectedStore.removeByProperty('objectName', ['di','pi']);
             programIndicatorProgram.setValue(programId);
@@ -1547,19 +1547,19 @@ WestRegionAggregateItems = function(c) {
         Ext.Ajax.request({
             url: encodeURI(apiPath + '/programDataElements.json?program=' + programId + '&fields=dimensionItem~rename(id),name,valueType&paging=false'),
             disableCaching: false,
-            success: function(r) {
+            success: function (r) {
                 var types = dimensionConfig.valueType['aggregate_aggregatable_types'],
-                    elements = Ext.decode(r.responseText).programDataElements.filter(function(item) {
+                    elements = Ext.decode(r.responseText).programDataElements.filter(function (item) {
                         return arrayContains(types, (item || {}).valueType);
                     });
 
                 Ext.Ajax.request({
                     url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programTrackedEntityAttributes[dimensionItem~rename(id),' + displayPropertyUrl + '~rename(name),valueType]&paging=false'),
                     disableCaching: false,
-                    success: function(r) {
-                        var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function(item) {
-                                return arrayContains(types, (item || {}).valueType);
-                            }),
+                    success: function (r) {
+                        var attributes = ((Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || []).filter(function (item) {
+                            return arrayContains(types, (item || {}).valueType);
+                        }),
                             data = arraySort(arrayClean([].concat(elements, attributes))) || [];
 
                         eventDataItemAvailableStore.loadDataAndUpdate(data);
@@ -1580,7 +1580,7 @@ WestRegionAggregateItems = function(c) {
         queryMode: 'local',
         store: programStore,
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 onEventDataItemProgramSelect(cb.getValue());
             }
         }
@@ -1598,19 +1598,19 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
         //disabled: true,
-        showFilter: function() {
+        showFilter: function () {
             eventDataItemLabel.hide();
             this.hide();
             eventDataItemFilter.show();
             eventDataItemFilter.reset();
         },
-        hideFilter: function() {
+        hideFilter: function () {
             eventDataItemLabel.show();
             this.show();
             eventDataItemFilter.hide();
             eventDataItemFilter.reset();
         },
-        handler: function() {
+        handler: function () {
             this.showFilter();
         }
     });
@@ -1623,18 +1623,18 @@ WestRegionAggregateItems = function(c) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function() {
+        onTriggerClick: function () {
             this.reset();
             this.onKeyUpHandler();
 
             eventDataItemSearch.hideFilter();
         },
-        onKeyUpHandler: function() {
+        onKeyUpHandler: function () {
             var value = this.getValue() || '',
                 store = eventDataItemAvailableStore,
                 str;
 
-            store.filterBy(function(record) {
+            store.filterBy(function (record) {
                 str = record.data.name || '';
 
                 return str.toLowerCase().indexOf(value.toLowerCase()) !== -1;
@@ -1642,18 +1642,18 @@ WestRegionAggregateItems = function(c) {
         },
         listeners: {
             keyup: {
-                fn: function(cmp) {
+                fn: function (cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100
             },
-            show: function(cmp) {
+            show: function (cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function(cmp) {
+            focus: function (cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function(cmp) {
+            blur: function (cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             }
         }
@@ -1674,7 +1674,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (eventDataItemAvailable.getValue().length) {
                         var records = eventDataItemAvailableStore.getRecordsByIds(eventDataItemAvailable.getValue());
                         dataSelectedStore.addRecords(records, 'di');
@@ -1685,24 +1685,24 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     //eventDataItemAvailableStore.loadPage(null, null, null, true, function() {
-                        dataSelectedStore.addRecords(eventDataItemAvailableStore.getRange(), 'di');
+                    dataSelectedStore.addRecords(eventDataItemAvailableStore.getRange(), 'di');
                     //});
                 }
             }
         ],
         listeners: {
-            render: function(ms) {
+            render: function (ms) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
                 //el.addEventListener('scroll', function(e) {
-                    //if (uiManager.isScrolled(e) && !eventDataItemAvailableStore.isPending) {
-                        //eventDataItemAvailableStore.loadPage(null, null, true);
-                    //}
+                //if (uiManager.isScrolled(e) && !eventDataItemAvailableStore.isPending) {
+                //eventDataItemAvailableStore.loadPage(null, null, true);
+                //}
                 //});
 
-                ms.boundList.on('itemdblclick', function(bl, record) {
+                ms.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.addRecords(record, 'di');
                 }, ms);
             }
@@ -1721,7 +1721,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSelectedStore.getRange().length) {
                         dataSelectedStore.removeAll();
                     }
@@ -1731,7 +1731,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (eventDataItemSelected.getValue().length) {
                         dataSelectedStore.removeByIds(eventDataItemSelected.getValue());
                     }
@@ -1745,8 +1745,8 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function(bl, record) {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.removeByIds(record.data.id);
                 }, this);
             }
@@ -1776,7 +1776,7 @@ WestRegionAggregateItems = function(c) {
     });
 
     // program indicator
-    var onProgramIndicatorProgramSelect = function(programId, skipSync) {
+    var onProgramIndicatorProgramSelect = function (programId, skipSync) {
         if (!skipSync) {
             //dataSelectedStore.removeByProperty('objectName', ['di','pi']);
             eventDataItemProgram.setValue(programId);
@@ -1786,7 +1786,7 @@ WestRegionAggregateItems = function(c) {
         Ext.Ajax.request({
             url: encodeURI(apiPath + '/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem~rename(id),' + displayPropertyUrl + ']&paging=false'),
             disableCaching: false,
-            success: function(r) {
+            success: function (r) {
                 var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
                     data = arraySort(indicators);
 
@@ -1807,7 +1807,7 @@ WestRegionAggregateItems = function(c) {
         queryMode: 'local',
         store: programStore,
         listeners: {
-            select: function(cb) {
+            select: function (cb) {
                 onProgramIndicatorProgramSelect(cb.getValue());
             }
         }
@@ -1825,19 +1825,19 @@ WestRegionAggregateItems = function(c) {
         cls: 'ns-button-icon',
         iconCls: 'ns-button-icon-search',
         //disabled: true,
-        showFilter: function() {
+        showFilter: function () {
             programIndicatorLabel.hide();
             this.hide();
             programIndicatorFilter.show();
             programIndicatorFilter.reset();
         },
-        hideFilter: function() {
+        hideFilter: function () {
             programIndicatorLabel.show();
             this.show();
             programIndicatorFilter.hide();
             programIndicatorFilter.reset();
         },
-        handler: function() {
+        handler: function () {
             this.showFilter();
         }
     });
@@ -1850,18 +1850,18 @@ WestRegionAggregateItems = function(c) {
         enableKeyEvents: true,
         fieldStyle: 'height:22px; border-right:0 none',
         style: 'height:22px',
-        onTriggerClick: function() {
+        onTriggerClick: function () {
             this.reset();
             this.onKeyUpHandler();
 
             programIndicatorSearch.hideFilter();
         },
-        onKeyUpHandler: function() {
+        onKeyUpHandler: function () {
             var value = this.getValue() || '',
                 store = programIndicatorAvailableStore,
                 str;
 
-            store.filterBy(function(record) {
+            store.filterBy(function (record) {
                 str = record.data.name || '';
 
                 return str.toLowerCase().indexOf(value.toLowerCase()) !== -1;
@@ -1869,18 +1869,18 @@ WestRegionAggregateItems = function(c) {
         },
         listeners: {
             keyup: {
-                fn: function(cmp) {
+                fn: function (cmp) {
                     cmp.onKeyUpHandler();
                 },
                 buffer: 100
             },
-            show: function(cmp) {
+            show: function (cmp) {
                 cmp.focus(false, 50);
             },
-            focus: function(cmp) {
+            focus: function (cmp) {
                 cmp.addCls('ns-trigger-filter-focused');
             },
-            blur: function(cmp) {
+            blur: function (cmp) {
                 cmp.removeCls('ns-trigger-filter-focused');
             }
         }
@@ -1901,7 +1901,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (programIndicatorAvailable.getValue().length) {
                         var records = programIndicatorAvailableStore.getRecordsByIds(programIndicatorAvailable.getValue());
                         dataSelectedStore.addRecords(records, 'pi');
@@ -1912,24 +1912,24 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     //programIndicatorAvailableStore.loadPage(null, null, null, true, function() {
-                        dataSelectedStore.addRecords(programIndicatorAvailableStore.getRange(), 'pi');
+                    dataSelectedStore.addRecords(programIndicatorAvailableStore.getRange(), 'pi');
                     //});
                 }
             }
         ],
         listeners: {
-            render: function(ms) {
+            render: function (ms) {
                 var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
                 //el.addEventListener('scroll', function(e) {
-                    //if (uiManager.isScrolled(e) && !programIndicatorAvailableStore.isPending) {
-                        //programIndicatorAvailableStore.loadPage(null, null, true);
-                    //}
+                //if (uiManager.isScrolled(e) && !programIndicatorAvailableStore.isPending) {
+                //programIndicatorAvailableStore.loadPage(null, null, true);
+                //}
                 //});
 
-                ms.boundList.on('itemdblclick', function(bl, record) {
+                ms.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.addRecords(record, 'pi');
                 }, ms);
             }
@@ -1948,7 +1948,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (dataSelectedStore.getRange().length) {
                         dataSelectedStore.removeAll();
                     }
@@ -1958,7 +1958,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     if (programIndicatorSelected.getValue().length) {
                         dataSelectedStore.removeByIds(programIndicatorSelected.getValue());
                     }
@@ -1972,8 +1972,8 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function(bl, record) {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function (bl, record) {
                     dataSelectedStore.removeByIds(record.data.id);
                 }, this);
             }
@@ -2008,20 +2008,20 @@ WestRegionAggregateItems = function(c) {
         bodyStyle: 'padding:1px',
         hideCollapseTool: true,
         dimension: dataObjectName,
-        updateStoreFilters: function() {
+        updateStoreFilters: function () {
             indicatorAvailableStore.updateFilter();
             dataElementAvailableStore.updateFilter();
             dataSetAvailableStore.updateFilter();
             eventDataItemAvailableStore.updateFilter();
             programIndicatorAvailableStore.updateFilter();
         },
-        getDimension: function() {
+        getDimension: function () {
             var config = {
                 dimension: dataObjectName,
                 items: []
             };
 
-            dataSelectedStore.each( function(r) {
+            dataSelectedStore.each(function (r) {
                 config.items.push({
                     id: r.data.id,
                     name: r.data.name
@@ -2030,12 +2030,12 @@ WestRegionAggregateItems = function(c) {
 
             // TODO program
             if (eventDataItemProgram.getValue() || programIndicatorProgram.getValue()) {
-                config.program = {id: eventDataItemProgram.getValue() || programIndicatorProgram.getValue()};
+                config.program = { id: eventDataItemProgram.getValue() || programIndicatorProgram.getValue() };
             }
 
             return config.items.length ? config : null;
         },
-        clearDimension: function() {
+        clearDimension: function () {
             dataSelectedStore.removeAll();
 
             indicatorAvailableStore.removeAll();
@@ -2050,7 +2050,7 @@ WestRegionAggregateItems = function(c) {
             eventDataItemAvailableStore.removeAll();
             programIndicatorAvailableStore.removeAll();
         },
-        setDimension: function(layout) {
+        setDimension: function (layout) {
             if (isObject(layout.program) && isString(layout.program.id)) {
                 eventDataItemProgram.setValue(layout.program.id);
                 onEventDataItemProgramSelect(layout.program.id)
@@ -2060,14 +2060,14 @@ WestRegionAggregateItems = function(c) {
                 dataSelectedStore.addRecords(layout.getDimension(this.dimension).getRecords());
             }
         },
-        getHeightValue: function() {
+        getHeightValue: function () {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_indicator :
                 uiConfig.west_maxheight_accordion_indicator;
         },
-        onExpand: function() {
+        onExpand: function () {
             accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight([indicatorAvailable, indicatorSelected], this, uiConfig.west_fill_accordion_indicator);
@@ -2085,7 +2085,7 @@ WestRegionAggregateItems = function(c) {
             programIndicator
         ],
         listeners: {
-            expand: function(p) {
+            expand: function (p) {
                 p.onExpand();
             }
         }
@@ -2097,7 +2097,7 @@ WestRegionAggregateItems = function(c) {
     var rewind = Ext.create('Ext.form.field.Checkbox', {
         relativePeriodId: 'rewind',
         boxLabel: i18n.rewind_one_period,
-        xable: function() {
+        xable: function () {
             this.setDisabled(period.isNoRelativePeriods());
         }
     });
@@ -2115,7 +2115,7 @@ WestRegionAggregateItems = function(c) {
         labelSeparator: '',
         style: 'margin-bottom:0',
         listeners: {
-            added: function(chb) {
+            added: function (chb) {
                 if (chb.xtype === 'checkbox') {
                     periodCheckboxes[chb.index] = chb;
                     relativePeriod.valueComponentMap[chb.relativePeriodId] = chb;
@@ -2497,7 +2497,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowright',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                 }
             },
@@ -2505,14 +2505,14 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowrightdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     uiManager.msSelectAll(fixedPeriodAvailable, fixedPeriodSelected, true);
                 }
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function() {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function () {
                     uiManager.msSelect(fixedPeriodAvailable, fixedPeriodSelected);
                 }, this);
             }
@@ -2532,7 +2532,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleftdouble',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     uiManager.msUnselectAll(fixedPeriodAvailable, fixedPeriodSelected);
                 }
             },
@@ -2540,7 +2540,7 @@ WestRegionAggregateItems = function(c) {
                 xtype: 'button',
                 iconCls: 'ns-button-icon-arrowleft',
                 width: 22,
-                handler: function() {
+                handler: function () {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                 }
             },
@@ -2552,15 +2552,15 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
-                this.boundList.on('itemdblclick', function() {
+            afterrender: function () {
+                this.boundList.on('itemdblclick', function () {
                     uiManager.msUnselect(fixedPeriodAvailable, fixedPeriodSelected);
                 }, this);
             }
         }
     });
 
-    var onPeriodTypeSelect = function() {
+    var onPeriodTypeSelect = function () {
         var type = periodType.getValue(),
             periodOffset = periodType.periodOffset,
             gen = calendarManager.periodGenerator,
@@ -2587,7 +2587,7 @@ WestRegionAggregateItems = function(c) {
         store: periodTypeStore,
         periodOffset: 0,
         listeners: {
-            select: function() {
+            select: function () {
                 periodType.periodOffset = 0;
                 onPeriodTypeSelect();
             }
@@ -2599,7 +2599,7 @@ WestRegionAggregateItems = function(c) {
         hideCollapseTool: true,
         dimension: periodObjectName,
         checkboxes: periodCheckboxes,
-        clearDimension: function(all) {
+        clearDimension: function (all) {
             fixedPeriodSelectedStore.removeAll();
             period.resetRelativePeriods();
 
@@ -2607,14 +2607,14 @@ WestRegionAggregateItems = function(c) {
                 relativePeriod.valueComponentMap[appManager.getRelativePeriod()].setValue(true);
             }
         },
-        setDimension: function(layout) {
+        setDimension: function (layout) {
             if (layout.hasDimension(this.dimension, true)) {
                 //var records = layout.getDimension(this.dimension).getRecords(null, layout.getResponse()),
                 var records = layout.getDimension(this.dimension).extendRecords(layout.getResponse()),
                     fixedRecords = [],
                     checkbox;
 
-                records.forEach(function(record) {
+                records.forEach(function (record) {
                     checkbox = relativePeriod.valueComponentMap[record.id];
 
                     if (checkbox) {
@@ -2627,16 +2627,16 @@ WestRegionAggregateItems = function(c) {
 
                 fixedPeriodSelectedStore.add(fixedRecords);
 
-                uiManager.msFilterAvailable({store: fixedPeriodAvailableStore}, {store: fixedPeriodSelectedStore});
+                uiManager.msFilterAvailable({ store: fixedPeriodAvailableStore }, { store: fixedPeriodSelectedStore });
             }
         },
-        getDimension: function() {
+        getDimension: function () {
             var config = {
-                    dimension: periodObjectName,
-                    items: []
-                };
+                dimension: periodObjectName,
+                items: []
+            };
 
-            fixedPeriodSelectedStore.each( function(r) {
+            fixedPeriodSelectedStore.each(function (r) {
                 config.items.push({
                     id: r.data.id,
                     name: r.data.name
@@ -2656,14 +2656,14 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function() {
+        getHeightValue: function () {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_period :
                 uiConfig.west_maxheight_accordion_period;
         },
-        onExpand: function() {
+        onExpand: function () {
             accordion.setThisHeight(this.getHeightValue());
 
             uiManager.msSetHeight(
@@ -2672,13 +2672,13 @@ WestRegionAggregateItems = function(c) {
                 uiConfig.west_fill_accordion_period
             );
         },
-        resetRelativePeriods: function() {
+        resetRelativePeriods: function () {
             var a = this.checkboxes;
             for (var i = 0; i < a.length; i++) {
                 a[i].setValue(false);
             }
         },
-        isNoRelativePeriods: function() {
+        isNoRelativePeriods: function () {
             var a = this.checkboxes;
             for (var i = 0; i < a.length; i++) {
                 if (a[i].getValue()) {
@@ -2701,7 +2701,7 @@ WestRegionAggregateItems = function(c) {
                         style: 'margin-left:1px; border-radius:2px',
                         height: 24,
                         width: 62,
-                        handler: function() {
+                        handler: function () {
                             if (periodType.getValue()) {
                                 periodType.periodOffset--;
                                 onPeriodTypeSelect();
@@ -2714,7 +2714,7 @@ WestRegionAggregateItems = function(c) {
                         style: 'margin-left:1px; border-radius:2px',
                         height: 24,
                         width: 62,
-                        handler: function() {
+                        handler: function () {
                             if (periodType.getValue()) {
                                 periodType.periodOffset++;
                                 onPeriodTypeSelect();
@@ -2735,7 +2735,7 @@ WestRegionAggregateItems = function(c) {
             relativePeriod
         ],
         listeners: {
-            expand: function(p) {
+            expand: function (p) {
                 p.onExpand();
             },
         }
@@ -2753,13 +2753,13 @@ WestRegionAggregateItems = function(c) {
         autoScroll: true,
         multiSelect: true,
         rendered: false,
-        reset: function() {
+        reset: function () {
             var rootNode = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
             this.collapseAll();
             this.expandPath(rootNode.getPath());
             this.getSelectionModel().select(rootNode);
         },
-        selectRootIf: function() {
+        selectRootIf: function () {
             if (this.getSelectionModel().getSelection().length < 1) {
                 var node = this.getRootNode().findChild('id', appManager.rootNodes[0].id);
                 if (this.rendered) {
@@ -2771,7 +2771,7 @@ WestRegionAggregateItems = function(c) {
         isPending: false,
         recordsToSelect: [],
         recordsToRestore: [],
-        multipleSelectIf: function(map, doUpdate) {
+        multipleSelectIf: function (map, doUpdate) {
             this.recordsToSelect = arrayClean(this.recordsToSelect);
 
             if (this.recordsToSelect.length === Object.keys(map).length) {
@@ -2784,7 +2784,7 @@ WestRegionAggregateItems = function(c) {
                 }
             }
         },
-        multipleExpand: function(id, map, doUpdate) {
+        multipleExpand: function (id, map, doUpdate) {
             var t = this,
                 rootId = appManager.rootNodeId,
                 path = map[id];
@@ -2793,13 +2793,13 @@ WestRegionAggregateItems = function(c) {
                 path = '/' + rootId + '/' + path;
             }
 
-            t.expandPath(path, 'id', '/', function() {
+            t.expandPath(path, 'id', '/', function () {
                 var record = t.getRootNode().findChild('id', id, true);
                 t.recordsToSelect.push(record);
                 t.multipleSelectIf(map, doUpdate);
             });
         },
-        select: function(url, params) {
+        select: function (url, params) {
             if (!params) {
                 params = {};
             }
@@ -2808,7 +2808,7 @@ WestRegionAggregateItems = function(c) {
                 method: 'GET',
                 params: params,
                 scope: this,
-                success: function(r) {
+                success: function (r) {
                     var a = Ext.decode(r.responseText).organisationUnits;
                     this.numberOfRecords = a.length;
                     for (var i = 0; i < a.length; i++) {
@@ -2817,7 +2817,7 @@ WestRegionAggregateItems = function(c) {
                 }
             });
         },
-        getParentGraphMap: function() {
+        getParentGraphMap: function () {
             var selection = this.getSelectionModel().getSelection(),
                 map = {};
 
@@ -2830,7 +2830,7 @@ WestRegionAggregateItems = function(c) {
 
             return map;
         },
-        selectGraphMap: function(map, update) {
+        selectGraphMap: function (map, update) {
             if (!Object.keys(map).length) {
                 return;
             }
@@ -2850,7 +2850,7 @@ WestRegionAggregateItems = function(c) {
                 format: 'json',
                 noCache: false,
                 extraParams: {
-                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty~rename(hasChildren)&paging=false'
+                    fields: 'children[id,' + displayPropertyUrl + ',children::isNotEmpty~rename(hasChildren)]&paging=false'
                 },
                 url: apiPath + '/organisationUnits',
                 reader: {
@@ -2869,15 +2869,15 @@ WestRegionAggregateItems = function(c) {
                 children: appManager.getRootNodes()
             },
             listeners: {
-                beforeload: function(store, operation) {
+                beforeload: function (store, operation) {
                     if (!store.proxy._url) {
                         store.proxy._url = store.proxy.url;
                     }
 
                     store.proxy.url = store.proxy._url + '/' + operation.node.data.id;
                 },
-                load: function(store, node, records) {
-                    records.forEach(function(record) {
+                load: function (store, node, records) {
+                    records.forEach(function (record) {
                         if (isBoolean(record.data.hasChildren)) {
                             record.set('leaf', !record.data.hasChildren);
                         }
@@ -2885,7 +2885,7 @@ WestRegionAggregateItems = function(c) {
                 }
             }
         }),
-        xable: function(values) {
+        xable: function (values) {
             for (var i = 0; i < values.length; i++) {
                 if (!!values[i]) {
                     this.disable();
@@ -2896,24 +2896,24 @@ WestRegionAggregateItems = function(c) {
             this.enable();
         },
         listeners: {
-            beforeitemexpand: function() {
+            beforeitemexpand: function () {
                 if (!treePanel.isPending) {
                     treePanel.recordsToRestore = treePanel.getSelectionModel().getSelection();
                 }
             },
-            itemexpand: function() {
+            itemexpand: function () {
                 if (!treePanel.isPending && treePanel.recordsToRestore.length) {
                     treePanel.getSelectionModel().select(treePanel.recordsToRestore);
                     treePanel.recordsToRestore = [];
                 }
             },
-            render: function() {
+            render: function () {
                 this.rendered = true;
             },
-            afterrender: function() {
+            afterrender: function () {
                 this.getSelectionModel().select(0);
             },
-            itemcontextmenu: function(v, r, h, i, e) {
+            itemcontextmenu: function (v, r, h, i, e) {
                 v.getSelectionModel().select(r, false);
 
                 if (v.menu) {
@@ -2929,8 +2929,8 @@ WestRegionAggregateItems = function(c) {
                         id: 'treepanel-contextmenu-item',
                         text: i18n.select_sub_units,
                         iconCls: 'ns-button-icon-nodeselectchild',
-                        handler: function() {
-                            r.expand(false, function() {
+                        handler: function () {
+                            r.expand(false, function () {
                                 v.getSelectionModel().select(r.childNodes, true);
                                 v.getSelectionModel().deselect(r);
                             });
@@ -2952,7 +2952,7 @@ WestRegionAggregateItems = function(c) {
         style: 'padding-top: 3px; padding-left: 5px; margin-bottom: 0',
         boxLabel: i18n.user_organisation_unit,
         labelWidth: uiConfig.form_label_width,
-        handler: function(chb, checked) {
+        handler: function (chb, checked) {
             treePanel.xable([checked, userOrganisationUnitChildren.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
     });
@@ -2962,7 +2962,7 @@ WestRegionAggregateItems = function(c) {
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_units,
         labelWidth: uiConfig.form_label_width,
-        handler: function(chb, checked) {
+        handler: function (chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitGrandChildren.getValue()]);
         }
     });
@@ -2972,7 +2972,7 @@ WestRegionAggregateItems = function(c) {
         style: 'padding-top: 3px; margin-bottom: 0',
         boxLabel: i18n.user_sub_x2_units,
         labelWidth: uiConfig.form_label_width,
-        handler: function(chb, checked) {
+        handler: function (chb, checked) {
             treePanel.xable([checked, userOrganisationUnit.getValue(), userOrganisationUnitChildren.getValue()]);
         }
     });
@@ -3007,7 +3007,7 @@ WestRegionAggregateItems = function(c) {
         shadow: false,
         showSeparator: false,
         menuValue: 'orgunit',
-        clickHandler: function(param) {
+        clickHandler: function (param) {
             if (!param) {
                 return;
             }
@@ -3083,10 +3083,10 @@ WestRegionAggregateItems = function(c) {
             }
         ],
         listeners: {
-            afterrender: function() {
+            afterrender: function () {
                 this.getEl().addCls('ns-btn-menu');
             },
-            click: function(menu, item) {
+            click: function (menu, item) {
                 this.clickHandler(item.param);
             }
         }
@@ -3113,7 +3113,7 @@ WestRegionAggregateItems = function(c) {
         hideCollapseTool: true,
         dimension: organisationUnitObjectName,
         collapsed: false,
-        clearDimension: function(doClear) {
+        clearDimension: function (doClear) {
             if (doClear) {
                 treePanel.reset();
 
@@ -3122,7 +3122,7 @@ WestRegionAggregateItems = function(c) {
                 userOrganisationUnitGrandChildren.setValue(false);
             }
         },
-        setDimension: function(layout) {
+        setDimension: function (layout) {
             if (layout.hasDimension(this.dimension, true)) {
                 var dimension = layout.getDimension(this.dimension, true),
                     parentGraphMap = layout.parentGraphMap;
@@ -3135,7 +3135,7 @@ WestRegionAggregateItems = function(c) {
                     isOuc,
                     isOugc;
 
-                records.forEach(function(record) {
+                records.forEach(function (record) {
                     if (record.id === 'USER_ORGUNIT') {
                         isOu = true;
                     }
@@ -3145,10 +3145,10 @@ WestRegionAggregateItems = function(c) {
                     else if (record.id === 'USER_ORGUNIT_GRANDCHILDREN') {
                         isOugc = true;
                     }
-                    else if (record.id.substr(0,5) === 'LEVEL') {
+                    else if (record.id.substr(0, 5) === 'LEVEL') {
                         levels.push(parseInt(record.id.split('-')[1]));
                     }
-                    else if (record.id.substr(0,8) === 'OU_GROUP') {
+                    else if (record.id.substr(0, 8) === 'OU_GROUP') {
                         groups.push(record.id.split('-')[1]);
                     }
                     else {
@@ -3181,7 +3181,7 @@ WestRegionAggregateItems = function(c) {
                 this.clearDimension(true);
             }
         },
-        getDimension: function() {
+        getDimension: function () {
             var r = treePanel.getSelectionModel().getSelection(),
                 config = {
                     dimension: organisationUnitObjectName,
@@ -3211,7 +3211,7 @@ WestRegionAggregateItems = function(c) {
                 }
                 else {
                     for (var i = 0; i < r.length; i++) {
-                        config.items.push({id: r[i].data.id});
+                        config.items.push({ id: r[i].data.id });
                     }
                 }
             }
@@ -3252,14 +3252,14 @@ WestRegionAggregateItems = function(c) {
 
             return config.items.length ? config : null;
         },
-        getHeightValue: function() {
+        getHeightValue: function () {
             var westRegion = uiManager.get('westRegion');
 
             return westRegion.hasScrollbar ?
                 uiConfig.west_scrollbarheight_accordion_organisationunit :
                 uiConfig.west_maxheight_accordion_organisationunit;
         },
-        onExpand: function() {
+        onExpand: function () {
             accordion.setThisHeight(this.getHeightValue);
 
             treePanel.setHeight(this.getHeight() - uiConfig.west_fill_accordion_organisationunit);
@@ -3288,7 +3288,7 @@ WestRegionAggregateItems = function(c) {
             treePanel
         ],
         listeners: {
-            expand: function(p) {
+            expand: function (p) {
                 p.onExpand();
             }
         }
@@ -3297,7 +3297,7 @@ WestRegionAggregateItems = function(c) {
 
     // dimensions
 
-    var getDimensionPanel = function(dimension, iconCls) {
+    var getDimensionPanel = function (dimension, iconCls) {
         var onSelect,
             availableStore,
             selectedStore,
@@ -3313,11 +3313,11 @@ WestRegionAggregateItems = function(c) {
             createPanel,
             getPanels;
 
-        onSelect = function() {
+        onSelect = function () {
             var win = uiManager.get('layoutWindow');
 
             if (selectedStore.getRange().length || selectedAll.getValue()) {
-                win.addDimension({id: dimension.id, name: dimension.name});
+                win.addDimension({ id: dimension.id, name: dimension.name });
             }
             else if (win.hasDimension(dimension.id)) {
                 win.removeDimension(dimension.id);
@@ -3330,7 +3330,7 @@ WestRegionAggregateItems = function(c) {
             nextPage: 1,
             isPending: false,
             isLoaded: false,
-            reset: function() {
+            reset: function () {
                 this.removeAll();
                 this.lastPage = null;
                 this.nextPage = 1;
@@ -3338,7 +3338,7 @@ WestRegionAggregateItems = function(c) {
                 dataSearch.hideFilter();
             },
             storage: {},
-            addToStorage: function(dimensionId, filter, data) {
+            addToStorage: function (dimensionId, filter, data) {
                 filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
                 if (!dimensionId) {
@@ -3353,7 +3353,7 @@ WestRegionAggregateItems = function(c) {
                     this.storage[dimensionId][filter] = data;
                 }
             },
-            getFromStorage: function(dimensionId, filter) {
+            getFromStorage: function (dimensionId, filter) {
                 filter = 'cache_' + (isString(filter) || isNumber(filter) ? filter : '');
 
                 if (this.storage.hasOwnProperty(dimensionId)) {
@@ -3364,7 +3364,7 @@ WestRegionAggregateItems = function(c) {
 
                 return;
             },
-            loadPage: function(filter, append, noPaging, fn) {
+            loadPage: function (filter, append, noPaging, fn) {
                 var store = this,
                     params = {},
                     url,
@@ -3405,7 +3405,7 @@ WestRegionAggregateItems = function(c) {
                         url: encodeURI(apiPath + url),
                         method: 'GET',
                         params: params,
-                        success: function(r) {
+                        success: function (r) {
                             var response = Ext.decode(r.responseText),
                                 data = response.items || [],
                                 pager = response.pager;
@@ -3415,14 +3415,14 @@ WestRegionAggregateItems = function(c) {
 
                             store.loadStore(data, pager, append, fn);
                         },
-                        callback: function() {
+                        callback: function () {
                             store.isPending = false;
                             uiManager.unmask(available.boundList);
                         }
                     });
                 }
             },
-            loadStore: function(data, pager, append, fn) {
+            loadStore: function (data, pager, append, fn) {
                 pager = pager || {};
 
                 this.loadData(data, append);
@@ -3434,13 +3434,13 @@ WestRegionAggregateItems = function(c) {
 
                 this.isPending = false;
 
-                uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+                uiManager.msFilterAvailable({ store: availableStore }, { store: selectedStore });
 
                 if (fn) {
                     fn();
                 }
             },
-            sortStore: function() {
+            sortStore: function () {
                 this.sort('name', 'ASC');
             }
         });
@@ -3449,13 +3449,13 @@ WestRegionAggregateItems = function(c) {
             fields: ['id', 'name'],
             data: [],
             listeners: {
-                add: function() {
+                add: function () {
                     onSelect();
                 },
-                remove: function() {
+                remove: function () {
                     onSelect();
                 },
-                clear: function() {
+                clear: function () {
                     onSelect();
                 }
             }
@@ -3472,19 +3472,19 @@ WestRegionAggregateItems = function(c) {
             height: 22,
             cls: 'ns-button-icon',
             iconCls: 'ns-button-icon-search',
-            showFilter: function() {
+            showFilter: function () {
                 dataLabel.hide();
                 this.hide();
                 dataFilter.show();
                 dataFilter.reset();
             },
-            hideFilter: function() {
+            hideFilter: function () {
                 dataLabel.show();
                 this.show();
                 dataFilter.hide();
                 dataFilter.reset();
             },
-            handler: function() {
+            handler: function () {
                 this.showFilter();
             }
         });
@@ -3497,13 +3497,13 @@ WestRegionAggregateItems = function(c) {
             enableKeyEvents: true,
             fieldStyle: 'height:22px; border-right:0 none',
             style: 'height:22px',
-            onTriggerClick: function() {
+            onTriggerClick: function () {
                 this.reset();
                 this.onKeyUpHandler();
 
                 dataSearch.hideFilter();
             },
-            onKeyUpHandler: function() {
+            onKeyUpHandler: function () {
                 var value = this.getValue(),
                     store = availableStore;
 
@@ -3513,18 +3513,18 @@ WestRegionAggregateItems = function(c) {
             },
             listeners: {
                 keyup: {
-                    fn: function(cmp) {
+                    fn: function (cmp) {
                         cmp.onKeyUpHandler();
                     },
                     buffer: 100
                 },
-                show: function(cmp) {
+                show: function (cmp) {
                     cmp.focus(false, 50);
                 },
-                focus: function(cmp) {
+                focus: function (cmp) {
                     cmp.addCls('ns-trigger-filter-focused');
                 },
-                blur: function(cmp) {
+                blur: function (cmp) {
                     cmp.removeCls('ns-trigger-filter-focused');
                 }
             }
@@ -3535,7 +3535,7 @@ WestRegionAggregateItems = function(c) {
             style: 'margin-left: 2px; margin-right: 5px',
             boxLabel: 'All',
             listeners: {
-                change: function(chb, newVal) {
+                change: function (chb, newVal) {
                     onSelectAll(newVal);
                 }
             }
@@ -3556,7 +3556,7 @@ WestRegionAggregateItems = function(c) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowright',
                     width: 22,
-                    handler: function() {
+                    handler: function () {
                         uiManager.msSelect(available, selected);
                     }
                 },
@@ -3564,24 +3564,24 @@ WestRegionAggregateItems = function(c) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowrightdouble',
                     width: 22,
-                    handler: function() {
-                        availableStore.loadPage(null, null, true, function() {
+                    handler: function () {
+                        availableStore.loadPage(null, null, true, function () {
                             uiManager.msSelectAll(available, selected);
                         });
                     }
                 }
             ],
             listeners: {
-                render: function(ms) {
+                render: function (ms) {
                     var el = Ext.get(ms.boundList.getEl().id + '-listEl').dom;
 
-                    el.addEventListener('scroll', function(e) {
+                    el.addEventListener('scroll', function (e) {
                         if (uiManager.isScrolled(e) && !availableStore.isPending) {
                             availableStore.loadPage(null, true);
                         }
                     });
 
-                    ms.boundList.on('itemdblclick', function() {
+                    ms.boundList.on('itemdblclick', function () {
                         uiManager.msSelect(available, selected);
                     }, ms);
                 }
@@ -3600,7 +3600,7 @@ WestRegionAggregateItems = function(c) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowleftdouble',
                     width: 22,
-                    handler: function() {
+                    handler: function () {
                         uiManager.msUnselectAll(available, selected);
                     }
                 },
@@ -3608,7 +3608,7 @@ WestRegionAggregateItems = function(c) {
                     xtype: 'button',
                     iconCls: 'ns-button-icon-arrowleft',
                     width: 22,
-                    handler: function() {
+                    handler: function () {
                         uiManager.msUnselect(available, selected);
                     }
                 },
@@ -3621,15 +3621,15 @@ WestRegionAggregateItems = function(c) {
                 selectedAll
             ],
             listeners: {
-                afterrender: function() {
-                    this.boundList.on('itemdblclick', function() {
+                afterrender: function () {
+                    this.boundList.on('itemdblclick', function () {
                         uiManager.msUnselect(available, selected);
                     }, this);
                 }
             }
         });
 
-        onSelectAll = function(value) {
+        onSelectAll = function (value) {
             if (available.boundList && selected.boundList) {
                 if (value) {
                     available.boundList.disable();
@@ -3652,25 +3652,25 @@ WestRegionAggregateItems = function(c) {
             selectedStore: selectedStore,
             selectedAll: selectedAll,
             isDynamic: true,
-            clearDimension: function() {
+            clearDimension: function () {
                 availableStore.reset();
                 selectedStore.removeAll();
                 selectedAll.setValue(false);
             },
-            setDimension: function(layout) {
+            setDimension: function (layout) {
                 if (layout.hasDimension(this.dimension, true)) {
                     var records = layout.getDimension(this.dimension).getRecords();
 
                     if (records.length) {
                         selectedStore.add(records);
-                        uiManager.msFilterAvailable({store: availableStore}, {store: selectedStore});
+                        uiManager.msFilterAvailable({ store: availableStore }, { store: selectedStore });
                     }
                     else {
                         selectedAll.setValue(true);
                     }
                 }
             },
-            getDimension: function() {
+            getDimension: function () {
                 var config = {};
 
                 if (dimension.id) {
@@ -3680,14 +3680,14 @@ WestRegionAggregateItems = function(c) {
                 if (!selectedAll.getValue() && selectedStore.getRange().length) {
                     config.items = [];
 
-                    selectedStore.each(function(r) {
-                        config.items.push({id: r.data.id});
+                    selectedStore.each(function (r) {
+                        config.items.push({ id: r.data.id });
                     });
                 }
 
                 return config.dimension ? config : null;
             },
-            onExpand: function() {
+            onExpand: function () {
 
                 // load items
                 if (!availableStore.isLoaded) {
@@ -3726,7 +3726,7 @@ WestRegionAggregateItems = function(c) {
                 }
             ],
             listeners: {
-                expand: function(p) {
+                expand: function (p) {
                     p.onExpand();
                 }
             }
@@ -3735,7 +3735,7 @@ WestRegionAggregateItems = function(c) {
         return panel;
     };
 
-        // accordion
+    // accordion
     var defaultItems = [
         data,
         period,
@@ -3749,7 +3749,7 @@ WestRegionAggregateItems = function(c) {
         })
     ];
 
-    var getItems = function(dimensions = []) {
+    var getItems = function (dimensions = []) {
         return dimensions.map(dimension => getDimensionPanel(dimension, 'ns-panel-title-dimension'));
     };
 
@@ -3760,12 +3760,12 @@ WestRegionAggregateItems = function(c) {
         bodyStyle: 'border:0 none',
         height: 700,
         toBeRemoved: [],
-        addItems: function(dimensions) {
+        addItems: function (dimensions) {
             this.toBeRemoved = this.add(getItems(dimensions));
 
             accordion.setThisHeight();
         },
-        removeItems: function() {
+        removeItems: function () {
             this.toBeRemoved.map(item => isString(item) ? item : item.id).forEach(id => {
                 accordionBody.remove(id);
             });
@@ -3774,10 +3774,10 @@ WestRegionAggregateItems = function(c) {
 
             this.toBeRemoved = [];
         },
-        getExpandedPanel: function() {
+        getExpandedPanel: function () {
             var expandedPanel;
 
-            this.items.each(function(panel) {
+            this.items.each(function (panel) {
                 if (!panel.collapsed) {
                     expandedPanel = panel;
                     return false;
@@ -3790,7 +3790,7 @@ WestRegionAggregateItems = function(c) {
     });
 
     // state
-    var setUiState = function(layout) {
+    var setUiState = function (layout) {
         var layoutWindow = uiManager.get('layoutWindow'),
             optionsWindow = uiManager.get('optionsWindow'),
             chartTypeToolbar = uiManager.get('chartTypeToolbar');
@@ -3819,7 +3819,7 @@ WestRegionAggregateItems = function(c) {
                 layoutWindow.setDimensions(layout);
             }
 
-                // add assigned categories as dimension
+            // add assigned categories as dimension
             if (!layoutWindow.hasDimension(co.dimensionName)) {
                 layoutWindow.addDimension({
                     id: co.dimensionName,
@@ -3839,7 +3839,7 @@ WestRegionAggregateItems = function(c) {
         }
     };
 
-    var getUiState = function(layoutWindow, optionsWindow) {
+    var getUiState = function (layoutWindow, optionsWindow) {
         var columnDimNames = layoutWindow.colStore.getDimensionNames(),
             rowDimNames = layoutWindow.rowStore.getDimensionNames(),
             filterDimNames = layoutWindow.filterStore.getDimensionNames(),
@@ -3853,7 +3853,7 @@ WestRegionAggregateItems = function(c) {
         config.filters = [];
 
         // all panels data
-        accordionBody.items.each(function(panel) {
+        accordionBody.items.each(function (panel) {
             if (panel.getDimension) {
                 var dim = panel.getDimension();
 
@@ -3898,16 +3898,16 @@ WestRegionAggregateItems = function(c) {
     };
 
     // add listeners
-    (function() {
-        indicatorAvailableStore.on('load', function() {
+    (function () {
+        indicatorAvailableStore.on('load', function () {
             uiManager.msFilterAvailable(indicatorAvailable, indicatorSelected);
         });
 
-        dataElementAvailableStore.on('load', function() {
+        dataElementAvailableStore.on('load', function () {
             uiManager.msFilterAvailable(dataElementAvailable, dataElementSelected);
         });
 
-        dataSetAvailableStore.on('load', function(store) {
+        dataSetAvailableStore.on('load', function (store) {
             uiManager.msFilterAvailable(dataSetAvailable, dataSetSelected);
             store.sort('name', 'ASC');
         });
@@ -3918,20 +3918,20 @@ WestRegionAggregateItems = function(c) {
         accordionBody: accordionBody,
         items: accordionBody,
         panels: accordionPanels,
-        expandInitPanels: function() {
+        expandInitPanels: function () {
             organisationUnit.expand();
         },
-        clearDimensions: function(layout) {
-            accordionPanels.forEach(function(panel) {
+        clearDimensions: function (layout) {
+            accordionPanels.forEach(function (panel) {
                 panel.clearDimension(!!layout);
             });
         },
-        setDimensions: function(layout) {
-            accordionPanels.forEach(function(panel) {
+        setDimensions: function (layout) {
+            accordionPanels.forEach(function (panel) {
                 panel.setDimension(layout);
             });
         },
-        setThisHeight: function(mx) {
+        setThisHeight: function (mx) {
             var westRegion = uiManager.get('westRegion'),
                 panelHeight = this.panels.length * 28,
                 chartTypeToolbarHeight = westRegion.hasChartTypeToolbar() ? 45 : 0,
@@ -3949,16 +3949,16 @@ WestRegionAggregateItems = function(c) {
                 accordionBody.setHeight((height > mx ? mx : height) - 4);
             }
         },
-        getExpandedPanel: function() {
+        getExpandedPanel: function () {
             return accordionBody.getExpandedPanel();
         },
-        getFirstPanel: function() {
+        getFirstPanel: function () {
             return this.panels[0];
         },
-        getParentGraphMap: function() {
+        getParentGraphMap: function () {
             return treePanel.getParentGraphMap();
         },
-        getUxArray: function(id) {
+        getUxArray: function (id) {
             return dataElementSelected.getUxArrayById(id);
         },
 
